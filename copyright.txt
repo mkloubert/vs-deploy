@@ -1,0 +1,2 @@
+Icons:
+    - /icon.png (Nishan Sothilingam; https://www.iconfinder.com/mystockicons)

@@ -1,35 +1,95 @@
 {
-    "name": "vs-deploy",
-    "displayName": "Deploy",
-    "description": "Commands for deploying files of your workspace to a destination.",
-    "version": "0.0.1",
-    "publisher": "mkloubert",
-    "engines": {
-        "vscode": "^1.5.0"
+  "name": "vs-deploy",
+  "displayName": "Deploy",
+  "description": "Commands for deploying files of your workspace to a destination.",
+  "version": "0.0.1",
+  "publisher": "mkloubert",
+  "engines": {
+    "vscode": "^1.5.0"
+  },
+  "license": "MIT",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "Deploy",
+    "Workspace",
+    "Files",
+    "Commands",
+    "SSH"
+  ],
+  "activationEvents": [
+    "onCommand:extension.deploy",
+    "onCommand:extension.deploy.file"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "menus": {
+      "editor/title": [
+        {
+          "command": "extension.deploy.file",
+          "title": "Deploy this file"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "extension.deploy.file",
+          "title": "Deploy this file"
+        }
+      ]
     },
-    "categories": [
-        "Other"
+    "commands": [
+      {
+        "command": "extension.deploy",
+        "title": "Workspace",
+        "category": "Deploy",
+        "description": "Test ABC"
+      },
+      {
+        "command": "extension.deploy.file",
+        "title": "Current file",
+        "category": "Deploy",
+        "description": "Test XYZ"
+      }
     ],
-    "activationEvents": [
-        "onCommand:extension.sayHello"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "commands": [{
-            "command": "extension.sayHello",
-            "title": "Hello World"
-        }]
-    },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0",
-        "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
-    }
+    "keybindings": [
+      {
+        "command": "extension.deploy",
+        "key": "ctrl+alt+d",
+        "mac": "cmd+alt+d"
+      },
+      {
+        "command": "extension.deploy.file",
+        "key": "ctrl+d",
+        "mac": "cmd+d"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "icon": "icon.png",
+  "author": {
+    "name": "Marcel Joachim Kloubert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mkloubert/vs-deploy"
+  },
+  "bugs": {
+    "url": "https://github.com/mkloubert/vs-deploy/issues"
+  },
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "fs-extra": "^1.0.0"
+  }
 }
