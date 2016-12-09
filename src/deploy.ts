@@ -23,78 +23,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_contracts from './contracts';
+import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 let FSExtra = require('fs-extra');
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
-
-/**
- * Target type for deploying to a local directory.
- */
-export const TARGET_TYPE_LOCAL = "local";
-
-/**
- * A target.
- */
-export interface DeployTarget {
-    /**
-     * The description.
-     */
-    description?: string;
-    /**
-     * The name.
-     */
-    name?: string;
-    /**
-     * The type.
-     */
-    type?: string;
-}
-
-/**
- * A target to a local directory.
- */
-export interface DeployTargetLocal extends DeployTarget {
-    /**
-     * The path of the target directory.
-     */
-    dir?: string;
-}
-
-/**
- * Configuration settings.
- */
-export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
-    /**
-     * List of targets.
-     */
-    targets?: DeployTarget[];
-}
-
-export interface DeployActionQuickPick extends DeployQuickPickItem {
-    action?: (sender: any) => void;
-}
-
-/**
- * A quick pick item
- */
-export interface DeployQuickPickItem extends vscode.QuickPickItem {
-}
-
-/**
- * A quick pick item for deploying a file.
- */
-export interface DeployFileQuickPickItem extends DeployQuickPickItem {
-    /**
-     * The path of the source file to deploy.
-     */
-    file: string;
-    /**
-     * The target.
-     */
-    target: DeployTarget;
-}
 
 /**
  * Deployer class.
@@ -103,11 +38,15 @@ export class Deployer {
     /**
      * Stores the current configuration.
      */
-    protected _config: DeployConfiguration;
+    protected _config: deploy_contracts.DeployConfiguration;
     /**
      * Stores the underlying extension context.
      */
     protected _CONTEXT: vscode.ExtensionContext;
+    /**
+     * Loaded plugins.
+     */
+    protected _plugins: deploy_contracts.DeployPlugin[];
 
     /**
      * Initializes a new instance of that class.
@@ -118,12 +57,13 @@ export class Deployer {
         this._CONTEXT = context;
 
         this.reloadConfiguration();
+        this.reloadPlugins();
     }
 
     /**
      * Gets the current configuration.
      */
-    public get config(): DeployConfiguration {
+    public get config(): deploy_contracts.DeployConfiguration {
         return this._config;
     }
 
@@ -159,7 +99,7 @@ export class Deployer {
             return;
         }
 
-        let createQuickPick = (target: DeployTarget, index: number): DeployFileQuickPickItem => {
+        let createQuickPick = (target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployFileQuickPickItem => {
             let name = target.name;
             if (!name) {
                 name = '';
@@ -205,117 +145,101 @@ export class Deployer {
      * 
      * @param {DeployFileQuickPickItem} item The quick pick with the information.
      */
-    protected deployFileTo(item: DeployFileQuickPickItem) {
-        switch (parseTargetType(item.target.type)) {
-            case TARGET_TYPE_LOCAL:
-                this.deployFileToLocal(item.file, <DeployTargetLocal>item.target);
-                break;
+    protected deployFileTo(item: deploy_contracts.DeployFileQuickPickItem) {
+        let type: string;
+        if (item.target) {
+            type = deploy_helpers.parseTargetType(type);
+        }
+
+        let matchIngPlugins = this.plugins.filter((x: any) => {
+            return !type ||
+                   (x.__type == type && x.deployFile);
+        });
+
+        if (matchIngPlugins.length > 0) {
+            matchIngPlugins.forEach(x => {
+                try {
+                    x.deployFile(item.file, item.target);
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(`Could not deploy file '${item.file}': ${e}`);
+                }
+            });
+        }
+        else {
+            if (type) {
+                vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
+            }
+            else {
+                
+                vscode.window.showWarningMessage(`No plugin(s) found!`);
+            }
         }
     }
 
     /**
-     * Deploys a file to a local directory.
-     * 
-     * @param {string} file The path of the source file.
+     * Deploys files of the workspace.
      */
-    protected deployFileToLocal(file: string, target: DeployTargetLocal) {
-        let me = this;
-
-        let dir = target.dir;
-        if (!dir) {
-            dir = '';
-        }
-        dir = '' + dir;
-
-        if (!dir) {
-            dir = './';
-        }
-
-        if (!Path.isAbsolute(dir)) {
-            dir = Path.join(vscode.workspace.rootPath);
-        }
-
-        let relativeFilePath = toRelativePath(file);
-        if (false === relativeFilePath) {
-            vscode.window.showWarningMessage(`Could not get relative path for '${file}'!`);
+    public deployWorkspace() {
+        let packages = this.getPackages();
+        if (packages.length < 1) {
+            vscode.window.showWarningMessage("Please define a least one package in your 'settings.json'!");
             return;
         }
 
-        let targetFile = Path.join(dir, <string>relativeFilePath);
-        let targetDirectory = Path.dirname(targetFile);
+        let createPackageQuickPick = (pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPick => {
+            let name = pkg.name;
+            if (!name) {
+                name = '';
+            }
+            name = ('' + name).trim();
 
-        let deployFile = () => {
-            console.log('Deploying...');
+            if (!name) {
+                name = `(Package #${index + 1})`;
+            }
 
-            let showError = (err) => {
-                vscode.window.showErrorMessage(`Could not deploy file '${file}' to local directory '${targetDirectory}': ` + err);
+            let description = pkg.description;
+            if (!description) {
+                description = '';
+            }
+            description = ('' + description).trim();
+
+            return {
+                description: description,
+                label: name,
+                package: pkg,
             };
+        };
 
-            try {
-                FSExtra.copy(file, targetFile, {
-                    clobber: true,
-                    preserveTimestamps: true,
-                }, function (err) {
-                    if (err) {
-                        showError(err);
+        let packageQuickPicks = packages.map((x, i) => createPackageQuickPick(x, i));
+
+        vscode.window.showQuickPick(packageQuickPicks, {
+            placeHolder: 'Select a package...',
+        }).then((item) => {
+                    if (!item) {
                         return;
                     }
 
-                    vscode.window.showInformationMessage(`File '${relativeFilePath}' has been successfully deployed to local directory '${targetDirectory}'.`);
-                });
-            }
-            catch (e) {
-                showError(e);
-            }
-        };
-
-        if (!FS.existsSync(targetDirectory)) {
-            let quickPicks: DeployActionQuickPick[] = [
-                {
-                    label: 'Yes',
-                    description: 'Creates the target directory',
-                    action: () => {
-                        FSExtra.mkdirsSync(targetDirectory);
-
-                        deployFile();
-                    }
-                },
-                {
-                    label: 'No',
-                    description: 'Does NOT create the target directory and cancels the operation.',
-                    action: () => { 
-                        vscode.window.showInformationMessage("Deploy operation cancelled.");
-                    }
-                }
-            ];
-
-            vscode.window.showQuickPick(quickPicks, {
-                placeHolder: 'Create target directory?',
-            }).then((item) => {
-                        if (!item) {
-                            item = quickPicks[1];  // no => default
-                        }
-
-                        try {
-                            if (item.action) {
-                                item.action(me);
-                            }
-                        }
-                        catch (e) {
-                            vscode.window.showErrorMessage(`Could not create target directory '${targetDirectory}': ` + e);
-                        }
+                    vscode.workspace.findFiles("*.*", null).then((files) => {
+                        files.filter(x => {
+                            return false;
+                        });
                     });
-        }
-        else {
-            deployFile();
-        }
+                });
     }
 
     /**
-     * Deploys file of the workspace.
+     * Returns the list of packages.
+     * 
+     * @returns {DeployPackage[]} The packages.
      */
-    public deployWorkspace() {
-        
+    public getPackages(): deploy_contracts.DeployPackage[] {
+        let packages = this.config.packages;
+        if (!packages) {
+            packages = [];
+        }
+
+        return packages.filter(x => x);
     }
 
     /**
@@ -323,23 +247,13 @@ export class Deployer {
      * 
      * @returns {DeployTarget[]} The targets.
      */
-    public getTargets(): DeployTarget[] {
+    public getTargets(): deploy_contracts.DeployTarget[] {
         let targets = this.config.targets;
         if (!targets) {
             targets = [];
         }
 
-        return targets.filter(x => {
-            if (x) {
-                switch (parseTargetType(x.type)) {
-                    case TARGET_TYPE_LOCAL:
-                        // known type
-                        return true;
-                }
-            }
-            
-            return false;
-        });
+        return targets.filter(x => x);
     }
 
     /**
@@ -350,45 +264,71 @@ export class Deployer {
     }
 
     /**
+     * Gets the list of plugins.
+     */
+    public get plugins(): deploy_contracts.DeployPlugin[] {
+        return this._plugins;
+    }
+
+    /**
      * Reloads configuration.
      */
-    protected reloadConfiguration() {
-        this._config = <DeployConfiguration>vscode.workspace.getConfiguration("deploy");
-    }
-}
-
-function parseTargetType(str: string): string {
-    if (!str) {
-        str = '';
-    }
-    str = ('' + str).toLowerCase().trim();
-
-    if (!str) {
-        str = TARGET_TYPE_LOCAL;
+    public reloadConfiguration() {
+        this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
     }
 
-    return str;
-}
+    /**
+     * Reloads plugins.
+     */
+    public reloadPlugins() {
+        let me = this;
 
-function toRelativePath(path: string): string | false {
-    let result: string | false = false;
-    
-    try {
-        let normalizedPath = path;
+        let loadedPlugins: deploy_contracts.DeployPlugin[] = [];
 
-        let wsRootPath = vscode.workspace.rootPath;
-        if (wsRootPath) {
-            if (FS.existsSync(wsRootPath)) {
-                if (FS.lstatSync(wsRootPath).isDirectory()) {
-                    if (0 == normalizedPath.indexOf(wsRootPath)) {
-                        result = normalizedPath.substr(wsRootPath.length);
-                        result = result.replace(Path.sep, '/');
+        let pluginDir = Path.join(__dirname, './plugins');
+        if (FS.existsSync(pluginDir)) {
+            if (FS.lstatSync(pluginDir).isDirectory()) {
+                let moduleFiles = FS.readdirSync(pluginDir).filter(x => {
+                    try {
+                        if ('.' != x && '..' != x) {
+                            let fullPath = Path.join(pluginDir, x);
+                            if (FS.lstatSync(fullPath).isFile()) {
+                                if (fullPath.length >= 3) {
+                                    return '.js' == fullPath.substring(fullPath.length - 3);
+                                }
+                            }
+                        }
                     }
-                }
+                    catch (e) { /* ignore */ }
+                    
+                    return false;
+                }).filter(x => x)
+                  .map(x => Path.join(pluginDir, x));
+
+                moduleFiles.forEach(x => {
+                    let pluginModule: deploy_contracts.DeployPluginModule = require(x);
+                    if (pluginModule) {
+                        if (pluginModule.createPlugin) {
+                            let ctx: deploy_contracts.DeployContext = {
+                                getConfig: () => me.config,
+                                getPackages: () => me.getPackages(),
+                                getTargets: () => me.getTargets(),
+                            };
+
+                            let newPlugin: any = pluginModule.createPlugin(ctx);
+                            if (newPlugin) {
+                                newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x));
+
+                                loadedPlugins.push(newPlugin);
+                            }
+                        }
+                    }
+                });
             }
         }
-    }
-    catch (e) { /* ignore */ }
 
-    return result;
+        this._plugins = loadedPlugins;
+
+        deploy_helpers.log(`${loadedPlugins.length} deploy plugins loaded`);
+    }
 }
