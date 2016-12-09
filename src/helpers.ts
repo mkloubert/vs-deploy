@@ -23,10 +23,144 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
+
+/**
+ * Creates a quick pick for deploying a single file.
+ * 
+ * @param {string} file The file to deploy.
+ * @param {deploy_contracts.DeployTarget} target The target to deploy to.
+ * @param {number} index The zero based index.
+ * 
+ * @returns {deploy_contracts.DeployFileQuickPickItem} The new item.
+ */
+export function createFileQuickPick(file: string, target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployFileQuickPickItem {
+    let qp: any = createTargetQuickPick(target, index);
+    qp.file = file;
+
+    return qp;
+}
+
+/**
+ * Creates a quick pick for a package.
+ * 
+ * @param {deploy_contracts.DeployPackage} pkg The package.
+ * @param {number} index The zero based index.
+ * 
+ * @returns {deploy_contracts.DeployPackageQuickPickItem} The new item.
+ */
+export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPickItem {
+    let name = pkg.name;
+    if (!name) {
+        name = '';
+    }
+    name = ('' + name).trim();
+
+    if (!name) {
+        name = `(Package #${index + 1})`;
+    }
+
+    let description = pkg.description;
+    if (!description) {
+        description = '';
+    }
+    description = ('' + description).trim();
+
+    return {
+        description: description,
+        label: name,
+        package: pkg,
+    };
+}
+
+/**
+ * Creates a quick pick for a target.
+ * 
+ * @param {deploy_contracts.DeployTarget} target The target.
+ * @param {number} index The zero based index.
+ * 
+ * @returns {deploy_contracts.DeployTargetQuickPickItem} The new item.
+ */
+export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployTargetQuickPickItem {
+    let name = target.name;
+    if (!name) {
+        name = '';
+    }
+    name = ('' + name).trim();
+
+    if (!name) {
+        name = `(Target #${index + 1})`;
+    }
+
+    let description = target.description;
+    if (!description) {
+        description = '';
+    }
+    description = ('' + description).trim();
+
+    return {
+        description: description,
+        label: name,
+        target: target,
+    };
+}
+
+/**
+ * Filters a list of files by a package.
+ * 
+ * @param {string[]} allFiles All the files to filter.
+ * @param {deploy_contracts.DeployPackage} pkg The package.
+ * 
+ * @returns {string[]} The filtered files.
+ */
+export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.DeployPackage): string[] {
+    let fileFilters: string[] = [];
+    if (pkg.files) {
+        fileFilters = pkg.files.filter(x => x);
+    }
+
+    let excludeFilters: string[] = [];
+    if (pkg.exclude) {
+        excludeFilters = pkg.exclude.filter(x => x);
+    }
+
+    return allFiles.filter(x => {
+        if (fileFilters.length < 1) {
+            return true;
+        }
+
+        if (!Path.isAbsolute(x)) {
+            x = Path.join(vscode.workspace.rootPath, x);
+        }
+
+        for (let i = 0; i < fileFilters.length; i++) {
+            let ff = '' + fileFilters[i];
+            if (!Path.isAbsolute(ff)) {
+                ff = Path.join(vscode.workspace.rootPath, ff);
+            }
+
+            if (x == ff) {
+                let doExclude = false;
+                for (let j = 0; j < excludeFilters.length; j++) {
+                    let ef = '' + excludeFilters[j];
+
+                    if (ef == ff) {
+                        doExclude = true;
+                        break;
+                    }
+                }
+
+                return !doExclude;
+            }
+        }
+
+        return false;
+    });
+}
 
 /**
  * Logs a message.
@@ -74,7 +208,7 @@ export function toRelativePath(path: string): string | false {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {
                     if (0 == normalizedPath.indexOf(wsRootPath)) {
                         result = normalizedPath.substr(wsRootPath.length);
-                        result = result.replace(Path.sep, '/');
+                        result = result.split(Path.sep).join('/');
                     }
                 }
             }

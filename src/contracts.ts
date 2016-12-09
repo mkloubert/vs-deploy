@@ -84,15 +84,11 @@ export interface DeployContext {
 /**
  * A quick pick item for deploying a file.
  */
-export interface DeployFileQuickPickItem extends DeployQuickPickItem {
+export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
     /**
      * The path of the source file to deploy.
      */
     file: string;
-    /**
-     * The target.
-     */
-    target: DeployTarget;
 }
 
 /**
@@ -120,7 +116,7 @@ export interface DeployPackage {
 /**
  * A quick pick for a package.
  */
-export interface DeployPackageQuickPick extends DeployQuickPickItem {
+export interface DeployPackageQuickPickItem extends DeployQuickPickItem {
     /**
      * The package.
      */
@@ -138,6 +134,14 @@ export interface DeployPlugin {
      * @param {DeployTarget} target The target.
      */
     deployFile?: (file: string, target: DeployTarget) => void;
+
+    /**
+     * Deploys files of a workspace.
+     * 
+     * @param {string[]} files The files to deploy.
+     * @param {DeployTarget} target The target.
+     */
+    deployWorkspace?: (files: string[], target: DeployTarget) => void;
 }
 
 /**
@@ -176,4 +180,14 @@ export interface DeployTarget {
      * The type.
      */
     type?: string;
+}
+
+/**
+ * A quick pick item for selecting a target.
+ */
+export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
+    /**
+     * The target.
+     */
+    target: DeployTarget;
 }

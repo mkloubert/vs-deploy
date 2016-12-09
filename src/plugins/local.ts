@@ -35,6 +35,24 @@ interface DeployTargetLocal extends deploy_contracts.DeployTarget {
     dir?: string;
 }
 
+function getFullDirPathFromTarget(target: DeployTargetLocal): string {
+    let dir = target.dir;
+    if (!dir) {
+        dir = '';
+    }
+    dir = '' + dir;
+
+    if (!dir) {
+        dir = './';
+    }
+
+    if (!Path.isAbsolute(dir)) {
+        dir = Path.join(vscode.workspace.rootPath);
+    }
+
+    return dir;
+}
+
 class LocalPlugin implements deploy_contracts.DeployPlugin {
     protected _CONTEXT: deploy_contracts.DeployContext;
 
@@ -47,21 +65,13 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
     }
 
     public deployFile(file: string, target: DeployTargetLocal): void {
+        this.deployFileInner(file, target, true);
+    }
+
+    protected deployFileInner(file: string, target: DeployTargetLocal, showLogs: boolean): void {
         let me = this;
 
-        let dir = target.dir;
-        if (!dir) {
-            dir = '';
-        }
-        dir = '' + dir;
-
-        if (!dir) {
-            dir = './';
-        }
-
-        if (!Path.isAbsolute(dir)) {
-            dir = Path.join(vscode.workspace.rootPath);
-        }
+        let dir = getFullDirPathFromTarget(target);
 
         let relativeFilePath = deploy_helpers.toRelativePath(file);
         if (false === relativeFilePath) {
@@ -138,10 +148,41 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
             deployFile();
         }
     }
+
+    public deployWorkspace(files: string[], target: DeployTargetLocal) {
+        let me = this;
+
+        let failed = 0;
+        let succeeded = 0;
+        files.forEach(x => {
+            try {
+                me.deployFileInner(x, target, false);
+                ++succeeded;
+            }
+            catch (e) {
+                ++failed;
+                deploy_helpers.log(`[ERROR] Could not deploy file '${x}': ` + e);
+            }
+        });
+
+        if (failed < 1) {
+            vscode.window.showInformationMessage('All files were deployed successfully.');
+        }
+        else {
+            if (failed >= files.length) {
+                vscode.window.showErrorMessage('No file could be deployed!');
+            }
+            else {
+                vscode.window.showWarningMessage(`${failed} file(s) could not be deployed!`);
+            }
+        }
+    }
 }
 
 /**
  * Creates a new Plugin.
+ * 
+ * @param {deploy_contracts.DeployContext} ctx The deploy context.
  * 
  * @returns {deploy_contracts.DeployPlugin} The new instance.
  */

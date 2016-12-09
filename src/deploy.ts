@@ -93,49 +93,26 @@ export class Deployer {
             return;
         }
 
+        let file = currentDocument.fileName;
+
         let targets = this.getTargets();
         if (targets.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one target in your 'settings.json'!");
+            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
             return;
         }
 
-        let createQuickPick = (target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployFileQuickPickItem => {
-            let name = target.name;
-            if (!name) {
-                name = '';
-            }
-            name = ('' + name).trim();
-
-            if (!name) {
-                name = `(Target #${index + 1})`;
-            }
-
-            let description = target.description;
-            if (!description) {
-                description = '';
-            }
-            description = ('' + description).trim();
-
-            return {
-                description: description,
-                file: currentDocument.fileName,
-                label: name,
-                target: target,
-            };
-        };
-
-        let quickPicks = targets.map((x, i) => createQuickPick(x, i));
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
 
         vscode.window.showQuickPick(quickPicks, {
                 placeHolder: 'Select the target to deploy to...'
             }).then((item) => {
                         try {
                             if (item) {
-                                me.deployFileTo(item);
+                                me.deployFileTo(file, item.target);
                             }
                         }
                         catch (e) {
-                            vscode.window.showErrorMessage(`Could not deploy file '${currentDocument.fileName}': ` + e);
+                            vscode.window.showErrorMessage(`Could not deploy file '${file}': ` + e);
                         }
                     });
     }
@@ -145,24 +122,24 @@ export class Deployer {
      * 
      * @param {DeployFileQuickPickItem} item The quick pick with the information.
      */
-    protected deployFileTo(item: deploy_contracts.DeployFileQuickPickItem) {
+    protected deployFileTo(file: string, target: deploy_contracts.DeployTarget) {
         let type: string;
-        if (item.target) {
-            type = deploy_helpers.parseTargetType(type);
+        if (target) {
+            type = deploy_helpers.parseTargetType(target.type);
         }
 
         let matchIngPlugins = this.plugins.filter((x: any) => {
             return !type ||
-                   (x.__type == type && x.deployFile);
+                   (x['__type'] == type && x.deployFile);
         });
 
         if (matchIngPlugins.length > 0) {
             matchIngPlugins.forEach(x => {
                 try {
-                    x.deployFile(item.file, item.target);
+                    x.deployFile(file, target);
                 }
                 catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy file '${item.file}': ${e}`);
+                    vscode.window.showErrorMessage(`Could not deploy file '${file}': ${e}`);
                 }
             });
         }
@@ -171,7 +148,6 @@ export class Deployer {
                 vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
             }
             else {
-                
                 vscode.window.showWarningMessage(`No plugin(s) found!`);
             }
         }
@@ -181,37 +157,21 @@ export class Deployer {
      * Deploys files of the workspace.
      */
     public deployWorkspace() {
+        let me = this;
+
         let packages = this.getPackages();
         if (packages.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one package in your 'settings.json'!");
+            vscode.window.showWarningMessage("Please define a least one PACKAGE in your 'settings.json'!");
             return;
         }
 
-        let createPackageQuickPick = (pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPick => {
-            let name = pkg.name;
-            if (!name) {
-                name = '';
-            }
-            name = ('' + name).trim();
+        let targets = this.getTargets();
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
+            return;
+        }
 
-            if (!name) {
-                name = `(Package #${index + 1})`;
-            }
-
-            let description = pkg.description;
-            if (!description) {
-                description = '';
-            }
-            description = ('' + description).trim();
-
-            return {
-                description: description,
-                label: name,
-                package: pkg,
-            };
-        };
-
-        let packageQuickPicks = packages.map((x, i) => createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
         vscode.window.showQuickPick(packageQuickPicks, {
             placeHolder: 'Select a package...',
@@ -221,11 +181,68 @@ export class Deployer {
                     }
 
                     vscode.workspace.findFiles("*.*", null).then((files) => {
-                        files.filter(x => {
-                            return false;
+                        let pkg = item.package;
+                        let filesToDeploy = deploy_helpers.filterFilesByPackage(files.map(x => x.fsPath),
+                                                                                pkg);
+
+                        if (filesToDeploy.length < 1) {
+                            vscode.window.showWarningMessage(`There are no files to deploy!`);
+                            return;
+                        }
+                        
+                        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                        vscode.window.showQuickPick(fileQuickPicks, {
+                            placeHolder: 'Select the target to deploy to...'
+                        }).then((item) => {
+                            try {
+                                if (item) {
+                                    me.deployWorkspaceTo(filesToDeploy, item.target);
+                                }
+                            }
+                            catch (e) {
+                                vscode.window.showErrorMessage(`Could not deploy files: ` + e);
+                            }
                         });
                     });
                 });
+    }
+
+    /**
+     * Deploys files of the workspace to a target.
+     * 
+     * @param {string[]} files The files to deploy.
+     * @param {deploy_contracts.DeployTarget} target The target.
+     */
+    protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget) {
+        let type: string;
+        if (target) {
+            type = deploy_helpers.parseTargetType(target.type);
+        }
+
+        let matchIngPlugins = this.plugins.filter((x: any) => {
+            return !type ||
+                   (x['__type'] == type && x.deployWorkspace);
+        });
+
+        if (matchIngPlugins.length > 0) {
+            matchIngPlugins.forEach(x => {
+                try {
+                    x.deployWorkspace(files, target);
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(`Could not deploy files: ${e}`);
+                }
+            });
+        }
+        else {
+            if (type) {
+                vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
+            }
+            else {
+                vscode.window.showWarningMessage(`No plugin(s) found!`);
+            }
+        }
     }
 
     /**
@@ -317,7 +334,7 @@ export class Deployer {
 
                             let newPlugin: any = pluginModule.createPlugin(ctx);
                             if (newPlugin) {
-                                newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x));
+                                newPlugin['__type'] = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
 
                                 loadedPlugins.push(newPlugin);
                             }
