@@ -65,10 +65,10 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
     }
 
     public deployFile(file: string, target: DeployTargetLocal): void {
-        this.deployFileInner(file, target, true);
+        this.deployFileInner(file, target);
     }
 
-    protected deployFileInner(file: string, target: DeployTargetLocal, showLogs: boolean): void {
+    protected deployFileInner(file: string, target: DeployTargetLocal): void {
         let me = this;
 
         let dir = getFullDirPathFromTarget(target);
@@ -156,12 +156,12 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
         let succeeded = 0;
         files.forEach(x => {
             try {
-                me.deployFileInner(x, target, false);
+                me.deployFileInner(x, target);
                 ++succeeded;
             }
             catch (e) {
                 ++failed;
-                deploy_helpers.log(`[ERROR] Could not deploy file '${x}': ` + e);
+                me.context.log(`[ERROR] Could not deploy file '${x}': ` + e);
             }
         });
 

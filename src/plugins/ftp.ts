@@ -55,32 +55,12 @@ function getDirFromTarget(target: DeployTargetFTP): string {
 }
 
 function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: any) => void) {
-    let host = target.host;
-    if (!host) {
-        host = 'localhost';
-    }
+    let host = deploy_helpers.toStringSafe(target.host, 'localhost');
+    let port = parseInt(deploy_helpers.toStringSafe(target.port, '21').trim());
 
-    let port = target.port;
-    if (!port) {
-        port = 21;
-    }
-    port = parseInt(('' + port).trim());
+    let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+    let pwd = deploy_helpers.toStringSafe(target.password);
 
-    let user = target.user;
-    if (!user) {
-        user = '';
-    }
-    user = '' + user;
-    if (!user) {
-        user = 'anonymous';
-    }
-
-    let pwd = target.password;
-    if (!pwd) {
-        pwd = '';
-    }
-    pwd = '' + pwd;
-    
     let completed = (err, conn?) => {
         callback(err, conn);
     };
@@ -106,7 +86,7 @@ function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: 
 }
 
 function toFTPPath(path: string): string {
-    return path.split(Path.sep).join('/');
+    return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
 class FtpPlugin implements deploy_contracts.DeployPlugin {
@@ -121,13 +101,10 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
     }
 
     public deployFile(file: string, target: DeployTargetFTP): void {
-        let channel = vscode.window.createOutputChannel('FileUpload');
-        channel.show();
-
-        this.deployFileInner(file, target, channel);
+        this.deployFileInner(file, target);
     }
 
-    protected deployFileInner(file: string, target: DeployTargetFTP, channel: vscode.OutputChannel): void {
+    protected deployFileInner(file: string, target: DeployTargetFTP): void {
         let me = this;
 
         let relativeFilePath = deploy_helpers.toRelativePath(file);
@@ -143,7 +120,7 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
 
         let deployFile = () => {
             console.log('Deploying...');
-            channel.appendLine(`Deploying ${file}`);
+            me.context.log(`Deploying ${file}`);
 
             let completed = (err?, conn?) => {
                 if (err) {
@@ -183,6 +160,7 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
                     conn.cwd(dir, (err) => {
                         if (err) {
                             let quickPicks: deploy_contracts.DeployActionQuickPick[] = [
+                                // "Yes"
                                 {
                                     label: 'Yes',
                                     description: 'Creates the directory on FTP server',
@@ -197,6 +175,8 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
                                         });
                                     }
                                 },
+
+                                // "No"
                                 {
                                     label: 'No',
                                     description: 'Does NOT create the target directory and cancels the operation.',
@@ -210,7 +190,7 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
                                 placeHolder: 'Create target directory?',
                             }).then((item) => {
                                         if (!item) {
-                                            item = quickPicks[1];  // no => default
+                                            item = quickPicks[1];  // Default: "No"
                                         }
 
                                         try {
@@ -240,19 +220,16 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
     public deployWorkspace(files: string[], target: DeployTargetFTP) {
         let me = this;
 
-        let channel = vscode.window.createOutputChannel('WorkspaceUpload');
-        channel.show();
-
         let failed = 0;
         let succeeded = 0;
         files.forEach(x => {
             try {
-                me.deployFileInner(x, target, channel);
+                me.deployFileInner(x, target);
                 ++succeeded;
             }
             catch (e) {
                 ++failed;
-                deploy_helpers.log(`[ERROR] Could not deploy file '${x}': ` + e);
+                me.context.log(`[ERROR] Could not deploy file '${x}': ` + e);
             }
         });
 

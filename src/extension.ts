@@ -30,36 +30,34 @@ import * as vs_deploy from './deploy';
 
 
 export function activate(context: vscode.ExtensionContext) {
-    try {
-        let deployer = new vs_deploy.Deployer(context);
+    let outputChannel = vscode.window.createOutputChannel("Deploy");
 
-        // deploy workspace
-        let deploy = vscode.commands.registerCommand('extension.deploy', () => {
-            try {
-                deployer.deployWorkspace();
-            }
-            catch (e) {
-                vscode.window.showErrorMessage('[DEPLOY WORKSPACE ERROR]: ' + e);
-            }
-        });
+    let deployer = new vs_deploy.Deployer(context, outputChannel);
 
-        // deploy open file
-        let deployFile = vscode.commands.registerCommand('extension.deploy.file', () => {
-            try {
-                deployer.deployFile();
-            }
-            catch (e) {
-                vscode.window.showErrorMessage('[DEPLOY FILE ERROR]: ' + e);
-            }
-        });
+    // deploy workspace
+    let deploy = vscode.commands.registerCommand('extension.deploy', () => {
+        try {
+            deployer.deployWorkspace();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage('[DEPLOY WORKSPACE ERROR]: ' + e);
+        }
+    });
 
-        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
+    // deploy open file
+    let deployFile = vscode.commands.registerCommand('extension.deploy.file', () => {
+        try {
+            deployer.deployFile();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage('[DEPLOY FILE ERROR]: ' + e);
+        }
+    });
 
-        context.subscriptions.push(deploy, deployFile);
-    }
-    catch (e) {
-        console.log('[DEPLOY ACTIVATION ERROR] ' + e);
-    }
+    // notfiy setting changes
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
+
+    context.subscriptions.push(deploy, deployFile);
 }
 
 export function deactivate() {

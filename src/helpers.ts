@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
+import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -40,7 +41,7 @@ import * as vscode from 'vscode';
  */
 export function createFileQuickPick(file: string, target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployFileQuickPickItem {
     let qp: any = createTargetQuickPick(target, index);
-    qp.file = file;
+    qp['file'] = file;
 
     return qp;
 }
@@ -54,21 +55,12 @@ export function createFileQuickPick(file: string, target: deploy_contracts.Deplo
  * @returns {deploy_contracts.DeployPackageQuickPickItem} The new item.
  */
 export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPickItem {
-    let name = pkg.name;
-    if (!name) {
-        name = '';
-    }
-    name = ('' + name).trim();
-
+    let name = toStringSafe(pkg.name).trim();
     if (!name) {
         name = `(Package #${index + 1})`;
     }
 
-    let description = pkg.description;
-    if (!description) {
-        description = '';
-    }
-    description = ('' + description).trim();
+    let description = toStringSafe(pkg.description).trim();
 
     return {
         description: description,
@@ -86,21 +78,12 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
  * @returns {deploy_contracts.DeployTargetQuickPickItem} The new item.
  */
 export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployTargetQuickPickItem {
-    let name = target.name;
-    if (!name) {
-        name = '';
-    }
-    name = ('' + name).trim();
-
+    let name = toStringSafe(target.name).trim();
     if (!name) {
         name = `(Target #${index + 1})`;
     }
 
-    let description = target.description;
-    if (!description) {
-        description = '';
-    }
-    description = ('' + description).trim();
+    let description = toStringSafe(target.description).trim();
 
     return {
         description: description,
@@ -120,12 +103,16 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
 export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.DeployPackage): string[] {
     let fileFilters: string[] = [];
     if (pkg.files) {
-        fileFilters = pkg.files.filter(x => x);
+        fileFilters = pkg.files
+                         .map(x => toStringSafe(x))
+                         .filter(x => x);
     }
 
     let excludeFilters: string[] = [];
     if (pkg.exclude) {
-        excludeFilters = pkg.exclude.filter(x => x);
+        excludeFilters = pkg.exclude
+                            .map(x => toStringSafe(x))
+                            .filter(x => x);
     }
 
     return allFiles.filter(x => {
@@ -138,7 +125,7 @@ export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.D
         }
 
         for (let i = 0; i < fileFilters.length; i++) {
-            let ff = '' + fileFilters[i];
+            let ff = fileFilters[i];
             if (!Path.isAbsolute(ff)) {
                 ff = Path.join(vscode.workspace.rootPath, ff);
             }
@@ -146,7 +133,7 @@ export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.D
             if (x == ff) {
                 let doExclude = false;
                 for (let j = 0; j < excludeFilters.length; j++) {
-                    let ef = '' + excludeFilters[j];
+                    let ef = excludeFilters[j];
 
                     if (ef == ff) {
                         doExclude = true;
@@ -169,7 +156,9 @@ export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.D
  */
 export function log(msg) {
     if (msg) {
-        console.log('[vs-deploy] ' + msg);
+        let now = Moment();
+
+        console.log(`[vs-deploy :: ${now.format('YYYY-MM-DD HH:mm:ss')}] => ${msg}`);
     }
 }
 
@@ -187,6 +176,24 @@ export function parseTargetType(str: string): string {
     str = ('' + str).toLowerCase().trim();
 
     return str;
+}
+
+/**
+ * Replaces all occurrences of a string.
+ * 
+ * @param {string} str The input string.
+ * @param {string} searchValue The value to search for.
+ * @param {string} replaceValue The value to replace 'searchValue' with.
+ * 
+ * @return {string} The output string.
+ */
+export function replaceAllStrings(str: string, searchValue: string, replaceValue: string) {
+    str = toStringSafe(str);
+    searchValue = toStringSafe(searchValue);
+    replaceValue = toStringSafe(replaceValue);
+
+    return str.split(searchValue)
+              .join(replaceValue);
 }
 
 /**
@@ -214,7 +221,29 @@ export function toRelativePath(path: string): string | false {
             }
         }
     }
-    catch (e) { /* ignore */ }
+    catch (e) { 
+        log('[ERROR] helpers.toRelativePath(): ' + e)
+    }
 
     return result;
+}
+
+/**
+ * Converts a value to a string that is NOT (null) or (undefined).
+ * 
+ * @param {any} str The input value.
+ * @param {any} defValue The default value.
+ * 
+ * @return {string} The output value.
+ */
+export function toStringSafe(str: any, defValue: any = ''): string {
+    if (!str) {
+        str = '';
+    }
+    str = '' + str;
+    if (!str) {
+        str = defValue;
+    }
+
+    return str;
 }

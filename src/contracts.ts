@@ -64,21 +64,62 @@ export interface DeployContext {
      * 
      * @param {DeployConfiguration} The current config.
      */
-    getConfig(): DeployConfiguration;
+    config(): DeployConfiguration;
+
+    /**
+     * Shows an error message.
+     * 
+     * @param {any} [msg] The message to show.
+     * 
+     * @chainable.
+     */
+    error(msg?: any): DeployContext;
+
+    /**
+     * Shows an info message.
+     * 
+     * @param {any} [msg] The message to show.
+     * 
+     * @chainable.
+     */
+    info(msg?: any): DeployContext;
+
+    /**
+     * Logs a message.
+     * 
+     * @param {any} [msg] The message to log.
+     * 
+     * @chainable
+     */
+    log(msg?: any): DeployContext;
+
+    /**
+     * Gets the global output channel.
+     */
+    outputChannel(): vscode.OutputChannel;
 
     /**
      * Returns the list of packages.
      * 
      * @param {DeployPackage[]} The packages.
      */
-    getPackages(): DeployPackage[];
+    packages(): DeployPackage[];
+
+    /**
+     * Shows a warning message.
+     * 
+     * @param {any} [msg] The message to show.
+     * 
+     * @chainable.
+     */
+    warn(msg?: any): DeployContext;
 
     /**
      * Returns the list of targets.
      * 
      * @param {DeployTarget[]} The targets.
      */
-    getTargets(): DeployTarget[];
+    targets(): DeployTarget[];
 }
 
 /**
