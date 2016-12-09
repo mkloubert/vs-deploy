@@ -33,6 +33,7 @@ import * as vscode from 'vscode';
 
 interface DeployTargetLocal extends deploy_contracts.DeployTarget {
     dir?: string;
+    empty?: boolean;
 }
 
 function getFullDirPathFromTarget(target: DeployTargetLocal): string {
@@ -65,10 +66,13 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
     }
 
     public deployFile(file: string, target: DeployTargetLocal): void {
+        this.context.outputChannel().show();
+
+        this.context.outputChannel().appendLine('');
         this.deployFileInner(file, target);
     }
 
-    protected deployFileInner(file: string, target: DeployTargetLocal): void {
+    protected deployFileInner(file: string, target: DeployTargetLocal, callback?: (err: any) => void): void {
         let me = this;
 
         let dir = getFullDirPathFromTarget(target);
@@ -82,12 +86,18 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
         let targetFile = Path.join(dir, <string>relativeFilePath);
         let targetDirectory = Path.dirname(targetFile);
 
-        let deployFile = () => {
-            console.log('Deploying...');
+        let completed = (err?: any) => {
+            if (err) {
+                me.context.writeLine(`[FAILED: ${deploy_helpers.toStringSafe(err)}]`);
+            }
 
-            let showError = (err) => {
-                vscode.window.showErrorMessage(`Could not deploy file '${file}' to local directory '${targetDirectory}': ` + err);
-            };
+            if (callback) {
+                callback(err);
+            }
+        };
+
+        let deployFile = () => {
+            me.context.write(`Deploying '${relativeFilePath}' to LOCAL directory '${targetDirectory}'... `);
 
             try {
                 FSExtra.copy(file, targetFile, {
@@ -95,15 +105,17 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
                     preserveTimestamps: true,
                 }, function (err) {
                     if (err) {
-                        showError(err);
+                        completed(err);
                         return;
                     }
 
-                    vscode.window.showInformationMessage(`File '${relativeFilePath}' has been successfully deployed to local directory '${targetDirectory}'.`);
+                    me.context.writeLine("[OK]");
+
+                    completed();
                 });
             }
             catch (e) {
-                showError(e);
+                completed(e);
             }
         };
 
@@ -141,6 +153,8 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
                         }
                         catch (e) {
                             vscode.window.showErrorMessage(`Could not create target directory '${targetDirectory}': ` + e);
+
+                            completed(e);
                         }
                     });
         }
@@ -152,30 +166,83 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
     public deployWorkspace(files: string[], target: DeployTargetLocal) {
         let me = this;
 
+        let targetDir = deploy_helpers.toStringSafe(target.dir);
+        if (!Path.isAbsolute(targetDir)) {
+            targetDir = Path.join(vscode.workspace.rootPath, targetDir);
+        }
+
         let failed = 0;
         let succeeded = 0;
-        files.forEach(x => {
+        let filesTodo = files.map(x => x);
+        let completed = () => {
+            if (failed < 1) {
+                vscode.window.showInformationMessage('All files were deployed successfully.');
+            }
+            else {
+                if (failed >= files.length) {
+                    vscode.window.showErrorMessage('No file could be deployed!');
+                }
+                else {
+                    vscode.window.showWarningMessage(`${failed} file(s) could not be deployed!`);
+                }
+            }
+        };
+
+        let deployNextFile: () => void;
+        deployNextFile = () => {
+            if (filesTodo.length < 1) {
+                completed();
+                return;
+            }
+
+            let f = filesTodo.pop();
+
+            let logError = (err) => {
+                me.context.log(`[ERROR] Could not deploy file '${f}': ${err}`);
+            };
+            
             try {
-                me.deployFileInner(x, target);
-                ++succeeded;
+                me.deployFileInner(f, target, (err) => {
+                    if (err) {
+                        ++failed;
+                        logError(err);
+                    }
+                    else {
+                        ++succeeded;
+                    }
+
+                    deployNextFile();
+                });
             }
             catch (e) {
                 ++failed;
-                me.context.log(`[ERROR] Could not deploy file '${x}': ` + e);
+                logError(e);
             }
-        });
+        };
 
-        if (failed < 1) {
-            vscode.window.showInformationMessage('All files were deployed successfully.');
-        }
-        else {
-            if (failed >= files.length) {
-                vscode.window.showErrorMessage('No file could be deployed!');
+        let emptyDir = () => {
+            let doEmptyDir = !!target.empty;
+            if (doEmptyDir) {
+                me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
+
+                FSExtra.emptyDir(targetDir, (err) => {
+                    if (err) {
+                        me.context.outputChannel().appendLine(`[FAILED: ${err}]`);
+
+                        vscode.window.showErrorMessage(`Could not empty LOCAL target directory '${targetDir}': ${err}`);
+                        return;
+                    }
+
+                    me.context.outputChannel().appendLine(`[OK]`);
+                    deployNextFile();
+                });
             }
             else {
-                vscode.window.showWarningMessage(`${failed} file(s) could not be deployed!`);
+                deployNextFile();
             }
-        }
+        };
+
+        emptyDir();
     }
 }
 

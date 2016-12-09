@@ -132,19 +132,31 @@ export class Deployer {
      * @param {DeployFileQuickPickItem} item The quick pick with the information.
      */
     protected deployFileTo(file: string, target: deploy_contracts.DeployTarget) {
-        let type: string;
-        if (target) {
-            type = deploy_helpers.parseTargetType(target.type);
-        }
+        let me = this;
 
-        let matchIngPlugins = this.plugins.filter((x: any) => {
+        let type = deploy_helpers.parseTargetType(target.type);
+
+        let matchIngPlugins = this.plugins.filter(x => {
             return !type ||
-                   (x['__type'] == type && x.deployFile);
+                   (x.__type == type && x.deployFile);
         });
 
         if (matchIngPlugins.length > 0) {
             matchIngPlugins.forEach(x => {
                 try {
+                    let targetName = deploy_helpers.toStringSafe(target.name);
+
+                    me.outputChannel.show();
+                    me.outputChannel.appendLine('');
+
+                    let deployMsg = `Deploying file '${file}'`;
+                    if (targetName) {
+                        deployMsg += ` to '${targetName}'`;
+                    }
+                    deployMsg += '...';
+
+                    me.outputChannel.appendLine(deployMsg);
+
                     x.deployFile(file, target);
                 }
                 catch (e) {
@@ -157,7 +169,7 @@ export class Deployer {
                 vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
             }
             else {
-                vscode.window.showWarningMessage(`No plugin(s) found!`);
+                vscode.window.showWarningMessage(`No machting plugin(s) found!`);
             }
         }
     }
@@ -188,6 +200,8 @@ export class Deployer {
                     if (!item) {
                         return;
                     }
+
+                    let packageName = deploy_helpers.toStringSafe(item.package.name);
 
                     // files in include
                     let allFilePatterns: string[] = [];
@@ -238,9 +252,26 @@ export class Deployer {
                         placeHolder: 'Select the target to deploy to...'
                     }).then((item) => {
                         try {
-                            if (item) {
-                                me.deployWorkspaceTo(filesToDeploy, item.target);
+                            if (!item) {
+                                return;
                             }
+
+                            let targetName = deploy_helpers.toStringSafe(item.target.name);
+
+                            me.outputChannel.show();
+                            me.outputChannel.appendLine('');
+
+                            let deployMsg = `Deploying package`;
+                            if (packageName) {
+                                deployMsg += ` '${packageName}'`;
+                            }
+                            if (targetName) {
+                                deployMsg += ` to '${targetName}'`;
+                            }
+                            deployMsg += '...';
+
+                            me.outputChannel.appendLine(deployMsg);
+                            me.deployWorkspaceTo(filesToDeploy, item.target);
                         }
                         catch (e) {
                             vscode.window.showErrorMessage(`Could not deploy files: ` + e);
@@ -256,14 +287,16 @@ export class Deployer {
      * @param {deploy_contracts.DeployTarget} target The target.
      */
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget) {
+        let me = this;
+
         let type: string;
         if (target) {
             type = deploy_helpers.parseTargetType(target.type);
         }
 
-        let matchIngPlugins = this.plugins.filter((x: any) => {
+        let matchIngPlugins = this.plugins.filter(x => {
             return !type ||
-                   (x['__type'] == type && x.deployWorkspace);
+                   (x.__type == type && x.deployWorkspace);
         });
 
         if (matchIngPlugins.length > 0) {
@@ -317,17 +350,16 @@ export class Deployer {
     /**
      * Logs a message.
      * 
-     * @param {any} [msg] The message to log.
+     * @param {any} msg The message to log.
      * 
      * @chainable
      */
-    public log(msg?: any): Deployer {
-        if (msg) {
-            let now = Moment();
-            
-            this.outputChannel
-                .appendLine(`[${now.format('YYYY-MM-DD HH:mm:ss')}] ${msg}`);
-        }
+    public log(msg: any): Deployer {
+        let now = Moment();
+
+        msg = deploy_helpers.toStringSafe(msg);
+        this.outputChannel
+            .appendLine(`[${now.format('YYYY-MM-DD HH:mm:ss')}] ${msg}`);
 
         return this;
     }
@@ -383,55 +415,75 @@ export class Deployer {
                                 }
                             }
                         }
-                        catch (e) { /* ignore */ }
+                        catch (e) { 
+                            me.log('[ERROR] reloadPlugins(1): ' + e);
+                        }
                         
                         return false;
                     }).filter(x => x)
-                    .map(x => Path.join(pluginDir, x));
+                      .map(x => Path.join(pluginDir, x));
 
                     moduleFiles.forEach(x => {
-                        let pluginModule: deploy_contracts.DeployPluginModule = require(x);
-                        if (pluginModule) {
-                            if (pluginModule.createPlugin) {
-                                let ctx: deploy_contracts.DeployContext = {
-                                    config: () => me.config,
-                                    error: function(msg?) {
-                                        if (msg) {
-                                            vscode.window.showErrorMessage('' + msg);
-                                        }
+                        try {
+                            let pluginModule: deploy_contracts.DeployPluginModule = require(x);
+                            if (pluginModule) {
+                                if (pluginModule.createPlugin) {
+                                    let ctx: deploy_contracts.DeployContext = {
+                                        config: () => me.config,
+                                        error: function(msg) {
+                                            if (msg) {
+                                                vscode.window.showErrorMessage('' + msg);
+                                            }
 
-                                        return this;
-                                    },
-                                    info: function(msg?) {
-                                        if (msg) {
-                                            vscode.window.showInformationMessage('' + msg);
-                                        }
+                                            return this;
+                                        },
+                                        info: function(msg) {
+                                            if (msg) {
+                                                vscode.window.showInformationMessage('' + msg);
+                                            }
 
-                                        return this;
-                                    },
-                                    log: function(msg?) {
-                                        me.log(msg);
-                                        return this;
-                                    },
-                                    outputChannel: () => me.outputChannel,
-                                    packages: () => me.getPackages(),
-                                    targets: () => me.getTargets(),
-                                    warn: function(msg?) {
-                                        if (msg) {
-                                            vscode.window.showWarningMessage('' + msg);
-                                        }
+                                            return this;
+                                        },
+                                        log: function(msg) {
+                                            me.log(msg);
+                                            return this;
+                                        },
+                                        outputChannel: () => me.outputChannel,
+                                        packages: () => me.getPackages(),
+                                        targets: () => me.getTargets(),
+                                        warn: function(msg) {
+                                            if (msg) {
+                                                vscode.window.showWarningMessage('' + msg);
+                                            }
 
-                                        return this;
-                                    },
-                                };
+                                            return this;
+                                        },
+                                        write: function(msg) {
+                                            msg = deploy_helpers.toStringSafe(msg);
+                                            this.outputChannel().append(msg);
 
-                                let newPlugin: any = pluginModule.createPlugin(ctx);
-                                if (newPlugin) {
-                                    newPlugin['__type'] = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
+                                            return this;
+                                        },
+                                        writeLine: function(msg) {
+                                            msg = deploy_helpers.toStringSafe(msg);
+                                            this.outputChannel().appendLine(msg);
 
-                                    loadedPlugins.push(newPlugin);
+                                            return this;
+                                        },
+                                    };
+
+                                    let newPlugin = pluginModule.createPlugin(ctx);
+                                    if (newPlugin) {
+                                        newPlugin.__file = deploy_helpers.parseTargetType(Path.basename(x));
+                                        newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
+
+                                        loadedPlugins.push(newPlugin);
+                                    }
                                 }
                             }
+                        }
+                        catch (e) {
+                            me.log('[ERROR] reloadPlugins(2): ' + e);
                         }
                     });
                 }
@@ -439,12 +491,23 @@ export class Deployer {
 
             this._plugins = loadedPlugins;
 
-            if (loadedPlugins.length != 1) {
-                this.log(`${loadedPlugins.length} plugins loaded`);
+            if (loadedPlugins.length > 0) {
+                if (loadedPlugins.length != 1) {
+                    this.outputChannel.appendLine(`${loadedPlugins.length} plugins loaded:`);
+                }
+                else {
+                    this.outputChannel.appendLine(`1 plugin loaded:`);
+                }
+
+                loadedPlugins.forEach(x => {
+                    me.outputChannel.appendLine(`- ${x.__file}`);
+                });
             }
             else {
-                this.log(`1 plugin loaded`);
+                this.outputChannel.appendLine(`No plugin loaded`);
             }
+
+            this.outputChannel.appendLine('');
         }
         catch (e) {
             vscode.window.showErrorMessage(`Could not update deploy settings: ${e}`);

@@ -48,7 +48,6 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * List of packages.
      */
     packages?: DeployPackage[];
-
     /**
      * List of targets.
      */
@@ -65,55 +64,64 @@ export interface DeployContext {
      * @param {DeployConfiguration} The current config.
      */
     config(): DeployConfiguration;
-
     /**
      * Shows an error message.
      * 
-     * @param {any} [msg] The message to show.
-     * 
-     * @chainable.
-     */
-    error(msg?: any): DeployContext;
-
-    /**
-     * Shows an info message.
-     * 
-     * @param {any} [msg] The message to show.
-     * 
-     * @chainable.
-     */
-    info(msg?: any): DeployContext;
-
-    /**
-     * Logs a message.
-     * 
-     * @param {any} [msg] The message to log.
+     * @param {any} msg The message to show.
      * 
      * @chainable
      */
-    log(msg?: any): DeployContext;
-
+    error(msg: any): DeployContext;
+    /**
+     * Shows an info message.
+     * 
+     * @param {any} msg The message to show.
+     * 
+     * @chainable
+     */
+    info(msg: any): DeployContext;
+    /**
+     * Logs a message.
+     * 
+     * @param {any} msg The message to log.
+     * 
+     * @chainable
+     */
+    log(msg: any): DeployContext;
     /**
      * Gets the global output channel.
      */
     outputChannel(): vscode.OutputChannel;
-
     /**
      * Returns the list of packages.
      * 
      * @param {DeployPackage[]} The packages.
      */
     packages(): DeployPackage[];
-
     /**
      * Shows a warning message.
      * 
      * @param {any} [msg] The message to show.
      * 
-     * @chainable.
+     * @chainable
      */
-    warn(msg?: any): DeployContext;
-
+    warn(msg: any): DeployContext;
+    /**
+     * Writes a messages to the output channel.
+     * 
+     * @param {any} msg The message to write.
+     * 
+     * @chainable
+     */
+    write(msg: any): DeployContext;
+    /**
+     * Writes a messages to the output channel and adds a new line.
+     * 
+     * @param {any} msg The message to write.
+     * 
+     * @chainable
+     */
+    writeLine(msg: any): DeployContext;
     /**
      * Returns the list of targets.
      * 
@@ -169,13 +177,25 @@ export interface DeployPackageQuickPickItem extends DeployQuickPickItem {
  */
 export interface DeployPlugin {
     /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
+     * Gets the filename of the plugin.
+     */
+    __file?: string;
+    /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
+     * Gets the type of the plugin.
+     */
+    __type?: string;
+
+    /**
      * Deploys a file.
      * 
      * @param {string} file The path of the local file.
      * @param {DeployTarget} target The target.
      */
     deployFile?: (file: string, target: DeployTarget) => void;
-
     /**
      * Deploys files of a workspace.
      * 

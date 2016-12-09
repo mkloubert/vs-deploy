@@ -112,14 +112,13 @@ export function distinctArray<T>(arr: T[]): T[] {
 /**
  * Logs a message.
  * 
- * @param {any} message The message to log.
+ * @param {any} msg The message to log.
  */
-export function log(msg) {
-    if (msg) {
-        let now = Moment();
+export function log(msg: any) {
+    let now = Moment();
 
-        console.log(`[vs-deploy :: ${now.format('YYYY-MM-DD HH:mm:ss')}] => ${msg}`);
-    }
+    msg = toStringSafe(msg);
+    console.log(`[vs-deploy :: ${now.format('YYYY-MM-DD HH:mm:ss')}] => ${msg}`);
 }
 
 /**
