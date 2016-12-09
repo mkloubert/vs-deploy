@@ -93,59 +93,19 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
 }
 
 /**
- * Filters a list of files by a package.
+ * Removes duplicate entries from an array.
  * 
- * @param {string[]} allFiles All the files to filter.
- * @param {deploy_contracts.DeployPackage} pkg The package.
+ * @param {T[]} arr The input array.
  * 
- * @returns {string[]} The filtered files.
+ * @return {T[]} The filtered array.
  */
-export function filterFilesByPackage(allFiles: string[], pkg: deploy_contracts.DeployPackage): string[] {
-    let fileFilters: string[] = [];
-    if (pkg.files) {
-        fileFilters = pkg.files
-                         .map(x => toStringSafe(x))
-                         .filter(x => x);
+export function distinctArray<T>(arr: T[]): T[] {
+    if (!arr) {
+        return arr;
     }
 
-    let excludeFilters: string[] = [];
-    if (pkg.exclude) {
-        excludeFilters = pkg.exclude
-                            .map(x => toStringSafe(x))
-                            .filter(x => x);
-    }
-
-    return allFiles.filter(x => {
-        if (fileFilters.length < 1) {
-            return true;
-        }
-
-        if (!Path.isAbsolute(x)) {
-            x = Path.join(vscode.workspace.rootPath, x);
-        }
-
-        for (let i = 0; i < fileFilters.length; i++) {
-            let ff = fileFilters[i];
-            if (!Path.isAbsolute(ff)) {
-                ff = Path.join(vscode.workspace.rootPath, ff);
-            }
-
-            if (x == ff) {
-                let doExclude = false;
-                for (let j = 0; j < excludeFilters.length; j++) {
-                    let ef = excludeFilters[j];
-
-                    if (ef == ff) {
-                        doExclude = true;
-                        break;
-                    }
-                }
-
-                return !doExclude;
-            }
-        }
-
-        return false;
+    return arr.filter((x, i) => {
+        return arr.indexOf(x) == i;
     });
 }
 
@@ -207,9 +167,9 @@ export function toRelativePath(path: string): string | false {
     let result: string | false = false;
     
     try {
-        let normalizedPath = path;
+        let normalizedPath = replaceAllStrings(path, Path.sep, '/');
 
-        let wsRootPath = vscode.workspace.rootPath;
+        let wsRootPath = replaceAllStrings(vscode.workspace.rootPath, Path.sep, '/');
         if (wsRootPath) {
             if (FS.existsSync(wsRootPath)) {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {

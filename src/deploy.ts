@@ -27,6 +27,7 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 let FSExtra = require('fs-extra');
+let Glob = require('glob');
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -188,30 +189,62 @@ export class Deployer {
                         return;
                     }
 
-                    vscode.workspace.findFiles("*.*", null).then((files) => {
-                        let pkg = item.package;
-                        let filesToDeploy = deploy_helpers.filterFilesByPackage(files.map(x => x.fsPath),
-                                                                                pkg);
+                    // files in include
+                    let allFilePatterns: string[] = [];
+                    if (item.package.files) {
+                        allFilePatterns = item.package.files
+                                                      .map(x => deploy_helpers.toStringSafe(x))
+                                                      .filter(x => x);
 
-                        if (filesToDeploy.length < 1) {
-                            vscode.window.showWarningMessage(`There are no files to deploy!`);
-                            return;
-                        }
-                        
-                        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                        allFilePatterns = deploy_helpers.distinctArray(allFilePatterns);
+                    }
+                    if (allFilePatterns.length < 1) {
+                        allFilePatterns.push('**');  // include all by default
+                    }
 
-                        vscode.window.showQuickPick(fileQuickPicks, {
-                            placeHolder: 'Select the target to deploy to...'
-                        }).then((item) => {
-                            try {
-                                if (item) {
-                                    me.deployWorkspaceTo(filesToDeploy, item.target);
-                                }
-                            }
-                            catch (e) {
-                                vscode.window.showErrorMessage(`Could not deploy files: ` + e);
-                            }
+                    // files to exclude
+                    let allExcludePatterns: string[] = [];
+                    if (item.package.exclude) {
+                        allExcludePatterns = item.package.exclude
+                                                         .map(x => deploy_helpers.toStringSafe(x))
+                                                         .filter(x => x);
+
+                        allExcludePatterns = deploy_helpers.distinctArray(allExcludePatterns);
+                    }
+
+                    // collect files to deploy
+                    let filesToDeploy: string[] = [];
+                    allFilePatterns.forEach(x => {
+                        let files: string[] = Glob.sync(x, {
+                            cwd: vscode.workspace.rootPath,
+                            root: vscode.workspace.rootPath,
+                            nodir: true,
+                            absolute: true,
+                            ignore: allExcludePatterns,
                         });
+
+                        files.forEach(x => filesToDeploy.push(x));
+                    });
+                    filesToDeploy = deploy_helpers.distinctArray(filesToDeploy);
+
+                    if (filesToDeploy.length < 1) {
+                        vscode.window.showWarningMessage(`There are no files to deploy!`);
+                        return;
+                    }
+
+                    let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                    vscode.window.showQuickPick(fileQuickPicks, {
+                        placeHolder: 'Select the target to deploy to...'
+                    }).then((item) => {
+                        try {
+                            if (item) {
+                                me.deployWorkspaceTo(filesToDeploy, item.target);
+                            }
+                        }
+                        catch (e) {
+                            vscode.window.showErrorMessage(`Could not deploy files: ` + e);
+                        }
                     });
                 });
     }
