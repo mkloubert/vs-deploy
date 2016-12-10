@@ -73,8 +73,8 @@ Add the subsection `packages` and add one or more entry:
 | Name | Description |
 | ---- | --------- |
 | `description` | The description of the package. |
-| `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |
-| `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). |
+| `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). |
+| `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |
 | `name` | The name of the package. |
 
 #### Targets
