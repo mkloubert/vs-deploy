@@ -70,6 +70,13 @@ Add the subsection `packages` and add one or more entry:
 }
 ```
 
+| Name | Description |
+| ---- | --------- |
+| `description` | The description of the package. |
+| `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |
+| `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). |
+| `name` | The name of the package. |
+
 #### Targets
 
 A target description where a file or package should be transfered to.
