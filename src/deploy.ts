@@ -244,102 +244,112 @@ export class Deployer {
 
         let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
-        vscode.window.showQuickPick(packageQuickPicks, {
-            placeHolder: 'Select a package...',
-        }).then((item) => {
+        let selectTarget = (item: deploy_contracts.DeployPackageQuickPickItem) => {
+            if (!item) {
+                return;
+            }
+
+            let packageName = deploy_helpers.toStringSafe(item.package.name);
+
+            // files in include
+            let allFilePatterns: string[] = [];
+            if (item.package.files) {
+                allFilePatterns = item.package.files
+                                                .map(x => deploy_helpers.toStringSafe(x))
+                                                .filter(x => x);
+
+                allFilePatterns = deploy_helpers.distinctArray(allFilePatterns);
+            }
+            if (allFilePatterns.length < 1) {
+                allFilePatterns.push('**');  // include all by default
+            }
+
+            // files to exclude
+            let allExcludePatterns: string[] = [];
+            if (item.package.exclude) {
+                allExcludePatterns = item.package.exclude
+                                                    .map(x => deploy_helpers.toStringSafe(x))
+                                                    .filter(x => x);
+
+                allExcludePatterns = deploy_helpers.distinctArray(allExcludePatterns);
+            }
+
+            // collect files to deploy
+            let filesToDeploy: string[] = [];
+            allFilePatterns.forEach(x => {
+                let matchingFiles: string[] = Glob.sync(x, {
+                    absolute: true,
+                    cwd: vscode.workspace.rootPath,
+                    dot: true,
+                    ignore: allExcludePatterns,
+                    nodir: true,
+                    root: vscode.workspace.rootPath,
+                });
+
+                matchingFiles.forEach(x => filesToDeploy.push(x));
+            });
+            filesToDeploy = deploy_helpers.distinctArray(filesToDeploy);
+
+            if (filesToDeploy.length < 1) {
+                vscode.window.showWarningMessage(`There are no files to deploy!`);
+                return;
+            }
+
+            let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+            let deploy = (item: deploy_contracts.DeployTargetQuickPickItem) => {
+                try {
                     if (!item) {
                         return;
                     }
 
-                    let packageName = deploy_helpers.toStringSafe(item.package.name);
+                    let targetName = deploy_helpers.toStringSafe(item.target.name);
 
-                    // files in include
-                    let allFilePatterns: string[] = [];
-                    if (item.package.files) {
-                        allFilePatterns = item.package.files
-                                                      .map(x => deploy_helpers.toStringSafe(x))
-                                                      .filter(x => x);
+                    me.outputChannel.show();
+                    me.outputChannel.appendLine('');
 
-                        allFilePatterns = deploy_helpers.distinctArray(allFilePatterns);
+                    let deployMsg = `Deploying package`;
+                    if (packageName) {
+                        deployMsg += ` '${packageName}'`;
                     }
-                    if (allFilePatterns.length < 1) {
-                        allFilePatterns.push('**');  // include all by default
+                    if (targetName) {
+                        deployMsg += ` to '${targetName}'`;
                     }
+                    deployMsg += '...';
 
-                    // files to exclude
-                    let allExcludePatterns: string[] = [];
-                    if (item.package.exclude) {
-                        allExcludePatterns = item.package.exclude
-                                                         .map(x => deploy_helpers.toStringSafe(x))
-                                                         .filter(x => x);
+                    me.outputChannel.appendLine(deployMsg);
 
-                        allExcludePatterns = deploy_helpers.distinctArray(allExcludePatterns);
-                    }
+                    me.deployWorkspaceTo(filesToDeploy, item.target);
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(`Could not deploy files: ` + e);
+                }
+            };
 
-                    // collect files to deploy
-                    let filesToDeploy: string[] = [];
-                    allFilePatterns.forEach(x => {
-                        let matchingFiles: string[] = Glob.sync(x, {
-                            absolute: true,
-                            cwd: vscode.workspace.rootPath,
-                            dot: true,
-                            ignore: allExcludePatterns,
-                            nodir: true,
-                            root: vscode.workspace.rootPath,
-                        });
-
-                        matchingFiles.forEach(x => filesToDeploy.push(x));
-                    });
-                    filesToDeploy = deploy_helpers.distinctArray(filesToDeploy);
-
-                    if (filesToDeploy.length < 1) {
-                        vscode.window.showWarningMessage(`There are no files to deploy!`);
-                        return;
-                    }
-
-                    let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
-
-                    let deploy = (item: deploy_contracts.DeployTargetQuickPickItem) => {
-                        try {
-                            if (!item) {
-                                return;
-                            }
-
-                            let targetName = deploy_helpers.toStringSafe(item.target.name);
-
-                            me.outputChannel.show();
-                            me.outputChannel.appendLine('');
-
-                            let deployMsg = `Deploying package`;
-                            if (packageName) {
-                                deployMsg += ` '${packageName}'`;
-                            }
-                            if (targetName) {
-                                deployMsg += ` to '${targetName}'`;
-                            }
-                            deployMsg += '...';
-
-                            me.outputChannel.appendLine(deployMsg);
-
-                            me.deployWorkspaceTo(filesToDeploy, item.target);
-                        }
-                        catch (e) {
-                            vscode.window.showErrorMessage(`Could not deploy files: ` + e);
-                        }
-                    };
-
-                    if (fileQuickPicks.length > 1) {
-                        vscode.window.showQuickPick(fileQuickPicks, {
-                            placeHolder: 'Select the target to deploy to...'
-                        }).then((item) => {
-                            deploy(item);
-                        });
-                    }
-                    else {
-                        // auto select
-                        deploy(fileQuickPicks[0]);
-                    }
+            if (fileQuickPicks.length > 1) {
+                vscode.window.showQuickPick(fileQuickPicks, {
+                    placeHolder: 'Select the target to deploy to...'
+                }).then((item) => {
+                    deploy(item);
                 });
+            }
+            else {
+                // auto select
+                deploy(fileQuickPicks[0]);
+            }
+        };
+
+        if (packageQuickPicks.length > 1) {
+            vscode.window.showQuickPick(packageQuickPicks, {
+                placeHolder: 'Select a package...',
+            }).then((item) => {
+                        selectTarget(item);
+                    });
+        }
+        else {
+            // auto select
+            selectTarget(packageQuickPicks[0]);
+        }
     }
 
     /**
