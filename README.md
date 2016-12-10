@@ -79,7 +79,7 @@ Add the subsection `packages` and add one or more entry:
 
 #### Targets
 
-A target description where a file or package should be transfered to.
+A target describes where a file or package should be transfered to.
 
 Add the subsection `targets` and add one or more entry:
 
