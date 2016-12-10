@@ -178,5 +178,5 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy file` | Deploys the currently opened file. | `CTRL + D` |
-| `Deploy workspace` | Deploys a specific package. | `CTRL + ALT + D` |
+| `Deploy: Current file` | Deploys the currently opened file. | `CTRL + D` |
+| `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + D` |
