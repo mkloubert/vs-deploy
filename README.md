@@ -125,7 +125,7 @@ Deploys to a FTP server.
 
 | Name | Description |
 | ---- | --------- |
-| `dir` | The target directory. |
+| `dir` | The remote directory on the server. Default: `/` |
 | `host` | The host address of the server. Default: `localhost` |
 | `password` | Password. |
 | `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
@@ -138,7 +138,7 @@ Deploys to a local folder.
 
 | Name | Description |
 | ---- | --------- |
-| `dir` | The remote directory on the server. Default: `/` |
+| `dir` | The target directory. |
 | `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
 
 #### SFTP
