@@ -126,7 +126,11 @@ Deploys to a FTP server.
 | Name | Description |
 | ---- | --------- |
 | `dir` | The remote directory on the server. Default: `/` |
-| `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
+| `host` | The host address of the server. Default: `localhost` |
+| `password` | Password. |
+| `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
+| `secure` | Use secure connection or not. Default: `(false)` |
+| `user` | Username. Default: `anonymous` |
 
 #### Local
 
@@ -135,10 +139,7 @@ Deploys to a local folder.
 | Name | Description |
 | ---- | --------- |
 | `dir` | The target directory. |
-| `host` | The host address of the server. Default: `localhost` |
-| `password` | Password. |
-| `port` | The TCP port of the server. Default: `22` |
-| `user` | Username. Default: `anonymous` |
+| `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
 
 #### SFTP
 
@@ -156,8 +157,8 @@ Deploys to a SFTP server.
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
-| Name | Description | Shortcut |
+| Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy file` | Deploys the currently opened file. | `(CTRL + D)` |
-| `Deploy workspace` | Deploys a specific package. | `(CTRL + ALT + D)` |
+| `Deploy file` | Deploys the currently opened file. | `CTRL + D` |
+| `Deploy workspace` | Deploys a specific package. | `CTRL + ALT + D` |
 
