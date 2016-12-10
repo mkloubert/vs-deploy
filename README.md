@@ -181,7 +181,7 @@ Deploys to a FTP server.
 
 #### local
 
-Deploys to a local folder or a shared folder inside your LAN.
+Deploys to a local folder or a shared folder (like SMB) inside your LAN.
 
 | Name | Description |
 | ---- | --------- |
