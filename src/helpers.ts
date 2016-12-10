@@ -39,6 +39,10 @@ import * as vscode from 'vscode';
  * @return {number} The "sort value".
  */
 export function compareValues<T>(x: T, y: T): number {
+    if (x === y) {
+        return 0;
+    }
+
     if (x > y) {
         return 1;
     }
@@ -188,9 +192,10 @@ export function sortPackages(pkgs: deploy_contracts.DeployPackage[]): deploy_con
     }
 
     return pkgs.filter(x => x)
-               .map(x => {
+               .map((x, i) => {
                         return {
-                            level0: x.sortOrder,  // first sort by "sortOrder"
+                            index: i,
+                            level0: x.sortOrder || 0,  // first sort by "sortOrder"
                             level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
                             value: x,
                         };
@@ -206,7 +211,7 @@ export function sortPackages(pkgs: deploy_contracts.DeployPackage[]): deploy_con
                        return comp1;
                    }
 
-                   return 0;
+                   return compareValues(x.index, y.index);
                })
                .map(x => x.value);
 }
@@ -224,9 +229,10 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_co
     }
 
     return targets.filter(x => x)
-                  .map(x => {
+                  .map((x, i) => {
                            return {
-                               level0: x.sortOrder,  // first sort by "sortOrder"
+                               index: i,
+                               level0: x.sortOrder || 0,  // first sort by "sortOrder"
                                level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
                                value: x,
                            };
@@ -242,7 +248,7 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_co
                                return comp1;
                            }
 
-                           return 0;
+                           return compareValues(x.index, y.index);
                        })
                   .map(x => x.value);
 }
