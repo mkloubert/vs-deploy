@@ -107,9 +107,50 @@ Add the subsection `targets` and add one or more entry:
 }
 ```
 
+| Name | Description |
+| ---- | --------- |
+| `description` | The description of the target. |
+| `name` | The name of the target. |
+
+#### FTP
+
+Deploys to a FTP server.
+
+| Name | Description |
+| ---- | --------- |
+| `dir` | The remote directory on the server. Default: `/` |
+| `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
+
+#### Local
+
+Deploys to a local folder.
+
+| Name | Description |
+| ---- | --------- |
+| `dir` | The target directory. |
+| `host` | The host address of the server. Default: `localhost` |
+| `password` | Password. |
+| `port` | The TCP port of the server. Default: `22` |
+| `user` | Username. Default: `anonymous` |
+
+#### SFTP
+
+Deploys to a SFTP server.
+
+| Name | Description |
+| ---- | --------- |
+| `dir` | The remote directory on the server. Default: `/` |
+| `host` | The host address of the server. Default: `localhost` |
+| `password` | Password. |
+| `port` | The TCP port of the server. Default: `22` |
+| `user` | Username. Default: `anonymous` |
+
 ### Execute
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
-* `Deploy file`; Shortcut `(CTRL + D)`
-* `Deploy workspace` `(CTRL + ALT + D)`
+| Name | Description | Shortcut |
+| ---- | --------- | --------- |
+| `Deploy file` | Deploys the currently opened file. | `(CTRL + D)` |
+| `Deploy workspace` | Deploys a specific package. | `(CTRL + ALT + D)` |
+
