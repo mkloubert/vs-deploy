@@ -138,7 +138,7 @@ Add the subsection `targets` and add one or more entry:
 | ---- | --------- |
 | `target` | The thing should be opened. Can be a URL, file or executable. |
 
-#### FTP
+#### ftp
 
 Deploys to a FTP server.
 
@@ -151,7 +151,7 @@ Deploys to a FTP server.
 | `secure` | Use secure connection or not. Default: `(false)` |
 | `user` | Username. Default: `anonymous` |
 
-#### Local
+#### local
 
 Deploys to a local folder.
 
@@ -160,7 +160,7 @@ Deploys to a local folder.
 | `dir` | The target directory. |
 | `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
 
-#### SFTP
+#### sftp
 
 Deploys to a SFTP server.
 
@@ -172,7 +172,7 @@ Deploys to a SFTP server.
 | `port` | The TCP port of the server. Default: `22` |
 | `user` | Username. Default: `anonymous` |
 
-### Execute
+### How to execute
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
