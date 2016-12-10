@@ -6,6 +6,6 @@ img/**
 src/**
 **/*.map
 .gitignore
-.npmignore
+.vscodeignore
 tsconfig.json
 pushall.sh
