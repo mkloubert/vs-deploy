@@ -113,6 +113,13 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "/my_package_files",
                 "host": "localhost", "port": 22,
                 "user": "tester", "password": "password"
+            },
+            {
+                "type": "app",
+                "name": "My App",
+                "description": "An app to call",
+                "app": "E:/test/deploy.cmd",
+                "arguments": ["a", "b", "c"]
             }
         ]
     }
@@ -137,6 +144,15 @@ Add the subsection `targets` and add one or more entry:
 | Name | Description |
 | ---- | --------- |
 | `target` | The thing should be opened. Can be a URL, file or executable. |
+
+#### app
+
+Deploys to an app, like a script or executable, on the local machine.
+
+| Name | Description |
+| ---- | --------- |
+| `app` | The path to the app. |
+| `arguments` | One or more arguments for the execution which are added BEFORE the list of files are submitted to the app. |
 
 #### ftp
 
