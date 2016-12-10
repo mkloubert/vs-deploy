@@ -25,12 +25,45 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_helpers from './helpers';
+import * as FS from 'fs';
+import * as Moment from 'moment';
+import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as vs_deploy from './deploy';
 
 
 export function activate(context: vscode.ExtensionContext) {
+    let now = Moment();
+
+    // version
+    let appVersion: string;
+    let appName: string;
+    let displayName: string;
+    try {
+        let packageFile = JSON.parse(FS.readFileSync(Path.join(__dirname, '../../package.json'), 'utf8'));
+
+        appName = packageFile.name;
+        appVersion = packageFile.version;
+        displayName = packageFile.displayName;
+    }
+    catch (e) {
+        deploy_helpers.log(`[ERROR] ${deploy_helpers.toStringSafe(e)}`);
+    }
+
     let outputChannel = vscode.window.createOutputChannel("Deploy");
+    if (appName) {
+        outputChannel.appendLine(`${displayName} (${appName}) - v${appVersion}`);
+        outputChannel.appendLine(`Copyright (c) ${now.format('YYYY')}  Marcel Joachim Kloubert <marcel.kloubert@gmx.net>`);
+        outputChannel.appendLine('');
+        outputChannel.appendLine(`GitHub : https://github.com/mkloubert/vs-deploy`);
+        outputChannel.appendLine(`Twitter: https://twitter.com/mjkloubert`);
+        outputChannel.appendLine(`Donate : https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2`);
+        
+        outputChannel.appendLine('');
+    
+        outputChannel.show();
+    }
 
     let deployer = new vs_deploy.Deployer(context, outputChannel);
 

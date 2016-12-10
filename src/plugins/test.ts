@@ -28,7 +28,6 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as Path from 'path';
-let SFTP = require('ssh2-sftp-client');
 import * as vscode from 'vscode';
 
 
