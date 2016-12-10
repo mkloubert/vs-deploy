@@ -93,7 +93,12 @@ Add the subsection `targets` and add one or more entry:
                 "description": "A FTP folder",
                 "dir": "/my_package_files",
                 "host": "localhost", "port": 21,
-                "user": "anonymous", "password": ""
+                "user": "anonymous", "password": "",
+                "deployed": [
+                    {
+                        "target": "https://github.com/mkloubert"
+                    }
+                ]
             },
             {
                 "type": "local",
@@ -116,8 +121,22 @@ Add the subsection `targets` and add one or more entry:
 
 | Name | Description |
 | ---- | --------- |
+| `deployed` | The operations that should be invoked AFTER ALL files have been deployed successfully. |
 | `description` | The description of the target. |
 | `name` | The name of the target. |
+| `type` | The type. |
+
+##### deployed
+
+| Name | Description |
+| ---- | --------- |
+| `type` | The type. Default: `open` |
+
+###### open
+
+| Name | Description |
+| ---- | --------- |
+| `target` | The thing should be opened. Can be a URL, file or executable. |
 
 #### FTP
 
@@ -161,4 +180,3 @@ Press `F1` to open the list of commands and enter one of the following commands:
 | ---- | --------- | --------- |
 | `Deploy file` | Deploys the currently opened file. | `CTRL + D` |
 | `Deploy workspace` | Deploys a specific package. | `CTRL + ALT + D` |
-

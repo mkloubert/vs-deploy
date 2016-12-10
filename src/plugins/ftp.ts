@@ -26,7 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
-let FTP = require('ftp');
+const FTP = require('ftp');
 import * as Path from 'path';
 import * as vscode from 'vscode';
 

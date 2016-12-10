@@ -26,8 +26,9 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
-let FSExtra = require('fs-extra');
-let Glob = require('glob');
+const FSExtra = require('fs-extra');
+const Glob = require('glob');
+const OPN = require('opn');
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -67,6 +68,46 @@ export class Deployer {
 
         this.reloadConfiguration();
         this.reloadPlugins();
+    }
+
+    /**
+     * Invokes 'after deployed' operations for a target.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target.
+     */
+    protected afterDeployment(target: deploy_contracts.DeployTarget) {
+        let me = this;
+
+        try {
+            if (target.deployed) {
+                target.deployed.filter(x => x).forEach((x, i) => {
+                    try {
+                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+
+                        switch (deploy_helpers.toStringSafe(x.type).toLowerCase().trim()) {
+                            case '':
+                            case 'open':
+                                let ot = deploy_helpers.toStringSafe((<deploy_contracts.AfterDeployedOpenOperation>x).target);
+
+                                me.outputChannel.append(`Opening '${ot}'... `);
+                                OPN(deploy_helpers.toStringSafe(ot));
+                                me.outputChannel.appendLine('[OK]');
+                                break;
+
+                            default:
+                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${x.type}`);
+                                break;
+                        }
+                    }
+                    catch (e) {
+                        me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e)}]`);
+                    }
+                });
+            }
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(e)}`);
+        }
     }
 
     /**
@@ -174,6 +215,8 @@ export class Deployer {
                         vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed.`);
 
                         me.outputChannel.appendLine('Finished.');
+
+                        me.afterDeployment(target);
                     }
                 };
 
@@ -407,6 +450,8 @@ export class Deployer {
                         }
                         else {
                             me.outputChannel.appendLine('Finished.');
+
+                            me.afterDeployment(target);
                         }
                     };
 

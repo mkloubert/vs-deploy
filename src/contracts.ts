@@ -27,6 +27,28 @@ import * as vscode from 'vscode';
 
 
 /**
+ * An operation that is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedOperation {
+    /**
+     * The type.
+     */
+    type?: string;
+}
+
+/**
+ * An operation that opens something like an URI and is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedOpenOperation extends AfterDeployedOperation {
+    /**
+     * The thing should be opened. Can be a URL, file or executable.
+     */
+    target?: string;
+}
+
+/**
  * Describes an event handler that is raised BEFORE a file starts to be deployed.
  * 
  * @param {any} sender The sending object.
@@ -163,7 +185,7 @@ export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCom
  */
 export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
     /**
-     * The error (if occured).
+     * The error (if occurred).
      */
     error?: any;
     /**
@@ -306,6 +328,11 @@ export interface DeployQuickPickItem extends vscode.QuickPickItem {
  */
 export interface DeployTarget {
     /**
+     * List of operations that should be invoked AFTER
+     * ALL files have been deployed.
+     */
+    deployed?: AfterDeployedOperation[];
+    /**
      * The description.
      */
     description?: string;
@@ -347,8 +374,20 @@ export interface DeployWorkspaceOptions {
     onFileCompleted?: FileDeployedCompletedEventHandler;
 }
 
+/**
+ * Event handler for a completed "deploy workspace" operation.
+ * 
+ * @param {any} sender The sending object.
+ * @param {WorkspaceDeployedEventArguments} e Arguments of the event.
+ */
 export type WorkspaceDeployedEventHandler = (sender: any, e: WorkspaceDeployedEventArguments) => void;
 
+/**
+ * Arguments for an a completed "deploy workspace" event.
+ */
 export interface WorkspaceDeployedEventArguments {
+    /**
+     * The error (if occurred).
+     */
     error?: any;
 }
