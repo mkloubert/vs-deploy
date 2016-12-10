@@ -112,18 +112,28 @@ export class Deployer {
 
         let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
 
-        vscode.window.showQuickPick(quickPicks, {
+        let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
+            try {
+                if (item) {
+                    me.deployFileTo(file, item.target);
+                }
+            }
+            catch (e) {
+                vscode.window.showErrorMessage(`Could not deploy file '${file}': ` + e);
+            }
+        };
+
+        if (quickPicks.length > 1) {
+            vscode.window.showQuickPick(quickPicks, {
                 placeHolder: 'Select the target to deploy to...'
             }).then((item) => {
-                        try {
-                            if (item) {
-                                me.deployFileTo(file, item.target);
-                            }
-                        }
-                        catch (e) {
-                            vscode.window.showErrorMessage(`Could not deploy file '${file}': ` + e);
-                        }
+                        deploy(item);
                     });
+        }
+        else {
+            // auto select
+            deploy(quickPicks[0]);
+        }
     }
 
     /**
@@ -289,9 +299,7 @@ export class Deployer {
 
                     let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
 
-                    vscode.window.showQuickPick(fileQuickPicks, {
-                        placeHolder: 'Select the target to deploy to...'
-                    }).then((item) => {
+                    let deploy = (item: deploy_contracts.DeployTargetQuickPickItem) => {
                         try {
                             if (!item) {
                                 return;
@@ -318,7 +326,19 @@ export class Deployer {
                         catch (e) {
                             vscode.window.showErrorMessage(`Could not deploy files: ` + e);
                         }
-                    });
+                    };
+
+                    if (fileQuickPicks.length > 1) {
+                        vscode.window.showQuickPick(fileQuickPicks, {
+                            placeHolder: 'Select the target to deploy to...'
+                        }).then((item) => {
+                            deploy(item);
+                        });
+                    }
+                    else {
+                        // auto select
+                        deploy(fileQuickPicks[0]);
+                    }
                 });
     }
 
