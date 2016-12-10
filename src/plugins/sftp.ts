@@ -26,21 +26,20 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
-let FTP = require('ftp');
 import * as Path from 'path';
+let SFTP = require('ssh2-sftp-client');
 import * as vscode from 'vscode';
 
 
-interface DeployTargetFTP extends deploy_contracts.DeployTarget {
+interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     dir?: string;
     host?: string;
     port?: number;
     user?: string;
     password?: string;
-    secure?: boolean;
 }
 
-function getDirFromTarget(target: DeployTargetFTP): string {
+function getDirFromTarget(target: DeployTargetSFTP): string {
     let dir = target.dir;
     if (!dir) {
         dir = '';
@@ -54,11 +53,9 @@ function getDirFromTarget(target: DeployTargetFTP): string {
     return dir;
 }
 
-function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: any) => void) {
-    let isSecure = !!target.secure;
-
+function openSftpConnection(target: DeployTargetSFTP, callback: (err: any, conn?: any) => void) {
     let host = deploy_helpers.toStringSafe(target.host, 'localhost');
-    let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
+    let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
     let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
     let pwd = deploy_helpers.toStringSafe(target.password);
@@ -68,22 +65,16 @@ function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: 
     };
 
     try {
-        let conn = new FTP();
-        conn.on('error', function(err) {
-            if (err) {
-                completed(err);
-            }
-        });
-        conn.on('ready', function() {
-            completed(null, conn);
-        });
+        let conn = new SFTP();
         conn.connect({
-            host: host, port: port,
-            user: user, password: pwd,
-            secure: isSecure,
-            secureOptions: {
-                rejectUnauthorized: false,
-            },
+            host: host,
+            port: port,
+            username: user,
+            password: pwd,
+        }).then(() => {
+            completed(null, conn);
+        }).catch((err) => {
+            completed(err);
         });
     }
     catch (e) {
@@ -95,12 +86,12 @@ function toFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
-class FtpPlugin extends deploy_objects.DeployPluginBase {
+class SFtpPlugin extends deploy_objects.DeployPluginBase {
     constructor(ctx: deploy_contracts.DeployContext) {
         super(ctx);
     }
 
-    public deployFile(file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions): void {
+    public deployFile(file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
         }
@@ -145,7 +136,7 @@ class FtpPlugin extends deploy_objects.DeployPluginBase {
                 });
             }
 
-            openFtpConnection(target, (err, conn) => {
+            openSftpConnection(target, (err, conn) => {
                 if (err) {
                     completed(err, conn);  // could not connect
                     return;
@@ -153,7 +144,9 @@ class FtpPlugin extends deploy_objects.DeployPluginBase {
 
                 let uploadFile = () => {
                     try {
-                        conn.put(file, targetFile, (err) => {
+                        conn.put(file, targetFile).then(() => {
+                            completed(null, conn);
+                        }).catch((err) => {
                             completed(err, conn);
                         });
                     }
@@ -162,23 +155,14 @@ class FtpPlugin extends deploy_objects.DeployPluginBase {
                     }
                 };
 
-                conn.cwd(targetDirectory, (err) => {
-                    if (err) {
-                        // directory not found
-                        // try to create...
-
-                        conn.mkdir(targetDirectory, true, (err) => {
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
-
-                            uploadFile();
-                        });
-                    }
-                    else {
+                conn.list(targetDirectory).then(() => {
+                    uploadFile();
+                }).catch((err) => {
+                    conn.mkdir(targetDirectory, true).then(() => {
                         uploadFile();
-                    }
+                    }).catch((err) => {
+                        completed(err);
+                    });
                 });
             });
         }
@@ -196,5 +180,5 @@ class FtpPlugin extends deploy_objects.DeployPluginBase {
  * @returns {deploy_contracts.DeployPlugin} The new instance.
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
-    return new FtpPlugin(ctx);
+    return new SFtpPlugin(ctx);
 }
