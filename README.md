@@ -39,7 +39,7 @@ Add a `deploy` section:
 }
 ```
 
-#### Package
+#### Packages
 
 A package is a description of files of your workspace that should be deployed.
 
