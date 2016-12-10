@@ -270,11 +270,12 @@ export class Deployer {
                     let filesToDeploy: string[] = [];
                     allFilePatterns.forEach(x => {
                         let matchingFiles: string[] = Glob.sync(x, {
-                            cwd: vscode.workspace.rootPath,
-                            root: vscode.workspace.rootPath,
-                            nodir: true,
                             absolute: true,
+                            cwd: vscode.workspace.rootPath,
+                            dot: true,
                             ignore: allExcludePatterns,
+                            nodir: true,
+                            root: vscode.workspace.rootPath,
                         });
 
                         matchingFiles.forEach(x => filesToDeploy.push(x));
