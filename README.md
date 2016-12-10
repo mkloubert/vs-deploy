@@ -106,3 +106,10 @@ Add the subsection `targets` and add one or more entry:
     }
 }
 ```
+
+### Execute
+
+Press `F1` to open the list of commands and enter one of the following commands:
+
+* `Deploy file`; Shortcut `(CTRL + D)`
+* `Deploy workspace` `(CTRL + ALT + D)`
