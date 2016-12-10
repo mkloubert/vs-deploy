@@ -27,6 +27,20 @@ import * as vscode from 'vscode';
 
 
 /**
+ * Describes an event handler that is raised BEFORE a file starts to be deployed.
+ * 
+ * @param {any} sender The sending object.
+ * @param {BeforeDeployFileEventArguments} e The Arguments of the event.
+ */
+export type BeforeDeployFileEventHandler = (sender: any, e: BeforeDeployFileEventArguments) => void;
+
+/**
+ * Arguments for a "before deploy file" event.
+ */
+export interface BeforeDeployFileEventArguments extends DeployFileEventArguments {
+}
+
+/**
  * A quick pick that is based on an action.
  */
 export interface DeployActionQuickPick extends DeployQuickPickItem {
@@ -131,6 +145,66 @@ export interface DeployContext {
 }
 
 /**
+ * Arguments for a deploy event.
+ */
+export interface DeployEventArguments {    
+}
+
+/**
+ * Describes an event handler that is raised AFTER a file deployment has been completed.
+ * 
+ * @param {any} sender The sending object.
+ * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
+ */
+export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCompletedEventArguments) => void;
+
+/**
+ * Arguments for a "file deployed completed" event.
+ */
+export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
+    /**
+     * The error (if occured).
+     */
+    error?: any;
+    /**
+     * The file.
+     */
+    file: string;
+    /**
+     * The target.
+     */
+    target: DeployTarget;
+}
+
+/**
+ * Arguments for a "before deploy file" event.
+ */
+export interface DeployFileEventArguments extends DeployEventArguments {
+    /**
+     * File file.
+     */
+    file: string;
+    /**
+     * The file.
+     */
+    target: DeployTarget;
+}
+
+/**
+ * Additional options for a 'DeployFileCallback'.
+ */
+export interface DeployFileOptions {
+    /**
+     * The "before deploy" callback.
+     */
+    onBeforeDeploy?: BeforeDeployFileEventHandler;
+    /**
+     * The "completed" callback.
+     */
+    onCompleted?: FileDeployedCompletedEventHandler;
+}
+
+/**
  * A quick pick item for deploying a file.
  */
 export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
@@ -194,15 +268,17 @@ export interface DeployPlugin {
      * 
      * @param {string} file The path of the local file.
      * @param {DeployTarget} target The target.
+     * @param {DeployFileOptions} [opts] Additional options.
      */
-    deployFile?: (file: string, target: DeployTarget) => void;
+    deployFile?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => void;
     /**
      * Deploys files of a workspace.
      * 
      * @param {string[]} files The files to deploy.
      * @param {DeployTarget} target The target.
+     * @param {DeployWorkspaceOptions} [opts] Additional options.
      */
-    deployWorkspace?: (files: string[], target: DeployTarget) => void;
+    deployWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
 }
 
 /**
@@ -251,4 +327,28 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
      * The target.
      */
     target: DeployTarget;
+}
+
+/**
+ * Additional options for a 'deploy workspace' operation.
+ */
+export interface DeployWorkspaceOptions {
+    /**
+     * The "before deploy" file callback.
+     */
+    onBeforeDeployFile?: BeforeDeployFileEventHandler;
+    /**
+     * The "completed" callback for the whole operation.
+     */
+    onCompleted?: WorkspaceDeployedEventHandler;
+    /**
+     * The "completed" callback for the a single file.
+     */
+    onFileCompleted?: FileDeployedCompletedEventHandler;
+}
+
+export type WorkspaceDeployedEventHandler = (sender: any, e: WorkspaceDeployedEventArguments) => void;
+
+export interface WorkspaceDeployedEventArguments {
+    error?: any;
 }

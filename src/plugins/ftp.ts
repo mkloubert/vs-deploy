@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
+import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 let FSExtra = require('fs-extra');
 let FTP = require('ftp');
@@ -89,22 +90,16 @@ function toFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
-class FtpPlugin implements deploy_contracts.DeployPlugin {
-    protected _CONTEXT: deploy_contracts.DeployContext;
-
+class FtpPlugin extends deploy_objects.DeployPluginBase {
     constructor(ctx: deploy_contracts.DeployContext) {
-        this._CONTEXT = ctx;
+        super(ctx);
     }
 
-    public get context(): deploy_contracts.DeployContext {
-        return this._CONTEXT;
-    }
+    public deployFile(file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
 
-    public deployFile(file: string, target: DeployTargetFTP): void {
-        this.deployFileInner(file, target);
-    }
-
-    protected deployFileInner(file: string, target: DeployTargetFTP): void {
         let me = this;
 
         let relativeFilePath = deploy_helpers.toRelativePath(file);
@@ -118,131 +113,72 @@ class FtpPlugin implements deploy_contracts.DeployPlugin {
         let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
         let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
-        let deployFile = () => {
-            console.log('Deploying...');
-            me.context.log(`Deploying ${file}`);
-
-            let completed = (err?, conn?) => {
-                if (err) {
-                    vscode.window.showErrorMessage(`Could not deploy file '${file}' to local directory '${targetDirectory}': ` + err);
+        let completed = (err?, conn?) => {
+            if (conn) {
+                try {
+                    conn.end();
                 }
-                
-                if (conn) {
-                    try {
-                        conn.end();
-                    }
-                    catch (e) { /* ignore */ }
+                catch (e) {
+                    me.context.log(`[ERROR] FtpPlugin.deployFile(1): ${deploy_helpers.toStringSafe(e)}`);
                 }
-            };
-
-            try {
-                openFtpConnection(target, (err, conn) => {
-                    if (err) {
-                        completed(err, conn);
-                        return;
-                    }
-
-                    let uploadFile = (conn) => {
-                        try {
-                            conn.put(file, targetFile, (err) => {
-                                if (!err) {
-                                    vscode.window.showInformationMessage(`File '${relativeFilePath}' has been successfully deployed to FTP directory '${targetDirectory}'.`);
-                                }
-
-                                completed(err, conn);
-                            });
-                        }
-                        catch (e) {
-                            completed(e, conn);
-                        }
-                    };
-
-                    conn.cwd(dir, (err) => {
-                        if (err) {
-                            let quickPicks: deploy_contracts.DeployActionQuickPick[] = [
-                                // "Yes"
-                                {
-                                    label: 'Yes',
-                                    description: 'Creates the directory on FTP server',
-                                    action: () => {
-                                        conn.mkdir(targetDirectory, true, (err) => {
-                                            if (err) {
-                                                completed(err);
-                                                return;
-                                            }
-
-                                            uploadFile(conn);
-                                        });
-                                    }
-                                },
-
-                                // "No"
-                                {
-                                    label: 'No',
-                                    description: 'Does NOT create the target directory and cancels the operation.',
-                                    action: () => { 
-                                        vscode.window.showInformationMessage("Deploy operation cancelled.");
-                                    }
-                                }
-                            ];
-
-                            vscode.window.showQuickPick(quickPicks, {
-                                placeHolder: 'Create target directory?',
-                            }).then((item) => {
-                                        if (!item) {
-                                            item = quickPicks[1];  // Default: "No"
-                                        }
-
-                                        try {
-                                            if (item.action) {
-                                                item.action(me);
-                                            }
-                                        }
-                                        catch (e) {
-                                            vscode.window.showErrorMessage(`Could not create directory '${targetDirectory}' on FTP server: ` + e);
-                                        }
-                                    });
-                        }
-                        else {
-                            uploadFile(conn);
-                        }
-                    });
-                });
             }
-            catch (e) {
-                completed(e);
+
+            if (opts.onCompleted) {
+                opts.onCompleted(this, {
+                    error: err,
+                    file: file,
+                    target: target,
+                });
             }
         };
 
-        deployFile();
-    }
-
-    public deployWorkspace(files: string[], target: DeployTargetFTP) {
-        let me = this;
-
-        let failed = 0;
-        let succeeded = 0;
-        files.forEach(x => {
-            try {
-                me.deployFileInner(x, target);
-                ++succeeded;
+        try {
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    file: file,
+                    target: target,
+                });
             }
-            catch (e) {
-                ++failed;
-                me.context.log(`[ERROR] Could not deploy file '${x}': ` + e);
-            }
-        });
 
-        if (failed < 1) {
-            vscode.window.showInformationMessage('All files were deployed successfully.');
+            openFtpConnection(target, (err, conn) => {
+                if (err) {
+                    completed(err, conn);  // could not connect
+                    return;
+                }
+
+                let uploadFile = (conn) => {
+                    try {
+                        conn.put(file, targetFile, (err) => {
+                            completed(err, conn);
+                        });
+                    }
+                    catch (e) {
+                        completed(e, conn);
+                    }
+                };
+
+                conn.cwd(dir, (err) => {
+                    if (err) {
+                        // directory not found
+                        // try to create...
+
+                        conn.mkdir(targetDirectory, true, (err) => {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
+
+                            uploadFile(conn);
+                        });
+                    }
+                    else {
+                        uploadFile(conn);
+                    }
+                });
+            });
         }
-        else {
-            if (failed >= files.length) {
-                vscode.window.showErrorMessage('No file could be deployed!');
-            }
-            else {
-                vscode.window.showWarningMessage(`${failed} file(s) could not be deployed!`);
-            }
+        catch (e) {
+            completed(e);
         }
     }
 }

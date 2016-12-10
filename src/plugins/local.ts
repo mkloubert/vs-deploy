@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
+import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 let FSExtra = require('fs-extra');
 import * as Path from 'path';
@@ -54,25 +55,16 @@ function getFullDirPathFromTarget(target: DeployTargetLocal): string {
     return dir;
 }
 
-class LocalPlugin implements deploy_contracts.DeployPlugin {
-    protected _CONTEXT: deploy_contracts.DeployContext;
-
+class LocalPlugin extends deploy_objects.DeployPluginBase {
     constructor(ctx: deploy_contracts.DeployContext) {
-        this._CONTEXT = ctx;
+        super(ctx);
     }
 
-    public get context(): deploy_contracts.DeployContext {
-        return this._CONTEXT;
-    }
+    public deployFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
 
-    public deployFile(file: string, target: DeployTargetLocal): void {
-        this.context.outputChannel().show();
-
-        this.context.outputChannel().appendLine('');
-        this.deployFileInner(file, target);
-    }
-
-    protected deployFileInner(file: string, target: DeployTargetLocal, callback?: (err: any) => void): void {
         let me = this;
 
         let dir = getFullDirPathFromTarget(target);
@@ -87,19 +79,24 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
         let targetDirectory = Path.dirname(targetFile);
 
         let completed = (err?: any) => {
-            if (err) {
-                me.context.writeLine(`[FAILED: ${deploy_helpers.toStringSafe(err)}]`);
-            }
-
-            if (callback) {
-                callback(err);
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    error: err,
+                    file: file,
+                    target: target,
+                });
             }
         };
 
         let deployFile = () => {
-            me.context.write(`Deploying '${relativeFilePath}' to LOCAL directory '${targetDirectory}'... `);
-
             try {
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        file: file,
+                        target: target,
+                    });
+                }
+
                 FSExtra.copy(file, targetFile, {
                     clobber: true,
                     preserveTimestamps: true,
@@ -109,8 +106,6 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
                         return;
                     }
 
-                    me.context.writeLine("[OK]");
-
                     completed();
                 });
             }
@@ -119,51 +114,24 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
             }
         };
 
-        if (!FS.existsSync(targetDirectory)) {
-            let quickPicks: deploy_contracts.DeployActionQuickPick[] = [
-                {
-                    label: 'Yes',
-                    description: 'Creates the target directory',
-                    action: () => {
-                        FSExtra.mkdirsSync(targetDirectory);
-
-                        deployFile();
+        FS.exists(targetDirectory, (exists) => {
+            if (exists) {
+                deployFile();
+            }
+            else {
+                FSExtra.mkdirs(targetDirectory, function (err) {
+                    if (err) {
+                        completed(err);
+                        return;
                     }
-                },
-                {
-                    label: 'No',
-                    description: 'Does NOT create the target directory and cancels the operation.',
-                    action: () => { 
-                        vscode.window.showInformationMessage("Deploy operation cancelled.");
-                    }
-                }
-            ];
 
-            vscode.window.showQuickPick(quickPicks, {
-                placeHolder: 'Create target directory?',
-            }).then((item) => {
-                        if (!item) {
-                            item = quickPicks[1];  // no => default
-                        }
-
-                        try {
-                            if (item.action) {
-                                item.action(me);
-                            }
-                        }
-                        catch (e) {
-                            vscode.window.showErrorMessage(`Could not create target directory '${targetDirectory}': ` + e);
-
-                            completed(e);
-                        }
-                    });
-        }
-        else {
-            deployFile();
-        }
+                    deployFile();
+                });
+            }
+        });
     }
 
-    public deployWorkspace(files: string[], target: DeployTargetLocal) {
+    public deployWorkspace(files: string[], target: DeployTargetLocal, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let me = this;
 
         let targetDir = deploy_helpers.toStringSafe(target.dir);
@@ -171,78 +139,37 @@ class LocalPlugin implements deploy_contracts.DeployPlugin {
             targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
 
-        let failed = 0;
-        let succeeded = 0;
-        let filesTodo = files.map(x => x);
-        let completed = () => {
-            if (failed < 1) {
-                vscode.window.showInformationMessage('All files were deployed successfully.');
-            }
-            else {
-                if (failed >= files.length) {
-                    vscode.window.showErrorMessage('No file could be deployed!');
-                }
-                else {
-                    vscode.window.showWarningMessage(`${failed} file(s) could not be deployed!`);
-                }
-            }
-        };
-
-        let deployNextFile: () => void;
-        deployNextFile = () => {
-            if (filesTodo.length < 1) {
-                completed();
-                return;
-            }
-
-            let f = filesTodo.pop();
-
-            let logError = (err) => {
-                me.context.log(`[ERROR] Could not deploy file '${f}': ${err}`);
-            };
-            
-            try {
-                me.deployFileInner(f, target, (err) => {
-                    if (err) {
-                        ++failed;
-                        logError(err);
-                    }
-                    else {
-                        ++succeeded;
-                    }
-
-                    deployNextFile();
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    error: err,
                 });
             }
-            catch (e) {
-                ++failed;
-                logError(e);
-            }
         };
 
-        let emptyDir = () => {
-            let doEmptyDir = !!target.empty;
-            if (doEmptyDir) {
-                me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
-
-                FSExtra.emptyDir(targetDir, (err) => {
-                    if (err) {
-                        me.context.outputChannel().appendLine(`[FAILED: ${err}]`);
-
-                        vscode.window.showErrorMessage(`Could not empty LOCAL target directory '${targetDir}': ${err}`);
-                        return;
-                    }
-
-                    me.context.outputChannel().appendLine(`[OK]`);
-                    deployNextFile();
-                });
-            }
-            else {
-                deployNextFile();
-            }
+        let startDeploying = () => {
+            super.deployWorkspace(files, target, opts);    
         };
 
-        emptyDir();
+        let doEmptyDir = !!target.empty;
+        if (doEmptyDir) {
+            me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
+
+            FSExtra.emptyDir(targetDir, (err) => {
+                if (err) {
+                    me.context.outputChannel().append(`[FAILED: ${deploy_helpers.toStringSafe(err)}]`);
+
+                    completed(err);
+                    return;
+                }
+
+                me.context.outputChannel().appendLine('[OK]');
+                startDeploying();
+            });
+        }
+        else {
+            startDeploying();
+        }
     }
 }
 

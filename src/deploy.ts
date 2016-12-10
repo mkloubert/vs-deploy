@@ -57,8 +57,8 @@ export class Deployer {
     /**
      * Initializes a new instance of that class.
      * 
-     * @param {vscode.ExtensionContext} The underlying extension context.
-     * @param {vscode.OutputChannel} The global output channel to use.
+     * @param {vscode.ExtensionContext} context The underlying extension context.
+     * @param {vscode.OutputChannel} outputChannel The global output channel to use.
      */
     constructor(context: vscode.ExtensionContext,
                 outputChannel: vscode.OutputChannel) {
@@ -141,26 +141,66 @@ export class Deployer {
                    (x.__type == type && x.deployFile);
         });
 
+        let relativePath = deploy_helpers.toRelativePath(file);
+        if (false === relativePath) {
+            relativePath = file;
+        }
+
         if (matchIngPlugins.length > 0) {
             matchIngPlugins.forEach(x => {
+                let statusBarItem = vscode.window.createStatusBarItem(
+                    vscode.StatusBarAlignment.Left,
+                );
+
+                let showResult = (err?: any) => {
+                    statusBarItem.dispose();
+
+                    if (err) {
+                        vscode.window.showErrorMessage(`Could not deploy file '${relativePath}': ${err}`);
+
+                        me.outputChannel.appendLine('Finished with errors!');
+                    }
+                    else {
+                        vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed.`);
+
+                        me.outputChannel.appendLine('Finished.');
+                    }
+                };
+
                 try {
                     let targetName = deploy_helpers.toStringSafe(target.name);
 
                     me.outputChannel.show();
                     me.outputChannel.appendLine('');
 
-                    let deployMsg = `Deploying file '${file}'`;
+                    let deployMsg = `Deploying file '${relativePath}'`;
                     if (targetName) {
                         deployMsg += ` to '${targetName}'`;
                     }
-                    deployMsg += '...';
+                    deployMsg += '... ';
 
-                    me.outputChannel.appendLine(deployMsg);
+                    me.outputChannel.append(deployMsg);
 
-                    x.deployFile(file, target);
+                    statusBarItem.color = '#ffffff';
+                    statusBarItem.tooltip = `Deploying '${relativePath}'...`;
+                    statusBarItem.text = `Deploying...`;
+                    statusBarItem.show();
+
+                    x.deployFile(file, target, {
+                        onCompleted: (sender, e) => {
+                            if (e.error) {
+                                me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
+                            }
+                            else {
+                                me.outputChannel.appendLine('[OK]');
+                            }
+
+                            showResult(e.error);
+                        }
+                    });
                 }
                 catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy file '${file}': ${e}`);
+                    showResult(e);
                 }
             });
         }
@@ -271,6 +311,7 @@ export class Deployer {
                             deployMsg += '...';
 
                             me.outputChannel.appendLine(deployMsg);
+
                             me.deployWorkspaceTo(filesToDeploy, item.target);
                         }
                         catch (e) {
@@ -289,10 +330,7 @@ export class Deployer {
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget) {
         let me = this;
 
-        let type: string;
-        if (target) {
-            type = deploy_helpers.parseTargetType(target.type);
-        }
+        let type = deploy_helpers.parseTargetType(target.type);
 
         let matchIngPlugins = this.plugins.filter(x => {
             return !type ||
@@ -302,7 +340,79 @@ export class Deployer {
         if (matchIngPlugins.length > 0) {
             matchIngPlugins.forEach(x => {
                 try {
-                    x.deployWorkspace(files, target);
+                    let statusBarItem = vscode.window.createStatusBarItem(
+                        vscode.StatusBarAlignment.Left,
+                    );
+
+                    let failed: string[] = [];
+                    let succeeded: string[] = [];
+                    let showResult = (err?: any) => {
+                        statusBarItem.dispose();
+
+                        if (err) {
+                            vscode.window.showErrorMessage(`Deploying failed: ${deploy_helpers.toStringSafe(err)}`);
+                        }
+                        else {
+                            if (failed.length > 0) {
+                                if (failed.length == succeeded.length) {
+                                    vscode.window.showErrorMessage('No file could be deployed!');
+                                }
+                                else {
+                                    vscode.window.showWarningMessage(`${failed.length} of the ${succeeded.length + failed.length} file(s) could not be deployed!`);
+                                }
+                            }
+                            else {
+                                if (succeeded.length > 0) {
+                                    vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully.`);
+                                }
+                                else {
+                                    vscode.window.showWarningMessage('No file deployed.');
+                                }
+                            }
+                        }
+
+                        if (err || failed.length > 0) {
+                            me.outputChannel.appendLine('Finished with errors!');
+                        }
+                        else {
+                            me.outputChannel.appendLine('Finished.');
+                        }
+                    };
+
+                    statusBarItem.color = '#ffffff';
+                    statusBarItem.text = 'Deploying...';
+                    statusBarItem.tooltip = statusBarItem.text;
+                    statusBarItem.show();
+
+                    x.deployWorkspace(files, target, {
+                        onBeforeDeployFile: (sender, e) => {
+                            let relativePath = deploy_helpers.toRelativePath(e.file);
+                            if (false === relativePath) {
+                                relativePath = e.file;
+                            }
+
+                            statusBarItem.tooltip = `Deploying '${relativePath}'...`;
+
+                            me.outputChannel.append(statusBarItem.tooltip + ' ');
+                        },
+
+                        onCompleted: (sender, e) => {
+                            showResult(e.error);
+                        },
+
+                        onFileCompleted: (sender, e) => {
+                            if (e.error) {
+                                me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
+
+                                failed.push(e.file);
+                            }
+                            else {
+                                me.outputChannel.appendLine('[OK]');
+
+                                succeeded.push(e.file);
+                            }
+                        }
+                    });
                 }
                 catch (e) {
                     vscode.window.showErrorMessage(`Could not deploy files: ${e}`);
