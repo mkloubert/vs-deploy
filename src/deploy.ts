@@ -516,7 +516,7 @@ export class Deployer {
             packages = [];
         }
 
-        return packages.filter(x => x);
+        return deploy_helpers.sortPackages(packages);
     }
 
     /**
@@ -530,7 +530,7 @@ export class Deployer {
             targets = [];
         }
 
-        return targets.filter(x => x);
+        return deploy_helpers.sortTargets(targets);
     }
 
     /**
@@ -609,6 +609,7 @@ export class Deployer {
                     }).filter(x => x)
                       .map(x => Path.join(pluginDir, x));
 
+                    let nextPluginIndex = -1;
                     moduleFiles.forEach(x => {
                         try {
                             let pluginModule: deploy_contracts.DeployPluginModule = require(x);
@@ -636,6 +637,7 @@ export class Deployer {
                                         },
                                         outputChannel: () => me.outputChannel,
                                         packages: () => me.getPackages(),
+                                        plugins: null,
                                         targets: () => me.getTargets(),
                                         warn: function(msg) {
                                             if (msg) {
@@ -660,7 +662,13 @@ export class Deployer {
 
                                     let newPlugin = pluginModule.createPlugin(ctx);
                                     if (newPlugin) {
+                                        let pluginIndex = ++nextPluginIndex;
+                                        ctx.plugins = function() {
+                                            return loadedPlugins.filter(x => x.__index != pluginIndex);
+                                        };
+
                                         newPlugin.__file = deploy_helpers.parseTargetType(Path.basename(x));
+                                        newPlugin.__index = pluginIndex;
                                         newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
 
                                         loadedPlugins.push(newPlugin);

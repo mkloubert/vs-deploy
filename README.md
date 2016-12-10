@@ -76,6 +76,7 @@ Add the subsection `packages` and add one or more entry:
 | `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). |
 | `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |
 | `name` | The name of the package. |
+| `sortOrder` | An optional number to sort the package elements. |
 
 #### Targets
 
@@ -131,6 +132,7 @@ Add the subsection `targets` and add one or more entry:
 | `deployed` | The operations that should be invoked AFTER ALL files have been deployed successfully. |
 | `description` | The description of the target. |
 | `name` | The name of the target. |
+| `sortOrder` | An optional number to sort the target elements. |
 | `type` | The type. |
 
 ##### deployed

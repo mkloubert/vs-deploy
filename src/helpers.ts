@@ -31,6 +31,26 @@ import * as vscode from 'vscode';
 
 
 /**
+ * Compares two values for a sort operation.
+ * 
+ * @param {T} x The left value.
+ * @param {T} y The right value.
+ * 
+ * @return {number} The "sort value".
+ */
+export function compareValues<T>(x: T, y: T): number {
+    if (x > y) {
+        return 1;
+    }
+
+    if (x < y) {
+        return -1;
+    }
+
+    return 0;
+}
+
+/**
  * Creates a quick pick for deploying a single file.
  * 
  * @param {string} file The file to deploy.
@@ -153,6 +173,78 @@ export function replaceAllStrings(str: string, searchValue: string, replaceValue
 
     return str.split(searchValue)
               .join(replaceValue);
+}
+
+/**
+ * Sorts a list of packages.
+ * 
+ * @param {deploy_contracts.DeployPackage[]} pkgs The input list.
+ * 
+ * @return {deploy_contracts.DeployPackage[]} The sorted list.
+ */
+export function sortPackages(pkgs: deploy_contracts.DeployPackage[]): deploy_contracts.DeployPackage[] {
+    if (!pkgs) {
+        pkgs = [];
+    }
+
+    return pkgs.filter(x => x)
+               .map(x => {
+                        return {
+                            level0: x.sortOrder,  // first sort by "sortOrder"
+                            level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
+                            value: x,
+                        };
+                    })
+               .sort((x, y) => {
+                   let comp0 = compareValues(x.level0, y.level0);
+                   if (0 != comp0) {
+                       return comp0;
+                   }
+
+                   let comp1 = compareValues(x.level1, y.level1);
+                   if (0 != comp1) {
+                       return comp1;
+                   }
+
+                   return 0;
+               })
+               .map(x => x.value);
+}
+
+/**
+ * Sorts a list of targets.
+ * 
+ * @param {deploy_contracts.DeployTarget[]} pkgs The input list.
+ * 
+ * @return {deploy_contracts.DeployTarget[]} The sorted list.
+ */
+export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_contracts.DeployTarget[] {
+    if (!targets) {
+        targets = [];
+    }
+
+    return targets.filter(x => x)
+                  .map(x => {
+                           return {
+                               level0: x.sortOrder,  // first sort by "sortOrder"
+                               level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
+                               value: x,
+                           };
+                       })
+                  .sort((x, y) => {
+                           let comp0 = compareValues(x.level0, y.level0);
+                           if (0 != comp0) {
+                               return comp0;
+                           }
+
+                           let comp1 = compareValues(x.level1, y.level1);
+                           if (0 != comp1) {
+                               return comp1;
+                           }
+
+                           return 0;
+                       })
+                  .map(x => x.value);
 }
 
 /**

@@ -135,6 +135,12 @@ export interface DeployContext {
      */
     packages(): DeployPackage[];
     /**
+     * Returns the list of (other) plugins.
+     * 
+     * @param {DeployPlugin[]} The list of (other) plugins.
+     */
+    plugins(): DeployPlugin[];
+    /**
      * Shows a warning message.
      * 
      * @param {any} [msg] The message to show.
@@ -256,6 +262,10 @@ export interface DeployPackage {
      * The name.
      */
     name?: string;
+    /**
+     * The sort order.
+     */
+    sortOrder: number;
 }
 
 /**
@@ -278,6 +288,12 @@ export interface DeployPlugin {
      * Gets the filename of the plugin.
      */
     __file?: string;
+    /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
+     * Gets the index of the plugin.
+     */
+    __index?: number;
     /**
      * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
      * 
@@ -340,6 +356,10 @@ export interface DeployTarget {
      * The name.
      */
     name?: string;
+    /**
+     * The sort order.
+     */
+    sortOrder: number;
     /**
      * The type.
      */
