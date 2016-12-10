@@ -128,7 +128,8 @@ Deploys to a FTP server.
 | `dir` | The target directory. |
 | `host` | The host address of the server. Default: `localhost` |
 | `password` | Password. |
-| `port` | The TCP port of the server. Default: `22` |
+| `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
+| `secure` | Use secure connection or not. Default: `(false)` |
 | `user` | Username. Default: `anonymous` |
 
 #### Local
