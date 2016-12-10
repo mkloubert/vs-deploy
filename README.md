@@ -112,6 +112,12 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "E:/test/my_package_files"
             },
             {
+                "type": "local",
+                "name": "My network folder",
+                "description": "A SMB shared network folder",
+                "dir": "\\\\MyServer\\my_package_files"
+            },
+            {
                 "type": "sftp",
                 "name": "My SFTP folder",
                 "description": "A SFTP folder",
@@ -175,7 +181,7 @@ Deploys to a FTP server.
 
 #### local
 
-Deploys to a local folder.
+Deploys to a local folder or a shared folder inside your LAN.
 
 | Name | Description |
 | ---- | --------- |
