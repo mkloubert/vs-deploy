@@ -590,6 +590,7 @@ export class Deployer {
             let pluginDir = Path.join(__dirname, './plugins');
             if (FS.existsSync(pluginDir)) {
                 if (FS.lstatSync(pluginDir).isDirectory()) {
+                    // modules from plugin directory
                     let moduleFiles = FS.readdirSync(pluginDir).filter(x => {
                         try {
                             if ('.' != x && '..' != x) {
@@ -608,6 +609,25 @@ export class Deployer {
                         return false;
                     }).filter(x => x)
                       .map(x => Path.join(pluginDir, x));
+
+                    // additional modules defined?
+                    if (me.config.modules) {
+                        let additionalModuleFiles =
+                            deploy_helpers.asArray(me.config.modules)
+                                .map(x => deploy_helpers.toStringSafe(x))
+                                .filter(x => x)
+                                .map(x => {
+                                        if (!Path.isAbsolute(x)) {
+                                            x = Path.join(vscode.workspace.rootPath, x);
+                                        }
+
+                                        return x;
+                                    });
+
+                        moduleFiles = moduleFiles.concat(additionalModuleFiles);
+                    }
+
+                    moduleFiles = deploy_helpers.distinctArray(moduleFiles);
 
                     let nextPluginIndex = -1;
                     moduleFiles.forEach(x => {

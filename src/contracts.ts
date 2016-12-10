@@ -81,6 +81,10 @@ export interface DeployActionQuickPick extends DeployQuickPickItem {
  */
 export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
     /**
+     * List of additional files of plugin modules to load.
+     */
+    modules?: string | string[];
+    /**
      * List of packages.
      */
     packages?: DeployPackage[];

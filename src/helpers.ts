@@ -31,6 +31,21 @@ import * as vscode from 'vscode';
 
 
 /**
+ * Returns a value as array.
+ * 
+ * @param {T | T[]} val The value.
+ * 
+ * @return {T[]} The value as array.
+ */
+export function asArray<T>(val: T | T[]): T[] {
+    if (!Array.isArray(val)) {
+        return [ val ];
+    }
+
+    return val;
+}
+
+/**
  * Compares two values for a sort operation.
  * 
  * @param {T} x The left value.

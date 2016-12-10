@@ -39,6 +39,10 @@ Add a `deploy` section:
 }
 ```
 
+| Name | Description |
+| ---- | --------- |
+| `modules` | An optional list of one or more "external" plugin module files (.js) to load. |
+
 #### Packages
 
 A package is a description of files of your workspace that should be deployed.
