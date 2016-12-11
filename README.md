@@ -15,6 +15,7 @@ The extension supports the following destination types:
 * Mail (SMTP)
 * Remote machines like other VS Code instances
 * SFTP
+* ZIP files
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2)
 
