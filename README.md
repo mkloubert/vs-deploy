@@ -28,7 +28,7 @@ ext install vs-deploy
 
 ### Settings
 
-Open (or create) your `settings.json` in your `.vcode` subfolder of your workspace.
+Open (or create) your `settings.json` in your `.vscode` subfolder of your workspace.
 
 Add a `deploy` section:
 
