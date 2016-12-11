@@ -62,7 +62,8 @@ Add the subsection `packages` and add one or more entry:
                 ],
                 "exclude": [
                     "tests/**"
-                ]
+                ],
+                "deployOnSave": true
             },
             
             {
@@ -76,6 +77,7 @@ Add the subsection `packages` and add one or more entry:
 
 | Name | Description |
 | ---- | --------- |
+| `deployOnSave` | Deploy a file of this package on save or not. This can be a list of one or more targets (s. below) to deploy to or `(true)` for all targets. Default: `(false)` |
 | `description` | The description of the package. |
 | `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). |
 | `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |

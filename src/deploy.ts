@@ -27,7 +27,6 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
-const Glob = require('glob');
 const OPN = require('opn');
 import * as Moment from 'moment';
 import * as Path from 'path';
@@ -206,13 +205,18 @@ export class Deployer {
                 let showResult = (err?: any) => {
                     statusBarItem.dispose();
 
+                    let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+                    if (targetExpr) {
+                        targetExpr = ` to '${targetExpr}'`;
+                    }
+
                     if (err) {
-                        vscode.window.showErrorMessage(`Could not deploy file '${relativePath}': ${err}`);
+                        vscode.window.showErrorMessage(`Could not deploy file '${relativePath}'${targetExpr}: ${err}`);
 
                         me.outputChannel.appendLine('Finished with errors!');
                     }
                     else {
-                        vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed.`);
+                        vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed${targetExpr}.`);
 
                         me.outputChannel.appendLine('Finished.');
 
@@ -294,45 +298,7 @@ export class Deployer {
 
             let packageName = deploy_helpers.toStringSafe(item.package.name);
 
-            // files in include
-            let allFilePatterns: string[] = [];
-            if (item.package.files) {
-                allFilePatterns = item.package.files
-                                                .map(x => deploy_helpers.toStringSafe(x))
-                                                .filter(x => x);
-
-                allFilePatterns = deploy_helpers.distinctArray(allFilePatterns);
-            }
-            if (allFilePatterns.length < 1) {
-                allFilePatterns.push('**');  // include all by default
-            }
-
-            // files to exclude
-            let allExcludePatterns: string[] = [];
-            if (item.package.exclude) {
-                allExcludePatterns = item.package.exclude
-                                                    .map(x => deploy_helpers.toStringSafe(x))
-                                                    .filter(x => x);
-
-                allExcludePatterns = deploy_helpers.distinctArray(allExcludePatterns);
-            }
-
-            // collect files to deploy
-            let filesToDeploy: string[] = [];
-            allFilePatterns.forEach(x => {
-                let matchingFiles: string[] = Glob.sync(x, {
-                    absolute: true,
-                    cwd: vscode.workspace.rootPath,
-                    dot: true,
-                    ignore: allExcludePatterns,
-                    nodir: true,
-                    root: vscode.workspace.rootPath,
-                });
-
-                matchingFiles.forEach(x => filesToDeploy.push(x));
-            });
-            filesToDeploy = deploy_helpers.distinctArray(filesToDeploy);
-
+            let filesToDeploy = deploy_helpers.getFilesOfPackage(item.package);
             if (filesToDeploy.length < 1) {
                 vscode.window.showWarningMessage(`There are no files to deploy!`);
                 return;
@@ -423,24 +389,29 @@ export class Deployer {
                     let showResult = (err?: any) => {
                         statusBarItem.dispose();
 
+                        let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+                        if (targetExpr) {
+                            targetExpr = ` to '${targetExpr}'`;
+                        }
+
                         if (err) {
-                            vscode.window.showErrorMessage(`Deploying failed: ${deploy_helpers.toStringSafe(err)}`);
+                            vscode.window.showErrorMessage(`Deploying${targetExpr} failed: ${deploy_helpers.toStringSafe(err)}`);
                         }
                         else {
                             if (failed.length > 0) {
                                 if (failed.length == succeeded.length) {
-                                    vscode.window.showErrorMessage('No file could be deployed!');
+                                    vscode.window.showErrorMessage(`No file could be deployed${targetExpr}!`);
                                 }
                                 else {
-                                    vscode.window.showWarningMessage(`${failed.length} of the ${succeeded.length + failed.length} file(s) could not be deployed!`);
+                                    vscode.window.showWarningMessage(`${failed.length} of the ${succeeded.length + failed.length} file(s) could not be deployed${targetExpr}!`);
                                 }
                             }
                             else {
                                 if (succeeded.length > 0) {
-                                    vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully.`);
+                                    vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully${targetExpr}.`);
                                 }
                                 else {
-                                    vscode.window.showWarningMessage('No file deployed.');
+                                    vscode.window.showWarningMessage(`No file deployed${targetExpr}.`);
                                 }
                             }
                         }
@@ -555,6 +526,130 @@ export class Deployer {
      */
     public onDidChangeConfiguration() {
         this.reloadConfiguration();
+    }
+
+    /**
+     * Event after a document has been saved.
+     * 
+     * @param {vscode.TextDocument} doc The document.
+     */
+    public onDidSaveTextDocument(doc: vscode.TextDocument) {
+        if (!doc) {
+            return;
+        }
+
+        let me = this;
+
+        let docFile = deploy_helpers.replaceAllStrings(doc.fileName, Path.sep, '/');
+
+        let relativeDocFilePath = deploy_helpers.toRelativePath(docFile);
+        if (false === relativeDocFilePath) {
+            relativeDocFilePath = docFile;
+        }
+
+        try {
+            FS.exists(doc.fileName, (exists) => {
+                try {
+                    let normalizeString = (str: string): string => {
+                        return deploy_helpers.toStringSafe(str)
+                                             .toLowerCase()
+                                             .trim();
+                    };
+
+                    // find packages that would deploy the file
+                    let packagesToDeploy = me.getPackages();
+                    packagesToDeploy = packagesToDeploy.filter(x => {
+                        if (!x.deployOnSave) {
+                            return false;  // do NOT deploy on save
+                        }
+
+                        let packageFiles = deploy_helpers.getFilesOfPackage(x);
+                        return packageFiles.indexOf(docFile) > -1;
+                    });
+
+                    // find matching targets
+                    let targets = me.getTargets();
+                    packagesToDeploy.forEach(x => {
+                        if (true === x.deployOnSave) {
+                            return;
+                        }
+
+                        let packageName = normalizeString(x.name);
+
+                        let targetsOfPackage = deploy_helpers.asArray(x.deployOnSave)
+                                                             .map(x => normalizeString(x))
+                                                             .filter(x => x);
+                        
+                        targetsOfPackage.forEach(y => {
+                            let foundTarget = false;
+                            for (let i = 0; i < targets.length; i++) {
+                                let targetName = normalizeString(targets[i].name);
+
+                                if (targetName == y) {
+                                    foundTarget = true;
+                                    break;
+                                }
+                            }
+
+                            if (!foundTarget) {
+                                if (packageName) {
+                                    vscode.window.showWarningMessage(`Deploy target ${deploy_helpers.toStringSafe(y)} defined in package ${deploy_helpers.toStringSafe(x.name)} does not exist.`);
+                                }
+                                else {
+                                    vscode.window.showWarningMessage(`Deploy target ${deploy_helpers.toStringSafe(y)} defined in package does not exist.`);
+                                }
+                            }
+                        });
+                    });
+
+                    targets = targets.filter(x => {
+                        let targetName = normalizeString(x.name);
+
+                        for (let i = 0; i < packagesToDeploy.length; i++) {
+                            let pkg = packagesToDeploy[i];
+                            if (true === pkg.deployOnSave) {
+                                return true;  // deploy to each target
+                            }
+
+                            // extract targets that are defined in the package
+                            let targetsOfPackage = deploy_helpers.asArray(pkg.deployOnSave)
+                                                                 .map(x => normalizeString(x))
+                                                                 .filter(x => x);
+                            
+                            if (targetsOfPackage.indexOf(targetName) > -1) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    });
+
+                    targets.forEach(x => {
+                        let targetName = deploy_helpers.toStringSafe(x.name).trim();
+
+                        try {
+                            me.deployFileTo(docFile, x);
+                        }
+                        catch (e) {
+                            let errMsg = deploy_helpers.toStringSafe(e);
+
+                            let targetExpr = 'target';
+                            if (targetName) {
+                                targetExpr = `'${targetName}'`;
+                            }
+
+                            vscode.window.showWarningMessage(`Could not deploy '${relativeDocFilePath}' to ${targetExpr} on save: ${errMsg}`);
+                        }
+                    });
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(`Could not deploy '${relativeDocFilePath}' on save (2): ${deploy_helpers.toStringSafe(e)}`);
+                }
+            });
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Could not deploy '${relativeDocFilePath}' on save (1): ${deploy_helpers.toStringSafe(e)}`);
+        }
     }
 
     /**

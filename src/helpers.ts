@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
+const Glob = require('glob');
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -146,6 +147,58 @@ export function distinctArray<T>(arr: T[]): T[] {
     return arr.filter((x, i) => {
         return arr.indexOf(x) == i;
     });
+}
+
+/**
+ * Returns the list of a package that should be deployed.
+ * 
+ * @param {deploy_contracts.DeployPackage} pkg The package.
+ * 
+ * @return {string[]} The list of files.
+ */
+export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
+    if (!pkg) {
+        return [];
+    }
+
+    // files in include
+    let allFilePatterns: string[] = [];
+    if (pkg.files) {
+        allFilePatterns = pkg.files
+                             .map(x => toStringSafe(x))
+                             .filter(x => x);
+
+        allFilePatterns = distinctArray(allFilePatterns);
+    }
+    if (allFilePatterns.length < 1) {
+        allFilePatterns.push('**');  // include all by default
+    }
+
+    // files to exclude
+    let allExcludePatterns: string[] = [];
+    if (pkg.exclude) {
+        allExcludePatterns = pkg.exclude
+                                .map(x => toStringSafe(x))
+                                .filter(x => x);
+    }
+    allExcludePatterns = distinctArray(allExcludePatterns);
+
+    // collect files to deploy
+    let filesToDeploy: string[] = [];
+    allFilePatterns.forEach(x => {
+        let matchingFiles: string[] = Glob.sync(x, {
+            absolute: true,
+            cwd: vscode.workspace.rootPath,
+            dot: true,
+            ignore: allExcludePatterns,
+            nodir: true,
+            root: vscode.workspace.rootPath,
+        });
+
+        matchingFiles.forEach(x => filesToDeploy.push(x));
+    });
+
+    return distinctArray(filesToDeploy);
 }
 
 /**
