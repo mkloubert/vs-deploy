@@ -243,7 +243,7 @@ function deployWorkspace(args) {
 exports.deployWorkspace = deployWorkspace;
 ```
 
-The `args` parameters have the following structure (for `DeployContext` and `DeployWorkspaceOptions` interfaces see [contracts.ts](https://github.com/mkloubert/vs-deploy/blob/master/src/contracts.ts) file):
+The `args` parameters have the following structure (for `DeployContext`, `DeployFileOptions` and `DeployWorkspaceOptions` interfaces see [contracts.ts](https://github.com/mkloubert/vs-deploy/blob/master/src/contracts.ts) file):
 
 ##### deployFile()
 
