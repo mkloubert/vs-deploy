@@ -9,7 +9,7 @@
 Supported destination types:
 
 * Apps / executables / scripts (bash, batch, e.g.)
-* External based Node.js scripts
+* External Node.js based scripts
 * Local or shared network folders inside a LAN
 * FTP
 * SFTP
