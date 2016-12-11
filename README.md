@@ -162,7 +162,6 @@ Add the subsection `targets` and add one or more entry:
                 "type": "remote",
                 "name": "My remote target",
                 "description": "Some remote VS Code instances to deploy to",
-                "app": "E:/test/deploy.cmd",
                 "hosts": ["localhost", "192.168.0.101", "192.168.0.101:5979"]
             },
             {
