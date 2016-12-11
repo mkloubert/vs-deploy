@@ -6,11 +6,12 @@
 
 [Visual Studio Code](https://code.visualstudio.com/) (VS Code) extension that provides commands to deploy files of a workspace to a destination.
 
-Supported destination types:
+The extension supports the following destination types:
 
 * Apps / executables / scripts (bash, batch, e.g.)
 * External Node.js based scripts
 * Local or shared network folders inside a LAN
+* Mail (SMTP)
 * FTP
 * SFTP
 
@@ -145,6 +146,16 @@ Add the subsection `targets` and add one or more entry:
                     "MK": "23979"
                 }
             },
+            {
+                "type": "mail",
+                "name": "My mail server",
+                "description": "An email deployer",
+                "host": "smtp.example.com", "port": 465,
+                "secure": true, "requireTLS": true,
+                "user": "mkloubert@example.com", "password": "P@assword123!",
+                "from": "mkloubert@example.com",
+                "to": "tm@example.com, ys@example.com"
+            },
                         {
                 "type": "app",
                 "name": "My App",
@@ -194,7 +205,7 @@ Deploys to a FTP server.
 | ---- | --------- |
 | `dir` | The remote directory on the server. Default: `/` |
 | `host` | The host address of the server. Default: `localhost` |
-| `password` | Password. |
+| `password` | Password |
 | `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
 | `secure` | Use secure connection or not. Default: `(false)` |
 | `user` | Username. Default: `anonymous` |
@@ -207,6 +218,23 @@ Deploys to a local folder or a shared folder (like SMB) inside your LAN.
 | ---- | --------- |
 | `dir` | The target directory. |
 | `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
+
+#### mail
+
+Deploys to a ZIP file and sends it as attachment by mail via SMTP.
+
+| Name | Description |
+| ---- | --------- |
+| `from` | The optional email address of the sender. |
+| `host` | The host address of the server. Default: `localhost` |
+| `ignoreTLS` | Ignore TLS or not. Default: `(false)` |
+| `password` | Password |
+| `port` | The TCP port of the server. Default: `25`, `465`, `587` (based on the security settings) |
+| `rejectUnauthorized` | s. [tls module](https://nodejs.org/api/tls.html). Default: `(true)` |
+| `requireTLS` | Requires TLS or not. Default: `(false)` |
+| `secure` | Use secure connection or not. Default: `(true)` |
+| `to` | The optional initial list of target email addresses. |
+| `user` | Username |
 
 #### script
 
@@ -313,7 +341,7 @@ Deploys to a SFTP server.
 | ---- | --------- |
 | `dir` | The remote directory on the server. Default: `/` |
 | `host` | The host address of the server. Default: `localhost` |
-| `password` | Password. |
+| `password` | Password |
 | `port` | The TCP port of the server. Default: `22` |
 | `user` | Username. Default: `anonymous` |
 

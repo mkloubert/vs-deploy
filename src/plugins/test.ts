@@ -24,33 +24,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_contracts from '../contracts';
-import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
-import * as Path from 'path';
-import * as vscode from 'vscode';
 
 
 interface DeployTargetTest extends deploy_contracts.DeployTarget {
-    dir?: string;
-}
-
-function getFullDirPathFromTarget(target: DeployTargetTest): string {
-    let dir = target.dir;
-    if (!dir) {
-        dir = '';
-    }
-    dir = '' + dir;
-
-    if (!dir) {
-        dir = './';
-    }
-
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(vscode.workspace.rootPath);
-    }
-
-    return dir;
 }
 
 class TestPlugin extends deploy_objects.DeployPluginBase {
@@ -64,17 +42,6 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         }
 
         let me = this;
-
-        let relativeFilePath = deploy_helpers.toRelativePath(file);
-        if (false === relativeFilePath) {
-            vscode.window.showWarningMessage(`Could not get relative path for '${file}'!`);
-            return;
-        }
-
-        let dir = getFullDirPathFromTarget(target);
-
-        let targetFile = Path.join(dir, relativeFilePath);
-        let targetDirectory = Path.dirname(targetFile);
 
         let completed = (err?: any) => {
             if (opts.onCompleted) {

@@ -202,6 +202,18 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
 }
 
 /**
+ * Checks if a value is (null) or (undefined).
+ * 
+ * @param {any} val The value to check.
+ * 
+ * @return {boolean} Is (null)/(undefined) or not.
+ */
+export function isNullOrUndefined(val: any): boolean {
+    return null === val ||
+           'undefined' === typeof val;
+}
+
+/**
  * Logs a message.
  * 
  * @param {any} msg The message to log.

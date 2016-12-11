@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "1.8.5",
+  "version": "1.9.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -93,7 +93,10 @@
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
     "moment": "^2.17.1",
+    "node-zip": "^1.1.1",
+    "nodemailer": "^2.7.0",
     "opn": "^4.0.2",
-    "ssh2-sftp-client": "^1.0.5"
+    "ssh2-sftp-client": "^1.0.5",
+    "zip": "^1.2.0"
   }
 }
