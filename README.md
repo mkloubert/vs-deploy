@@ -6,6 +6,14 @@
 
 [Visual Studio Code](https://code.visualstudio.com/) (VS Code) extension that provides commands to deploy files of a workspace to a destination.
 
+Supported destination types:
+
+* Apps / executables / scripts (bash, batch, e.g.)
+* External based Node.js scripts
+* Local or shared network folders inside a LAN
+* FTP
+* SFTP
+
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2)
 
 ## Demo
