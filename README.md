@@ -20,7 +20,7 @@ The extension supports the following destination types:
 
 ## Demos
 
-### Deploying single file and workspace
+### Deploying to SFTP
 
 ![Demo 1](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
@@ -31,6 +31,10 @@ The extension supports the following destination types:
 ### Deploy to remote Visual Studio Code instance
 
 ![Demo 3](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
+
+### Deploy to ZIP file
+
+![Demo 4](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
 ## License
 
@@ -147,6 +151,12 @@ Add the subsection `targets` and add one or more entry:
                 "name": "My network folder",
                 "description": "A SMB shared network folder",
                 "dir": "\\\\MyServer\\my_package_files"
+            },
+            {
+                "type": "zip",
+                "name": "My ZIP file",
+                "description": "Create a ZIP file in a target directory",
+                "target": "E:/test"
             },
             {
                 "type": "mail",
@@ -372,6 +382,14 @@ Deploys to a SFTP server.
 A mock deployer that only displays what files would be deployed.
 
 This is a good tool to check package configuration.
+
+#### zip
+
+Deploys to a ZIP.
+
+| Name | Description |
+| ---- | --------- |
+| `target` | The target directory of the new ZIP file. Default: `./` |
 
 ### How to execute
 
