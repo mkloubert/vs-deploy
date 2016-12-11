@@ -22,11 +22,15 @@ The extension supports the following destination types:
 
 ### Deploying single file and workspace
 
-![Demo](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
+![Demo 1](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
 ### Deploy on save
 
-![Demo](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
+![Demo 2](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
+
+### Deploy to remote Visual Studio Code instance
+
+![Demo 3](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
 
 ## License
 
