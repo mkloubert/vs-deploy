@@ -214,11 +214,11 @@ A script file has the following skeleton:
 ```javascript
 // [REQUIRED]
 function deployFile(args) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
         try {
             //TODO
 
-            resolve(null);
+            resolve();
         }
         catch (e) {
             reject(e);
@@ -229,11 +229,11 @@ exports.deployFile = deployFile;
 
 // [OPTIONAL]
 function deployWorkspace(args) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
         try {
             //TODO
 
-            resolve(null);
+            resolve();
         }
         catch (e) {
             reject(e);
