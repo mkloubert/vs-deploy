@@ -18,9 +18,15 @@ The extension supports the following destination types:
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2)
 
-## Demo
+## Demos
+
+### Deploying single file and workspace
 
 ![Demo](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
+
+### Deploy on save
+
+![Demo](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
 ## License
 
