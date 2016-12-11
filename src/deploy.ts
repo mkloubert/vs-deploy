@@ -567,7 +567,7 @@ export class Deployer {
                         return packageFiles.indexOf(docFile) > -1;
                     });
 
-                    // find matching targets
+                    // check for non existing target names
                     let targets = me.getTargets();
                     packagesToDeploy.forEach(x => {
                         if (true === x.deployOnSave) {
@@ -602,6 +602,7 @@ export class Deployer {
                         });
                     });
 
+                    // find matching targets
                     targets = targets.filter(x => {
                         let targetName = normalizeString(x.name);
 
@@ -624,6 +625,7 @@ export class Deployer {
                         return false;
                     });
 
+                    // deploy file to targets
                     targets.forEach(x => {
                         let targetName = deploy_helpers.toStringSafe(x.name).trim();
 
