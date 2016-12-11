@@ -10,9 +10,10 @@ The extension supports the following destination types:
 
 * Apps / executables / scripts (bash, batch, e.g.)
 * External Node.js based scripts
+* FTP
 * Local or shared network folders inside a LAN
 * Mail (SMTP)
-* FTP
+* Remote machines like other VS Code instances
 * SFTP
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2)
@@ -50,6 +51,7 @@ Add a `deploy` section:
 
 | Name | Description |
 | ---- | --------- |
+| `host` | Settings for a host that receives files from a remote machine. (s. [host section](#host)) |
 | `modules` | An optional list of one or more "external" plugin module files (.js) to load. |
 
 #### Packages
@@ -137,6 +139,16 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "\\\\MyServer\\my_package_files"
             },
             {
+                "type": "mail",
+                "name": "My mail server",
+                "description": "An email deployer",
+                "host": "smtp.example.com", "port": 465,
+                "secure": true, "requireTLS": true,
+                "user": "mkloubert@example.com", "password": "P@assword123!",
+                "from": "mkloubert@example.com",
+                "to": "tm@example.com, ys@example.com"
+            },
+            {
                 "type": "script",
                 "name": "My script",
                 "description": "A deploy script",
@@ -147,16 +159,13 @@ Add the subsection `targets` and add one or more entry:
                 }
             },
             {
-                "type": "mail",
-                "name": "My mail server",
-                "description": "An email deployer",
-                "host": "smtp.example.com", "port": 465,
-                "secure": true, "requireTLS": true,
-                "user": "mkloubert@example.com", "password": "P@assword123!",
-                "from": "mkloubert@example.com",
-                "to": "tm@example.com, ys@example.com"
+                "type": "remote",
+                "name": "My remote target",
+                "description": "Some remote VS Code instances to deploy to",
+                "app": "E:/test/deploy.cmd",
+                "hosts": ["localhost", "192.168.0.101", "192.168.0.101:5979"]
             },
-                        {
+            {
                 "type": "app",
                 "name": "My App",
                 "description": "An app to call",
@@ -204,7 +213,7 @@ Deploys to a FTP server.
 | Name | Description |
 | ---- | --------- |
 | `dir` | The remote directory on the server. Default: `/` |
-| `host` | The host address of the server. Default: `localhost` |
+| `host` | The host address of the server. Default: `127.0.0.1` |
 | `password` | Password |
 | `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
 | `secure` | Use secure connection or not. Default: `(false)` |
@@ -226,7 +235,7 @@ Deploys to a ZIP file and sends it as attachment by mail via SMTP.
 | Name | Description |
 | ---- | --------- |
 | `from` | The optional email address of the sender. |
-| `host` | The host address of the server. Default: `localhost` |
+| `host` | The host address of the server. Default: `127.0.0.1` |
 | `ignoreTLS` | Ignore TLS or not. Default: `(false)` |
 | `password` | Password |
 | `port` | The TCP port of the server. Default: `25`, `465`, `587` (based on the security settings) |
@@ -235,6 +244,10 @@ Deploys to a ZIP file and sends it as attachment by mail via SMTP.
 | `secure` | Use secure connection or not. Default: `(true)` |
 | `to` | The optional initial list of target email addresses. |
 | `user` | Username |
+
+#### remote
+
+Deploys to a remote machine over a TCP connection.
 
 #### script
 
@@ -340,7 +353,7 @@ Deploys to a SFTP server.
 | Name | Description |
 | ---- | --------- |
 | `dir` | The remote directory on the server. Default: `/` |
-| `host` | The host address of the server. Default: `localhost` |
+| `host` | The host address of the server. Default: `127.0.0.1` |
 | `password` | Password |
 | `port` | The TCP port of the server. Default: `22` |
 | `user` | Username. Default: `anonymous` |
@@ -355,7 +368,17 @@ This is a good tool to check package configuration.
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
+**HINT**: Since version 1.x the shortcuts have been changed for compatiblity reasons!
+
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy: Current file` | Deploys the currently opened file. | `CTRL + D` |
-| `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + D` |
+| `Deploy: Current file` | Deploys the current opened file. | `CTRL + ALT + F` |
+| `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
+| `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + W` |
+
+#### host
+
+| Name | Description |
+| ---- | --------- |
+| `maxMessageSize` | Maximum size of one remote file message. Default: `16777215` |
+| `port` | The TCP port the host should be listen on. Default: `23979` |

@@ -57,7 +57,7 @@ function getDirFromTarget(target: DeployTargetFTP): string {
 function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: any) => void) {
     let isSecure = !!target.secure;
 
-    let host = deploy_helpers.toStringSafe(target.host, 'localhost');
+    let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
     let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
 
     let user = deploy_helpers.toStringSafe(target.user, 'anonymous');

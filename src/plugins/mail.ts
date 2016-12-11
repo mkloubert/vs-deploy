@@ -97,7 +97,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         let ignoreTLS = !!target.ignoreTLS;
         let requireTLS = !!target.requireTLS;
 
-        let host = deploy_helpers.toStringSafe(target.host, 'localhost');
+        let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
         let port: string | number = deploy_helpers.toStringSafe(target.port).trim();
         if (!port) {
             if (isSecure) {

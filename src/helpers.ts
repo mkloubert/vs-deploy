@@ -27,6 +27,7 @@ import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as Moment from 'moment';
+import * as Net from 'net';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -239,6 +240,37 @@ export function parseTargetType(str: string): string {
     str = ('' + str).toLowerCase().trim();
 
     return str;
+}
+
+/**
+ * Reads a number of bytes from a socket.
+ * 
+ * @param {Net.Socket} socket The socket.
+ * @param {Number} numberOfBytes The amount of bytes to read.
+ * 
+ * @return {Promise<Buffer>} The promise.
+ */
+export function readSocket(socket: Net.Socket, numberOfBytes: number): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        try {
+            let buff: Buffer = socket.read(numberOfBytes);
+            if (null === buff) {
+                socket.once('readable', function() {
+                    readSocket(socket, numberOfBytes).then((b) => {
+                        resolve(b);
+                    }, (err) => {
+                        reject(err);
+                    });
+                });
+            }
+            else {
+                resolve(buff);
+            }
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
 }
 
 /**

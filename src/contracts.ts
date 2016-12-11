@@ -27,6 +27,19 @@ import * as vscode from 'vscode';
 
 
 /**
+ * Default host address.
+ */
+export const DEFAULT_HOST = '127.0.0.1';
+/**
+ * Default maximum size of a remote JSON message.
+ */
+export const DEFAULT_MAX_MESSAGE_SIZE = 16777215;
+/**
+ * Default TCP port of a host.
+ */
+export const DEFAULT_PORT = 23979;
+
+/**
  * An operation that is invoked AFTER
  * ALL files have been deployed.
  */
@@ -80,6 +93,19 @@ export interface DeployActionQuickPick extends DeployQuickPickItem {
  * Configuration settings.
  */
 export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
+    /**
+     * Deploy host settings.
+     */
+    host?: {
+        /**
+         * Maximum size of a JSON message.
+         */
+        maxMessageSize?: number;
+        /**
+         * The TCP port on that the host should listen.
+         */
+        port?: number;
+    },
     /**
      * List of additional files of plugin modules to load.
      */

@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -41,26 +41,34 @@
       {
         "command": "extension.deploy",
         "title": "Workspace",
-        "category": "Deploy",
-        "description": "Deploy a package"
+        "category": "Deploy"
       },
       {
         "command": "extension.deploy.file",
         "title": "Current file",
-        "category": "Deploy",
-        "description": "Deploy the current open file"
+        "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.listen",
+        "title": "Start/stop listening for files",
+        "category": "Deploy"
       }
     ],
     "keybindings": [
       {
         "command": "extension.deploy",
-        "key": "ctrl+alt+d",
-        "mac": "cmd+alt+d"
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
       },
       {
         "command": "extension.deploy.file",
-        "key": "ctrl+d",
-        "mac": "cmd+d"
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f"
+      },
+      {
+        "command": "extension.deploy.listen",
+        "key": "ctrl+alt+l",
+        "mac": "cmd+alt+l"
       }
     ]
   },

@@ -87,12 +87,22 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // listen for files
+    let listen = vscode.commands.registerCommand('extension.deploy.listen', () => {
+        try {
+            deployer.listen();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage('[DEPLOY LISTEN ERROR]: ' + e);
+        }
+    });
+
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
-    context.subscriptions.push(deploy, deployFile);
+    context.subscriptions.push(deploy, deployFile, listen);
 }
 
 export function deactivate() {

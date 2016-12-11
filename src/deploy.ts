@@ -29,9 +29,17 @@ import * as FS from 'fs';
 const FSExtra = require('fs-extra');
 const OPN = require('opn');
 import * as Moment from 'moment';
+import * as Net from 'net';
 import * as Path from 'path';
 import * as vscode from 'vscode';
+import * as ZLib from 'zlib';
 
+
+interface RemoteFile {
+    data: Buffer;
+    isCompressed: boolean;
+    name: string;
+}
 
 /**
  * Deployer class.
@@ -53,6 +61,14 @@ export class Deployer {
      * Stores the global output channel.
      */
     protected _OUTPUT_CHANNEL: vscode.OutputChannel;
+    /**
+     * Stores the current server instance.
+     */
+    protected _server: Net.Server;
+    /**
+     * The current status item of the running server.
+     */
+    protected _serverStatusItem: vscode.StatusBarItem;
 
     /**
      * Initializes a new instance of that class.
@@ -502,6 +518,309 @@ export class Deployer {
         }
 
         return deploy_helpers.sortTargets(targets);
+    }
+
+    /**
+     * Starts listening for files.
+     */
+    public listen() {
+        let me = this;
+
+        // destroy old status bar item
+        let statusItem = me._serverStatusItem;
+        if (statusItem) {
+            try {
+                statusItem.dispose();
+            }
+            catch (e) {
+                me.log(`[ERROR] Deployer.listen(): ${deploy_helpers.toStringSafe(e)}`);
+            }
+
+            statusItem = null;
+        }
+        me._serverStatusItem = null;
+
+        let server = me._server;
+        if (server) {
+            server.close((err) => {
+                if (err) {
+                    let errMsg = `Could not stop deploy host: ${deploy_helpers.toStringSafe(err)}`;
+
+                    vscode.window.showErrorMessage(errMsg);
+                    me.outputChannel.appendLine(errMsg);
+                    return;
+                }
+
+                me._server = null;
+
+                let successMsg = `Deploy host has been stopped.`;
+
+                vscode.window.showInformationMessage(successMsg);
+                me.outputChannel.appendLine(successMsg);
+            });
+
+            return;
+        }
+
+        let cfg = me.config;
+
+        let port = deploy_contracts.DEFAULT_PORT;
+        let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
+        if (cfg.host) {
+            port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
+                                                        '' + deploy_contracts.DEFAULT_PORT));
+
+            maxMsgSize = parseInt(deploy_helpers.toStringSafe(cfg.host.maxMessageSize,
+                                                              '' + deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE));
+        }
+
+        let showError = (err: any) => {
+            vscode.window.showErrorMessage(`Could not start listening for files: ${deploy_helpers.toStringSafe(err)}`);
+        };
+
+        server = Net.createServer((socket) => {
+            let remoteAddr = socket.remoteAddress;
+            let remotePort = socket.remotePort;
+            
+            let closeSocket = () => {
+                try {
+                    socket.destroy();
+                }
+                catch (e) {
+                    me.log(`[ERROR] Deployer.listen().createServer(1): ${deploy_helpers.toStringSafe(e)}`);
+                }
+            };
+
+            try {
+                deploy_helpers.readSocket(socket, 4).then((dlBuff) => {
+                    if (4 != dlBuff.length) {  // must have the size of 4
+                        me.log(`[WARN] Deployer.listen().createServer(): Invalid data buffer length ${dlBuff.length}`);
+
+                        closeSocket();
+                        return;
+                    }
+
+                    let dataLength = dlBuff.readUInt32LE(0);
+                    if (dataLength > maxMsgSize) {  // out of range
+                        me.log(`[WARN] Deployer.listen().createServer(): Invalid data length ${dataLength}`);
+
+                        closeSocket();
+                        return;
+                    }
+
+                    deploy_helpers.readSocket(socket, dataLength).then((buff) => {
+                        closeSocket();
+
+                        if (buff.length != dataLength) {  // non-exptected data length
+                            me.log(`[WARN] Deployer.listen().createServer(): Invalid buffer length ${buff.length}`);
+
+                            return;
+                        }
+
+                        me.outputChannel.append(`Receiving file from '${remoteAddr}:${remotePort}'... `);
+                        
+                        let completed = (err?: any, file?: string) => {
+                            if (err) {
+                                me.outputChannel.append(`[FAILED: `);
+                                if (file) {
+                                    me.outputChannel.append(`'${deploy_helpers.toStringSafe(file)}'; `);
+                                }
+                                me.outputChannel.append(`${deploy_helpers.toStringSafe(err)}]`);
+                                me.outputChannel.appendLine(`]`);
+                            }
+                            else {
+                                me.outputChannel.append('[OK');
+                                if (file) {
+                                    me.outputChannel.append(`: '${deploy_helpers.toStringSafe(file)}'`);
+                                }
+                                me.outputChannel.appendLine(']');
+                            }
+                        };
+
+                        try {
+                            let json = buff.toString('utf8');
+                            
+                            let file: RemoteFile;
+                            if (json) {
+                                file = JSON.parse(json);
+                            }
+
+                            if (file) {
+                                file.name = deploy_helpers.toStringSafe(file.name);
+                                file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
+
+                                if (file.name) {
+                                    let fileCompleted = (err?: any) => {
+                                        completed(err, file.name);
+                                    };
+
+                                    try {
+                                        let base64 = deploy_helpers.toStringSafe(file.data);
+
+                                        let data: Buffer;
+                                        if (base64) {
+                                            data = new Buffer(base64, 'base64');
+                                        }
+                                        else {
+                                            data = Buffer.alloc(0);
+                                        }
+                                        file.data = data;
+
+                                        let handleData = function(data?: Buffer) {
+                                            if (arguments.length > 0) {
+                                                file.data = data;
+                                            }
+
+                                            try {
+                                                while (0 == file.name.indexOf('/')) {
+                                                    file.name = file.name.substr(1);
+                                                }
+
+                                                if (file.name) {
+                                                    let targetFile = Path.join(vscode.workspace.rootPath, file.name);
+                                                    
+                                                    let copyFile = () => {
+                                                        try {
+                                                            FS.writeFile(targetFile, file.data, (err) => {
+                                                                if (err) {
+                                                                    fileCompleted(err);
+                                                                    return;
+                                                                }
+
+                                                                fileCompleted();
+                                                            });
+                                                        }
+                                                        catch (e) {
+                                                            fileCompleted(e);
+                                                        }
+                                                    };
+                                                    
+                                                    FS.exists(targetFile, (exists) => {
+                                                        if (exists) {
+                                                            try {
+                                                                FS.lstat(targetFile, (err, stats) => {
+                                                                    if (err) {
+                                                                        fileCompleted(err);
+                                                                        return;
+                                                                    }
+
+                                                                    if (stats.isFile()) {
+                                                                        FS.unlink(targetFile, (err) => {
+                                                                            if (err) {
+                                                                                fileCompleted(err);
+                                                                                return;
+                                                                            }
+
+                                                                            copyFile();
+                                                                        });
+                                                                    }
+                                                                    else {
+                                                                        fileCompleted(new Error(`'${targetFile}' is no file!`));
+                                                                    }
+                                                                });
+                                                            }
+                                                            catch (e) {
+                                                                fileCompleted(e);
+                                                            }
+                                                        }
+                                                        else {
+                                                            copyFile();
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    fileCompleted(new Error('No filename (2)!'));
+                                                }
+                                            }
+                                            catch (e) {
+                                                fileCompleted(e);
+                                            }
+                                        };
+
+                                        if (file.isCompressed) {
+                                            ZLib.gunzip(file.data, (err, uncompressedData) => {
+                                                if (err) {
+                                                    fileCompleted(err);
+                                                    return;
+                                                }
+
+                                                handleData(uncompressedData);                                                
+                                            });
+                                        }
+                                        else {
+                                            handleData();
+                                        }
+                                    }
+                                    catch (e) {
+                                        fileCompleted(e);
+                                    }
+                                }
+                                else {
+                                    completed(new Error('No filename (1)!'));
+                                }
+                            }
+                            else {
+                                completed(new Error('No data!'));
+                            }
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    }).catch((err) => {
+                        me.log(`[ERROR] Deployer.listen().createServer(3): ${deploy_helpers.toStringSafe(err)}`);
+
+                        closeSocket();
+                    });
+                }).catch((err) => {
+                    me.log(`[ERROR] Deployer.listen().createServer(4): ${deploy_helpers.toStringSafe(err)}`);
+
+                    closeSocket();
+                });
+            }
+            catch (e) {
+                me.log(`[ERROR] Deployer.listen().createServer(5): ${deploy_helpers.toStringSafe(e)}`);
+
+                closeSocket();
+            }
+        });
+
+        server.on('listening', (err) => {
+            if (err) {
+                showError(err);
+            }
+            else {
+                try {
+                    me._server = server;
+
+                    let successMsg = `Started deploy host on port ${port}.`;
+
+                    me.outputChannel.appendLine(successMsg);
+                    vscode.window.showInformationMessage(successMsg);
+
+                    statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+                    statusItem.tooltip = '';
+                    statusItem.command = 'extension.deploy.listen';
+                    statusItem.text = 'Waiting for files...';
+                    statusItem.tooltip = 'Click here to close deploy host';
+                    statusItem.show();
+
+                    me._serverStatusItem = statusItem;
+
+                    me.outputChannel.show();
+                }
+                catch (e) {
+                    showError(e);
+                }
+            }
+        });
+
+        server.on('error', (err) => {
+            if (err) {
+                showError(err);
+            }
+        });
+
+        server.listen(port);
     }
 
     /**

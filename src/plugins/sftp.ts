@@ -54,7 +54,7 @@ function getDirFromTarget(target: DeployTargetSFTP): string {
 }
 
 function openSftpConnection(target: DeployTargetSFTP, callback: (err: any, conn?: any) => void) {
-    let host = deploy_helpers.toStringSafe(target.host, 'localhost');
+    let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
     let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
     let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
