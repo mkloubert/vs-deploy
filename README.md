@@ -386,7 +386,7 @@ This is a good tool to check package configuration.
 
 #### zip
 
-Deploys to a ZIP.
+Deploys to a ZIP file.
 
 | Name | Description |
 | ---- | --------- |
@@ -404,7 +404,7 @@ Press `F1` to open the list of commands and enter one of the following commands:
 | `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
 | `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + W` |
 
-#### host
+### host
 
 | Name | Description |
 | ---- | --------- |
