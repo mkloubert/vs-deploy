@@ -251,7 +251,7 @@ export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
  */
 export interface DeployPackage {
     /**
-     * Deploy a files of the package on save.
+     * Deploy files of the package on save or not.
      */
     deployOnSave?: true | string | string[];
     /**

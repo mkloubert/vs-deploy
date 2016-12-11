@@ -202,6 +202,12 @@ Deploys to a SFTP server.
 | `port` | The TCP port of the server. Default: `22` |
 | `user` | Username. Default: `anonymous` |
 
+#### test
+
+A mock deployer that only displays what files would be deployed.
+
+This is a good tool to check package configuration.
+
 ### How to execute
 
 Press `F1` to open the list of commands and enter one of the following commands:
