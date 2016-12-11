@@ -95,6 +95,14 @@ Add the subsection `targets` and add one or more entry:
     "deploy": {
         "targets": [
             {
+                "type": "sftp",
+                "name": "My SFTP folder",
+                "description": "A SFTP folder",
+                "dir": "/my_package_files",
+                "host": "localhost", "port": 22,
+                "user": "tester", "password": "password"
+            },
+            {
                 "type": "ftp",
                 "name": "My FTP folder",
                 "description": "A FTP folder",
@@ -120,14 +128,16 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "\\\\MyServer\\my_package_files"
             },
             {
-                "type": "sftp",
-                "name": "My SFTP folder",
-                "description": "A SFTP folder",
-                "dir": "/my_package_files",
-                "host": "localhost", "port": 22,
-                "user": "tester", "password": "password"
+                "type": "script",
+                "name": "My script",
+                "description": "A deploy script",
+                "script": "E:/test/deploy.js",
+                "options": {
+                    "TM": 5979,
+                    "MK": "23979"
+                }
             },
-            {
+                        {
                 "type": "app",
                 "name": "My App",
                 "description": "An app to call",
@@ -189,6 +199,103 @@ Deploys to a local folder or a shared folder (like SMB) inside your LAN.
 | ---- | --------- |
 | `dir` | The target directory. |
 | `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
+
+#### script
+
+Deploys via a JS script.
+
+| Name | Description |
+| ---- | --------- |
+| `options` | Optional value for the execution. |
+| `script` | The script file to exeute. Default: `./deploy.js` |
+
+A script file has the following skeleton:
+
+```javascript
+// [REQUIRED]
+function deployFile(args) {
+    return new Promise((resolve, reject) => {
+        try {
+            //TODO
+
+            resolve(null);
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
+}
+exports.deployFile = deployFile;
+
+// [OPTIONAL]
+function deployWorkspace(args) {
+    return new Promise((resolve, reject) => {
+        try {
+            //TODO
+
+            resolve(null);
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
+}
+exports.deployWorkspace = deployWorkspace;
+```
+
+The `args` parameters have the following structure (for `DeployContext` and `DeployWorkspaceOptions` interface see [contracts.ts](https://github.com/mkloubert/vs-deploy/blob/master/src/contracts.ts) file):
+
+##### deployFile()
+
+```typescript
+/**
+ * Arguments for deploying a file.
+ */
+export interface DeployFileArguments {
+    /**
+     * The underlying deploy context.
+     */
+    context: DeployContext;
+    /**
+     * Deploy options.
+     */
+    deployOptions: DeployFileOptions;
+    /**
+     * The file to deploy.
+     */
+    file: string;
+    /**
+     * Options from the target configuration.
+     */
+    targetOptions: any;
+}
+```
+
+##### deployWorkspace()
+
+```typescript
+/**
+ * Arguments for deploying the workspace.
+ */
+export interface DeployWorkspaceArguments {
+    /**
+     * The underlying deploy context.
+     */
+    context: DeployContext;
+    /**
+     * Deploy options.
+     */
+    deployOptions: DeployWorkspaceOptions;
+    /**
+     * The list of files to deploy.
+     */
+    files: string[];
+    /**
+     * Options from the target configuration.
+     */
+    targetOptions: any;
+}
+```
 
 #### sftp
 

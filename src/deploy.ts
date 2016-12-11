@@ -724,7 +724,12 @@ export class Deployer {
                         moduleFiles = moduleFiles.concat(additionalModuleFiles);
                     }
 
-                    moduleFiles = deploy_helpers.distinctArray(moduleFiles);
+                    moduleFiles = deploy_helpers.distinctArray(moduleFiles.map(x => Path.resolve(x)));
+                    
+                    // remove existing plugins from cache
+                    moduleFiles.forEach(x => {
+                        delete require.cache[x];
+                    });
 
                     let nextPluginIndex = -1;
                     moduleFiles.forEach(x => {
