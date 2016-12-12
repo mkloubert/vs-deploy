@@ -23,19 +23,19 @@ The extension supports the following destination types:
 
 ### Deploying to SFTP
 
-![Demo 1](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
+![Demo SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
 ### Deploy on save
 
-![Demo 2](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
+![Demo Deploy on save](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
 ### Deploy to remote Visual Studio Code instance
 
-![Demo 3](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
+![Demo Remote](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
 
 ### Deploy to ZIP file
 
-![Demo 4](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
+![Demo ZIP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
 ## Install
 
@@ -198,6 +198,8 @@ Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get m
 ### How to execute
 
 Press `F1` to open the list of commands and enter one of the following commands:
+
+![Demo How to execute](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo5.gif)
 
 **HINT**: Since version 1.x the shortcuts have been changed for compatiblity reasons!
 
