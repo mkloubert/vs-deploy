@@ -33,25 +33,25 @@ The extension supports the following destination types:
       * [Targets](#targets)
    * [How to execute](#how-to-use)
 
-## Demos
+## Demos [[&uarr;](#table-of-contents)]
 
-### Deploying to SFTP
+### Deploying to SFTP [[&uarr;](#demos)]
 
 ![Demo SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
-### Deploy on save
+### Deploy on save [[&uarr;](#demos)]
 
 ![Demo Deploy on save](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
-### Deploy to remote Visual Studio Code instance
+### Deploy to remote Visual Studio Code instance [[&uarr;](#demos)]
 
 ![Demo Remote](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
 
-### Deploy to ZIP file
+### Deploy to ZIP file [[&uarr;](#demos)]
 
 ![Demo ZIP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
-## Install
+## Install [[&uarr;](#demos)]
 
 Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter:
 
@@ -59,13 +59,13 @@ Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter
 ext install vs-deploy
 ```
 
-## How to use
+## How to use [[&uarr;](#table-of-contents)]
 
 Detailed information can be found at the [wiki](https://github.com/mkloubert/vs-deploy/wiki).
 
 Otherwise...
 
-### Settings
+### Settings [[&uarr;](#how-to-use)]
 
 Open (or create) your `settings.json` in your `.vscode` subfolder of your workspace.
 
@@ -78,7 +78,7 @@ Add a `deploy` section:
 }
 ```
 
-#### Packages
+#### Packages [[&uarr;](#settings)]
 
 A package is a description of files of your workspace that should be deployed.
 
@@ -107,7 +107,7 @@ Add the subsection `packages` and add one or more entry:
 
 Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#packages) to get more information about packages.
 
-#### Targets
+#### Targets [[&uarr;](#settings)]
 
 A target describes where a file or package should be transfered to.
 
@@ -196,7 +196,7 @@ Add the subsection `targets` and add one or more entry:
 
 Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information about targets.
 
-### How to execute
+### How to execute [[&uarr;](#how-to-use)]
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
