@@ -65,7 +65,7 @@ Detailed information can be found at the [wiki](https://github.com/mkloubert/vs-
 
 Otherwise...
 
-### Settings [[&uarr;](#how-to-use)]
+### Settings [[&uarr;](#how-to-use-)]
 
 Open (or create) your `settings.json` in your `.vscode` subfolder of your workspace.
 
@@ -196,7 +196,7 @@ Add the subsection `targets` and add one or more entry:
 
 Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information about targets.
 
-### How to execute [[&uarr;](#how-to-use)]
+### How to execute [[&uarr;](#how-to-use-)]
 
 Press `F1` to open the list of commands and enter one of the following commands:
 
