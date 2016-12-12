@@ -109,7 +109,7 @@ Add the subsection `packages` and add one or more entry:
 }
 ```
 
-Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#packages) to get more information about packages.
+Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#packages-) to get more information about packages.
 
 #### Targets [[&uarr;](#settings-)]
 
@@ -198,7 +198,7 @@ Add the subsection `targets` and add one or more entry:
 }
 ```
 
-Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information about targets.
+Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets-) to get more information about targets.
 
 ### How to execute [[&uarr;](#how-to-use-)]
 
