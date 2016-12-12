@@ -59,6 +59,10 @@ Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter
 ext install vs-deploy
 ```
 
+Or search for things like `vs-deploy` in your editor:
+
+![Screenshot VSCode Extension search](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/screenshot1.png)
+
 ## How to use [[&uarr;](#table-of-contents)]
 
 Detailed information can be found at the [wiki](https://github.com/mkloubert/vs-deploy/wiki).
