@@ -47,6 +47,10 @@ ext install vs-deploy
 
 ## How to use
 
+Detailed information can be found at the [wiki](https://github.com/mkloubert/vs-deploy/wiki).
+
+Otherwise...
+
 ### Settings
 
 Open (or create) your `settings.json` in your `.vscode` subfolder of your workspace.
@@ -59,11 +63,6 @@ Add a `deploy` section:
     }
 }
 ```
-
-| Name | Description |
-| ---- | --------- |
-| `host` | Settings for a host that receives files from a remote machine. (s. [host section](https://github.com/mkloubert/vs-deploy/wiki#host)) |
-| `modules` | An optional list of one or more "external" plugin module files (.js) to load. |
 
 #### Packages
 
@@ -86,25 +85,13 @@ Add the subsection `packages` and add one or more entry:
                     "tests/**"
                 ],
                 "deployOnSave": true
-            },
-            
-            {
-                "name": "Version 2.3.5 (anything)",
-                "description": "Package version 2.3.5"
             }
         ]
     }
 }
 ```
 
-| Name | Description |
-| ---- | --------- |
-| `deployOnSave` | Deploy a file of this package on save or not. This can be a list of one or more targets (s. below) to deploy to or `(true)` for all targets. Default: `(false)` |
-| `description` | The description of the package. |
-| `exclude` | Files to exclude (s. [node-glob](https://github.com/isaacs/node-glob)). |
-| `files` | Files to include (s. [node-glob](https://github.com/isaacs/node-glob)). Default: `**` |
-| `name` | The name of the package. |
-| `sortOrder` | An optional number to sort the package elements. Default: `0` |
+Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#packages) to get more information about packages.
 
 #### Targets
 
@@ -193,7 +180,7 @@ Add the subsection `targets` and add one or more entry:
 }
 ```
 
-Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information.
+Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information about targets.
 
 ### How to execute
 
