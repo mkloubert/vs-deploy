@@ -21,37 +21,37 @@ The extension supports the following destination types:
 
 ## Table of contents
 
-1. [Demos](#demos)
+1. [Demos](#demos-)
    * [Deploying to SFTP](#deploying-to-sftp)
    * [Deploy on save](#deploy-on-save)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance)
    * [ZIP file](#deploy-to-zip-file)
 2. [Install](#install)
 3. [How to use](#how-to-use)
-   * [Settings](#settings)
-      * [Packages](#packages)
-      * [Targets](#targets)
-   * [How to execute](#how-to-use)
+   * [Settings](#settings-)
+      * [Packages](#packages-)
+      * [Targets](#targets-)
+   * [How to execute](#how-to-execute-)
 
 ## Demos [[&uarr;](#table-of-contents)]
 
-### Deploying to SFTP [[&uarr;](#demos)]
+### Deploying to SFTP [[&uarr;](#demos-)]
 
 ![Demo SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
-### Deploy on save [[&uarr;](#demos)]
+### Deploy on save [[&uarr;](#demos-)]
 
 ![Demo Deploy on save](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
-### Deploy to remote Visual Studio Code instance [[&uarr;](#demos)]
+### Deploy to remote Visual Studio Code instance [[&uarr;](#demos-)]
 
 ![Demo Remote](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
 
-### Deploy to ZIP file [[&uarr;](#demos)]
+### Deploy to ZIP file [[&uarr;](#demos-)]
 
 ![Demo ZIP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
-## Install [[&uarr;](#demos)]
+## Install [[&uarr;](#table-of-contents)]
 
 Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter:
 
@@ -78,7 +78,7 @@ Add a `deploy` section:
 }
 ```
 
-#### Packages [[&uarr;](#settings)]
+#### Packages [[&uarr;](#settings-)]
 
 A package is a description of files of your workspace that should be deployed.
 
@@ -107,7 +107,7 @@ Add the subsection `packages` and add one or more entry:
 
 Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#packages) to get more information about packages.
 
-#### Targets [[&uarr;](#settings)]
+#### Targets [[&uarr;](#settings-)]
 
 A target describes where a file or package should be transfered to.
 
