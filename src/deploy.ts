@@ -686,6 +686,7 @@ export class Deployer {
 
                                                 if (file.name) {
                                                     let targetFile = Path.join(dir, file.name);
+                                                    let targetDir = Path.dirname(targetFile);
                                                     
                                                     let copyFile = () => {
                                                         try {
@@ -701,6 +702,45 @@ export class Deployer {
                                                         catch (e) {
                                                             fileCompleted(e);
                                                         }
+                                                    };
+
+                                                    // check if targetDir is a directory
+                                                    let checkIfTargetDirIsDir = () => {
+                                                        FS.lstat(targetDir, (err, stats) => {
+                                                            if (err) {
+                                                                fileCompleted(err);
+                                                                return;
+                                                            }
+
+                                                            if (stats.isDirectory()) {
+                                                                copyFile();  // yes, continue...
+                                                            }
+                                                            else {
+                                                                // no => ERROR
+                                                                fileCompleted(new Error(`'${targetDir}' is not directory!`));
+                                                            }
+                                                        });
+                                                    };
+
+                                                    // check if targetDir exists
+                                                    let checkIfTargetDirExists = () => {
+                                                        FS.exists(targetDir, (exists) => {
+                                                            if (exists) {
+                                                                // yes, continue...
+                                                                checkIfTargetDirIsDir();
+                                                            }
+                                                            else {
+                                                                // no, try to create
+                                                                FSExtra.mkdirs(targetDir, function (err) {
+                                                                    if (err) {
+                                                                        fileCompleted(err);
+                                                                        return;
+                                                                    }
+
+                                                                    checkIfTargetDirIsDir();
+                                                                });
+                                                            }
+                                                        });
                                                     };
                                                     
                                                     FS.exists(targetFile, (exists) => {
@@ -719,7 +759,7 @@ export class Deployer {
                                                                                 return;
                                                                             }
 
-                                                                            copyFile();
+                                                                            checkIfTargetDirExists();
                                                                         });
                                                                     }
                                                                     else {
@@ -732,7 +772,7 @@ export class Deployer {
                                                             }
                                                         }
                                                         else {
-                                                            copyFile();
+                                                            checkIfTargetDirExists();
                                                         }
                                                     });
                                                 }
