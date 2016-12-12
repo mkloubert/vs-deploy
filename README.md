@@ -37,10 +37,6 @@ The extension supports the following destination types:
 
 ![Demo 4](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
-## License
-
-[MIT license](https://github.com/mkloubert/vs-deploy/blob/master/LICENSE)
-
 ## Install
 
 Launch VS Code Quick Open (Ctrl+P), paste the following command, and press enter:
