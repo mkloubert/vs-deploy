@@ -206,7 +206,7 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 ![Demo How to execute](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo5.gif)
 
-**HINT**: Since version 1.x the shortcuts have been changed for compatiblity reasons!
+**HINT**: Since version 2.x the shortcuts have been changed for compatiblity reasons!
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
