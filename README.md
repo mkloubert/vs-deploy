@@ -27,7 +27,7 @@ The extension supports the following destination types:
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
    * [ZIP file](#deploy-to-zip-file-)
 2. [Install](#install-)
-3. [How to use](#how-to-use)
+3. [How to use](#how-to-use-)
    * [Settings](#settings-)
       * [Packages](#packages-)
       * [Targets](#targets-)
