@@ -39,40 +39,7 @@ interface DeployTargetZIP extends deploy_contracts.DeployTarget {
     target?: string;
 }
 
-class ZIPPlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
-    public deployFile(file: string, target: DeployTargetZIP, opts?: deploy_contracts.DeployFileOptions): void {
-        if (!opts) {
-            opts = {};
-        }
-
-        let me = this;
-
-        this.deployWorkspace([ file ], target, {
-            onBeforeDeployFile: (sender, e) => {
-                if (opts.onBeforeDeploy) {
-                    opts.onBeforeDeploy(sender, {
-                        file: e.file,
-                        target: e.target,
-                    });
-                }
-            },
-
-            onFileCompleted: (sender, e) => {
-                if (opts.onCompleted) {
-                    opts.onCompleted(sender, {
-                        error: e.error,
-                        file: e.file,
-                        target: e.target,
-                    });
-                }
-            }
-        });
-    }
-
+class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public deployWorkspace(files: string[], target: DeployTargetZIP, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let now = Moment();
         let me = this;

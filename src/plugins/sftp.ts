@@ -87,10 +87,6 @@ function toFTPPath(path: string): string {
 }
 
 class SFtpPlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
     public deployFile(file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};

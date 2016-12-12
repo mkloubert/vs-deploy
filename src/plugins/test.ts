@@ -32,10 +32,6 @@ interface DeployTargetTest extends deploy_contracts.DeployTarget {
 }
 
 class TestPlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
     public deployFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};

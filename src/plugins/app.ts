@@ -62,10 +62,6 @@ function createAppArgsList(file: string, app: string, args: string[]): string[] 
 }
 
 class AppPlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
     public deployFile(file: string, target: DeployTargetApp, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};

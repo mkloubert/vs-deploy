@@ -26,7 +26,6 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
-import * as FS from 'fs';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -123,10 +122,6 @@ function loadScriptModule(scriptFile: string): ScriptModule {
 }
 
 class ScriptPlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
     public deployFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};

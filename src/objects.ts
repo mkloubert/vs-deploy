@@ -27,7 +27,8 @@ import * as deploy_contracts from './contracts';
 
 
 /**
- * A basic deploy plugin.
+ * A basic deploy plugin that is specially based on single
+ * file operations (s. deployFile() method).
  */
 export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin {
     /**
@@ -40,7 +41,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
      * 
      * @param {deploy_contracts.DeployContext} [ctx] The underlying deploy context.
      */
-    protected constructor(ctx?: deploy_contracts.DeployContext) {
+    public constructor(ctx?: deploy_contracts.DeployContext) {
         this._context = ctx;
     }
 
@@ -52,28 +53,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
     }
 
     /** @inheritdoc */
-    public deployFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions) {
-        let me = this;
-        
-        if (!opts) {
-            opts = {};
-        }
-
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(this, {
-                file: file,
-                target: target,
-            })
-        }
-
-        if (opts.onCompleted) {
-            opts.onCompleted(this, {
-                error: new Error("Not implemented!"),
-                file: file,
-                target: target,
-            });
-        }
-    }
+    public abstract deployFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions);
     
     /** @inheritdoc */
     public deployWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
@@ -147,4 +127,43 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
             completed(e);
         }
     }
+}
+
+/**
+ * A basic deploy plugin that is specially based on multi
+ * file operations (s. deployWorkspace() method).
+ */
+export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
+    /** @inheritdoc */
+    public deployFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        this.deployWorkspace([ file ], target, {
+            onBeforeDeployFile: (sender, e) => {
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(sender, {
+                        file: e.file,
+                        target: e.target,
+                    });
+                }
+            },
+
+            onFileCompleted: (sender, e) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(sender, {
+                        error: e.error,
+                        file: e.file,
+                        target: e.target,
+                    });
+                }
+            }
+        });
+    }
+
+    /** @inheritdoc */
+    public abstract deployWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions);
 }

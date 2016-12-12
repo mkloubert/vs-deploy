@@ -42,10 +42,6 @@ interface RemoteFile {
 }
 
 class RemotePlugin extends deploy_objects.DeployPluginBase {
-    constructor(ctx: deploy_contracts.DeployContext) {
-        super(ctx);
-    }
-
     public deployFile(file: string, target: DeployTargetRemote, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
