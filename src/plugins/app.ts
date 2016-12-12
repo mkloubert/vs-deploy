@@ -61,46 +61,7 @@ function createAppArgsList(file: string, app: string, args: string[]): string[] 
                   .filter(x => x);
 }
 
-class AppPlugin extends deploy_objects.DeployPluginBase {
-    public deployFile(file: string, target: DeployTargetApp, opts?: deploy_contracts.DeployFileOptions): void {
-        if (!opts) {
-            opts = {};
-        }
-
-        let me = this;
-
-        let app = deploy_helpers.toStringSafe(target.app);
-
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
-
-        try {
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    file: file,
-                    target: target,
-                });
-            }
-
-            OPN(file, {
-                app: createAppArgsList(file, app, target.arguments),
-                wait: true,
-            }).then(() => {
-                completed();
-            });
-        }
-        catch (e) {
-            completed(e);
-        }
-    }
-
+class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
     /** @inheritdoc */
     public deployWorkspace(files: string[], target: DeployTargetApp, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let me = this;

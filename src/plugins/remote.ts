@@ -41,6 +41,7 @@ interface RemoteFile {
     name: string;
 }
 
+
 class RemotePlugin extends deploy_objects.DeployPluginBase {
     public deployFile(file: string, target: DeployTargetRemote, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
@@ -176,7 +177,7 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                                         client.destroy();
                                     }
                                     catch (e) {
-                                        me.context.log(`RemotePlugin.deployFile().client.connect(): ${deploy_helpers.toStringSafe(e)}`);
+                                        me.context.log(`[ERROR] RemotePlugin.deployFile().client.connect(): ${deploy_helpers.toStringSafe(e)}`);
                                     }
 
                                     hostCompleted();
