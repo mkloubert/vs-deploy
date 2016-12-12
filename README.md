@@ -390,6 +390,7 @@ Deploys to a ZIP file.
 
 | Name | Description |
 | ---- | --------- |
+| `open` | Open file after is been created or not. Default: `(true)` |
 | `target` | The target directory of the new ZIP file. Default: `./` |
 
 ### How to execute
@@ -408,5 +409,6 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description |
 | ---- | --------- |
+| `dir` | The directory where incoming files should be stored. Default: `./` |
 | `maxMessageSize` | Maximum size of one remote file message. Default: `16777215` |
 | `port` | The TCP port the host should be listen on. Default: `23979` |

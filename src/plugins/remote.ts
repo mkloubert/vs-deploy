@@ -54,7 +54,20 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                                   .map(x => deploy_helpers.toStringSafe(x))
                                   .filter(x => x);
 
+        let allErrors: any[] = [];
         let completed = (err?: any) => {
+            if (err) {
+                allErrors.push(err);
+            }
+
+            if (allErrors.length > 1) {
+                err = new Error(allErrors.map((x, i) => `ERROR #${i + 1}: ${deploy_helpers.toStringSafe(x)}`)
+                                         .join('\n\n'));
+            }
+            else if (1 == allErrors.length) {
+                err = allErrors[0];
+            }
+
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
                     error: err,
@@ -138,6 +151,10 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                         }
 
                         let hostCompleted = (err?: any) => {
+                            if (err) {
+                                allErrors.push(err);
+                            }
+
                             deployNext();
                         };
 

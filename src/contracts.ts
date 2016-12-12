@@ -31,6 +31,10 @@ import * as vscode from 'vscode';
  */
 export const DEFAULT_HOST = '127.0.0.1';
 /**
+ * The default directory where remote files should be stored.
+ */
+export const DEFAULT_HOST_DIR = './';
+/**
  * Default maximum size of a remote JSON message.
  */
 export const DEFAULT_MAX_MESSAGE_SIZE = 16777215;
@@ -97,6 +101,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * Deploy host settings.
      */
     host?: {
+        /**
+         * The root directory where files should be stored.
+         */
+        dir?: string;
         /**
          * Maximum size of a JSON message.
          */

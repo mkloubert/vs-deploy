@@ -36,6 +36,7 @@ const Zip = require('node-zip');
 
 
 interface DeployTargetZIP extends deploy_contracts.DeployTarget {
+    open?: boolean;
     target?: string;
 }
 
@@ -51,6 +52,11 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
         
         if (!Path.isAbsolute(targetDir)) {
             targetDir = Path.join(vscode.workspace.rootPath);
+        }
+
+        let openAfterCreated = true;
+        if (!deploy_helpers.isNullOrUndefined(target.open)) {
+            openAfterCreated = !!target.open;
         }
 
         let completed = (err?: any) => {
@@ -74,6 +80,8 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
                             }), 'binary');
 
                             FS.writeFile(zipFile, zippedData, (err) => {
+                                zippedData = null;
+
                                 if (err) {
                                     completed(err);
                                     return;
@@ -81,11 +89,13 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                                 completed();
 
-                                try {
-                                    OPN(zipFile);
-                                }
-                                catch (e) {
-                                    me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(e)}`)
+                                if (openAfterCreated) {
+                                    try {
+                                        OPN(zipFile);
+                                    }
+                                    catch (e) {
+                                        me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(e)}`)
+                                    }
                                 }
                             });
                         }

@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
+const FSExtra = require('fs-extra');
 const OPN = require('opn');
 import * as Moment from 'moment';
 import * as Net from 'net';
@@ -414,7 +415,7 @@ export class Deployer {
                         }
                         else {
                             if (failed.length > 0) {
-                                if (failed.length == succeeded.length) {
+                                if (succeeded.length < 1) {
                                     vscode.window.showErrorMessage(`No file could be deployed${targetExpr}!`);
                                 }
                                 else {
@@ -563,6 +564,7 @@ export class Deployer {
 
         let cfg = me.config;
 
+        let dir: string;
         let port = deploy_contracts.DEFAULT_PORT;
         let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
         if (cfg.host) {
@@ -571,6 +573,13 @@ export class Deployer {
 
             maxMsgSize = parseInt(deploy_helpers.toStringSafe(cfg.host.maxMessageSize,
                                                               '' + deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE));
+
+            dir = cfg.host.dir;
+        }
+
+        dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
+        if (!Path.isAbsolute(dir)) {
+            dir = Path.join(vscode.workspace.rootPath, dir);
         }
 
         let showError = (err: any) => {
@@ -676,7 +685,7 @@ export class Deployer {
                                                 }
 
                                                 if (file.name) {
-                                                    let targetFile = Path.join(vscode.workspace.rootPath, file.name);
+                                                    let targetFile = Path.join(dir, file.name);
                                                     
                                                     let copyFile = () => {
                                                         try {
@@ -730,11 +739,12 @@ export class Deployer {
                                                 else {
                                                     fileCompleted(new Error('No filename (2)!'));
                                                 }
+                                                // if (file.name) #2
                                             }
                                             catch (e) {
                                                 fileCompleted(e);
                                             }
-                                        };
+                                        };  // handleData()
 
                                         if (file.isCompressed) {
                                             ZLib.gunzip(file.data, (err, uncompressedData) => {
@@ -757,10 +767,12 @@ export class Deployer {
                                 else {
                                     completed(new Error('No filename (1)!'));
                                 }
+                                // if (file.name) #1
                             }
                             else {
                                 completed(new Error('No data!'));
                             }
+                            // if (file)
                         }
                         catch (e) {
                             completed(e);
@@ -791,7 +803,7 @@ export class Deployer {
                 try {
                     me._server = server;
 
-                    let successMsg = `Started deploy host on port ${port}.`;
+                    let successMsg = `Started deploy host on port ${port} in directory '${dir}'.`;
 
                     me.outputChannel.appendLine(successMsg);
                     vscode.window.showInformationMessage(successMsg);
@@ -819,7 +831,50 @@ export class Deployer {
             }
         });
 
-        server.listen(port);
+        let startListening = () => {
+            try {
+                server.listen(port);
+            }
+            catch (e) {
+                showError(e);
+            }
+        };
+
+        let checkIfDirIsDirectory = () => {
+            // now check if directory
+            FS.lstat(dir, (err, stats) => {
+                if (err) {
+                    showError(err);
+                    return;
+                }
+
+                if (stats.isDirectory()) {
+                    startListening();  // all is fine => start listening
+                }
+                else {
+                    showError(new Error(`'${dir}' is no directory!`));
+                }
+            });
+        };
+
+        // first check if target directory does exist
+        FS.exists(dir, (exists) => {
+            if (exists) {
+                checkIfDirIsDirectory();
+            }
+            else {
+                // directory does not exist => create
+
+                FSExtra.mkdirs(dir, function (err) {
+                    if (err) {
+                        showError(err);
+                        return;
+                    }
+
+                    checkIfDirIsDirectory();
+                });
+            }
+        });
     }
 
     /**
