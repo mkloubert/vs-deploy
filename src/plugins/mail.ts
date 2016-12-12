@@ -47,7 +47,7 @@ interface DeployTargetMail extends deploy_contracts.DeployTarget {
     user?: string;
 }
 
-class TestPlugin extends deploy_objects.MultiFileDeployPluginBase {
+class MailPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public deployWorkspace(files: string[], target: DeployTargetMail, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let now = Moment();
         let me = this;
@@ -259,5 +259,5 @@ https://github.com/mkloubert/vs-deploy`,
  * @returns {deploy_contracts.DeployPlugin} The new instance.
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
-    return new TestPlugin(ctx);
+    return new MailPlugin(ctx);
 }
