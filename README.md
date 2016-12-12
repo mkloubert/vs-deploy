@@ -8,14 +8,14 @@
 
 The extension supports the following destination types:
 
-* Apps / executables / scripts (bash, batch, e.g.)
-* External Node.js based scripts
-* FTP
-* Local or shared network folders inside a LAN
-* Mail (SMTP)
-* Remote machines like other VS Code instances
-* SFTP
-* ZIP files
+* [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
+* [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
+* [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+* [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
+* [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
+* [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
+* [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+* [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2)
 
@@ -66,7 +66,7 @@ Add a `deploy` section:
 
 | Name | Description |
 | ---- | --------- |
-| `host` | Settings for a host that receives files from a remote machine. (s. [host section](#host)) |
+| `host` | Settings for a host that receives files from a remote machine. (s. [host section](https://github.com/mkloubert/vs-deploy/wiki#host)) |
 | `modules` | An optional list of one or more "external" plugin module files (.js) to load. |
 
 #### Packages
@@ -197,201 +197,7 @@ Add the subsection `targets` and add one or more entry:
 }
 ```
 
-| Name | Description |
-| ---- | --------- |
-| `deployed` | The operations that should be invoked AFTER ALL files have been deployed successfully. |
-| `description` | The description of the target. |
-| `name` | The name of the target. |
-| `sortOrder` | An optional number to sort the target elements. Default: `0` |
-| `type` | The type. |
-
-##### deployed
-
-| Name | Description |
-| ---- | --------- |
-| `type` | The type. Default: `open` |
-
-###### open
-
-| Name | Description |
-| ---- | --------- |
-| `target` | The thing should be opened. Can be a URL, file or executable. |
-
-#### app
-
-Deploys to an app, like a script or executable, on the local machine.
-
-| Name | Description |
-| ---- | --------- |
-| `app` | The path to the app. |
-| `arguments` | One or more arguments for the execution which are added BEFORE the list of files are submitted to the app. |
-
-#### ftp
-
-Deploys to a FTP server.
-
-| Name | Description |
-| ---- | --------- |
-| `dir` | The remote directory on the server. Default: `/` |
-| `host` | The host address of the server. Default: `127.0.0.1` |
-| `password` | Password |
-| `port` | The TCP port of the server. Default: `21` or `990` (`secure` = `(true)`) |
-| `secure` | Use secure connection or not. Default: `(false)` |
-| `user` | Username. Default: `anonymous` |
-
-#### local
-
-Deploys to a local folder or a shared folder (like SMB) inside your LAN.
-
-| Name | Description |
-| ---- | --------- |
-| `dir` | The target directory. |
-| `empty` | Empty target directory BEFORE deploy or not. Default: `(false)` |
-
-#### mail
-
-Deploys to a ZIP file and sends it as attachment by mail via SMTP.
-
-| Name | Description |
-| ---- | --------- |
-| `from` | The optional email address of the sender. |
-| `host` | The host address of the server. Default: `127.0.0.1` |
-| `ignoreTLS` | Ignore TLS or not. Default: `(false)` |
-| `password` | Password |
-| `port` | The TCP port of the server. Default: `25`, `465`, `587` (based on the security settings) |
-| `rejectUnauthorized` | s. [tls module](https://nodejs.org/api/tls.html). Default: `(true)` |
-| `requireTLS` | Requires TLS or not. Default: `(false)` |
-| `secure` | Use secure connection or not. Default: `(true)` |
-| `to` | The optional initial list of target email addresses. |
-| `user` | Username |
-
-#### remote
-
-Deploys to a remote machine over a TCP connection.
-
-#### script
-
-Deploys via a JS script.
-
-| Name | Description |
-| ---- | --------- |
-| `options` | Optional value for the execution. |
-| `script` | The script file to exeute. Default: `./deploy.js` |
-
-A script file has the following skeleton:
-
-```javascript
-// [REQUIRED]
-function deployFile(args) {
-    return new Promise(function(resolve, reject) {
-        try {
-            //TODO
-
-            resolve();
-        }
-        catch (e) {
-            reject(e);
-        }
-    });
-}
-exports.deployFile = deployFile;
-
-// [OPTIONAL]
-function deployWorkspace(args) {
-    return new Promise(function(resolve, reject) {
-        try {
-            //TODO
-
-            resolve();
-        }
-        catch (e) {
-            reject(e);
-        }
-    });
-}
-exports.deployWorkspace = deployWorkspace;
-```
-
-The `args` parameters have the following structure (for `DeployContext`, `DeployFileOptions` and `DeployWorkspaceOptions` interfaces see [contracts.ts](https://github.com/mkloubert/vs-deploy/blob/master/src/contracts.ts) file):
-
-##### deployFile()
-
-```typescript
-/**
- * Arguments for deploying a file.
- */
-export interface DeployFileArguments {
-    /**
-     * The underlying deploy context.
-     */
-    context: DeployContext;
-    /**
-     * Deploy options.
-     */
-    deployOptions: DeployFileOptions;
-    /**
-     * The file to deploy.
-     */
-    file: string;
-    /**
-     * Options from the target configuration.
-     */
-    targetOptions: any;
-}
-```
-
-##### deployWorkspace()
-
-```typescript
-/**
- * Arguments for deploying the workspace.
- */
-export interface DeployWorkspaceArguments {
-    /**
-     * The underlying deploy context.
-     */
-    context: DeployContext;
-    /**
-     * Deploy options.
-     */
-    deployOptions: DeployWorkspaceOptions;
-    /**
-     * The list of files to deploy.
-     */
-    files: string[];
-    /**
-     * Options from the target configuration.
-     */
-    targetOptions: any;
-}
-```
-
-#### sftp
-
-Deploys to a SFTP server.
-
-| Name | Description |
-| ---- | --------- |
-| `dir` | The remote directory on the server. Default: `/` |
-| `host` | The host address of the server. Default: `127.0.0.1` |
-| `password` | Password |
-| `port` | The TCP port of the server. Default: `22` |
-| `user` | Username. Default: `anonymous` |
-
-#### test
-
-A mock deployer that only displays what files would be deployed.
-
-This is a good tool to check package configuration.
-
-#### zip
-
-Deploys to a ZIP file.
-
-| Name | Description |
-| ---- | --------- |
-| `open` | Open file after is been created or not. Default: `(true)` |
-| `target` | The target directory of the new ZIP file. Default: `./` |
+Look at the [wiki](https://github.com/mkloubert/vs-deploy/wiki#targets) to get more information.
 
 ### How to execute
 
@@ -404,11 +210,3 @@ Press `F1` to open the list of commands and enter one of the following commands:
 | `Deploy: Current file` | Deploys the current opened file. | `CTRL + ALT + F` |
 | `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
 | `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + W` |
-
-### host
-
-| Name | Description |
-| ---- | --------- |
-| `dir` | The directory where incoming files should be stored. Default: `./` |
-| `maxMessageSize` | Maximum size of one remote file message. Default: `16777215` |
-| `port` | The TCP port the host should be listen on. Default: `23979` |

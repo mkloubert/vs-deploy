@@ -132,7 +132,7 @@ class TestPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                 text: `- ${files.join('\n- ')}
 
 
-Provided by 'Deploy' (vs-deploy) Visual Studio Code extension:
+Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
 https://github.com/mkloubert/vs-deploy
 
 Donate:
