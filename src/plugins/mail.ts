@@ -133,10 +133,7 @@ class TestPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
 
 Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
-https://github.com/mkloubert/vs-deploy
-
-Donate:
-https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2`,
+https://github.com/mkloubert/vs-deploy`,
                                 attachments: [
                                     {
                                         filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
