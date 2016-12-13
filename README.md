@@ -11,6 +11,7 @@ The extension supports the following destination types:
 * [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
 * [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
 * [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+* [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http)
 * [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
 * [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
 * [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)

@@ -366,6 +366,22 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_co
 }
 
 /**
+ * Converts a value to a boolean.
+ * 
+ * @param {any} val The value to convert.
+ * @param {any} defaultValue The value to return if 'val' is (null) or (undefined).
+ * 
+ * @return {boolean} The converted value.
+ */
+export function toBooleanSafe(val: any, defaultValue: any = false): boolean {
+    if (isNullOrUndefined(val)) {
+        return defaultValue;
+    }
+
+    return !!val;
+}
+
+/**
  * Tries to convert a file path to a relative path.
  * 
  * @param {string} path The path to convert.
