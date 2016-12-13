@@ -167,6 +167,10 @@ export interface DeployContext {
      */
     outputChannel(): vscode.OutputChannel;
     /**
+     * Returns the package file of that extension.
+     */
+    packageFile(): PackageFile;
+    /**
      * Returns the list of packages.
      * 
      * @param {DeployPackage[]} The packages.
@@ -457,6 +461,24 @@ export interface DeployWorkspaceOptions {
      * The "completed" callback for the a single file.
      */
     onFileCompleted?: FileDeployedCompletedEventHandler;
+}
+
+/**
+ * Describes the structure of the package file of that extenstion.
+ */
+export interface PackageFile {
+    /**
+     * The display name.
+     */
+    displayName: string;
+    /**
+     * The (internal) name.
+     */
+    name: string;
+    /**
+     * The version string.
+     */
+    version: string;
 }
 
 /**

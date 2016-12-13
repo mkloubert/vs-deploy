@@ -30,6 +30,7 @@ import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
+import * as vs_contracts from './contracts';
 import * as vs_deploy from './deploy';
 
 
@@ -37,23 +38,22 @@ export function activate(context: vscode.ExtensionContext) {
     let now = Moment();
 
     // version
-    let appVersion: string;
-    let appName: string;
-    let displayName: string;
+    let pkgFile: vs_contracts.PackageFile;
     try {
-        let packageFile = JSON.parse(FS.readFileSync(Path.join(__dirname, '../../package.json'), 'utf8'));
-
-        appName = packageFile.name;
-        appVersion = packageFile.version;
-        displayName = packageFile.displayName;
+        pkgFile = JSON.parse(FS.readFileSync(Path.join(__dirname, '../../package.json'), 'utf8'));
     }
     catch (e) {
-        deploy_helpers.log(`[ERROR] ${deploy_helpers.toStringSafe(e)}`);
+        deploy_helpers.log(`[ERROR] extension.activate(): ${deploy_helpers.toStringSafe(e)}`);
     }
 
     let outputChannel = vscode.window.createOutputChannel("Deploy");
-    if (appName) {
-        outputChannel.appendLine(`${displayName} (${appName}) - v${appVersion}`);
+
+    // show infos about the app
+    {
+        if (pkgFile) {
+            outputChannel.appendLine(`${pkgFile.displayName} (${pkgFile.name}) - v${pkgFile.version}`);
+        }
+
         outputChannel.appendLine(`Copyright (c) ${now.format('YYYY')}  Marcel Joachim Kloubert <marcel.kloubert@gmx.net>`);
         outputChannel.appendLine('');
         outputChannel.appendLine(`GitHub : https://github.com/mkloubert/vs-deploy`);
@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.show();
     }
 
-    let deployer = new vs_deploy.Deployer(context, outputChannel);
+    let deployer = new vs_deploy.Deployer(context, outputChannel, pkgFile);
 
     // deploy workspace
     let deploy = vscode.commands.registerCommand('extension.deploy', () => {

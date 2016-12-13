@@ -54,6 +54,10 @@ export class Deployer {
      */
     protected _CONTEXT: vscode.ExtensionContext;
     /**
+     * Stores the package file of that extension.
+     */
+    protected _PACKAGE_FILE: deploy_contracts.PackageFile;
+    /**
      * Loaded plugins.
      */
     protected _plugins: deploy_contracts.DeployPlugin[];
@@ -75,11 +79,14 @@ export class Deployer {
      * 
      * @param {vscode.ExtensionContext} context The underlying extension context.
      * @param {vscode.OutputChannel} outputChannel The global output channel to use.
+     * @param {deploy_contracts.PackageFile} pkgFile The package file of that extension.
      */
     constructor(context: vscode.ExtensionContext,
-                outputChannel: vscode.OutputChannel) {
+                outputChannel: vscode.OutputChannel,
+                pkgFile: deploy_contracts.PackageFile) {
         this._CONTEXT = context;
         this._OUTPUT_CHANNEL = outputChannel;
+        this._PACKAGE_FILE = pkgFile;
 
         this.reloadConfiguration();
         this.reloadPlugins();
@@ -1075,6 +1082,13 @@ export class Deployer {
     }
 
     /**
+     * Gets the package file of that extension.
+     */
+    public get packageFile(): deploy_contracts.PackageFile {
+        return this._PACKAGE_FILE;
+    }
+
+    /**
      * Gets the list of plugins.
      */
     public get plugins(): deploy_contracts.DeployPlugin[] {
@@ -1171,6 +1185,7 @@ export class Deployer {
                                             return this;
                                         },
                                         outputChannel: () => me.outputChannel,
+                                        packageFile: () => me.packageFile,
                                         packages: () => me.getPackages(),
                                         plugins: null,
                                         targets: () => me.getTargets(),
@@ -1224,7 +1239,7 @@ export class Deployer {
             if (loadedPlugins.length > 0) {
                 loadedPlugins.forEach(x => {
                     try {
-                        me.outputChannel.append(`- '${x.__file}'`);
+                        me.outputChannel.append(`- ${x.__file}`);
                     }
                     catch (e) {
                         me.log(`[ERROR] Deployer.reloadPlugins(3): ${deploy_helpers.toStringSafe(e)}`);
