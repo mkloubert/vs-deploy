@@ -1113,7 +1113,7 @@ export class Deployer {
                             }
                         }
                         catch (e) { 
-                            me.log('[ERROR] reloadPlugins(1): ' + e);
+                            me.log(`[ERROR] Deployer.reloadPlugins(1): ${deploy_helpers.toStringSafe(e)}`);
                         }
                         
                         return false;
@@ -1203,6 +1203,7 @@ export class Deployer {
                                         };
 
                                         newPlugin.__file = deploy_helpers.parseTargetType(Path.basename(x));
+                                        newPlugin.__filePath = x;
                                         newPlugin.__index = pluginIndex;
                                         newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
 
@@ -1212,7 +1213,7 @@ export class Deployer {
                             }
                         }
                         catch (e) {
-                            me.log('[ERROR] reloadPlugins(2): ' + e);
+                            me.log(`[ERROR] Deployer.reloadPlugins(2): ${deploy_helpers.toStringSafe(e)}`);
                         }
                     });
                 }
@@ -1221,19 +1222,27 @@ export class Deployer {
             this._plugins = loadedPlugins;
 
             if (loadedPlugins.length > 0) {
+                loadedPlugins.forEach(x => {
+                    try {
+                        me.outputChannel.append(`- '${x.__file}'`);
+                    }
+                    catch (e) {
+                        me.log(`[ERROR] Deployer.reloadPlugins(3): ${deploy_helpers.toStringSafe(e)}`);
+                    }
+
+                    me.outputChannel.appendLine('');
+                });
+
+                me.outputChannel.appendLine('');
                 if (loadedPlugins.length != 1) {
-                    this.outputChannel.appendLine(`${loadedPlugins.length} plugins loaded:`);
+                    this.outputChannel.appendLine(`${loadedPlugins.length} plugins loaded.`);
                 }
                 else {
-                    this.outputChannel.appendLine(`1 plugin loaded:`);
+                    this.outputChannel.appendLine(`1 plugin loaded.`);
                 }
-
-                loadedPlugins.forEach(x => {
-                    me.outputChannel.appendLine(`- ${x.__file}`);
-                });
             }
             else {
-                this.outputChannel.appendLine(`No plugin loaded`);
+                this.outputChannel.appendLine(`No plugin loaded.`);
             }
 
             this.outputChannel.appendLine('');

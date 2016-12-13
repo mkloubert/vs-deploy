@@ -249,6 +249,12 @@ https://github.com/mkloubert/vs-deploy`,
             completed(e);
         }
     }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: 'Deploys to a ZIP file and sends it as attachment by mail via SMTP',
+        }
+    }
 }
 
 /**

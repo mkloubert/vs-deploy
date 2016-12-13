@@ -133,6 +133,12 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             completed(e);
         }
     }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: 'Deploys to an app, like a script or executable, on the local machine',
+        }
+    }
 }
 
 /**

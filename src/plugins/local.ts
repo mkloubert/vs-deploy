@@ -167,6 +167,12 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             startDeploying();
         }
     }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
+        }
+    }
 }
 
 /**

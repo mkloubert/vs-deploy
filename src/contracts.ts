@@ -333,6 +333,12 @@ export interface DeployPlugin {
     /**
      * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
      * 
+     * Gets the full path of the plugin's file.
+     */
+    __filePath?: string;
+    /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
      * Gets the index of the plugin.
      */
     __index?: number;
@@ -359,6 +365,23 @@ export interface DeployPlugin {
      * @param {DeployWorkspaceOptions} [opts] Additional options.
      */
     deployWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
+
+    /**
+     * Return information of the plugin.
+     * 
+     * @return {DeployPluginInfo} The plugin info.
+     */
+    info?: () => DeployPluginInfo;
+}
+
+/**
+ * Information about a plugin.
+ */
+export interface DeployPluginInfo {
+    /**
+     * The description of the plugin.
+     */
+    description?: string;
 }
 
 /**
