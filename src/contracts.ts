@@ -84,7 +84,7 @@ export interface BeforeDeployFileEventArguments extends DeployFileEventArguments
  * 
  * @param {DataTransformerContext} ctx The transformer context.
  * 
- * @return {Promise<Buffer>} The promise.µ
+ * @return {Promise<Buffer>} The promise.
  */
 export type DataTransformer = (ctx: DataTransformerContext) => Promise<Buffer>;
 
