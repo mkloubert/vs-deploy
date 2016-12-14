@@ -813,6 +813,8 @@ export class Deployer {
                                                     options: transformerOpts,
                                                     mode: deploy_contracts.DataTransformerMode.Restore,
                                                 }).then((untransformedData) => {
+                                                    file.data = untransformedData;
+
                                                     handleData(untransformedData);
                                                 }).catch((err) => {
                                                     fileCompleted(err);
