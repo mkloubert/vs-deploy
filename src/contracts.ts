@@ -175,6 +175,12 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * s. 'TranformerModule' interface
          */
         transformer?: string;
+        /**
+         * The path to a module that UNtransforms received data.
+         * 
+         * s. 'TranformerModule' interface
+         */
+        transformerOptions?: string;
     },
     /**
      * List of additional files of plugin modules to load.

@@ -585,7 +585,7 @@ export class Deployer {
 
             dir = cfg.host.dir;
 
-            transformerOpts = cfg.host.transformer;
+            transformerOpts = cfg.host.transformerOptions;
             if (cfg.host.transformer) {
                 let transformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.transformer);
                 if (transformerModule) {
