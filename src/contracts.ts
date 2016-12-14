@@ -437,7 +437,6 @@ export interface DeployPlugin {
      * @param {DeployWorkspaceOptions} [opts] Additional options.
      */
     deployWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
-
     /**
      * Return information of the plugin.
      * 

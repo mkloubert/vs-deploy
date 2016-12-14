@@ -47,6 +47,10 @@ export interface DeployFileArguments {
      */
     file: string;
     /**
+     * The underlying "parent" object.
+     */
+    sender: any;
+    /**
      * Options from the target configuration.
      */
     targetOptions: any;
@@ -73,6 +77,10 @@ export interface DeployWorkspaceArguments {
      * The list of files to deploy.
      */
     files: string[];
+    /**
+     * The underlying "parent" object.
+     */
+    sender: any;
     /**
      * Options from the target configuration.
      */
@@ -163,6 +171,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 context: me.context,
                 deployOptions: opts,
                 file: file,
+                sender: me,
                 targetOptions: target.options,
             }).then((value) => {
                 completed(null, value);
@@ -210,6 +219,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     context: me.context,
                     deployOptions: opts,
                     files: files,
+                    sender: me,
                     targetOptions: target.options,
                 }).then(() => {
                     completed();
