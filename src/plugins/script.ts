@@ -51,14 +51,27 @@ export interface DeployFileArguments {
      */
     sender: any;
     /**
+     * The target.
+     */
+    target: DeployTargetScript;
+    /**
      * Options from the target configuration.
      */
     targetOptions: any;
 }
 
-interface DeployTargetScript extends deploy_contracts.DeployTarget {
+/**
+ * 'script' target settings.
+ */
+export interface DeployTargetScript extends deploy_contracts.DeployTarget {
+    /**
+     * The optional data to use in execution of script functions.
+     */
     options?: any;
-    script?: string;
+    /**
+     * The script to execute.
+     */
+    script: string;
 }
 
 /**
@@ -81,6 +94,10 @@ export interface DeployWorkspaceArguments {
      * The underlying "parent" object.
      */
     sender: any;
+    /**
+     * The target.
+     */
+    target: DeployTargetScript;
     /**
      * Options from the target configuration.
      */
@@ -172,6 +189,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 deployOptions: opts,
                 file: file,
                 sender: me,
+                target: target,
                 targetOptions: target.options,
             }).then((value) => {
                 completed(null, value);
@@ -220,6 +238,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     deployOptions: opts,
                     files: files,
                     sender: me,
+                    target: target,
                     targetOptions: target.options,
                 }).then(() => {
                     completed();
