@@ -574,6 +574,8 @@ export class Deployer {
         let dir: string;
         let port = deploy_contracts.DEFAULT_PORT;
         let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
+        let transformer: deploy_contracts.DataTransformer;
+        let transformerOpts: any;
         if (cfg.host) {
             port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
                                                         '' + deploy_contracts.DEFAULT_PORT));
@@ -582,12 +584,23 @@ export class Deployer {
                                                               '' + deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE));
 
             dir = cfg.host.dir;
+
+            transformerOpts = cfg.host.transformer;
+            if (cfg.host.transformer) {
+                let transformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.transformer);
+                if (transformerModule) {
+                    transformer = transformerModule.restoreData ||
+                                  transformerModule.transformData;
+                }
+            }
         }
 
         dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
         if (!Path.isAbsolute(dir)) {
             dir = Path.join(vscode.workspace.rootPath, dir);
         }
+
+        transformer = deploy_helpers.toDataTransformerSafe(transformer);
 
         let showError = (err: any) => {
             vscode.window.showErrorMessage(`Could not start listening for files: ${deploy_helpers.toStringSafe(err)}`);
@@ -681,11 +694,7 @@ export class Deployer {
                                         }
                                         file.data = data;
 
-                                        let handleData = function(data?: Buffer) {
-                                            if (arguments.length > 0) {
-                                                file.data = data;
-                                            }
-
+                                        let handleData = function(data: Buffer) {
                                             try {
                                                 while (0 == file.name.indexOf('/')) {
                                                     file.name = file.name.substr(1);
@@ -793,6 +802,27 @@ export class Deployer {
                                             }
                                         };  // handleData()
 
+                                        let untransformTheData = function(data?: Buffer) {
+                                            if (arguments.length > 0) {
+                                                file.data = data;
+                                            }
+
+                                            try {
+                                                transformer({
+                                                    data: file.data,
+                                                    options: transformerOpts,
+                                                    mode: deploy_contracts.DataTransformerMode.Restore,
+                                                }).then((untransformedData) => {
+                                                    handleData(untransformedData);
+                                                }).catch((err) => {
+                                                    fileCompleted(err);
+                                                });
+                                            }
+                                            catch (e) {
+                                                fileCompleted(e);
+                                            }
+                                        };  // untransformTheData()
+
                                         if (file.isCompressed) {
                                             ZLib.gunzip(file.data, (err, uncompressedData) => {
                                                 if (err) {
@@ -800,11 +830,11 @@ export class Deployer {
                                                     return;
                                                 }
 
-                                                handleData(uncompressedData);                                                
+                                                untransformTheData(uncompressedData);                                                
                                             });
                                         }
                                         else {
-                                            handleData();
+                                            untransformTheData();
                                         }
                                     }
                                     catch (e) {

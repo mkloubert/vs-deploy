@@ -182,6 +182,15 @@ Add the subsection `targets` and add one or more entry:
                 }
             },
             {
+                "type": "http",
+                "name": "My HTTP service",
+                "description": "A HTTP service on a HTTP server, e.g.",
+
+                "url": "https://host.example.com/webdav/?file=${VSDeploy-File}",
+                "method": "PUT",
+                "user": "mkloubert", "password": "P@ssword123!"
+            },
+            {
                 "type": "remote",
                 "name": "My remote target",
                 "description": "Some remote VS Code instances to deploy to",

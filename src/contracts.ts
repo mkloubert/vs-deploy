@@ -80,6 +80,62 @@ export interface BeforeDeployFileEventArguments extends DeployFileEventArguments
 }
 
 /**
+ * Describes a function that transforms data into new format.
+ * 
+ * @param {DataTransformerContext} ctx The transformer context.
+ * 
+ * @return {Promise<Buffer>} The promise.µ
+ */
+export type DataTransformer = (ctx: DataTransformerContext) => Promise<Buffer>;
+
+/**
+ * The context of data transformer.
+ */
+export interface DataTransformerContext {
+    /**
+     * The data to transform.
+     */
+    data: Buffer;
+    /**
+     * The mode.
+     */
+    mode: DataTransformerMode;
+    /**
+     * The optional options for transformation.
+     */
+    options?: any;
+}
+
+/**
+ * The transformer mode.
+ */
+export enum DataTransformerMode {
+    /**
+     * Restore transformed data.
+     */
+    Restore,
+    /**
+     * Transform UNtransformed data.
+     */
+    Transform,
+}
+
+/**
+ * Describes a "data transformer" module.
+ */
+export interface DataTransformModule {
+    /**
+     * Restores transformed / encoded / crypted data.
+     */
+    restoreData?: DataTransformer;
+
+    /**
+     * Transforms data into new format.
+     */
+    transformData?: DataTransformer;
+}
+
+/**
  * A quick pick that is based on an action.
  */
 export interface DeployActionQuickPick extends DeployQuickPickItem {
@@ -113,6 +169,12 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * The TCP port on that the host should listen.
          */
         port?: number;
+        /**
+         * The path to a module that UNtransforms received data.
+         * 
+         * s. 'TranformerModule' interface
+         */
+        transformer?: string;
     },
     /**
      * List of additional files of plugin modules to load.

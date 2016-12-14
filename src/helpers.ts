@@ -215,6 +215,32 @@ export function isNullOrUndefined(val: any): boolean {
 }
 
 /**
+ * Loads a "data transformer" module.
+ * 
+ * @param {string} file The path of the module's file.
+ * @param {boolean} useCache Use cache or not.
+ * 
+ * @return {deploy_contracts.DataTransformModule} The loaded module.
+ */
+export function loadDataTransformerModule(file: string, useCache: boolean = false): deploy_contracts.DataTransformModule {
+    if (!Path.isAbsolute(file)) {
+        file = Path.join(vscode.workspace.rootPath, file);
+    }
+    file = Path.resolve(file);
+
+    let stats = FS.lstatSync(file);
+    if (!stats.isFile()) {
+        throw new Error(`'${file}' is no file!`);
+    }
+
+    if (!useCache) {
+        delete require.cache[file];  // remove from cache
+    }
+    
+    return require(file);
+}
+
+/**
  * Logs a message.
  * 
  * @param {any} msg The message to log.
@@ -379,6 +405,27 @@ export function toBooleanSafe(val: any, defaultValue: any = false): boolean {
     }
 
     return !!val;
+}
+
+/**
+ * Keeps sure to return a "data transformer" that is NOT (null) or (undefined).
+ * 
+ * @param {deploy_contracts.DataTransformer} transformer The input value.
+ * 
+ * @return {deploy_contracts.DataTransformer} The output value.
+ */
+export function toDataTransformerSafe(transformer: deploy_contracts.DataTransformer): deploy_contracts.DataTransformer {
+    if (!transformer) {
+        // use "dummy" transformer
+
+        transformer = (ctx) => {
+            return new Promise<Buffer>((resolve, reject) => {
+                resolve(ctx.data);
+            });
+        };
+    }
+    
+    return transformer;
 }
 
 /**
