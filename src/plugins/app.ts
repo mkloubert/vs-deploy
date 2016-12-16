@@ -102,6 +102,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 try {
                     if (opts.onBeforeDeployFile) {
                         opts.onBeforeDeployFile(me, {
+                            destination: app,
                             file: x,
                             target: target,
                         });

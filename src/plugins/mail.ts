@@ -189,6 +189,7 @@ https://github.com/mkloubert/vs-deploy`,
 
                         if (opts.onBeforeDeployFile) {
                             opts.onBeforeDeployFile(me, {
+                                destination: relativePath,
                                 file: f,
                                 target: target,
                             });

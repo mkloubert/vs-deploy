@@ -52,6 +52,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         try {
             if (opts.onBeforeDeploy) {
                 opts.onBeforeDeploy(me, {
+                    destination: file,
                     file: file,
                     target: target,
                 });

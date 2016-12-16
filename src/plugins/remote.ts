@@ -91,13 +91,6 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
         transformer = deploy_helpers.toDataTransformerSafe(transformer);
 
         try {
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    file: file,
-                    target: target,
-                });
-            }
-
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target);
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}' file!`));
@@ -111,6 +104,14 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
             if (!relativePath) {
                 completed(new Error(`Relative path for '${file}' file is empty!`));
                 return;
+            }
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: relativePath,
+                    file: file,
+                    target: target,
+                });
             }
 
             FS.readFile(file, (err, data) => {

@@ -137,6 +137,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
         try {
             if (opts.onBeforeDeploy) {
                 opts.onBeforeDeploy(me, {
+                    destination: url,
                     file: file,
                     target: target,
                 });

@@ -248,25 +248,31 @@ export class Deployer {
                 };
 
                 try {
-                    let targetName = deploy_helpers.toStringSafe(target.name);
-
-                    me.outputChannel.show();
-                    me.outputChannel.appendLine('');
-
-                    let deployMsg = `Deploying file '${relativePath}'`;
-                    if (targetName) {
-                        deployMsg += ` to '${targetName}'`;
-                    }
-                    deployMsg += '... ';
-
-                    me.outputChannel.append(deployMsg);
-
-                    statusBarItem.color = '#ffffff';
-                    statusBarItem.tooltip = `Deploying '${relativePath}'...`;
-                    statusBarItem.text = `Deploying...`;
-                    statusBarItem.show();
-
                     x.deployFile(file, target, {
+                        onBeforeDeploy: (sender, e) => {
+                            let destination = deploy_helpers.toStringSafe(e.destination); 
+                            let targetName = deploy_helpers.toStringSafe(e.target.name);
+
+                            me.outputChannel.show();
+                            me.outputChannel.appendLine('');
+
+                            let deployMsg = `Deploying file '${relativePath}'`;
+                            if (destination) {
+                                deployMsg += ` to '${destination}'`;
+                            }
+                            if (targetName) {
+                                deployMsg += ` ('${targetName}')`;
+                            }
+                            deployMsg += '... ';
+
+                            me.outputChannel.append(deployMsg);
+
+                            statusBarItem.color = '#ffffff';
+                            statusBarItem.tooltip = `Deploying '${relativePath}'...`;
+                            statusBarItem.text = `Deploying...`;
+                            statusBarItem.show();
+                        },
+
                         onCompleted: (sender, e) => {
                             if (e.error) {
                                 me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
@@ -461,9 +467,17 @@ export class Deployer {
                                 relativePath = e.file;
                             }
 
-                            statusBarItem.tooltip = `Deploying '${relativePath}'...`;
+                            let statusMsg = `Deploying '${relativePath}'`;
 
-                            me.outputChannel.append(statusBarItem.tooltip + ' ');
+                            let destination = deploy_helpers.toStringSafe(e.destination);
+                            if (destination) {
+                                statusMsg += ` to '${destination}'`;
+                            }
+
+                            statusMsg += '...';
+
+                            statusBarItem.tooltip = statusMsg;
+                            me.outputChannel.append(statusMsg + ' ');
                         },
 
                         onCompleted: (sender, e) => {

@@ -83,6 +83,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             try {
                 if (opts.onBeforeDeploy) {
                     opts.onBeforeDeploy(me, {
+                        destination: targetDirectory,
                         file: file,
                         target: target,
                     });

@@ -172,13 +172,6 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 relativeScriptPath = scriptFile;
             }
 
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    file: file,
-                    target: target,
-                });
-            }
-            
             let scriptModule = loadScriptModule(scriptFile);
             if (!scriptModule.deployFile) {
                 throw new Error(`'${relativeScriptPath}' implements no 'deployFile()' function!`);

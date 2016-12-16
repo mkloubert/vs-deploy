@@ -138,6 +138,7 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                             if (opts.onBeforeDeployFile) {
                                 opts.onBeforeDeployFile(me, {
+                                    destination: relativePath,
                                     file: f,
                                     target: target,
                                 });

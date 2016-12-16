@@ -77,6 +77,10 @@ export type BeforeDeployFileEventHandler = (sender: any, e: BeforeDeployFileEven
  * Arguments for a "before deploy file" event.
  */
 export interface BeforeDeployFileEventArguments extends DeployFileEventArguments {
+    /**
+     * A string that represents the destination.
+     */
+    destination: string;
 }
 
 /**

@@ -162,6 +162,7 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
             onBeforeDeployFile: (sender, e) => {
                 if (opts.onBeforeDeploy) {
                     opts.onBeforeDeploy(sender, {
+                        destination: e.destination,
                         file: e.file,
                         target: e.target,
                     });
@@ -282,6 +283,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                                                          onBeforeDeploy: (sender, e) => {
                                                              if (opts.onBeforeDeployFile) {
                                                                  opts.onBeforeDeployFile(sender, {
+                                                                     destination: e.destination,
                                                                      file: e.file,
                                                                      target: e.target,
                                                                  });

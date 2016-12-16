@@ -167,6 +167,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
 
         if (opts.onBeforeDeploy) {
             opts.onBeforeDeploy(me, {
+                destination: targetDirectory,
                 file: file,
                 target: target,
             });
