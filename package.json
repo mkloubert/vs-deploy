@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -75,6 +75,35 @@
       "properties": {
         "deploy": {
           "type": "object",
+          "default": {
+            "packages": [
+              {
+                "name": "My package",
+                "description": "An awesome package",
+                "files": [
+                  "**"
+                ],
+                "exclude": [
+                  "tests/**"
+                ],
+                "deployOnSave": false
+              }
+            ],
+
+            "targets": [
+              {
+                "type": "local",
+                "name": "My local target",
+                "description": "A backup folder",
+                "dir": "./.vsdeploy-backup",
+                "empty": true
+              }
+            ],
+
+            "host": {
+              "dir": "./.vsdeploy-remoteFiles"
+            }
+          },
           "properties": {
             "host": {
               "type": "object",
