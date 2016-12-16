@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -70,7 +70,493 @@
         "key": "ctrl+alt+l",
         "mac": "cmd+alt+l"
       }
-    ]
+    ],
+    "configuration": {
+      "properties": {
+        "deploy": {
+          "type": "object",
+          "properties": {
+            "packages": {
+              "type": "array",
+              "description": "One or more packages that describe what files of the workspace should be deployed.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "deployOnSave": {
+                    "description": "One or more name of targets to deploy to. (true) indicates to deploy to ALL targets.",
+                    "default": false,
+                    "oneOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A description for the package."
+                  },
+                  "exclude": {
+                    "description": "A list of one or more glob patterns of files that should be execluded from deployment.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "files": {
+                    "description": "A list of one or more glob patterns of files that should be deployed. By default ALL files will be deployed.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The name of the package."
+                  }
+                }
+              }
+            },
+            "targets": {
+              "type": "array",
+              "description": "One or more targets that describe where files can be deployed to.",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to an app, like a script or executable, on the local machine.",
+                        "enum": [ "app" ]
+                      },
+                      "app": {
+                        "type": "string",
+                        "description": "The path to the app.",
+                        "default": "/the/path/to/my/app.sh"
+                      },
+                      "arguments": {
+                        "description": "One or more argument for the execution.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a FTP server.",
+                        "enum": [ "ftp" ]
+                      },
+                      "dir": {
+                        "type": "string",
+                        "description": "The remote directory on the server.",
+                        "default": "/"
+                      },
+                      "host": {
+                        "type": "string",
+                        "description": "The host address of the server.",
+                        "default": "127.0.0.1"
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "The password to use."
+                      },
+                      "port": {
+                        "type": "integer",
+                        "description": "The TCP port of the server.",
+                        "default": 21,
+                        "maximum": 65535,
+                        "minimum": 0
+                      },
+                      "secure": {
+                        "type": "boolean",
+                        "description": "Use secure connection or not.",
+                        "default": false
+                      },
+                      "user": {
+                        "type": "string",
+                        "description": "The username for the authentication.",
+                        "default": "anonymous"
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a HTTP server/service.",
+                        "enum": [ "http" ]
+                      },
+                      "headers": {
+                        "type": "object",
+                        "description": "The optional list of additional request headers to send.",
+                        "default": {
+                          "X-My-Request-Header": "The value for the header."
+                        }
+                      },
+                      "method": {
+                        "type": "string",
+                        "description": "The HTTP method to use.",
+                        "default": "PUT"
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "The optional password for basic authentication to use."
+                      },
+                      "submitContentType": {
+                        "type": "boolean",
+                        "description": "Submit the 'Content-type' request header or not.",
+                        "default": true
+                      },
+                      "submitDate": {
+                        "type": "boolean",
+                        "description": "Submit the 'Date' request header or not.",
+                        "default": true
+                      },
+                      "submitFileHeader": {
+                        "type": "boolean",
+                        "description": "Submit the 'X-vsdeploy-file' request header that contains the path of the file that is submitted.",
+                        "default": false
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The optional path to the script that transforms the data of the file BEFORE it is send.",
+                        "default": "./my-transformer.js"
+                      },
+                      "transformerOptions": {
+                        "description": "The data for the 'data transformation', if needed."
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "The request URL.",
+                        "format": "uri",
+                        "default": "http://localhost/webdav/?file=${VSDeploy-File}"
+                      },
+                      "user": {
+                        "type": "string",
+                        "description": "The optional username for basic authentication."
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN.",
+                        "enum": [ "local" ]
+                      },
+                      "dir": {
+                        "type": "string",
+                        "description": "The target directory.",
+                        "default": "./out"
+                      },
+                      "empty": {
+                        "type": "boolean",
+                        "description": "Empty target directory BEFORE deploy or not.",
+                        "default": false
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a ZIP file and sends it as attachment by mail via SMTP.",
+                        "enum": [ "mail" ]
+                      },
+                      "from": {
+                        "type": "string",
+                        "description": "The optional email address of the sender."
+                      },
+                      "host": {
+                        "type": "string",
+                        "description": "The host address of the SMTP server.",
+                        "default": "127.0.0.1"
+                      },
+                      "ignoreTLS": {
+                        "type": "boolean",
+                        "description": "Ignore TLS or not.",
+                        "default": false
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "The password to use."
+                      },
+                      "port": {
+                        "type": "integer",
+                        "description": "The TCP port of the SMTP server.",
+                        "minimum": 0,
+                        "maximum": 65535,
+                        "default": 465
+                      },
+                      "rejectUnauthorized": {
+                        "type": "boolean",
+                        "description": "Specify whether a connection should be automatically rejected on invalid server certificates.",
+                        "default": true
+                      },
+                      "requireTLS": {
+                        "type": "boolean",
+                        "description": "Server requires TLS or not.",
+                        "default": false
+                      },
+                      "secure": {
+                        "type": "boolean",
+                        "description": "Use secure connection or not.",
+                        "default": true
+                      },
+                      "to": {
+                        "type": "string",
+                        "description": "The optional initial list of target email addresses."
+                      },
+                      "user": {
+                        "type": "string",
+                        "description": "The username."
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a remote machine over a TCP connection like another VS Code instance.",
+                        "enum": [ "remote" ]
+                      },
+                      "hosts": {
+                        "description": "One or more host to deploy to.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The optional path to the script that transforms the data of a file BEFORE it is send.",
+                        "default": "./my-transformer.js"
+                      },
+                      "transformerOptions": {
+                        "description": "The data for the 'data transformation', if needed."
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a SFTP server.",
+                        "enum": [ "sftp" ]
+                      },
+                      "dir": {
+                        "type": "string",
+                        "description": "The remote directory on the server.",
+                        "default": "/"
+                      },
+                      "hashAlgorithm": {
+                        "type": "string",
+                        "description": "The algorithm to use to verify the fingerprint of a host.",
+                        "default": "md5"
+                      },
+                      "hashes": {
+                        "oneOf":[
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "host": {
+                        "type": "string",
+                        "description": "The host address of the server.",
+                        "default": "127.0.0.1"
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "The password."
+                      },
+                      "port": {
+                        "type": "integer",
+                        "description": "The TCP port of the server.",
+                        "minimum": 0,
+                        "maximum": 65535,
+                        "default": 22
+                      },
+                      "privateKey": {
+                        "type": "string",
+                        "description": "The path to the private key file, if authentification should be done via SSH key.",
+                        "default": "./my-private-file.key"
+                      },
+                      "privateKeyPassphrase": {
+                        "type": "string",
+                        "description": "The passphrase for the key file, if needed."
+                      },
+                      "user": {
+                        "type": "string",
+                        "description": "The username.",
+                        "default": "anonymous"
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys via a JS script.",
+                        "enum": [ "script" ]
+                      },
+                      "options": {
+                        "description": "Optional value or object for the execution."
+                      },
+                      "script": {
+                        "type": "string",
+                        "description": "The script file to exeute.",
+                        "default": "./deploy.js"
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a ZIP file.",
+                        "enum": [ "zip" ]
+                      },
+                      "open": {
+                        "type": "boolean",
+                        "description": "Open file after is been created or not.",
+                        "default": true
+                      },
+                      "target": {
+                        "type": "string",
+                        "description": "The target directory of the new ZIP file.",
+                        "default": "./"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

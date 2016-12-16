@@ -33,7 +33,7 @@ import * as vscode from 'vscode';
 
 interface DeployTargetApp extends deploy_contracts.DeployTarget {
     app?: string;
-    arguments?: string[];
+    arguments?: string | string[];
     separator?: string;
 }
 
@@ -77,7 +77,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
         let args = [];
         if (target.arguments) {
-            args = args.concat(target.arguments);
+            args = args.concat(deploy_helpers.asArray(target.arguments));
         }
         args = args.concat(nextFiles)
                    .filter(x => x);
