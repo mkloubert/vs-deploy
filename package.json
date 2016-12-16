@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -240,6 +240,23 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to a FTP server.",
@@ -289,6 +306,23 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
                       },
                       "type": {
                         "type": "string",
@@ -363,6 +397,23 @@
                         "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN.",
                         "enum": [ "local" ]
                       },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
                       "dir": {
                         "type": "string",
                         "description": "The target directory.",
@@ -391,6 +442,23 @@
                         "type": "string",
                         "description": "Deploys to a ZIP file and sends it as attachment by mail via SMTP.",
                         "enum": [ "mail" ]
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
                       },
                       "from": {
                         "type": "string",
@@ -459,6 +527,23 @@
                         "description": "Deploys to a remote machine over a TCP connection like another VS Code instance.",
                         "enum": [ "remote" ]
                       },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
                       "hosts": {
                         "description": "One or more host to deploy to.",
                         "oneOf": [
@@ -499,6 +584,23 @@
                         "type": "string",
                         "description": "Deploys to a SFTP server.",
                         "enum": [ "sftp" ]
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
                       },
                       "dir": {
                         "type": "string",
@@ -598,6 +700,23 @@
                         "type": "string",
                         "description": "Deploys to a ZIP file.",
                         "enum": [ "zip" ]
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
                       },
                       "open": {
                         "type": "boolean",
