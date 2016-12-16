@@ -128,7 +128,14 @@ Add the subsection `targets` and add one or more entry:
                 "description": "A SFTP folder",
                 "dir": "/my_package_files",
                 "host": "localhost", "port": 22,
-                "user": "tester", "password": "password"
+                "user": "tester", "password": "password",
+
+                "mappings": [
+                    {
+                        "source": "dir/of/files/that/should/be/mapped",
+                        "target": "dir/on/target"
+                    }
+                ]
             },
             {
                 "type": "ftp",
