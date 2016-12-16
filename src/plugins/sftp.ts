@@ -40,83 +40,78 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
 }
 
 function getDirFromTarget(target: DeployTargetSFTP): string {
-    let dir = target.dir;
+    let dir = deploy_helpers.toStringSafe(target.dir);
     if (!dir) {
-        dir = '';
-    }
-    dir = '' + dir;
-
-    if (!dir) {
-        dir = '';
+        dir = '/';
     }
 
     return dir;
 }
 
-function openSftpConnection(target: DeployTargetSFTP, callback: (err: any, conn?: any) => void) {
-    let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
-    let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
-
-    let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
-    let pwd = deploy_helpers.toStringSafe(target.password);
-
-    let completed = (err, conn?) => {
-        callback(err, conn);
-    };
-
-    try {
-        let conn = new SFTP();
-        conn.connect({
-            host: host,
-            port: port,
-            username: user,
-            password: pwd,
-        }).then(() => {
-            completed(null, conn);
-        }).catch((err) => {
-            completed(err);
-        });
-    }
-    catch (e) {
-        completed(e);
-    }
-}
-
-function toFTPPath(path: string): string {
+function toSFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
-class SFtpPlugin extends deploy_objects.DeployPluginBase {
-    public deployFile(file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions): void {
-        if (!opts) {
-            opts = {};
-        }
-
-        let me = this;
-
-        let relativeFilePath = deploy_helpers.toRelativePath(file);
-        if (false === relativeFilePath) {
-            vscode.window.showWarningMessage(`Could not get relative path for '${file}'!`);
-            return;
-        }
-
-        let dir = getDirFromTarget(target);
-
-        let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
-        let targetDirectory = toFTPPath(Path.dirname(targetFile));
-
-        let completed = (err?, conn?) => {
-            if (conn) {
-                try {
-                    conn.end();
+class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
+    protected createContext(target: DeployTargetSFTP): Promise<deploy_objects.DeployPluginContextWrapper<any>> {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<any>>(((resolve, reject) => {
+            let completed = (err: any, conn?: any) => {
+                if (err) {
+                    reject(err);
                 }
-                catch (e) {
-                    me.context.log(`[ERROR] FtpPlugin.deployFile(1): ${deploy_helpers.toStringSafe(e)}`);
+                else {
+                    let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
+                        context: conn,
+                        destroy: function(): Promise<any> {
+                            return new Promise<any>((resolve2, reject2) => {
+                                try {
+                                    conn.end();
+
+                                    resolve2(conn);
+                                }
+                                catch (e) {
+                                    reject2(e);
+                                }
+                            });
+                        },
+                    };
+
+                    resolve(wrapper);
                 }
+            };
+
+            let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
+            let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
+
+            let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+            let pwd = deploy_helpers.toStringSafe(target.password);
+
+            try {
+                let conn = new SFTP();
+                conn.connect({
+                    host: host,
+                    port: port,
+                    username: user,
+                    password: pwd,
+                }).then(() => {
+                    completed(null, conn);
+                }).catch((err) => {
+                    completed(err);
+                });
             }
+            catch (e) {
+                completed(e);
+            }
+        }));
+    }
 
+    protected deployFileWithContext(conn: any,
+                                    file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+        
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
-                opts.onCompleted(this, {
+                opts.onCompleted(me, {
                     error: err,
                     file: file,
                     target: target,
@@ -124,53 +119,56 @@ class SFtpPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        try {
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    file: file,
-                    target: target,
+        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target);
+        if (false === relativeFilePath) {
+            completed(new Error(`Could not get relative path for '${file}'!`));
+            return;
+        }
+
+        let dir = getDirFromTarget(target);
+
+        let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
+        let targetDirectory = toSFTPPath(Path.dirname(targetFile));
+
+        // upload the file
+        let uploadFile = () => {
+            try {
+                conn.put(file, targetFile).then(() => {
+                    completed();
+                }).catch((err) => {
+                    completed(err);
                 });
             }
+            catch (e) {
+                completed(e);
+            }
+        };
 
-            openSftpConnection(target, (err, conn) => {
-                if (err) {
-                    completed(err, conn);  // could not connect
-                    return;
-                }
-
-                let uploadFile = () => {
-                    try {
-                        conn.put(file, targetFile).then(() => {
-                            completed(null, conn);
-                        }).catch((err) => {
-                            completed(err, conn);
-                        });
-                    }
-                    catch (e) {
-                        completed(e, conn);
-                    }
-                };
-
-                conn.list(targetDirectory).then(() => {
-                    uploadFile();
-                }).catch((err) => {
-                    conn.mkdir(targetDirectory, true).then(() => {
-                        uploadFile();
-                    }).catch((err) => {
-                        completed(err);
-                    });
-                });
+        if (opts.onBeforeDeploy) {
+            opts.onBeforeDeploy(me, {
+                file: file,
+                target: target,
             });
         }
-        catch (e) {
-            completed(e);
-        }
+
+        // first check if target directory exists
+        conn.list(targetDirectory).then(() => {
+            uploadFile();
+        }).catch((err) => {
+            // no => try to create
+
+            conn.mkdir(targetDirectory, true).then(() => {
+                uploadFile();
+            }).catch((err) => {
+                completed(err);
+            });
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a SFTP server',
-        }
+        };
     }
 }
 

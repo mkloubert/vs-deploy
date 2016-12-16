@@ -98,7 +98,7 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                 });
             }
 
-            let relativePath = deploy_helpers.toRelativePath(file);
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target);
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}' file!`));
                 return;
@@ -242,7 +242,7 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a remote machine over a TCP connection',
-        }
+        };
     }
 }
 

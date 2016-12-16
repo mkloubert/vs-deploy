@@ -182,7 +182,7 @@ https://github.com/mkloubert/vs-deploy`,
                     };
                     
                     try {
-                        let relativePath = deploy_helpers.toRelativePath(f);
+                        let relativePath = deploy_helpers.toRelativeTargetPath(f, target);
                         if (false === relativePath) {
                             relativePath = deploy_helpers.replaceAllStrings(f, Path.sep, '/');
                         }
@@ -253,7 +253,7 @@ https://github.com/mkloubert/vs-deploy`,
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a ZIP file and sends it as attachment by mail via SMTP',
-        }
+        };
     }
 }
 

@@ -38,18 +38,13 @@ interface DeployTargetLocal extends deploy_contracts.DeployTarget {
 }
 
 function getFullDirPathFromTarget(target: DeployTargetLocal): string {
-    let dir = target.dir;
-    if (!dir) {
-        dir = '';
-    }
-    dir = '' + dir;
-
+    let dir = deploy_helpers.toStringSafe(target.dir);
     if (!dir) {
         dir = './';
     }
 
     if (!Path.isAbsolute(dir)) {
-        dir = Path.join(vscode.workspace.rootPath);
+        dir = Path.join(vscode.workspace.rootPath, dir);
     }
 
     return dir;
@@ -65,15 +60,6 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let dir = getFullDirPathFromTarget(target);
 
-        let relativeFilePath = deploy_helpers.toRelativePath(file);
-        if (false === relativeFilePath) {
-            vscode.window.showWarningMessage(`Could not get relative path for '${file}'!`);
-            return;
-        }
-
-        let targetFile = Path.join(dir, <string>relativeFilePath);
-        let targetDirectory = Path.dirname(targetFile);
-
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
@@ -84,6 +70,15 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target);
+        if (false === relativeTargetFilePath) {
+            completed(new Error(`Could not get relative path for '${file}'!`));
+            return;
+        }
+
+        let targetFile = Path.join(dir, <string>relativeTargetFilePath);
+        let targetDirectory = Path.dirname(targetFile);
+
         let deployFile = () => {
             try {
                 if (opts.onBeforeDeploy) {
@@ -93,6 +88,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                     });
                 }
 
+                // copy file...
                 FSExtra.copy(file, targetFile, {
                     clobber: true,
                     preserveTimestamps: true,
@@ -110,11 +106,13 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
+        // check if target directory exists
         FS.exists(targetDirectory, (exists) => {
             if (exists) {
                 deployFile();
             }
             else {
+                // no, try to create...
                 FSExtra.mkdirs(targetDirectory, function (err) {
                     if (err) {
                         completed(err);
@@ -147,7 +145,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             super.deployWorkspace(files, target, opts);    
         };
 
-        let doEmptyDir = !!target.empty;
+        let doEmptyDir = deploy_helpers.toBooleanSafe(target.empty, false);
         if (doEmptyDir) {
             me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
 
@@ -171,7 +169,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
-        }
+        };
     }
 }
 

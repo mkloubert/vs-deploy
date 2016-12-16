@@ -447,7 +447,7 @@ export function toRelativePath(path: string): string | false {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {
                     if (0 == normalizedPath.indexOf(wsRootPath)) {
                         result = normalizedPath.substr(wsRootPath.length);
-                        result = result.split(Path.sep).join('/');
+                        result = replaceAllStrings(result, Path.sep, '/');
                     }
                 }
             }
@@ -458,6 +458,54 @@ export function toRelativePath(path: string): string | false {
     }
 
     return result;
+}
+
+/**
+ * Tries to convert a file path to a relative path
+ * by using the mappings of a target.
+ * 
+ * @param {string} path The path to convert.
+ * @param {deploy_contracts.DeployTarget} target The target.
+ * 
+ * @return {string | false} The relative path or (false) if not possible.
+ */
+export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget): string | false {
+    let relativePath = toRelativePath(path);
+    if (false === relativePath) {
+        return relativePath;
+    }
+
+    let normalizeDirPath = (dir: string): string => {
+        let normalizedDir = toStringSafe(dir).trim();
+        normalizedDir = replaceAllStrings(normalizedDir, Path.sep, '/');
+
+        if (normalizedDir.lastIndexOf('/') != (normalizedDir.length - 1)) {
+            normalizedDir += '/';  // append ending "/" char
+        }
+        if (normalizedDir.indexOf('/') != 0) {
+            normalizedDir = '/' + normalizedDir;  // append leading "/" char
+        }
+
+        return normalizedDir;
+    };
+
+    let allMappings = asArray(target.mappings).filter(x => x);
+    for (let i = 0; i < allMappings.length; i++) {
+        let mapping = allMappings[i];
+
+        let source = normalizeDirPath(mapping.source);
+        let target = normalizeDirPath(mapping.target);
+
+        if (0 == relativePath.indexOf(source)) {
+            // is matching => rebuild path
+
+            relativePath = Path.join(target,
+                                     Path.basename(relativePath));
+            break;
+        }
+    }
+
+    return replaceAllStrings(relativePath, Path.sep, '/');
 }
 
 /**

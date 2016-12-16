@@ -263,7 +263,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys via a JS script',
-        }
+        };
     }
 }
 

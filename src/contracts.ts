@@ -489,6 +489,10 @@ export interface DeployTarget {
      */
     description?: string;
     /**
+     * One or more folder mapping.
+     */
+    mappings?: DeployTargetMapping | DeployTargetMapping[];
+    /**
      * The name.
      */
     name?: string;
@@ -500,6 +504,20 @@ export interface DeployTarget {
      * The type.
      */
     type?: string;
+}
+
+/**
+ * A folder mapping.
+ */
+export interface DeployTargetMapping {
+    /**
+     * The source directory.
+     */
+    source: string;
+    /**
+     * The target directory.
+     */
+    target: string;
 }
 
 /**

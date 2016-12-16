@@ -35,77 +35,117 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
     dir?: string;
     host?: string;
     port?: number;
+    rejectUnauthorized?: boolean;
     user?: string;
     password?: string;
     secure?: boolean;
 }
 
 function getDirFromTarget(target: DeployTargetFTP): string {
-    let dir = target.dir;
+    let dir = deploy_helpers.toStringSafe(target.dir);
     if (!dir) {
-        dir = '';
-    }
-    dir = '' + dir;
-
-    if (!dir) {
-        dir = '';
+        dir = '/';
     }
 
     return dir;
-}
-
-function openFtpConnection(target: DeployTargetFTP, callback: (err: any, conn?: any) => void) {
-    let isSecure = !!target.secure;
-
-    let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
-    let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
-
-    let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
-    let pwd = deploy_helpers.toStringSafe(target.password);
-
-    let completed = (err, conn?) => {
-        callback(err, conn);
-    };
-
-    try {
-        let conn = new FTP();
-        conn.on('error', function(err) {
-            if (err) {
-                completed(err);
-            }
-        });
-        conn.on('ready', function() {
-            completed(null, conn);
-        });
-        conn.connect({
-            host: host, port: port,
-            user: user, password: pwd,
-            secure: isSecure,
-            secureOptions: {
-                rejectUnauthorized: false,
-            },
-        });
-    }
-    catch (e) {
-        completed(e);
-    }
 }
 
 function toFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
-class FtpPlugin extends deploy_objects.DeployPluginBase {
-    public deployFile(file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions): void {
-        if (!opts) {
-            opts = {};
-        }
+class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
+    protected createContext(target: DeployTargetFTP): Promise<deploy_objects.DeployPluginContextWrapper<any>> {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<any>>(((resolve, reject) => {
+            let completed = (err: any, conn?: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
+                        context: conn,
+                        destroy: function(): Promise<any> {
+                            return new Promise<any>((resolve2, reject2) => {
+                                try {
+                                    conn.end();
 
+                                    resolve2(conn);
+                                }
+                                catch (e) {
+                                    reject2(e);
+                                }
+                            });
+                        },
+                    };
+
+                    resolve(wrapper);
+                }
+            };
+
+            try {
+                let isSecure = !!target.secure;
+
+                let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
+                let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
+
+                let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+                let pwd = deploy_helpers.toStringSafe(target.password);
+
+                let rejectUnauthorized = target.rejectUnauthorized;
+                if (deploy_helpers.isNullOrUndefined(rejectUnauthorized)) {
+                    rejectUnauthorized = true;
+                }
+                rejectUnauthorized = !!rejectUnauthorized;
+
+                try {
+                    let conn = new FTP();
+                    conn.on('error', function(err) {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            completed(null, conn);
+                        }
+                    });
+                    conn.on('ready', function() {
+                        completed(null, conn);
+                    });
+                    conn.connect({
+                        host: host, port: port,
+                        user: user, password: pwd,
+                        secure: isSecure,
+                        secureOptions: {
+                            rejectUnauthorized: rejectUnauthorized,
+                        },
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        }));
+    }
+
+    protected deployFileWithContext(conn: any,
+                                    file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
+        
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
 
-        let relativeFilePath = deploy_helpers.toRelativePath(file);
+        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target);
         if (false === relativeFilePath) {
-            vscode.window.showWarningMessage(`Could not get relative path for '${file}'!`);
+            completed(new Error(`Could not get relative path for '${file}'!`));
             return;
         }
 
@@ -114,79 +154,48 @@ class FtpPlugin extends deploy_objects.DeployPluginBase {
         let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
         let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
-        let completed = (err?, conn?) => {
-            if (conn) {
-                try {
-                    conn.end();
-                }
-                catch (e) {
-                    me.context.log(`[ERROR] FtpPlugin.deployFile(1): ${deploy_helpers.toStringSafe(e)}`);
-                }
-            }
-
-            if (opts.onCompleted) {
-                opts.onCompleted(this, {
-                    error: err,
-                    file: file,
-                    target: target,
+        let uploadFile = () => {
+            try {
+                conn.put(file, targetFile, (err) => {
+                    completed(err);
                 });
+            }
+            catch (e) {
+                completed(e);
             }
         };
 
-        try {
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    file: file,
-                    target: target,
-                });
-            }
-
-            openFtpConnection(target, (err, conn) => {
-                if (err) {
-                    completed(err, conn);  // could not connect
-                    return;
-                }
-
-                let uploadFile = () => {
-                    try {
-                        conn.put(file, targetFile, (err) => {
-                            completed(err, conn);
-                        });
-                    }
-                    catch (e) {
-                        completed(e, conn);
-                    }
-                };
-
-                conn.cwd(targetDirectory, (err) => {
-                    if (err) {
-                        // directory not found
-                        // try to create...
-
-                        conn.mkdir(targetDirectory, true, (err) => {
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
-
-                            uploadFile();
-                        });
-                    }
-                    else {
-                        uploadFile();
-                    }
-                });
+        if (opts.onBeforeDeploy) {
+            opts.onBeforeDeploy(me, {
+                file: file,
+                target: target,
             });
         }
-        catch (e) {
-            completed(e);
-        }
+
+        conn.cwd(targetDirectory, (err) => {
+            if (err) {
+                // directory not found
+                // try to create...
+
+                conn.mkdir(targetDirectory, true, (err) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
+
+                    uploadFile();
+                });
+            }
+            else {
+                uploadFile();
+            }
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a FTP server',
-        }
+        };
     }
 }
 

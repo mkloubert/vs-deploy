@@ -74,7 +74,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'A mock deployer that only displays what files would be deployed',
-        }
+        };
     }
 }
 

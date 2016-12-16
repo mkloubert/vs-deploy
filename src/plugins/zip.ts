@@ -131,7 +131,7 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
                         };
 
                         try {
-                            let relativePath = deploy_helpers.toRelativePath(f);
+                            let relativePath = deploy_helpers.toRelativeTargetPath(f, target);
                             if (false === relativePath) {
                                 relativePath = deploy_helpers.replaceAllStrings(f, Path.sep, '/');
                             }
@@ -189,7 +189,7 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                             let zipFile = Path.join(targetDir, zipFileName);
 
-                            let zipRelativePath = deploy_helpers.toRelativePath(zipFile);
+                            let zipRelativePath = deploy_helpers.toRelativeTargetPath(zipFile, target);
                             if (false === zipRelativePath) {
                                 zipRelativePath = zipFile;
                             }
@@ -237,7 +237,7 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: 'Deploys to a ZIP file',
-        }
+        };
     }
 }
 
