@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as FS from 'fs';
 import * as Path from 'path';
 const SFTP = require('ssh2-sftp-client');
 import * as vscode from 'vscode';
@@ -33,7 +34,11 @@ import * as vscode from 'vscode';
 
 interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     dir?: string;
+    hashAlgorithm?: string;
+    hashes?: string | string[];
     host?: string;
+    privateKey?: string;
+    privateKeyPassphrase?: string;
     port?: number;
     user?: string;
     password?: string;
@@ -48,9 +53,16 @@ function getDirFromTarget(target: DeployTargetSFTP): string {
     return dir;
 }
 
+function toHashSafe(hash: string): string {
+    return deploy_helpers.toStringSafe(hash)
+                         .toLowerCase()
+                         .trim();
+}
+
 function toSFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
+
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
     protected createContext(target: DeployTargetSFTP): Promise<deploy_objects.DeployPluginContextWrapper<any>> {
@@ -83,24 +95,88 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
             let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
-            let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+            let user = deploy_helpers.toStringSafe(target.user);
+            if (!user) {
+                user = undefined;
+            }
             let pwd = deploy_helpers.toStringSafe(target.password);
+            if (!pwd) {
+                pwd = undefined;
+            }
+
+            let hashes = deploy_helpers.asArray(target.hashes)
+                                       .map(x => toHashSafe(x))
+                                       .filter(x => x);
+            hashes = hashes = deploy_helpers.distinctArray(hashes);
+
+            let hashAlgo = deploy_helpers.toStringSafe(target.hashAlgorithm)
+                                         .toLowerCase()
+                                         .trim();
+            if (!hashAlgo) {
+                hashAlgo = 'md5';
+            }
+
+            let privateKeyFile = deploy_helpers.toStringSafe(target.privateKey);
+            if (privateKeyFile) {
+                if (!Path.isAbsolute(privateKeyFile)) {
+                    privateKeyFile = Path.join(vscode.workspace.rootPath, privateKeyFile);
+                }
+            }
 
             try {
-                let conn = new SFTP();
-                conn.connect({
-                    host: host,
-                    port: port,
-                    username: user,
-                    password: pwd,
-                }).then(() => {
-                    completed(null, conn);
-                }).catch((err) => {
-                    completed(err);
-                });
+                let privateKey: Buffer;
+                let openConnection = () => {
+                    if (!privateKey) {
+                        if (!user) {
+                            user = 'anonymous';
+                        }
+                    }
+
+                    let conn = new SFTP();
+                    conn.connect({
+                        host: host,
+                        port: port,
+                        username: user,
+                        password: pwd,
+
+                        privateKey: privateKey,
+                        passphrase: target.privateKeyPassphrase,
+
+                        hostHash: hashAlgo,
+                        hostVerifier: (hashedKey, cb) => {
+                            hashedKey = toHashSafe(hashedKey);
+                            if (hashes.length < 1) {
+                                return true;
+                            }
+
+                            return hashes.indexOf(hashedKey) > -1;
+                        }
+                    }).then(() => {
+                        completed(null, conn);
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                };
+
+                if (privateKeyFile) {
+                    // try read private key
+
+                    FS.readFile(privateKeyFile, (err, data) => {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
+
+                        privateKey = data;
+                        openConnection();
+                    });
+                }
+                else {
+                    openConnection();
+                }
             }
             catch (e) {
-                completed(e);
+                completed(e);  // global error
             }
         }));
     }
