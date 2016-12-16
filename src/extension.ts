@@ -58,8 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('');
         outputChannel.appendLine(`GitHub : https://github.com/mkloubert/vs-deploy`);
         outputChannel.appendLine(`Twitter: https://twitter.com/mjkloubert`);
-        outputChannel.appendLine(`Donate : https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2`);
-        
+        outputChannel.appendLine(`Donate : [PayPal] https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2`);
+        outputChannel.appendLine(`         [Flattr] https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy`);
+
         outputChannel.appendLine('');
     
         outputChannel.show();

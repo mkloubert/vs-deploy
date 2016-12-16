@@ -83,7 +83,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             };
 
             try {
-                let isSecure = !!target.secure;
+                let isSecure = deploy_helpers.toBooleanSafe(target.secure, false);
 
                 let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
                 let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
