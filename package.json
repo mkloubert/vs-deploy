@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -76,6 +76,38 @@
         "deploy": {
           "type": "object",
           "properties": {
+            "host": {
+              "type": "object",
+              "description": "Options for 'host mode'.",
+              "properties": {
+                "dir": {
+                  "type": "string",
+                  "description": "The directory where incoming files should be stored.",
+                  "default": "./"
+                },
+                "maxMessageSize": {
+                  "type": "integer",
+                  "description": "Maximum size of one remote file message.",
+                  "default": 16777215,
+                  "minimum": 1
+                },
+                "port": {
+                  "type": "integer",
+                  "description": "The TCP port the host should be listen on.",
+                  "default": 23979,
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "transformer": {
+                  "type": "string",
+                  "description": "The optional path to the script that transforms the data of a file AFTER it has been received.",
+                  "default": "./my-remote-transformer.js"
+                },
+                "transformerOptions": {
+                  "description": "The data for the 'data transformation', if needed."
+                }
+              }
+            },
             "packages": {
               "type": "array",
               "description": "One or more packages that describe what files of the workspace should be deployed.",
@@ -268,7 +300,7 @@
                       "transformer": {
                         "type": "string",
                         "description": "The optional path to the script that transforms the data of the file BEFORE it is send.",
-                        "default": "./my-transformer.js"
+                        "default": "./my-http-transformer.js"
                       },
                       "transformerOptions": {
                         "description": "The data for the 'data transformation', if needed."
@@ -415,7 +447,7 @@
                       "transformer": {
                         "type": "string",
                         "description": "The optional path to the script that transforms the data of a file BEFORE it is send.",
-                        "default": "./my-transformer.js"
+                        "default": "./my-remote-transformer.js"
                       },
                       "transformerOptions": {
                         "description": "The data for the 'data transformation', if needed."
