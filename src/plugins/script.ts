@@ -103,9 +103,9 @@ export interface ScriptModule {
      * 
      * @param {DeployFileArguments} args Arguments for the execution.
      * 
-     * @return {Promise<any>} The promise.
+     * @return {Promise<DeployFileArguments>} The promise.
      */
-    deployFile?: (args: DeployFileArguments) => Promise<any>;
+    deployFile?: (args: DeployFileArguments) => Promise<DeployFileArguments>;
     /**
      * Deploys the workspace.
      * 
@@ -113,7 +113,7 @@ export interface ScriptModule {
      * 
      * @return {Promise<any>} The promise.
      */
-    deployWorkspace?: (args: DeployWorkspaceArguments) => Promise<any>;
+    deployWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
 }
 
 function getScriptFile(target: DeployTargetScript): string {
@@ -144,7 +144,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any, value?: any, canceled?: boolean) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
                     canceled: canceled,
@@ -156,7 +156,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         };
 
         if (me.context.isCancelling()) {
-            completed(null, undefined, true);  // cancellation requested
+            completed(null, true);  // cancellation requested
             return;
         }
 
@@ -182,8 +182,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 targetOptions: target.options,
             };
 
-            scriptModule.deployFile(args).then((value) => {
-                completed(null, value, args.canceled);
+            scriptModule.deployFile(args).then((a) => {
+                completed(null, (a || args).canceled);
             }).catch((err) => {
                 if (!err) {
                     err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
@@ -204,7 +204,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let completed = (err?: any, value?: any, canceled?: boolean) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
                     canceled: canceled,
@@ -214,7 +214,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         };
 
         if (me.context.isCancelling()) {
-            completed(null, undefined, true);  // cancellation requested
+            completed(null, true);  // cancellation requested
             return;
         }
         
@@ -239,8 +239,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     targetOptions: target.options,
                 };
 
-                scriptModule.deployWorkspace(args).then((value) => {
-                    completed(null, value, args.canceled);
+                scriptModule.deployWorkspace(args).then((a) => {
+                    completed(null, (a || args).canceled);
                 }).catch((err) => {
                     if (!err) {
                         err = new Error(`Could not deploy workspace by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
