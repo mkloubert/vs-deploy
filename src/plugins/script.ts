@@ -37,7 +37,7 @@ export interface DeployArguments {
     /**
      * Indicates if operation has been canceled or not.
      */
-    canceled: boolean;
+    canceled?: boolean;
     /**
      * The underlying deploy context.
      */
@@ -174,7 +174,6 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }
 
             let args: DeployFileArguments = {
-                canceled: false,
                 context: me.context,
                 deployOptions: opts,
                 file: file,
@@ -232,7 +231,6 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 // custom function
 
                 let args: DeployWorkspaceArguments = {
-                    canceled: false,
                     context: me.context,
                     deployOptions: opts,
                     files: files,
