@@ -250,7 +250,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         // "completed" event
         let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any, canceled?: boolean) => {
             try {
-                if (wrapper) {
+                if (wrapper.destroy) {
                     // destroy context
 
                     wrapper.destroy().then(() => {
