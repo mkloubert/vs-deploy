@@ -31,9 +31,13 @@ import * as vscode from 'vscode';
 
 
 /**
- * Arguments for deploying a file.
+ * Common "deploy" arguments.
  */
-export interface DeployFileArguments {
+export interface DeployArguments {
+    /**
+     * Indicates if operation has been canceled or not.
+     */
+    canceled?: boolean;
     /**
      * The underlying deploy context.
      */
@@ -42,10 +46,6 @@ export interface DeployFileArguments {
      * Deploy options.
      */
     deployOptions: deploy_contracts.DeployFileOptions;
-    /**
-     * The file to deploy.
-     */
-    file: string;
     /**
      * The underlying "parent" object.
      */
@@ -58,6 +58,16 @@ export interface DeployFileArguments {
      * Options from the target configuration.
      */
     targetOptions: any;
+}
+
+/**
+ * Arguments for deploying a file.
+ */
+export interface DeployFileArguments extends DeployArguments {
+    /**
+     * The file to deploy.
+     */
+    file: string;
 }
 
 /**
@@ -77,31 +87,11 @@ export interface DeployTargetScript extends deploy_contracts.DeployTarget {
 /**
  * Arguments for deploying the workspace.
  */
-export interface DeployWorkspaceArguments {
-    /**
-     * The underlying deploy context.
-     */
-    context: deploy_contracts.DeployContext;
-    /**
-     * Deploy options.
-     */
-    deployOptions: deploy_contracts.DeployWorkspaceOptions;
+export interface DeployWorkspaceArguments extends DeployArguments {
     /**
      * The list of files to deploy.
      */
     files: string[];
-    /**
-     * The underlying "parent" object.
-     */
-    sender: any;
-    /**
-     * The target.
-     */
-    target: DeployTargetScript;
-    /**
-     * Options from the target configuration.
-     */
-    targetOptions: any;
 }
 
 /**
@@ -183,18 +173,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 throw new Error(`'${relativeScriptPath}' implements no 'deployFile()' function!`);
             }
 
-            scriptModule.deployFile({
+            let args: DeployFileArguments = {
                 context: me.context,
                 deployOptions: opts,
                 file: file,
                 sender: me,
                 target: target,
                 targetOptions: target.options,
-            }).then((value) => {
-                completed(null, value);
+            };
+
+            scriptModule.deployFile(args).then((value) => {
+                completed(null, value, args.canceled);
             }).catch((err) => {
                 if (!err) {
-                    err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}'!`);
+                    err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
                 }
 
                 completed(err);
@@ -222,7 +214,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         };
 
         if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
+            completed(null, undefined, true);  // cancellation requested
             return;
         }
         
@@ -238,18 +230,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             if (scriptModule.deployWorkspace) {
                 // custom function
 
-                scriptModule.deployWorkspace({
+                let args: DeployWorkspaceArguments = {
                     context: me.context,
                     deployOptions: opts,
                     files: files,
                     sender: me,
                     target: target,
                     targetOptions: target.options,
-                }).then((value) => {
-                    completed(null, value);
+                };
+
+                scriptModule.deployWorkspace(args).then((value) => {
+                    completed(null, value, args.canceled);
                 }).catch((err) => {
                     if (!err) {
-                        err = new Error(`Could not deploy workspace by script '${relativeScriptPath}'!`);
+                        err = new Error(`Could not deploy workspace by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
                     }
 
                     completed(err);
