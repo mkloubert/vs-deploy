@@ -62,8 +62,6 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine(`         [Flattr] https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy`);
 
         outputChannel.appendLine('');
-    
-        outputChannel.show();
     }
 
     let deployer = new vs_deploy.Deployer(context, outputChannel, pkgFile);

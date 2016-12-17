@@ -253,7 +253,6 @@ export class Deployer {
                             let destination = deploy_helpers.toStringSafe(e.destination); 
                             let targetName = deploy_helpers.toStringSafe(e.target.name);
 
-                            me.outputChannel.show();
                             me.outputChannel.appendLine('');
 
                             let deployMsg = `Deploying file '${relativePath}'`;
@@ -266,6 +265,10 @@ export class Deployer {
                             deployMsg += '... ';
 
                             me.outputChannel.append(deployMsg);
+
+                            if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                                me.outputChannel.show();
+                            }
 
                             statusBarItem.color = '#ffffff';
                             statusBarItem.tooltip = `Deploying '${relativePath}'...`;
@@ -343,7 +346,6 @@ export class Deployer {
 
                     let targetName = deploy_helpers.toStringSafe(item.target.name);
 
-                    me.outputChannel.show();
                     me.outputChannel.appendLine('');
 
                     let deployMsg = `Deploying package`;
@@ -356,6 +358,10 @@ export class Deployer {
                     deployMsg += '...';
 
                     me.outputChannel.appendLine(deployMsg);
+
+                    if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                        me.outputChannel.show();
+                    }
 
                     me.deployWorkspaceTo(filesToDeploy, item.target);
                 }
@@ -909,8 +915,6 @@ export class Deployer {
                     statusItem.show();
 
                     me._serverStatusItem = statusItem;
-
-                    me.outputChannel.show();
                 }
                 catch (e) {
                     showError(e);
@@ -1146,6 +1150,10 @@ export class Deployer {
      */
     public reloadConfiguration() {
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+
+        if (deploy_helpers.toBooleanSafe(this._config.openOutputOnStartup)) {
+            this.outputChannel.show();
+        }
     }
 
     /**

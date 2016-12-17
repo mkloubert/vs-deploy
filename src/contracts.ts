@@ -191,6 +191,14 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     modules?: string | string[];
     /**
+     * Open the output window before deploying starts or not.
+     */
+    openOutputOnDeploy?: boolean;
+    /**
+     * Open the output window on startup or not.
+     */
+    openOutputOnStartup?: boolean;
+    /**
      * List of packages.
      */
     packages?: DeployPackage[];
