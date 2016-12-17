@@ -248,27 +248,27 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
         // destroy context before raise
         // "completed" event
-        let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any) => {
+        let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any, canceled?: boolean) => {
             try {
                 if (wrapper) {
                     // destroy context
 
                     wrapper.destroy().then(() => {
-                        completed(completedErr);
+                        completed(completedErr, canceled);
                     }).catch((e) => {
                         me.context.log(`[ERROR] DeployPluginWithContextBase.deployWorkspace(2): ${deploy_helpers.toStringSafe(e)}`);
 
-                        completed(completedErr);
+                        completed(completedErr, canceled);
                     });
                 }
                 else {
-                    completed(completedErr);
+                    completed(completedErr, canceled);
                 }
             }
             catch (e) {
                 me.context.log(`[ERROR] DeployPluginWithContextBase.deployWorkspace(1): ${deploy_helpers.toStringSafe(e)}`);
 
-                completed(completedErr);
+                completed(completedErr, canceled);
             }
         };
 
@@ -291,7 +291,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                         }
 
                         if (deploy_helpers.toBooleanSafe(canceled)) {
-                            completed(null, true);
+                            destroyContext(wrapper, null, true);
                         }
                         else {
                             deployNext();  // deploy next
