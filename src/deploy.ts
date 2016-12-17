@@ -1295,6 +1295,9 @@ export class Deployer {
                                         packageFile: () => me.packageFile,
                                         packages: () => me.getPackages(),
                                         plugins: null,
+                                        require: function(id) {
+                                            return require(id);
+                                        },
                                         targets: () => me.getTargets(),
                                         warn: function(msg) {
                                             if (msg) {

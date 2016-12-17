@@ -267,6 +267,14 @@ export interface DeployContext {
      */
     plugins(): DeployPlugin[];
     /**
+     * Loads a module from the extension context / directory.
+     * 
+     * @param {string} id The ID / path of the module.
+     * 
+     * @return {any} The module.
+     */
+    require(id: string): any;
+    /**
      * Shows a warning message.
      * 
      * @param {any} [msg] The message to show.
