@@ -525,10 +525,8 @@ export class Deployer {
                                 statusMsg += ` to '${destination}'`;
                             }
 
-                            statusMsg += '...';
-
-                            statusBarItem.tooltip = statusMsg;
-                            me.outputChannel.append(statusMsg + ' ');
+                            statusBarItem.tooltip = statusMsg + ' (click here to cancel)';
+                            me.outputChannel.append(statusMsg + '... ');
                         },
 
                         onCompleted: (sender, e) => {
