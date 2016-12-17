@@ -710,6 +710,25 @@
                       },
                       "type": {
                         "type": "string",
+                        "description": "A mock deployer that only checks what files will be deployed.",
+                        "enum": [ "test" ]
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
                         "description": "Deploys to a ZIP file.",
                         "enum": [ "zip" ]
                       },

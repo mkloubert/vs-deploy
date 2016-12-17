@@ -235,6 +235,10 @@ export interface DeployContext {
      */
     info(msg: any): DeployContext;
     /**
+     * Returns if a cancellation is requested or not.
+     */
+    isCancelling(): boolean;
+    /**
      * Logs a message.
      * 
      * @param {any} msg The message to log.
@@ -312,6 +316,10 @@ export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCom
  * Arguments for a "file deployed completed" event.
  */
 export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
+    /**
+     * Gets if the operation has been canceled or not.
+     */
+    canceled?: boolean;
     /**
      * The error (if occurred).
      */
@@ -590,6 +598,10 @@ export type WorkspaceDeployedEventHandler = (sender: any, e: WorkspaceDeployedEv
  * Arguments for an a completed "deploy workspace" event.
  */
 export interface WorkspaceDeployedEventArguments {
+    /**
+     * Gets if the operation has been canceled or not.
+     */
+    canceled?: boolean;
     /**
      * The error (if occurred).
      */

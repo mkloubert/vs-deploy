@@ -65,13 +65,21 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
         }
 
         let filesTodo = files.map(x => x);
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
+            filesTodo = [];
+
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
         
         try {
             let deployNextFile: () => void;
@@ -82,7 +90,12 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                         opts.onFileCompleted(sender, e);
                     }
 
-                    deployNextFile();
+                    if (deploy_helpers.toBooleanSafe(e.canceled)) {
+                        completed(null, true);  // cancellation requested
+                    }
+                    else {
+                        deployNextFile();
+                    }
                 }
                 catch (err) {
                     me.context.log('[ERROR] DeployPluginBase.deployWorkspace(1): ' + err);
@@ -95,7 +108,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                     return;
                 }
 
-                let f = filesTodo.pop();
+                let f = filesTodo.shift();
                 if (!f) {
                     completed();
                     return;
@@ -172,6 +185,7 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
             onFileCompleted: (sender, e) => {
                 if (opts.onCompleted) {
                     opts.onCompleted(sender, {
+                        canceled: e.canceled,
                         error: e.error,
                         file: e.file,
                         target: e.target,
@@ -215,13 +229,22 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         let me = this;
         
         // report that whole operation has been completed
-        let completed = (err?: any) => {
+        let filesTodo = files.map(x => x);  // create "TODO"" list
+        let completed = (err?: any, canceled?: boolean) => {
+            filesTodo = [];
+
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         // destroy context before raise
         // "completed" event
@@ -257,19 +280,24 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
                     // report that single file
                     // deployment has been completed
-                    let fileCompleted = function(file: string, err?: any) {
+                    let fileCompleted = function(file: string, err?: any, canceled?: boolean) {
                         if (opts.onFileCompleted) {
                             opts.onFileCompleted(me, {
+                                canceled: canceled,
                                 error: err,
                                 file: file,
                                 target: target,
                             });
                         }
 
-                        deployNext();  // deploy next
+                        if (deploy_helpers.toBooleanSafe(canceled)) {
+                            completed(null, true);
+                        }
+                        else {
+                            deployNext();  // deploy next
+                        }
                     };
 
-                    let filesTodo = files.map(x => x);  // create "TODO"" list
                     deployNext = () => {
                         if (filesTodo.length < 1) {
                             destroyContext(wrapper);
@@ -291,7 +319,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                                                          },
 
                                                          onCompleted: (sender, e) => {
-                                                             fileCompleted(e.file, e.error);
+                                                             fileCompleted(e.file, e.error, e.canceled);
                                                          }
                                                      });
                         }

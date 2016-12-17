@@ -60,15 +60,21 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let dir = getFullDirPathFromTarget(target);
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                     file: file,
                     target: target,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target);
         if (false === relativeTargetFilePath) {
@@ -134,13 +140,19 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         let startDeploying = () => {
             super.deployWorkspace(files, target, opts);    

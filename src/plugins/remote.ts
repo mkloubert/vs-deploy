@@ -57,7 +57,7 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                                   .filter(x => x);
 
         let allErrors: any[] = [];
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (err) {
                 allErrors.push(err);
             }
@@ -72,12 +72,18 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                     file: file,
                     target: target,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         // data transformer
         let transformer: deploy_contracts.DataTransformer;

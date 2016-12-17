@@ -93,13 +93,19 @@ class MailPlugin extends deploy_objects.MultiFileDeployPluginBase {
             };
         }
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         let deploy = () => {
             try {

@@ -59,13 +59,19 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
             openAfterCreated = !!target.open;
         }
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         try {
             let deploy = (zipFile: string) => {

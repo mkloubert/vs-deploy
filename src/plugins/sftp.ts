@@ -185,15 +185,21 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
                                     file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
         
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                     file: file,
                     target: target,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
 
         let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target);
         if (false === relativeFilePath) {

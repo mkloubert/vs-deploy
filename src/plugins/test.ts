@@ -24,6 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_contracts from '../contracts';
+import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 
@@ -39,9 +40,10 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                     file: file,
                     target: target,
@@ -50,9 +52,20 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         };
 
         try {
+            if (me.context.isCancelling()) {
+                completed(null, true);  // cancellation requested
+                return;
+            }
+
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target);
+            if (false === relativePath) {
+                completed(new Error(`Could not get relative path for '${file}'!`));
+                return;
+            }
+
             if (opts.onBeforeDeploy) {
                 opts.onBeforeDeploy(me, {
-                    destination: file,
+                    destination: relativePath,
                     file: file,
                     target: target,
                 });

@@ -72,7 +72,17 @@ export function activate(context: vscode.ExtensionContext) {
             deployer.deployWorkspace();
         }
         catch (e) {
-            vscode.window.showErrorMessage('[DEPLOY WORKSPACE ERROR]: ' + e);
+            vscode.window.showErrorMessage(`[DEPLOY WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    // cancel current deployment operation(s)
+    let cancelDeploy = vscode.commands.registerCommand('extension.deploy.cancel', () => {
+        try {
+            deployer.cancelDeployment();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY CANCEL ERROR]: ${deploy_helpers.toStringSafe(e)}`);
         }
     });
 
@@ -82,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
             deployer.deployFile();
         }
         catch (e) {
-            vscode.window.showErrorMessage('[DEPLOY FILE ERROR]: ' + e);
+            vscode.window.showErrorMessage(`[DEPLOY FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
         }
     });
 
@@ -92,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
             deployer.listen();
         }
         catch (e) {
-            vscode.window.showErrorMessage('[DEPLOY LISTEN ERROR]: ' + e);
+            vscode.window.showErrorMessage(`[DEPLOY LISTEN ERROR]: ${deploy_helpers.toStringSafe(e)}`);
         }
     });
 
@@ -101,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
-    context.subscriptions.push(deploy, deployFile, listen);
+    context.subscriptions.push(deploy, deployFile, listen, cancelDeploy);
 }
 
 export function deactivate() {

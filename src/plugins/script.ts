@@ -154,15 +154,21 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any, value?: any) => {
+        let completed = (err?: any, value?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                     file: file,
                     target: target,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, undefined, true);  // cancellation requested
+            return;
+        }
 
         try {
             let scriptFile = getScriptFile(target);
@@ -206,13 +212,19 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let completed = (err?: any) => {
+        let completed = (err?: any, value?: any, canceled?: boolean) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
+                    canceled: canceled,
                     error: err,
                 });
             }
         };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);  // cancellation requested
+            return;
+        }
         
         try {
             let scriptFile = getScriptFile(target);
@@ -233,8 +245,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     sender: me,
                     target: target,
                     targetOptions: target.options,
-                }).then(() => {
-                    completed();
+                }).then((value) => {
+                    completed(null, value);
                 }).catch((err) => {
                     if (!err) {
                         err = new Error(`Could not deploy workspace by script '${relativeScriptPath}'!`);

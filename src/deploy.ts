@@ -54,6 +54,10 @@ export class Deployer {
      */
     protected _CONTEXT: vscode.ExtensionContext;
     /**
+     * Stores if cancellation has been requested or not.
+     */
+    protected _isCancelling: boolean;
+    /**
      * Stores the package file of that extension.
      */
     protected _PACKAGE_FILE: deploy_contracts.PackageFile;
@@ -90,6 +94,8 @@ export class Deployer {
 
         this.reloadConfiguration();
         this.reloadPlugins();
+
+        this.resetIsCancelling();
     }
 
     /**
@@ -130,6 +136,17 @@ export class Deployer {
         catch (e) {
             vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(e)}`);
         }
+    }
+
+    /**
+     * Cancels the current deployment operation(s).
+     */
+    public cancelDeployment() {
+        if (this.isCancelling) {
+            return;
+        }
+
+        this._isCancelling = true;
     }
 
     /**
@@ -225,7 +242,10 @@ export class Deployer {
                     vscode.StatusBarAlignment.Left,
                 );
 
-                let showResult = (err?: any) => {
+                let showResult = (err?: any, canceled?: boolean) => {
+                    canceled = deploy_helpers.toBooleanSafe(canceled);
+                    me.resetIsCancelling();
+
                     statusBarItem.dispose();
 
                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -236,13 +256,23 @@ export class Deployer {
                     if (err) {
                         vscode.window.showErrorMessage(`Could not deploy file '${relativePath}'${targetExpr}: ${err}`);
 
-                        me.outputChannel.appendLine('Finished with errors!');
+                        if (canceled) {
+                            me.outputChannel.appendLine('Canceled with errors!');
+                        }
+                        else {
+                            me.outputChannel.appendLine('Finished with errors!');
+                        }
                     }
                     else {
                         vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed${targetExpr}.`);
 
-                        me.outputChannel.appendLine('Finished.');
-
+                        if (canceled) {
+                            me.outputChannel.appendLine('Canceled.');
+                        }
+                        else {
+                            me.outputChannel.appendLine('Finished.');
+                        }
+                        
                         me.afterDeployment(target);
                     }
                 };
@@ -271,7 +301,8 @@ export class Deployer {
                             }
 
                             statusBarItem.color = '#ffffff';
-                            statusBarItem.tooltip = `Deploying '${relativePath}'...`;
+                            statusBarItem.command = "extension.deploy.cancel";
+                            statusBarItem.tooltip = `Click here to cancel deployment of '${relativePath}'...`;
                             statusBarItem.text = `Deploying...`;
                             statusBarItem.show();
                         },
@@ -284,7 +315,7 @@ export class Deployer {
                                 me.outputChannel.appendLine('[OK]');
                             }
 
-                            showResult(e.error);
+                            showResult(e.error, e.canceled);
                         }
                     });
                 }
@@ -421,7 +452,10 @@ export class Deployer {
 
                     let failed: string[] = [];
                     let succeeded: string[] = [];
-                    let showResult = (err?: any) => {
+                    let showResult = (err?: any, canceled?: boolean) => {
+                        canceled = deploy_helpers.toBooleanSafe(canceled);
+                        me.resetIsCancelling();
+
                         statusBarItem.dispose();
 
                         let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -452,18 +486,29 @@ export class Deployer {
                         }
 
                         if (err || failed.length > 0) {
-                            me.outputChannel.appendLine('Finished with errors!');
+                            if (canceled) {
+                                me.outputChannel.appendLine('Canceled with errors!');
+                            }
+                            else {
+                                me.outputChannel.appendLine('Finished with errors!');
+                            }
                         }
                         else {
-                            me.outputChannel.appendLine('Finished.');
+                            if (canceled) {
+                                me.outputChannel.appendLine('Canceled.');
+                            }
+                            else {
+                                me.outputChannel.appendLine('Finished.');
+                            }
 
                             me.afterDeployment(target);
                         }
                     };
 
                     statusBarItem.color = '#ffffff';
+                    statusBarItem.command = 'extension.deploy.cancel';
                     statusBarItem.text = 'Deploying...';
-                    statusBarItem.tooltip = statusBarItem.text;
+                    statusBarItem.tooltip = 'Click here to cancel deployment...';
                     statusBarItem.show();
 
                     x.deployWorkspace(files, target, {
@@ -487,7 +532,7 @@ export class Deployer {
                         },
 
                         onCompleted: (sender, e) => {
-                            showResult(e.error);
+                            showResult(e.error, e.canceled);
                         },
 
                         onFileCompleted: (sender, e) => {
@@ -545,6 +590,13 @@ export class Deployer {
         }
 
         return deploy_helpers.sortTargets(targets);
+    }
+
+    /**
+     * Gets if a cancellation is requested or not.
+     */
+    public get isCancelling(): boolean {
+        return this._isCancelling;
     }
 
     /**
@@ -1234,6 +1286,9 @@ export class Deployer {
 
                                             return this;
                                         },
+                                        isCancelling: function() {
+                                            return me.isCancelling;
+                                        },
                                         log: function(msg) {
                                             me.log(msg);
                                             return this;
@@ -1319,5 +1374,14 @@ export class Deployer {
         catch (e) {
             vscode.window.showErrorMessage(`Could not update deploy settings: ${e}`);
         }
+    }
+
+    /**
+     * Resets the state if the 'isCancelling' property.
+     * 
+     * @param {boolean} newValue The custom value to set.
+     */
+    protected resetIsCancelling(newValue: boolean = false) {
+        this._isCancelling = newValue;
     }
 }
