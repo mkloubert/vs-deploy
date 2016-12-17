@@ -72,6 +72,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                 opts.onCompleted(me, {
                     canceled: canceled,
                     error: err,
+                    target: target,
                 });
             }
         };
@@ -237,6 +238,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 opts.onCompleted(me, {
                     canceled: canceled,
                     error: err,
+                    target: target,
                 });
             }
         };

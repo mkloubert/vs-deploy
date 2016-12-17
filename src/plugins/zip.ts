@@ -64,6 +64,7 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 opts.onCompleted(me, {
                     canceled: canceled,
                     error: err,
+                    target: target,
                 });
             }
         };

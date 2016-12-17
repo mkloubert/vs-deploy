@@ -118,6 +118,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
                     error: err,
+                    target: target,
                 });
             }
         };

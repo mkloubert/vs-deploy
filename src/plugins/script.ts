@@ -209,6 +209,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 opts.onCompleted(me, {
                     canceled: canceled,
                     error: err,
+                    target: target,
                 });
             }
         };

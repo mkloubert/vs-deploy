@@ -614,4 +614,8 @@ export interface WorkspaceDeployedEventArguments {
      * The error (if occurred).
      */
     error?: any;
+    /**
+     * The target.
+     */
+    target: DeployTarget;
 }
