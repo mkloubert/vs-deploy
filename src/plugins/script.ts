@@ -186,7 +186,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 completed(null, (a || args).canceled);
             }).catch((err) => {
                 if (!err) {
-                    err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
+                    err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}'!`);
                 }
 
                 completed(err);
@@ -243,7 +243,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     completed(null, (a || args).canceled);
                 }).catch((err) => {
                     if (!err) {
-                        err = new Error(`Could not deploy workspace by script '${relativeScriptPath}': ${deploy_helpers.toStringSafe(err)}`);
+                        err = new Error(`Could not deploy workspace by script '${relativeScriptPath}'!`);
                     }
 
                     completed(err);
