@@ -94,6 +94,16 @@ interface PipeContext extends deploy_objects.MultiTargetContext {
  */
 export interface PipelineModule {
     /**
+     * An optional function that is called after (new) piped files
+     * has been processed by target(s), e.g. to do cleanup operations.
+     * 
+     * @param {PipeArguments} args The arguments.
+     * @param {any} [err] The error from the target, if occurred.
+     * 
+     * @return {Promise<PipeArguments>} The promise.
+     */
+    onPipeCompleted?: (args: PipeArguments, err?: any) => Promise<PipeArguments>;
+    /**
      * Pipes a list of source files.
      * 
      * @param {PipeArguments} args The arguments.
@@ -199,7 +209,29 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                               }
                                           },
                                           onCompleted: (sender, e) => {
-                                              completed(e.error, e.canceled);
+                                              let pipeCompleted = () => {
+                                                  completed(e.error, e.canceled);
+                                              };
+
+                                              try {
+                                                  if (scriptModule.onPipeCompleted) {
+                                                      scriptModule.onPipeCompleted(e.error, a).then(() => {
+                                                          pipeCompleted();
+                                                      }).catch((err) => {
+                                                          me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(2): ${deploy_helpers.toStringSafe(err)}`);
+
+                                                          pipeCompleted();
+                                                      });
+                                                  }
+                                                  else {
+                                                      pipeCompleted();
+                                                  }
+                                              }
+                                              catch (ex) {
+                                                  me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(1): ${deploy_helpers.toStringSafe(ex)}`);
+
+                                                  pipeCompleted();
+                                              }
                                           },
                                           onFileCompleted: (sender, e) => {
                                               if (opts.onFileCompleted) {
