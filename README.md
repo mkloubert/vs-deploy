@@ -207,6 +207,12 @@ Add the subsection `targets` and add one or more entry:
                 "description": "An app to call",
                 "app": "E:/test/deploy.cmd",
                 "arguments": ["a", "b", "c"]
+            },
+            {
+                "type": "batch",
+                "name": "My Batch",
+                "description": "A batch operation",
+                "targets": ["My mail server", "My ZIP file"]
             }
         ]
     }
