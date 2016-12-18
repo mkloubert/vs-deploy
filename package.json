@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.13.1",
+  "version": "3.14.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -163,6 +163,11 @@
                   "name": {
                     "type": "string",
                     "description": "The name of the package."
+                  },
+                  "sortOrder": {
+                    "type": "number",
+                    "description": "The sort order.",
+                    "default": 0
                   }
                 }
               }
@@ -182,6 +187,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "type": {
                         "type": "string",
@@ -221,6 +231,11 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to one or more other target.",
@@ -253,6 +268,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -320,6 +340,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -406,6 +431,11 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN.",
@@ -451,6 +481,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "type": {
                         "type": "string",
@@ -536,6 +571,11 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
+                      },
                       "type": {
                         "type": "string",
                         "description": "Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.",
@@ -569,6 +609,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "type": {
                         "type": "string",
@@ -627,6 +672,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "type": {
                         "type": "string",
@@ -717,6 +767,11 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys via a JS script.",
@@ -747,6 +802,11 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
+                      },
                       "type": {
                         "type": "string",
                         "description": "A mock deployer that only checks what files will be deployed.",
@@ -765,6 +825,11 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "type": "number",
+                        "description": "The sort order.",
+                        "default": 0
                       },
                       "type": {
                         "type": "string",
