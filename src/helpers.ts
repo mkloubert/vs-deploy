@@ -444,11 +444,23 @@ export function toDataTransformerSafe(transformer: deploy_contracts.DataTransfor
  * Tries to convert a file path to a relative path.
  * 
  * @param {string} path The path to convert.
+ * @param {string} [baseDir] The custom base / root directory to use.
  * 
  * @return {string | false} The relative path or (false) if not possible.
  */
-export function toRelativePath(path: string): string | false {
+export function toRelativePath(path: string, baseDir?: string): string | false {
     let result: string | false = false;
+
+    if (isEmptyString(baseDir)) {
+        baseDir = vscode.workspace.rootPath;
+    }
+    else {
+        if (!Path.isAbsolute(baseDir)) {
+            baseDir = Path.join(vscode.workspace.rootPath, baseDir);
+        }
+
+        baseDir = Path.resolve(baseDir);
+    }
     
     try {
         let normalizedPath = replaceAllStrings(path, Path.sep, '/');
@@ -478,11 +490,12 @@ export function toRelativePath(path: string): string | false {
  * 
  * @param {string} path The path to convert.
  * @param {deploy_contracts.DeployTarget} target The target.
+ * @param {string} [baseDir] The custom base / root directory to use.
  * 
  * @return {string | false} The relative path or (false) if not possible.
  */
-export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget): string | false {
-    let relativePath = toRelativePath(path);
+export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget, baseDir?: string): string | false {
+    let relativePath = toRelativePath(path, baseDir);
     if (false === relativePath) {
         return relativePath;
     }

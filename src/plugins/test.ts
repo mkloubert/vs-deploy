@@ -57,7 +57,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
                 return;
             }
 
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target);
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}'!`));
                 return;

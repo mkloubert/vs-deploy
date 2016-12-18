@@ -163,7 +163,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         try {
             let scriptFile = getScriptFile(target);
 
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile);
+            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
             if (false === relativeScriptPath) {
                 relativeScriptPath = scriptFile;
             }
@@ -222,7 +222,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         try {
             let scriptFile = getScriptFile(target);
 
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile);
+            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
             if (false === relativeScriptPath) {
                 relativeScriptPath = scriptFile;
             }

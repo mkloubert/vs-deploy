@@ -149,7 +149,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             return;
         }
 
-        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target);
+        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativeFilePath) {
             completed(new Error(`Could not get relative path for '${file}'!`));
             return;

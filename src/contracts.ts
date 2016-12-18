@@ -331,6 +331,10 @@ export interface DeployFileEventArguments extends DeployEventArguments {
  */
 export interface DeployFileOptions {
     /**
+     * The custom root directory to use.
+     */
+    baseDirectory?: string;
+    /**
      * The "before deploy" callback.
      */
     onBeforeDeploy?: BeforeDeployFileEventHandler;

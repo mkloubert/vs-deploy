@@ -411,7 +411,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             return;
         }
 
-        let relativePath = deploy_helpers.toRelativePath(file);
+        let relativePath = deploy_helpers.toRelativePath(file, opts.baseDirectory);
         if (false === relativePath) {
             relativePath = file;
         }

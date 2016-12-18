@@ -154,7 +154,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
         try {
             let scriptFile = getScriptFile(target);
 
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile);
+            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
             if (false === relativeScriptPath) {
                 relativeScriptPath = scriptFile;
             }

@@ -76,7 +76,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             return;
         }
 
-        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target);
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativeTargetFilePath) {
             completed(new Error(`Could not get relative path for '${file}'!`));
             return;
