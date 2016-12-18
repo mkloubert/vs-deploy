@@ -1306,6 +1306,9 @@ export class Deployer {
 
                                             return this;
                                         },
+                                        workspace: function() {
+                                            return vscode.workspace.rootPath;
+                                        },
                                         write: function(msg) {
                                             msg = deploy_helpers.toStringSafe(msg);
                                             this.outputChannel().append(msg);

@@ -215,7 +215,7 @@ export interface DeployContext {
     /**
      * Returns the current config.
      * 
-     * @param {DeployConfiguration} The current config.
+     * @return {DeployConfiguration} The current config.
      */
     config(): DeployConfiguration;
     /**
@@ -252,18 +252,20 @@ export interface DeployContext {
     outputChannel(): vscode.OutputChannel;
     /**
      * Returns the package file of that extension.
+     * 
+     * @return {PackageFile} The data of the package file.
      */
     packageFile(): PackageFile;
     /**
      * Returns the list of packages.
      * 
-     * @param {DeployPackage[]} The packages.
+     * @return {DeployPackage[]} The packages.
      */
     packages(): DeployPackage[];
     /**
      * Returns the list of (other) plugins.
      * 
-     * @param {DeployPlugin[]} The list of (other) plugins.
+     * @return {DeployPlugin[]} The list of (other) plugins.
      */
     plugins(): DeployPlugin[];
     /**
@@ -283,6 +285,12 @@ export interface DeployContext {
      */
     warn(msg: any): DeployContext;
     /**
+     * Returns the root directory of the current workspace.
+     * 
+     * @return {string} The root directory of the current workspace.
+     */
+    workspace(): string;
+    /**
      * Writes a messages to the output channel.
      * 
      * @param {any} msg The message to write.
@@ -301,7 +309,7 @@ export interface DeployContext {
     /**
      * Returns the list of targets.
      * 
-     * @param {DeployTarget[]} The targets.
+     * @return {DeployTarget[]} The targets.
      */
     targets(): DeployTarget[];
 }
