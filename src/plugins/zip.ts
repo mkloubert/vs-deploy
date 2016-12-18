@@ -32,7 +32,6 @@ import * as Moment from 'moment';
 const OPN = require('opn');
 import * as Path from 'path';
 import * as vscode from 'vscode';
-const Zip = require('node-zip');
 
 
 interface DeployTargetZIP extends deploy_contracts.DeployTarget {
@@ -40,8 +39,8 @@ interface DeployTargetZIP extends deploy_contracts.DeployTarget {
     target?: string;
 }
 
-class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
-    public deployWorkspace(files: string[], target: DeployTargetZIP, opts?: deploy_contracts.DeployWorkspaceOptions) {
+class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
+    protected deployZipFile(zip: any, target: DeployTargetZIP): Promise<any> {
         let now = Moment();
         let me = this;
 
@@ -49,197 +48,119 @@ class ZIPPlugin extends deploy_objects.MultiFileDeployPluginBase {
         if (!targetDir) {
             targetDir = './';
         }
-        
         if (!Path.isAbsolute(targetDir)) {
             targetDir = Path.join(vscode.workspace.rootPath);
         }
 
-        let openAfterCreated = true;
-        if (!deploy_helpers.isNullOrUndefined(target.open)) {
-            openAfterCreated = !!target.open;
-        }
+        let openAfterCreated = deploy_helpers.toBooleanSafe(target.open, true);
 
-        let completed = (err?: any, canceled?: boolean) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: canceled,
-                    error: err,
-                    target: target,
-                });
-            }
-        };
-
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
-        }
-
-        try {
-            let deploy = (zipFile: string) => {
-                try {
-                    let zip = new Zip();
-
-                    let zipCompleted = () => {
-                        try {
-                            let zippedData = new Buffer(zip.generate({
-                                base64: false,
-                                compression: 'DEFLATE',
-                            }), 'binary');
-
-                            FS.writeFile(zipFile, zippedData, (err) => {
-                                zippedData = null;
-
-                                if (err) {
-                                    completed(err);
-                                    return;
-                                }
-
-                                completed();
-
-                                if (openAfterCreated) {
-                                    try {
-                                        OPN(zipFile);
-                                    }
-                                    catch (e) {
-                                        me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(e)}`)
-                                    }
-                                }
-                            });
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
-                    };
-
-                    let filesTodo = files.map(x => x);
-                    let addNextFile: () => void;
-                    addNextFile = () => {
-                        if (filesTodo.length < 1) {
-                            zipCompleted();
-                            return;
-                        }
-
-                        let f = filesTodo.pop();
-                        if (!f) {
-                            zipCompleted();
-                            return;
-                        }
-
-                        let fileCompleted = (err?: any) => {
-                            if (opts.onFileCompleted) {
-                                opts.onFileCompleted(me, {
-                                    error: err,
-                                    file: f,
-                                    target: target,
-                                });
-                            }
-
-                            addNextFile();
-                        };
-
-                        try {
-                            let relativePath = deploy_helpers.toRelativeTargetPath(f, target);
-                            if (false === relativePath) {
-                                relativePath = deploy_helpers.replaceAllStrings(f, Path.sep, '/');
-                            }
-
-                            if (opts.onBeforeDeployFile) {
-                                opts.onBeforeDeployFile(me, {
-                                    destination: relativePath,
-                                    file: f,
-                                    target: target,
-                                });
-                            }
-
-                            FS.readFile(f, (err, data) => {
-                                if (err) {
-                                    fileCompleted(err);
-                                    return;
-                                }
-
-                                try {
-                                    let zipEntry = (<string>relativePath).trim();
-                                    while (0 == zipEntry.indexOf('/')) {
-                                        zipEntry = zipEntry.substr(1);
-                                    }
-
-                                    zip.file(zipEntry, data);
-
-                                    fileCompleted();
-                                }
-                                catch (e) {
-                                    fileCompleted(e);
-                                }
-                            });
-                        }
-                        catch (e) {
-                            fileCompleted(e);
-                        }
-                    };
-
-                    addNextFile();
+        return new Promise<any>((resolve, reject) => {
+            let completed = (err?: any) => {
+                if (err) {
+                    reject(err);
                 }
-                catch (e) {
-                    completed(e);
+                else {
+                    resolve(zip);
                 }
             };
 
-            let checkIfDirectory = () => {
-                FS.lstat(targetDir, (err, stats) => {
+            try {
+                // now deploy by saving to file
+                let deploy = (zipFile: string) => {
                     try {
-                        if (err) {
-                            completed(err);
-                            return;
-                        }
+                        let zippedData = new Buffer(zip.generate({
+                            base64: false,
+                            compression: 'DEFLATE',
+                        }), 'binary');
 
-                        if (stats.isDirectory()) {
-                            let zipFileName = `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`;
+                        FS.writeFile(zipFile, zippedData, (err) => {
+                            zippedData = null;
 
-                            let zipFile = Path.join(targetDir, zipFileName);
-
-                            let zipRelativePath = deploy_helpers.toRelativeTargetPath(zipFile, target);
-                            if (false === zipRelativePath) {
-                                zipRelativePath = zipFile;
+                            if (err) {
+                                completed(err);
+                                return;
                             }
 
-                            FS.exists(zipFile, (exists) => {
-                                if (exists) {
-                                    completed(new Error(`File '${zipRelativePath}' already exists! Try again...`));
-                                    return;
-                                }
+                            completed();
 
-                                deploy(zipFile);
-                            });
-                        }
-                        else {
-                            completed(new Error(`'${targetDir}' is no directory!`));
-                        }
+                            if (openAfterCreated) {
+                                try {
+                                    OPN(zipFile);
+                                }
+                                catch (e) {
+                                    me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(e)}`)
+                                }
+                            }
+                        });
                     }
                     catch (e) {
                         completed(e);
                     }
-                });
-            };
+                };
 
-            FS.exists(targetDir, (exists) => {
-                if (exists) {
-                    checkIfDirectory();
-                }
-                else {
-                    FSExtra.mkdirs(targetDir, function (err) {
-                        if (err) {
-                            completed(err);
-                            return;
+                // check if target directory is
+                // really a directory
+                let checkIfDirectory = () => {
+                    FS.lstat(targetDir, (err, stats) => {
+                        try {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
+
+                            if (stats.isDirectory()) {
+                                let zipFileName = `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`;
+
+                                let zipFile = Path.join(targetDir, zipFileName);
+
+                                let zipRelativePath = deploy_helpers.toRelativeTargetPath(zipFile, target);
+                                if (false === zipRelativePath) {
+                                    zipRelativePath = zipFile;
+                                }
+
+                                FS.exists(zipFile, (exists) => {
+                                    if (exists) {
+                                        completed(new Error(`File '${zipRelativePath}' already exists! Try again...`));
+                                        return;
+                                    }
+
+                                    deploy(zipFile);
+                                });
+                            }
+                            else {
+                                // no
+                                completed(new Error(`'${targetDir}' is no directory!`));
+                            }
                         }
-
-                        checkIfDirectory();
+                        catch (e) {
+                            completed(e);
+                        }
                     });
-                }
-            });
-        }
-        catch (e) {
-            completed(e);
-        }
+                };
+
+                // first check if target directory exists
+                FS.exists(targetDir, (exists) => {
+                    if (exists) {
+                        checkIfDirectory();
+                    }
+                    else {
+                        // no => try to create
+
+                        FSExtra.mkdirs(targetDir, function (err) {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
+
+                            checkIfDirectory();
+                        });
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {

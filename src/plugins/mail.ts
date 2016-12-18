@@ -26,12 +26,9 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
-import * as FS from 'fs';
 const Mailer = require('nodemailer');
 import * as Moment from 'moment';
-import * as Path from 'path';
 import * as vscode from 'vscode';
-const Zip = require('node-zip');
 
 
 interface DeployTargetMail extends deploy_contracts.DeployTarget {
@@ -47,22 +44,19 @@ interface DeployTargetMail extends deploy_contracts.DeployTarget {
     user?: string;
 }
 
-class MailPlugin extends deploy_objects.MultiFileDeployPluginBase {
-    public deployWorkspace(files: string[], target: DeployTargetMail, opts?: deploy_contracts.DeployWorkspaceOptions) {
+class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
+    protected deployZipFile(zip: any, target: DeployTargetMail): Promise<any> {
         let now = Moment();
-        let me = this;
 
         let from = deploy_helpers.toStringSafe(target.from).trim();
         let to = deploy_helpers.toStringSafe(target.to).trim();
 
-        let isSecure = target.secure;
-        if (deploy_helpers.isNullOrUndefined(isSecure)) {
-            isSecure = true;
-        }
-        isSecure = !!isSecure;
+        let isSecure = deploy_helpers.toBooleanSafe(target.secure, true);
 
-        let ignoreTLS = !!target.ignoreTLS;
-        let requireTLS = !!target.requireTLS;
+        let ignoreTLS = deploy_helpers.toBooleanSafe(target.ignoreTLS);
+        let requireTLS = deploy_helpers.toBooleanSafe(target.requireTLS);
+
+        let rejectUnauthorized = deploy_helpers.toBooleanSafe(target.rejectUnauthorized);
 
         let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
         let port: string | number = deploy_helpers.toStringSafe(target.port).trim();
@@ -76,12 +70,6 @@ class MailPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
         port = parseInt(port);
 
-        let rejectUnauthorized = target.rejectUnauthorized;
-        if (deploy_helpers.isNullOrUndefined(rejectUnauthorized)) {
-            rejectUnauthorized = true;
-        }
-        rejectUnauthorized = !!rejectUnauthorized;
-
         let auth: any;
         let user = deploy_helpers.toStringSafe(target.user);
         if (user) {
@@ -93,169 +81,85 @@ class MailPlugin extends deploy_objects.MultiFileDeployPluginBase {
             };
         }
 
-        let completed = (err?: any, canceled?: boolean) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: canceled,
-                    error: err,
-                    target: target,
-                });
-            }
-        };
+        return new Promise<any>((resolve, reject) => {
+            let completed = (err?: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(zip);
+                }
+            };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
-        }
-
-        let deploy = () => {
             try {
-                let zip = new Zip();
-
-                let zipCompleted = () => {
+                let deploy = () => {
                     try {
-                        try {
-                            let zippedData = new Buffer(zip.generate({
-                                base64: false,
-                                compression: 'DEFLATE',
-                            }), 'binary');
+                        let zippedData = new Buffer(zip.generate({
+                            base64: false,
+                            compression: 'DEFLATE',
+                        }), 'binary');
 
-                            let transporter = Mailer.createTransport({
-                                host: host,
-                                port: port,
-                                auth: auth,
-                                secure: isSecure,
-                                ignoreTLS: ignoreTLS,
-                                requireTLS: requireTLS,
-                                tls: {
-                                    rejectUnauthorized: rejectUnauthorized,
-                                },
-                            });
-
-                            let mailOpts = {
-                                from: from,
-                                to: to,
-                                subject: 'Deployed files',
-                                text: `- ${files.join('\n- ')}
+                        let mailOpts = {
+                            from: from,
+                            to: to,
+                            subject: 'Deployed files',
+                            text: `Your deployed files (s. attachment).
 
 
-Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
-https://github.com/mkloubert/vs-deploy`,
-                                attachments: [
-                                    {
-                                        filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
-                                        content: zippedData,
-                                    }
-                                ]
-                            };
+        Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
+        https://github.com/mkloubert/vs-deploy`,
+                            attachments: [
+                                {
+                                    filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
+                                    content: zippedData,
+                                }
+                            ]
+                        };
 
-                            transporter.sendMail(mailOpts, (err) => {
-                                completed(err);
-                            });
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
+                        let transporter = Mailer.createTransport({
+                            host: host,
+                            port: port,
+                            auth: auth,
+                            secure: isSecure,
+                            ignoreTLS: ignoreTLS,
+                            requireTLS: requireTLS,
+                            tls: {
+                                rejectUnauthorized: rejectUnauthorized,
+                            },
+                        });
+
+                        transporter.sendMail(mailOpts, (err) => {
+                            zippedData = null;
+
+                            completed(err);
+                        });
                     }
                     catch (e) {
                         completed(e);
                     }
                 };
 
-                let filesTodo = files.map(x => x);
-                let addNextFile: () => void;
-                addNextFile = () => {
-                    if (filesTodo.length < 1) {
-                        zipCompleted();
-                        return;
-                    }
-
-                    let f = filesTodo.pop();
-                    if (!f) {
-                        zipCompleted();
-                        return;
-                    }
-
-                    let fileCompleted = (err?: any) => {
-                        if (opts.onFileCompleted) {
-                            opts.onFileCompleted(me, {
-                                error: err,
-                                file: f,
-                                target: target,
-                            });
-                        }
-
-                        addNextFile();
-                    };
-                    
-                    try {
-                        let relativePath = deploy_helpers.toRelativeTargetPath(f, target);
-                        if (false === relativePath) {
-                            relativePath = deploy_helpers.replaceAllStrings(f, Path.sep, '/');
-                        }
-
-                        if (opts.onBeforeDeployFile) {
-                            opts.onBeforeDeployFile(me, {
-                                destination: relativePath,
-                                file: f,
-                                target: target,
-                            });
-                        }
-
-                        FS.readFile(f, (err, data) => {
-                            if (err) {
-                                fileCompleted(err);
-                                return;
+                vscode.window.showInputBox({
+                    prompt: "Target eMail address(es)",
+                    ignoreFocusOut: true,
+                    placeHolder: 'One or more email address (separated by comma) to deploy to...',
+                    value: to,
+                }).then((value) => {
+                            to = deploy_helpers.toStringSafe(value).trim();
+                            if (to) {
+                                deploy();
                             }
-
-                            try {
-                                let zipEntry = (<string>relativePath).trim();
-                                while (0 == zipEntry.indexOf('/')) {
-                                    zipEntry = zipEntry.substr(1);
-                                }
-
-                                zip.file(zipEntry, data);
-
-                                fileCompleted();
+                            else {
+                                completed();
                             }
-                            catch (e) {
-                                fileCompleted(e);
-                            }
+                        }, (err) => {
+                            completed(err);
                         });
-                    }
-                    catch (e) {
-                        fileCompleted(e);
-                    }
-                };
-
-                addNextFile();
             }
             catch (e) {
                 completed(e);
             }
-        };
-
-        try {
-            vscode.window.showInputBox({
-                prompt: "Target eMail address(es)",
-                ignoreFocusOut: true,
-                placeHolder: 'One or more email address (separated by comma) to deploy to...',
-                value: to,
-            }).then((value) => {
-                        to = deploy_helpers.toStringSafe(value);
-                        if (to) {
-                            deploy();
-                        }
-                        else {
-                            completed();
-                        }
-                    }, (err) => {
-                        completed(err);
-                    });
-        }
-        catch (e) {
-            completed(e);
-        }
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {

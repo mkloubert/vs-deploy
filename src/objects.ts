@@ -25,6 +25,8 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as FS from 'fs';
+const Zip = require('node-zip');
 
 
 /**
@@ -223,10 +225,14 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * @param {DeployFileOptions} [opts] Additional options.
      */
     protected abstract deployFileWithContext(ctx: TContext,
-                                             file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void
+                                             file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void;
 
     /** @inheritdoc */
     public deployWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        if (!opts) {
+            opts = {};
+        }
+        
         let me = this;
         
         // report that whole operation has been completed
@@ -343,4 +349,104 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
             completed(e);  // global error
         }
     }
+}
+
+export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBase<any> {
+    /** @inheritdoc */
+    protected createContext(target: deploy_contracts.DeployTarget): Promise<DeployPluginContextWrapper<any>> {
+        let me = this;
+        
+        return new Promise<DeployPluginContextWrapper<any>>((resolve, reject) => {
+            try {
+                let zipFile = new Zip();
+
+                let wrapper: DeployPluginContextWrapper<any> = {
+                    context: zipFile,
+                    destroy: (): Promise<any> => {
+                        return me.deployZipFile(zipFile, target);
+                    },
+                };
+
+                resolve(wrapper);
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    /** @inheritdoc */
+    protected deployFileWithContext(zipFile: any,
+                                    file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        let completed = (err?: any, canceled?: boolean) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: canceled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (me.context.isCancelling()) {
+            completed(null, true);
+            return;
+        }
+
+        let relativePath = deploy_helpers.toRelativePath(file);
+        if (false === relativePath) {
+            relativePath = file;
+        }
+
+        if (opts.onBeforeDeploy) {
+            opts.onBeforeDeploy(me, {
+                destination: `zip://${relativePath}`,
+                file: file,
+                target: target,
+            });
+        }
+
+        try {
+            FS.readFile(file, (err, data) => {
+                if (err) {
+                    completed(err);
+                    return;
+                }
+
+                try {
+                    let zipEntry = (<string>relativePath).trim();
+                    while (0 == zipEntry.indexOf('/')) {
+                        zipEntry = zipEntry.substr(1);
+                    }
+
+                    zipFile.file(zipEntry, data);
+
+                    completed();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    }
+
+    /**
+     * Deploys a ZIP file.
+     * 
+     * @param {any} zipFile The file to deploy.
+     * @param {deploy_contracts.DeployTarget} target The target where the file should be deployed to.
+     * 
+     * @return {Promise<any>} The promise.
+     */
+    protected abstract deployZipFile(zipFile: any, target: deploy_contracts.DeployTarget): Promise<any>;
 }
