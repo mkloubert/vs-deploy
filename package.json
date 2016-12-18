@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.10.0",
+  "version": "3.11.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -195,6 +195,39 @@
                       },
                       "arguments": {
                         "description": "One or more argument for the execution.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to one or more other target.",
+                        "enum": [ "batch" ]
+                      },
+                      "targets": {
+                        "description": "One or more names of other targets to deploy to.",
                         "oneOf": [
                           {
                             "type": "string"
