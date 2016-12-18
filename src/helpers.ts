@@ -203,6 +203,18 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
 }
 
 /**
+ * Checks if the string representation of a value is empty
+ * or contains whitespaces only.
+ * 
+ * @param {any} val The value to check.
+ * 
+ * @return {boolean} Is empty or not.
+ */
+export function isEmptyString(val: any): boolean {
+    return '' == toStringSafe(val).trim();
+}
+
+/**
  * Checks if a value is (null) or (undefined).
  * 
  * @param {any} val The value to check.

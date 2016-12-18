@@ -313,36 +313,6 @@ export interface DeployEventArguments {
 }
 
 /**
- * Describes an event handler that is raised AFTER a file deployment has been completed.
- * 
- * @param {any} sender The sending object.
- * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
- */
-export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCompletedEventArguments) => void;
-
-/**
- * Arguments for a "file deployed completed" event.
- */
-export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
-    /**
-     * Gets if the operation has been canceled or not.
-     */
-    canceled?: boolean;
-    /**
-     * The error (if occurred).
-     */
-    error?: any;
-    /**
-     * The file.
-     */
-    file: string;
-    /**
-     * The target.
-     */
-    target: DeployTarget;
-}
-
-/**
  * Arguments for a "before deploy file" event.
  */
 export interface DeployFileEventArguments extends DeployEventArguments {
@@ -527,11 +497,25 @@ export interface DeployTarget {
     /**
      * The sort order.
      */
-    sortOrder: number;
+    sortOrder?: number;
     /**
      * The type.
      */
     type?: string;
+}
+
+/**
+ * A wrapper for a deploy target and matching plugins.
+ */
+export interface DeployTargetWithPlugins {
+    /**
+     * The list of matching plugings.
+     */
+    plugins: DeployPlugin[];
+    /**
+     * The underlying target.
+     */
+    target: DeployTarget;
 }
 
 /**
@@ -563,6 +547,10 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
  */
 export interface DeployWorkspaceOptions {
     /**
+     * The custom root directory to use.
+     */
+    baseDirectory?: string;
+    /**
      * The "before deploy" file callback.
      */
     onBeforeDeployFile?: BeforeDeployFileEventHandler;
@@ -575,6 +563,36 @@ export interface DeployWorkspaceOptions {
      */
     onFileCompleted?: FileDeployedCompletedEventHandler;
 }
+
+/**
+ * Arguments for a "file deployed completed" event.
+ */
+export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
+    /**
+     * Gets if the operation has been canceled or not.
+     */
+    canceled?: boolean;
+    /**
+     * The error (if occurred).
+     */
+    error?: any;
+    /**
+     * The file.
+     */
+    file: string;
+    /**
+     * The target.
+     */
+    target: DeployTarget;
+}
+
+/**
+ * Describes an event handler that is raised AFTER a file deployment has been completed.
+ * 
+ * @param {any} sender The sending object.
+ * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
+ */
+export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCompletedEventArguments) => void;
 
 /**
  * Describes the structure of the package file of that extenstion.

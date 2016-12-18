@@ -26,8 +26,34 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
+import * as vscode from 'vscode';
 const Zip = require('node-zip');
 
+
+/**
+ * An object that wraps the object that
+ * is used in a plugin that uses a context.
+ */
+export interface DeployPluginContextWrapper<TContext> {
+    /**
+     * The context.
+     */
+    context: TContext;
+    /**
+     * Optional logic to "destroy" / "dispose" the context.
+     */
+    destroy?: () => Promise<TContext>;
+}
+
+/**
+ * A multi target context.
+ */
+export interface MultiTargetContext {
+    /**
+     * The targets.
+     */
+    targets: deploy_contracts.DeployTargetWithPlugins[];
+}
 
 /**
  * A basic deploy plugin that is specially based on single
@@ -144,21 +170,6 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
             completed(e);
         }
     }
-}
-
-/**
- * An object that wraps the object that
- * is used in a plugin that uses a context.
- */
-export interface DeployPluginContextWrapper<TContext> {
-    /**
-     * The context.
-     */
-    context: TContext;
-    /**
-     * Optional logic to "destroy" / "dispose" the context.
-     */
-    destroy?: () => Promise<TContext>;
 }
 
 /**
@@ -449,4 +460,208 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
      * @return {Promise<any>} The promise.
      */
     protected abstract deployZipFile(zipFile: any, target: deploy_contracts.DeployTarget): Promise<any>;
+}
+
+/**
+ * A base plugin that deploys to other targets.
+ */
+export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginBase {
+    /**
+     * Creates the context for this plugin.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target for this plugin.
+     * 
+     * @return {MultiTargetContext} The created context.
+     */
+    protected abstract createContext(target: deploy_contracts.DeployTarget): MultiTargetContext;
+
+    /** @inheritdoc */
+    public deployWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        if (!opts) {
+            opts = {};
+        }
+        
+        let me = this;
+
+        let ctx = this.createContext(target);
+        
+        let targetsTodo = ctx.targets.map(x => x);
+        let completed = (err?: any, canceled?: boolean) => {
+            targetsTodo = [];
+
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: canceled,
+                    target: target,
+                });
+            }
+        };
+
+        try {
+            let deployNextTarget: () => void;
+            deployNextTarget = () => {
+                if (targetsTodo.length < 1) {
+                    completed();
+                    return;
+                }
+
+                if (me.context.isCancelling()) {
+                    completed(null, true);
+                    return;
+                }
+
+                let currentTarget = targetsTodo.shift();
+                let pluginsTodo = currentTarget.plugins.map(x => x);
+
+                let targetCompleted = (err?: any) => {
+                    pluginsTodo = [];
+
+                    deployNextTarget();
+                };
+
+                let deployNextPlugin: () => void;
+                deployNextPlugin = () => {
+                    if (pluginsTodo.length < 1) {
+                        targetCompleted();
+                        return;
+                    }
+
+                    if (me.context.isCancelling()) {
+                        completed(null, true);
+                        return;
+                    }
+
+                    let pluginCompleted = (err?: any, canceled?: boolean) => {
+                        deployNextPlugin();
+                    };
+
+                    let currentPlugin = pluginsTodo.shift();
+                    try {
+                        currentPlugin.deployWorkspace(files, currentTarget.target, {
+                            onBeforeDeployFile: (sender, e) => {
+                                if (opts.onBeforeDeployFile) {
+                                    let destination = deploy_helpers.toStringSafe(currentTarget.target.name).trim();
+                                    if (!destination) {
+                                        destination = deploy_helpers.toStringSafe(currentPlugin.__type).trim();
+                                    }
+                                    if (!destination) {
+                                        deploy_helpers.toStringSafe(currentPlugin.__file).trim();
+                                    }
+
+                                    let originalDestination = deploy_helpers.toStringSafe(e.destination);
+                                    if (destination) {
+                                        destination = `[${destination}] ${originalDestination}`;
+                                    }
+                                    else {
+                                        destination = originalDestination;
+                                    }
+
+                                    opts.onBeforeDeployFile(me, {
+                                        destination: destination,
+                                        file: e.file,
+                                        target: e.target,
+                                    });
+                                }
+                            },
+                            onCompleted: (sender, e) => {
+                                pluginCompleted(e.error, e.canceled);
+                            },
+                            onFileCompleted: (sender, e) => {
+                                if (opts.onFileCompleted) {
+                                    opts.onFileCompleted(me, {
+                                        canceled: e.canceled,
+                                        file: e.file,
+                                        target: e.target,
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    catch (e) {
+                        targetCompleted(e);
+                    }
+                };
+
+                deployNextPlugin();
+            };
+
+            deployNextTarget();
+        }
+        catch (e) {
+            completed(e);
+        }
+    }
+
+    /**
+     * Returns the others targets and their plugins.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target for this plugin.
+     * @param {string | string[]} otherTargets The list of names of the "others" targets.
+     * 
+     * @return {deploy_contracts.DeployTargetWithPlugins[]} The targets and their plugins.
+     */
+    protected getTargetsWithPlugins(target: deploy_contracts.DeployTarget, otherTargets: string | string[]): deploy_contracts.DeployTargetWithPlugins[] {
+        let batchTargets: deploy_contracts.DeployTargetWithPlugins[] = [];
+
+        let normalizeString = (val: any): string => {
+            return deploy_helpers.toStringSafe(val)
+                                 .toLowerCase().trim();
+        };
+
+        let myTargetName = normalizeString(target.name);
+
+        let targetNames = deploy_helpers.asArray(otherTargets)
+                                        .map(x => normalizeString(x))
+                                        .filter(x => x);
+
+        if (targetNames.indexOf(myTargetName) > -1) {
+            // no recurrence!
+            vscode.window.showWarningMessage(`[vs-deploy] Cannot use target '${myTargetName}' (recurrence)!`);
+        }
+
+        // prevent recurrence
+        targetNames = targetNames.filter(x => x != myTargetName);
+
+        let knownTargets = this.context.targets();
+        let knownPlugins = this.context.plugins();
+
+        // first find targets by name
+        let foundTargets: deploy_contracts.DeployTarget[] = [];
+        targetNames.forEach(tn => {
+            let found = false;
+            knownTargets.forEach(t => {
+                if (normalizeString(t.name) == tn) {
+                    found = true;
+                    foundTargets.push(t);
+                }
+            });
+
+            if (!found) {
+                // we have an unknown target here
+                vscode.window.showWarningMessage(`[vs-deploy :: batch] Could not find target '${tn}'!`);
+            }
+        });
+
+        // now collect plugins for each
+        // found target
+        foundTargets.forEach(t => {
+            let newBatchTarget: deploy_contracts.DeployTargetWithPlugins = {
+                plugins: [],
+                target: t,
+            };
+
+            knownPlugins.forEach(pi => {
+                let pluginType = normalizeString(pi.__type);
+
+                if (!pluginType || (pluginType == normalizeString(t.type))) {
+                    newBatchTarget.plugins
+                                  .push(pi);
+                }
+            });
+
+            batchTargets.push(newBatchTarget);
+        });
+
+        return batchTargets;
+    }
 }
