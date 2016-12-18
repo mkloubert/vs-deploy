@@ -538,6 +538,40 @@
                       },
                       "type": {
                         "type": "string",
+                        "description": "Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.",
+                        "enum": [ "pipeline" ]
+                      },
+                      "options": {
+                        "description": "Optional value or object for the execution."
+                      },
+                      "script": {
+                        "type": "string",
+                        "description": "The script file to exeute.",
+                        "default": "./pipeline.js"
+                      },
+                      "target": {
+                        "type": "string",
+                        "description": "The target to deploy to."
+                      }
+                    },
+                    "required": [
+                      "script"
+                    ]
+                  },
+
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "type": {
+                        "type": "string",
                         "description": "Deploys to a remote machine over a TCP connection like another VS Code instance.",
                         "enum": [ "remote" ]
                       },
@@ -696,7 +730,10 @@
                         "description": "The script file to exeute.",
                         "default": "./deploy.js"
                       }
-                    }
+                    },
+                    "required": [
+                      "script"
+                    ]
                   },
 
                   {

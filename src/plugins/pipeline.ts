@@ -106,7 +106,7 @@ export interface PipelineModule {
 function getScriptFile(target: DeployTargetPipeline): string {
     let scriptFile = deploy_helpers.toStringSafe(target.script);
     if (!scriptFile) {
-        scriptFile = './pipe.js';
+        scriptFile = './pipeline.js';
     }
 
     if (!Path.isAbsolute(scriptFile)) {
@@ -221,7 +221,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Pipes a list of sources files to a new destination by using a script and sends the new file list to a target.',
+            description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.',
         };
     }
 }
