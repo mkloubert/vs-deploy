@@ -215,7 +215,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
                                               try {
                                                   if (scriptModule.onPipeCompleted) {
-                                                      scriptModule.onPipeCompleted(e.error, a).then(() => {
+                                                      scriptModule.onPipeCompleted(a, e.error).then(() => {
                                                           pipeCompleted();
                                                       }).catch((err) => {
                                                           me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(2): ${deploy_helpers.toStringSafe(err)}`);
