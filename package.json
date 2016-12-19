@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.16.0",
+  "version": "3.17.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -204,7 +204,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to an app, like a script or executable, on the local machine.",
-                        "enum": [ "app" ]
+                        "enum": [
+                          "app"
+                        ]
                       },
                       "app": {
                         "type": "string",
@@ -227,7 +229,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -247,7 +248,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to one or more other target.",
-                        "enum": [ "batch" ]
+                        "enum": [
+                          "batch"
+                        ]
                       },
                       "targets": {
                         "description": "One or more names of other targets to deploy to.",
@@ -265,7 +268,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -302,7 +304,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a FTP server.",
-                        "enum": [ "ftp" ]
+                        "enum": [
+                          "ftp"
+                        ]
                       },
                       "dir": {
                         "type": "string",
@@ -337,7 +341,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -374,7 +377,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a HTTP server/service.",
-                        "enum": [ "http" ]
+                        "enum": [
+                          "http"
+                        ]
                       },
                       "headers": {
                         "type": "object",
@@ -427,7 +432,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -447,7 +451,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN.",
-                        "enum": [ "local" ]
+                        "enum": [
+                          "local"
+                        ]
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -478,7 +484,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -498,7 +503,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a ZIP file and sends it as attachment by mail via SMTP.",
-                        "enum": [ "mail" ]
+                        "enum": [
+                          "mail"
+                        ]
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -567,7 +574,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -587,7 +593,9 @@
                       "type": {
                         "type": "string",
                         "description": "Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.",
-                        "enum": [ "pipeline" ]
+                        "enum": [
+                          "pipeline"
+                        ]
                       },
                       "options": {
                         "description": "Optional value or object for the execution."
@@ -606,7 +614,6 @@
                       "script"
                     ]
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -626,7 +633,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a remote machine over a TCP connection like another VS Code instance.",
-                        "enum": [ "remote" ]
+                        "enum": [
+                          "remote"
+                        ]
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -669,7 +678,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -689,7 +697,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a SFTP server.",
-                        "enum": [ "sftp" ]
+                        "enum": [
+                          "sftp"
+                        ]
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -719,7 +729,7 @@
                         "default": "md5"
                       },
                       "hashes": {
-                        "oneOf":[
+                        "oneOf": [
                           {
                             "type": "string"
                           },
@@ -763,7 +773,6 @@
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -783,7 +792,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys via a JS script.",
-                        "enum": [ "script" ]
+                        "enum": [
+                          "script"
+                        ]
                       },
                       "options": {
                         "description": "Optional value or object for the execution."
@@ -798,7 +809,6 @@
                       "script"
                     ]
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -818,11 +828,12 @@
                       "type": {
                         "type": "string",
                         "description": "A mock deployer that only checks what files will be deployed.",
-                        "enum": [ "test" ]
+                        "enum": [
+                          "test"
+                        ]
                       }
                     }
                   },
-
                   {
                     "type": "object",
                     "properties": {
@@ -842,7 +853,9 @@
                       "type": {
                         "type": "string",
                         "description": "Deploys to a ZIP file.",
-                        "enum": [ "zip" ]
+                        "enum": [
+                          "zip"
+                        ]
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -914,7 +927,6 @@
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",
     "opn": "^4.0.2",
-    "ssh2-sftp-client": "^1.0.5",
-    "zip": "^1.2.0"
+    "ssh2-sftp-client": "^1.0.5"
   }
 }
