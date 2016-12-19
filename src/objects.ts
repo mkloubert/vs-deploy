@@ -364,6 +364,9 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
     }
 }
 
+/**
+ * A deployer plugin that creates a ZIP file to deploy files to.
+ */
 export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBase<any> {
     /** @inheritdoc */
     protected createContext(target: deploy_contracts.DeployTarget): Promise<DeployPluginContextWrapper<any>> {
