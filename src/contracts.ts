@@ -170,21 +170,29 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          */
         maxMessageSize?: number;
         /**
+         * The path to a module that UNtransforms received message data.
+         * 
+         * s. 'TranformerModule' interface
+         */
+        messageTransformer?: string;
+        /**
+         * The optional options for the "message data" transformer script.
+         */
+        messageTransformerOptions?: any;
+        /**
          * The TCP port on that the host should listen.
          */
         port?: number;
         /**
-         * The path to a module that UNtransforms received data.
+         * The path to a module that UNtransforms received file data.
          * 
          * s. 'TranformerModule' interface
          */
         transformer?: string;
         /**
-         * The path to a module that UNtransforms received data.
-         * 
-         * s. 'TranformerModule' interface
+         * The optional options for the "file data" transformer script.
          */
-        transformerOptions?: string;
+        transformerOptions?: any;
     },
     /**
      * List of additional files of plugin modules to load.

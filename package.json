@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.15.0",
+  "version": "3.16.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -91,6 +91,14 @@
                   "default": 16777215,
                   "minimum": 1
                 },
+                "messageTransformer": {
+                  "type": "string",
+                  "description": "The optional path to the script that transforms the data of a whole message AFTER it has been received.",
+                  "default": "./my-remote-transformer.js"
+                },
+                "messageTransformerOptions": {
+                  "description": "The data for the 'message data transformation', if needed."
+                },
                 "port": {
                   "type": "integer",
                   "description": "The TCP port the host should be listen on.",
@@ -104,7 +112,7 @@
                   "default": "./my-remote-transformer.js"
                 },
                 "transformerOptions": {
-                  "description": "The data for the 'data transformation', if needed."
+                  "description": "The data for the 'file data transformation', if needed."
                 }
               }
             },

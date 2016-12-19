@@ -648,8 +648,10 @@ export class Deployer {
         let cfg = me.config;
 
         let dir: string;
-        let port = deploy_contracts.DEFAULT_PORT;
+        let jsonTransformer: deploy_contracts.DataTransformer;
+        let jsonTransformerOpts: any;
         let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
+        let port = deploy_contracts.DEFAULT_PORT;
         let transformer: deploy_contracts.DataTransformer;
         let transformerOpts: any;
         if (cfg.host) {
@@ -661,12 +663,23 @@ export class Deployer {
 
             dir = cfg.host.dir;
 
+            // file data transformer
             transformerOpts = cfg.host.transformerOptions;
             if (cfg.host.transformer) {
                 let transformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.transformer);
                 if (transformerModule) {
                     transformer = transformerModule.restoreData ||
                                   transformerModule.transformData;
+                }
+            }
+
+            // JSON data transformer
+            jsonTransformerOpts = cfg.host.messageTransformerOptions;
+            if (cfg.host.messageTransformer) {
+                let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.messageTransformer);
+                if (jsonTransformerModule) {
+                    jsonTransformer = jsonTransformerModule.restoreData ||
+                                      jsonTransformerModule.transformData;
                 }
             }
         }
@@ -712,11 +725,11 @@ export class Deployer {
                         return;
                     }
 
-                    deploy_helpers.readSocket(socket, dataLength).then((buff) => {
+                    deploy_helpers.readSocket(socket, dataLength).then((msgBuff) => {
                         closeSocket();
 
-                        if (buff.length != dataLength) {  // non-exptected data length
-                            me.log(`[WARN] Deployer.listen().createServer(): Invalid buffer length ${buff.length}`);
+                        if (msgBuff.length != dataLength) {  // non-exptected data length
+                            me.log(`[WARN] Deployer.listen().createServer(): Invalid buffer length ${msgBuff.length}`);
 
                             return;
                         }
@@ -739,222 +752,231 @@ export class Deployer {
                             }
                         };
 
-                        try {
-                            let json = buff.toString('utf8');
-                            
-                            let file: RemoteFile;
-                            if (json) {
-                                file = JSON.parse(json);
-                            }
+                        // restore "transformered" JSON message
+                        jsonTransformer({
+                            data: msgBuff,
+                            options: jsonTransformerOpts,
+                            mode: deploy_contracts.DataTransformerMode.Restore,
+                        }).then((untransformedMsgBuff) => {
+                            try {
+                                let json = untransformedMsgBuff.toString('utf8');
+                                
+                                let file: RemoteFile;
+                                if (json) {
+                                    file = JSON.parse(json);
+                                }
 
-                            if (file) {
-                                // output that we are receiving a file...
-                                let receiveFileMsg = `Receiving file`;
-                                if (!deploy_helpers.isNullOrUndefined(file.nr)) {
-                                    let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
-                                    if (!isNaN(fileNr)) {
-                                        receiveFileMsg += ` (${fileNr}`;
-                                        if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
-                                            let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
-                                            if (!isNaN(totalCount)) {
-                                                receiveFileMsg += ` / ${totalCount}`;
+                                if (file) {
+                                    // output that we are receiving a file...
+                                    let receiveFileMsg = `Receiving file`;
+                                    if (!deploy_helpers.isNullOrUndefined(file.nr)) {
+                                        let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
+                                        if (!isNaN(fileNr)) {
+                                            receiveFileMsg += ` (${fileNr}`;
+                                            if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
+                                                let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
+                                                if (!isNaN(totalCount)) {
+                                                    receiveFileMsg += ` / ${totalCount}`;
 
-                                                if (0 != totalCount) {
-                                                    let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
-                                                    
-                                                    receiveFileMsg += `; ${percentage}%`;
+                                                    if (0 != totalCount) {
+                                                        let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
+                                                        
+                                                        receiveFileMsg += `; ${percentage}%`;
+                                                    }
                                                 }
                                             }
+                                            receiveFileMsg += ")";
                                         }
-                                        receiveFileMsg += ")";
                                     }
-                                }
-                                receiveFileMsg += ` from '${remoteAddr}:${remotePort}'... `;
+                                    receiveFileMsg += ` from '${remoteAddr}:${remotePort}'... `;
 
-                                me.outputChannel.append(receiveFileMsg);
+                                    me.outputChannel.append(receiveFileMsg);
 
-                                file.name = deploy_helpers.toStringSafe(file.name);
-                                file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
+                                    file.name = deploy_helpers.toStringSafe(file.name);
+                                    file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
 
-                                if (file.name) {
-                                    let fileCompleted = (err?: any) => {
-                                        completed(err, file.name);
-                                    };
+                                    if (file.name) {
+                                        let fileCompleted = (err?: any) => {
+                                            completed(err, file.name);
+                                        };
 
-                                    try {
-                                        let base64 = deploy_helpers.toStringSafe(file.data);
+                                        try {
+                                            let base64 = deploy_helpers.toStringSafe(file.data);
 
-                                        let data: Buffer;
-                                        if (base64) {
-                                            data = new Buffer(base64, 'base64');
-                                        }
-                                        else {
-                                            data = Buffer.alloc(0);
-                                        }
-                                        file.data = data;
+                                            let data: Buffer;
+                                            if (base64) {
+                                                data = new Buffer(base64, 'base64');
+                                            }
+                                            else {
+                                                data = Buffer.alloc(0);
+                                            }
+                                            file.data = data;
 
-                                        let handleData = function(data: Buffer) {
-                                            try {
-                                                while (0 == file.name.indexOf('/')) {
-                                                    file.name = file.name.substr(1);
-                                                }
+                                            let handleData = function(data: Buffer) {
+                                                try {
+                                                    while (0 == file.name.indexOf('/')) {
+                                                        file.name = file.name.substr(1);
+                                                    }
 
-                                                if (file.name) {
-                                                    let targetFile = Path.join(dir, file.name);
-                                                    let targetDir = Path.dirname(targetFile);
-                                                    
-                                                    let copyFile = () => {
-                                                        try {
-                                                            FS.writeFile(targetFile, file.data, (err) => {
-                                                                if (err) {
-                                                                    fileCompleted(err);
-                                                                    return;
-                                                                }
-
-                                                                fileCompleted();
-                                                            });
-                                                        }
-                                                        catch (e) {
-                                                            fileCompleted(e);
-                                                        }
-                                                    };
-
-                                                    // check if targetDir is a directory
-                                                    let checkIfTargetDirIsDir = () => {
-                                                        FS.lstat(targetDir, (err, stats) => {
-                                                            if (err) {
-                                                                fileCompleted(err);
-                                                                return;
-                                                            }
-
-                                                            if (stats.isDirectory()) {
-                                                                copyFile();  // yes, continue...
-                                                            }
-                                                            else {
-                                                                // no => ERROR
-                                                                fileCompleted(new Error(`'${targetDir}' is not directory!`));
-                                                            }
-                                                        });
-                                                    };
-
-                                                    // check if targetDir exists
-                                                    let checkIfTargetDirExists = () => {
-                                                        FS.exists(targetDir, (exists) => {
-                                                            if (exists) {
-                                                                // yes, continue...
-                                                                checkIfTargetDirIsDir();
-                                                            }
-                                                            else {
-                                                                // no, try to create
-                                                                FSExtra.mkdirs(targetDir, function (err) {
-                                                                    if (err) {
-                                                                        fileCompleted(err);
-                                                                        return;
-                                                                    }
-
-                                                                    checkIfTargetDirIsDir();
-                                                                });
-                                                            }
-                                                        });
-                                                    };
-                                                    
-                                                    FS.exists(targetFile, (exists) => {
-                                                        if (exists) {
+                                                    if (file.name) {
+                                                        let targetFile = Path.join(dir, file.name);
+                                                        let targetDir = Path.dirname(targetFile);
+                                                        
+                                                        let copyFile = () => {
                                                             try {
-                                                                FS.lstat(targetFile, (err, stats) => {
+                                                                FS.writeFile(targetFile, file.data, (err) => {
                                                                     if (err) {
                                                                         fileCompleted(err);
                                                                         return;
                                                                     }
 
-                                                                    if (stats.isFile()) {
-                                                                        FS.unlink(targetFile, (err) => {
-                                                                            if (err) {
-                                                                                fileCompleted(err);
-                                                                                return;
-                                                                            }
-
-                                                                            checkIfTargetDirExists();
-                                                                        });
-                                                                    }
-                                                                    else {
-                                                                        fileCompleted(new Error(`'${targetFile}' is no file!`));
-                                                                    }
+                                                                    fileCompleted();
                                                                 });
                                                             }
                                                             catch (e) {
                                                                 fileCompleted(e);
                                                             }
-                                                        }
-                                                        else {
-                                                            checkIfTargetDirExists();
-                                                        }
+                                                        };
+
+                                                        // check if targetDir is a directory
+                                                        let checkIfTargetDirIsDir = () => {
+                                                            FS.lstat(targetDir, (err, stats) => {
+                                                                if (err) {
+                                                                    fileCompleted(err);
+                                                                    return;
+                                                                }
+
+                                                                if (stats.isDirectory()) {
+                                                                    copyFile();  // yes, continue...
+                                                                }
+                                                                else {
+                                                                    // no => ERROR
+                                                                    fileCompleted(new Error(`'${targetDir}' is not directory!`));
+                                                                }
+                                                            });
+                                                        };
+
+                                                        // check if targetDir exists
+                                                        let checkIfTargetDirExists = () => {
+                                                            FS.exists(targetDir, (exists) => {
+                                                                if (exists) {
+                                                                    // yes, continue...
+                                                                    checkIfTargetDirIsDir();
+                                                                }
+                                                                else {
+                                                                    // no, try to create
+                                                                    FSExtra.mkdirs(targetDir, function (err) {
+                                                                        if (err) {
+                                                                            fileCompleted(err);
+                                                                            return;
+                                                                        }
+
+                                                                        checkIfTargetDirIsDir();
+                                                                    });
+                                                                }
+                                                            });
+                                                        };
+                                                        
+                                                        FS.exists(targetFile, (exists) => {
+                                                            if (exists) {
+                                                                try {
+                                                                    FS.lstat(targetFile, (err, stats) => {
+                                                                        if (err) {
+                                                                            fileCompleted(err);
+                                                                            return;
+                                                                        }
+
+                                                                        if (stats.isFile()) {
+                                                                            FS.unlink(targetFile, (err) => {
+                                                                                if (err) {
+                                                                                    fileCompleted(err);
+                                                                                    return;
+                                                                                }
+
+                                                                                checkIfTargetDirExists();
+                                                                            });
+                                                                        }
+                                                                        else {
+                                                                            fileCompleted(new Error(`'${targetFile}' is no file!`));
+                                                                        }
+                                                                    });
+                                                                }
+                                                                catch (e) {
+                                                                    fileCompleted(e);
+                                                                }
+                                                            }
+                                                            else {
+                                                                checkIfTargetDirExists();
+                                                            }
+                                                        });
+                                                    }
+                                                    else {
+                                                        fileCompleted(new Error('No filename (2)!'));
+                                                    }
+                                                    // if (file.name) #2
+                                                }
+                                                catch (e) {
+                                                    fileCompleted(e);
+                                                }
+                                            };  // handleData()
+
+                                            let untransformTheData = function(data?: Buffer) {
+                                                if (arguments.length > 0) {
+                                                    file.data = data;
+                                                }
+
+                                                try {
+                                                    transformer({
+                                                        data: file.data,
+                                                        options: transformerOpts,
+                                                        mode: deploy_contracts.DataTransformerMode.Restore,
+                                                    }).then((untransformedData) => {
+                                                        file.data = untransformedData;
+
+                                                        handleData(untransformedData);
+                                                    }).catch((err) => {
+                                                        fileCompleted(err);
                                                     });
                                                 }
-                                                else {
-                                                    fileCompleted(new Error('No filename (2)!'));
+                                                catch (e) {
+                                                    fileCompleted(e);
                                                 }
-                                                // if (file.name) #2
-                                            }
-                                            catch (e) {
-                                                fileCompleted(e);
-                                            }
-                                        };  // handleData()
+                                            };  // untransformTheData()
 
-                                        let untransformTheData = function(data?: Buffer) {
-                                            if (arguments.length > 0) {
-                                                file.data = data;
-                                            }
+                                            if (file.isCompressed) {
+                                                ZLib.gunzip(file.data, (err, uncompressedData) => {
+                                                    if (err) {
+                                                        fileCompleted(err);
+                                                        return;
+                                                    }
 
-                                            try {
-                                                transformer({
-                                                    data: file.data,
-                                                    options: transformerOpts,
-                                                    mode: deploy_contracts.DataTransformerMode.Restore,
-                                                }).then((untransformedData) => {
-                                                    file.data = untransformedData;
-
-                                                    handleData(untransformedData);
-                                                }).catch((err) => {
-                                                    fileCompleted(err);
+                                                    untransformTheData(uncompressedData);                                                
                                                 });
                                             }
-                                            catch (e) {
-                                                fileCompleted(e);
+                                            else {
+                                                untransformTheData();
                                             }
-                                        };  // untransformTheData()
-
-                                        if (file.isCompressed) {
-                                            ZLib.gunzip(file.data, (err, uncompressedData) => {
-                                                if (err) {
-                                                    fileCompleted(err);
-                                                    return;
-                                                }
-
-                                                untransformTheData(uncompressedData);                                                
-                                            });
                                         }
-                                        else {
-                                            untransformTheData();
+                                        catch (e) {
+                                            fileCompleted(e);
                                         }
                                     }
-                                    catch (e) {
-                                        fileCompleted(e);
+                                    else {
+                                        completed(new Error('No filename (1)!'));
                                     }
+                                    // if (file.name) #1
                                 }
                                 else {
-                                    completed(new Error('No filename (1)!'));
+                                    completed(new Error('No data!'));
                                 }
-                                // if (file.name) #1
+                                // if (file)
                             }
-                            else {
-                                completed(new Error('No data!'));
+                            catch (e) {
+                                completed(e);
                             }
-                            // if (file)
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
+                        }).catch((err) => {
+                            completed(err);
+                        });
                     }).catch((err) => {
                         me.log(`[ERROR] Deployer.listen().createServer(3): ${deploy_helpers.toStringSafe(err)}`);
 
