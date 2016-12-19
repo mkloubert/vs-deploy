@@ -689,6 +689,7 @@ export class Deployer {
             dir = Path.join(vscode.workspace.rootPath, dir);
         }
 
+        jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
         transformer = deploy_helpers.toDataTransformerSafe(transformer);
 
         let showError = (err: any) => {
