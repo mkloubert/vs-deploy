@@ -36,9 +36,15 @@ import * as ZLib from 'zlib';
 
 
 interface RemoteFile {
-    data: Buffer;
-    isCompressed: boolean;
-    name: string;
+    data?: Buffer;
+    isCompressed?: boolean;
+    isFirst?: boolean;
+    isLast?: boolean;
+    name?: string;
+    nr?: number;
+    session?: string;
+    tag?: any;
+    totalCount?: number;
 }
 
 /**
@@ -714,8 +720,6 @@ export class Deployer {
 
                             return;
                         }
-
-                        me.outputChannel.append(`Receiving file from '${remoteAddr}:${remotePort}'... `);
                         
                         let completed = (err?: any, file?: string) => {
                             if (err) {
@@ -744,6 +748,31 @@ export class Deployer {
                             }
 
                             if (file) {
+                                // output that we are receiving a file...
+                                let receiveFileMsg = `Receiving file`;
+                                if (!deploy_helpers.isNullOrUndefined(file.nr)) {
+                                    let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
+                                    if (!isNaN(fileNr)) {
+                                        receiveFileMsg += ` (${fileNr}`;
+                                        if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
+                                            let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
+                                            if (!isNaN(totalCount)) {
+                                                receiveFileMsg += ` / ${totalCount}`;
+
+                                                if (0 != totalCount) {
+                                                    let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
+                                                    
+                                                    receiveFileMsg += `; ${percentage}%`;
+                                                }
+                                            }
+                                        }
+                                        receiveFileMsg += ")";
+                                    }
+                                }
+                                receiveFileMsg += ` from '${remoteAddr}:${remotePort}'... `;
+
+                                me.outputChannel.append(receiveFileMsg);
+
                                 file.name = deploy_helpers.toStringSafe(file.name);
                                 file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
 

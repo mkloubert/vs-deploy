@@ -222,10 +222,12 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * Creates a new context for a target.
      * 
      * @param {target: deploy_contracts.DeployTarget} target The target.
+     * @param {string[]} files The files to deploy.
      * 
      * @return {Promise<DeployPluginContextWrapper<TContext>>} The promise.
      */
-    protected abstract createContext(target: deploy_contracts.DeployTarget): Promise<DeployPluginContextWrapper<TContext>>;
+    protected abstract createContext(target: deploy_contracts.DeployTarget,
+                                     files: string[]): Promise<DeployPluginContextWrapper<TContext>>;
 
     /**
      * Deploys a file by using a context.
@@ -293,7 +295,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
         try {
             // create context...
-            this.createContext(target).then((wrapper) => {
+            this.createContext(target, files).then((wrapper) => {
                 try {
                     let deployNext: () => void;
 

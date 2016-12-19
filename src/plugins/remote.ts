@@ -27,7 +27,9 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
+import * as Moment from 'moment';
 import * as Net from 'net';
+const UUID = require('node-uuid');
 import * as ZLib from 'zlib';
 
 
@@ -40,21 +42,64 @@ interface DeployTargetRemote extends deploy_contracts.DeployTarget {
 interface RemoteFile {
     data?: string;
     isCompressed?: boolean;
+    isFirst: boolean;
+    isLast: boolean;
     name: string;
+    nr: number;
+    session: string;
+    tag?: any;
+    totalCount: number;
 }
 
+interface RemoteContext {
+    counter: number;
+    hosts: string[];
+    session: string;
+    totalCount: number;
+}
 
-class RemotePlugin extends deploy_objects.DeployPluginBase {
-    public deployFile(file: string, target: DeployTargetRemote, opts?: deploy_contracts.DeployFileOptions): void {
+class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteContext> {
+    protected createContext(target: DeployTargetRemote,
+                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<RemoteContext>> {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<RemoteContext>>((resolve, reject) => {
+            try {
+                let now = Moment().utc();
+
+                let hosts = deploy_helpers.asArray(target.hosts)
+                                          .map(x => deploy_helpers.toStringSafe(x))
+                                          .filter(x => x);
+
+                let id = deploy_helpers.toStringSafe(UUID.v4());
+                id = deploy_helpers.replaceAllStrings(id, '-', '');
+
+                let ctx: RemoteContext = {
+                    counter: 0,
+                    hosts: hosts,
+                    session: `${now.format('YYYYMMDDHHmmss')}-${id}`,
+                    totalCount: files.length,
+                };
+                
+                let wrapper: deploy_objects.DeployPluginContextWrapper<RemoteContext> = {
+                    context: ctx,
+                };
+
+                resolve(wrapper);
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    protected deployFileWithContext(ctx: RemoteContext,
+                                    file: string, target: DeployTargetRemote, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
         }
 
         let me = this;
 
-        let hosts = deploy_helpers.asArray(target.hosts)
-                                  .map(x => deploy_helpers.toStringSafe(x))
-                                  .filter(x => x);
+        ++ctx.counter;
 
         let allErrors: any[] = [];
         let completed = (err?: any, canceled?: boolean) => {
@@ -127,7 +172,12 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 let remoteFile: RemoteFile = {
+                    isFirst: 1 == ctx.counter,
+                    isLast: ctx.counter == ctx.totalCount,
                     name: <string>relativePath,
+                    nr: ctx.counter,
+                    session: ctx.session,
+                    totalCount: ctx.totalCount,
                 };
 
                 transformer({
@@ -161,7 +211,7 @@ class RemotePlugin extends deploy_objects.DeployPluginBase {
                             return;
                         }
 
-                        let hostsTodo = hosts.map(x => x);
+                        let hostsTodo = ctx.hosts.map(x => x);
                         let deployNext: () => void;
                         deployNext = () => {
                             if (hostsTodo.length < 1) {
