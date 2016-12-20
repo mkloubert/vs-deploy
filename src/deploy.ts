@@ -806,11 +806,31 @@ export class Deployer {
                         let operationTarget = deploy_helpers.toStringSafe(openOperation.target);
                         let waitForExit = deploy_helpers.toBooleanSafe(openOperation.wait, true);
 
+                        let openArgs = [];
+                        if (openOperation.arguments) {
+                            openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
+                        }
+                        openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
+                                           .filter(x => x);
+
+                        if (openArgs.length > 0) {
+                            let app = operationTarget;
+
+                            operationTarget = openArgs.pop();
+                            openArgs = [ app ].concat(openArgs);
+                        }
+
                         me.outputChannel.append(`Opening '${operationTarget}'... `);
-                        OPN(deploy_helpers.toStringSafe(operationTarget), {
+
+                        nextAction = null;
+                        OPN(operationTarget, {
+                            app: openArgs,
                             wait: waitForExit,
+                        }).then(() => {
+                            me.outputChannel.appendLine('[OK]');
+
+                            completed();
                         });
-                        me.outputChannel.appendLine('[OK]');
                         break;
 
                     case 'wait':

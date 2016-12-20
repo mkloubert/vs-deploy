@@ -395,6 +395,10 @@ export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
  */
 export interface DeployOpenOperation extends DeployOperation {
     /**
+     * List of arguments to send to the target.
+     */
+    arguments?: string | string[];
+    /**
      * The type.
      */
     target?: string;
