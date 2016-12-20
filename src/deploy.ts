@@ -1685,6 +1685,7 @@ export class Deployer {
                 let deployNextPackage: () => void;
                 deployNextPackage = () => {
                     if (packagesToDeploy.length < 1) {
+                        completed();
                         return;
                     }
 
@@ -1701,6 +1702,7 @@ export class Deployer {
                         let deployNextTarget: () => void;
                         deployNextTarget = () => {
                             if (targets.length < 1) {
+                                deployNextPackage();
                                 return;
                             }
 
