@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.21.1",
+  "version": "3.22.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -76,6 +76,36 @@
         "deploy": {
           "type": "object",
           "properties": {
+            "button": {
+              "type": "object",
+              "description": "Settings for the 'quick deploy button' in the status bar.",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Inidciates if button should be enabled / visible or not.",
+                  "default": false
+                },
+                "packages": {
+                  "description": "A list of one or more packages to deploy.",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "description": "A custom text for the button.",
+                  "default": "Quick deploy!"
+                }
+              }
+            },
             "host": {
               "type": "object",
               "description": "Options for 'host mode'.",

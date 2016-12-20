@@ -64,6 +64,10 @@ export class Deployer {
      */
     protected _isCancelling: boolean;
     /**
+     * Stores the global output channel.
+     */
+    protected _OUTPUT_CHANNEL: vscode.OutputChannel;
+    /**
      * Stores the package file of that extension.
      */
     protected _PACKAGE_FILE: deploy_contracts.PackageFile;
@@ -72,9 +76,9 @@ export class Deployer {
      */
     protected _plugins: deploy_contracts.DeployPlugin[];
     /**
-     * Stores the global output channel.
+     * The "quick deploy button".
      */
-    protected _OUTPUT_CHANNEL: vscode.OutputChannel;
+    protected _QUICK_DEPLOY_STATUS_ITEM: vscode.StatusBarItem;
     /**
      * Stores the current server instance.
      */
@@ -97,6 +101,10 @@ export class Deployer {
         this._CONTEXT = context;
         this._OUTPUT_CHANNEL = outputChannel;
         this._PACKAGE_FILE = pkgFile;
+
+        this._QUICK_DEPLOY_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
+        this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
 
         this.reloadConfiguration();
         this.reloadPlugins();
@@ -511,13 +519,17 @@ export class Deployer {
                             return;  // no files here anymore
                         }
                         
-                        me.deployWorkspaceTo(filesToDeploy, t);
+                        me.deployWorkspaceTo(filesToDeploy, t).then(() => {
+                            //TODO
+                        }).catch((err) => {
+                            vscode.window.showErrorMessage(`Could not deploy files (2): ${deploy_helpers.toStringSafe(err)}`);
+                        });
                     }).catch((err) => {
                         vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
                     });
                 }
                 catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy files: ` + e);
+                    vscode.window.showErrorMessage(`Could not deploy files (1): ${deploy_helpers.toStringSafe(e)}`);
                 }
             };
 
@@ -590,136 +602,151 @@ export class Deployer {
      * 
      * @param {string[]} files The files to deploy.
      * @param {deploy_contracts.DeployTarget} target The target.
+     * 
+     * @returns {Promise<any>} The promise.
      */
-    protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget) {
+    protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
-        let type = deploy_helpers.parseTargetType(target.type);
-
-        let matchIngPlugins = this.plugins.filter(x => {
-            return !type ||
-                   (x.__type == type && x.deployWorkspace);
-        });
-
-        if (matchIngPlugins.length > 0) {
-            matchIngPlugins.forEach(x => {
-                try {
-                    let statusBarItem = vscode.window.createStatusBarItem(
-                        vscode.StatusBarAlignment.Left,
-                    );
-
-                    let failed: string[] = [];
-                    let succeeded: string[] = [];
-                    let showResult = (err?: any, canceled?: boolean) => {
-                        canceled = deploy_helpers.toBooleanSafe(canceled);
-                        me.resetIsCancelling();
-
-                        statusBarItem.dispose();
-
-                        let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
-                        if (targetExpr) {
-                            targetExpr = ` to '${targetExpr}'`;
-                        }
-
-                        if (err) {
-                            vscode.window.showErrorMessage(`Deploying${targetExpr} failed: ${deploy_helpers.toStringSafe(err)}`);
-                        }
-                        else {
-                            if (failed.length > 0) {
-                                if (succeeded.length < 1) {
-                                    vscode.window.showErrorMessage(`No file could be deployed${targetExpr}!`);
-                                }
-                                else {
-                                    vscode.window.showWarningMessage(`${failed.length} of the ${succeeded.length + failed.length} file(s) could not be deployed${targetExpr}!`);
-                                }
-                            }
-                            else {
-                                if (succeeded.length > 0) {
-                                    vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully${targetExpr}.`);
-                                }
-                                else {
-                                    vscode.window.showWarningMessage(`No file deployed${targetExpr}.`);
-                                }
-                            }
-                        }
-
-                        if (err || failed.length > 0) {
-                            if (canceled) {
-                                me.outputChannel.appendLine('Canceled with errors!');
-                            }
-                            else {
-                                me.outputChannel.appendLine('Finished with errors!');
-                            }
-                        }
-                        else {
-                            if (canceled) {
-                                me.outputChannel.appendLine('Canceled.');
-                            }
-                            else {
-                                me.outputChannel.appendLine('Finished.');
-
-                                me.afterDeployment(files, target).catch((err) => {
-                                    vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(err)}`);
-                                });
-                            }
-                        }
-                    };
-
-                    statusBarItem.color = '#ffffff';
-                    statusBarItem.command = 'extension.deploy.cancel';
-                    statusBarItem.text = 'Deploying...';
-                    statusBarItem.tooltip = 'Click here to cancel deployment...';
-                    statusBarItem.show();
-
-                    x.deployWorkspace(files, target, {
-                        onBeforeDeployFile: (sender, e) => {
-                            let relativePath = deploy_helpers.toRelativePath(e.file);
-                            if (false === relativePath) {
-                                relativePath = e.file;
-                            }
-
-                            let statusMsg = `Deploying '${relativePath}'`;
-
-                            let destination = deploy_helpers.toStringSafe(e.destination);
-                            if (destination) {
-                                statusMsg += ` to '${destination}'`;
-                            }
-
-                            statusBarItem.tooltip = statusMsg + ' (click here to cancel)';
-                            me.outputChannel.append(statusMsg + '... ');
-                        },
-
-                        onCompleted: (sender, e) => {
-                            showResult(e.error, e.canceled);
-                        },
-
-                        onFileCompleted: (sender, e) => {
-                            if (e.error) {
-                                me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
-
-                                failed.push(e.file);
-                            }
-                            else {
-                                me.outputChannel.appendLine('[OK]');
-
-                                succeeded.push(e.file);
-                            }
-                        }
-                    });
+        return new Promise<any>((resolve, reject) => {
+            let completed = (err?: any, canceled?: boolean) => {
+                if (completed) {
+                    reject(err);
                 }
-                catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy files: ${e}`);
+                else {
+                    resolve(canceled);
                 }
+            };
+
+            let type = deploy_helpers.parseTargetType(target.type);
+
+            let matchIngPlugins = this.plugins.filter(x => {
+                return !type ||
+                    (x.__type == type && x.deployWorkspace);
             });
-        }
-        else {
-            if (type) {
-                vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
+
+            if (matchIngPlugins.length > 0) {
+                matchIngPlugins.forEach(x => {
+                    try {
+                        let statusBarItem = vscode.window.createStatusBarItem(
+                            vscode.StatusBarAlignment.Left,
+                        );
+
+                        let failed: string[] = [];
+                        let succeeded: string[] = [];
+                        let showResult = (err?: any, canceled?: boolean) => {
+                            canceled = deploy_helpers.toBooleanSafe(canceled);
+                            me.resetIsCancelling();
+
+                            statusBarItem.dispose();
+
+                            let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+                            if (targetExpr) {
+                                targetExpr = ` to '${targetExpr}'`;
+                            }
+
+                            if (err) {
+                                vscode.window.showErrorMessage(`Deploying${targetExpr} failed: ${deploy_helpers.toStringSafe(err)}`);
+                            }
+                            else {
+                                if (failed.length > 0) {
+                                    if (succeeded.length < 1) {
+                                        vscode.window.showErrorMessage(`No file could be deployed${targetExpr}!`);
+                                    }
+                                    else {
+                                        vscode.window.showWarningMessage(`${failed.length} of the ${succeeded.length + failed.length} file(s) could not be deployed${targetExpr}!`);
+                                    }
+                                }
+                                else {
+                                    if (succeeded.length > 0) {
+                                        vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully${targetExpr}.`);
+                                    }
+                                    else {
+                                        vscode.window.showWarningMessage(`No file deployed${targetExpr}.`);
+                                    }
+                                }
+                            }
+
+                            if (err || failed.length > 0) {
+                                if (canceled) {
+                                    me.outputChannel.appendLine('Canceled with errors!');
+                                }
+                                else {
+                                    me.outputChannel.appendLine('Finished with errors!');
+                                }
+                            }
+                            else {
+                                if (canceled) {
+                                    me.outputChannel.appendLine('Canceled.');
+                                }
+                                else {
+                                    me.outputChannel.appendLine('Finished.');
+
+                                    me.afterDeployment(files, target).catch((err) => {
+                                        vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(err)}`);
+                                    });
+                                }
+                            }
+
+                            completed(err, canceled);
+                        };
+
+                        statusBarItem.color = '#ffffff';
+                        statusBarItem.command = 'extension.deploy.cancel';
+                        statusBarItem.text = 'Deploying...';
+                        statusBarItem.tooltip = 'Click here to cancel deployment...';
+                        statusBarItem.show();
+
+                        x.deployWorkspace(files, target, {
+                            onBeforeDeployFile: (sender, e) => {
+                                let relativePath = deploy_helpers.toRelativePath(e.file);
+                                if (false === relativePath) {
+                                    relativePath = e.file;
+                                }
+
+                                let statusMsg = `Deploying '${relativePath}'`;
+
+                                let destination = deploy_helpers.toStringSafe(e.destination);
+                                if (destination) {
+                                    statusMsg += ` to '${destination}'`;
+                                }
+
+                                statusBarItem.tooltip = statusMsg + ' (click here to cancel)';
+                                me.outputChannel.append(statusMsg + '... ');
+                            },
+
+                            onCompleted: (sender, e) => {
+                                showResult(e.error, e.canceled);
+                            },
+
+                            onFileCompleted: (sender, e) => {
+                                if (e.error) {
+                                    me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
+
+                                    failed.push(e.file);
+                                }
+                                else {
+                                    me.outputChannel.appendLine('[OK]');
+
+                                    succeeded.push(e.file);
+                                }
+                            }
+                        });
+                    }
+                    catch (e) {
+                        vscode.window.showErrorMessage(`Could not deploy files: ${e}`);
+                    }
+                });
             }
             else {
-                vscode.window.showWarningMessage(`No plugin(s) found!`);
+                if (type) {
+                    vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
+                }
+                else {
+                    vscode.window.showWarningMessage(`No plugin(s) found!`);
+                }
             }
-        }
+        });
     }
 
     /**
@@ -1528,10 +1555,138 @@ export class Deployer {
     }
 
     /**
+     * Does a "quick deploy".
+     */
+    public quickDeploy() {
+        let me = this;
+
+        try {
+            let cfg = this.config;
+
+            let packagesToDeploy: deploy_contracts.DeployPackage[] = [];
+
+            if (cfg.button) {
+                let normalizeString = (val: any): string => {
+                    return deploy_helpers.toStringSafe(val)
+                                         .toLowerCase().trim();
+                };
+
+                let packageNames = deploy_helpers.asArray(cfg.button.packages)
+                                                 .map(x => normalizeString(x))
+                                                 .filter(x => x);
+
+                let knownPackages = this.getPackages();
+
+                packageNames.forEach(pn => {
+                    let found = false;
+
+                    for (let i = 0; i < knownPackages.length; i++) {
+                        let kp = knownPackages[i];
+                        if (normalizeString(kp.name) == pn) {
+                            found = true;
+                            packagesToDeploy.push(kp);
+                        }
+                    }
+
+                    if (!found) {
+                        vscode.window.showWarningMessage(`Package '${pn}' not found!`);
+                    }
+                });
+            }
+
+            let completed = (err?: any, cancelled?: boolean) => {
+                let cfg = me.config;
+
+                if (cfg.button) {
+                    if (deploy_helpers.toBooleanSafe(cfg.button.enabled)) {
+                        me._QUICK_DEPLOY_STATUS_ITEM.show();
+                    }
+                }
+
+                if (err) {
+                    vscode.window.showErrorMessage(`Quick deploy failed: ${deploy_helpers.toStringSafe(err)}`);
+                }
+            };
+
+            if (packagesToDeploy.length < 1) {
+                vscode.window.showWarningMessage('No package found to deploy!');
+            }
+            else {
+                me._QUICK_DEPLOY_STATUS_ITEM.hide();
+
+                let deployNextPackage: () => void;
+                deployNextPackage = () => {
+                    if (packagesToDeploy.length < 1) {
+                        return;
+                    }
+
+                    if (me.isCancelling) {
+                        completed(null, true);
+                        return;
+                    }
+
+                    let currentPackage = packagesToDeploy.shift();
+                    try {
+                        let files = deploy_helpers.getFilesOfPackage(currentPackage);
+
+                        let targets = me.getTargetsFromPackage(currentPackage);
+                        let deployNextTarget: () => void;
+                        deployNextTarget = () => {
+                            if (targets.length < 1) {
+                                return;
+                            }
+
+                            if (me.isCancelling) {
+                                completed(null, true);
+                                return;
+                            }
+
+                            let currentTarget = targets.shift();
+                            try {
+                                me.deployWorkspaceTo(files, currentTarget).then(() => {
+                                    deployNextTarget();
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
+                        };
+
+                        deployNextTarget();
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                };
+
+                deployNextPackage();
+            }
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Quick deploy failed: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    }
+
+    /**
      * Reloads configuration.
      */
     public reloadConfiguration() {
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+
+        this._QUICK_DEPLOY_STATUS_ITEM.hide();
+        if (this._config.button) {
+            let txt = deploy_helpers.toStringSafe(this._config.button.text).trim();
+            if (!txt) {
+                txt = 'Quick deploy!';
+            }
+            this._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+
+            if (deploy_helpers.toBooleanSafe(this._config.button.enabled)) {
+                this._QUICK_DEPLOY_STATUS_ITEM.show();
+            }
+        }
 
         if (deploy_helpers.toBooleanSafe(this._config.openOutputOnStartup)) {
             this.outputChannel.show();

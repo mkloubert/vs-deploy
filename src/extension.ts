@@ -106,12 +106,22 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // quick deploy packages
+    let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', () => {
+        try {
+            deployer.quickDeploy();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY QUICK DEPLOY ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
-    context.subscriptions.push(deploy, deployFile, listen, cancelDeploy);
+    context.subscriptions.push(deploy, deployFile, listen, cancelDeploy, quickDeploy);
 }
 
 export function deactivate() {

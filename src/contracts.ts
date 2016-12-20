@@ -178,6 +178,23 @@ export interface DeployActionQuickPick extends DeployQuickPickItem {
  */
 export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
     /**
+     * Settings for a "quick deploy button".
+     */
+    button?: {
+        /**
+         * Inidciates if button is enabled / visible or not.
+         */
+        enabled?: boolean;
+        /**
+         * A list of one or more packages to deploy.
+         */
+        packages?: string | string[];
+        /**
+         * A custom text for the button.
+         */
+        text?: string;
+    },
+    /**
      * Deploy host settings.
      */
     host?: {
