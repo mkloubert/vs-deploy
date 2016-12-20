@@ -398,6 +398,10 @@ export interface DeployOpenOperation extends DeployOperation {
      * The type.
      */
     target?: string;
+    /**
+     * Wait until target has been executed or not.
+     */
+    wait?: boolean;
 }
 
 /**
@@ -541,6 +545,10 @@ export interface DeployQuickPickItem extends vscode.QuickPickItem {
  * A target.
  */
 export interface DeployTarget {
+    /**
+     * List of operations that should be invoked BEFORE
+     * target is being deployed.
+     */
     beforeDeploy?: BeforeDeployOpenOperation | BeforeDeployOpenOperation[];
     /**
      * List of operations that should be invoked AFTER

@@ -802,10 +802,14 @@ export class Deployer {
                 switch (deploy_helpers.toStringSafe(operation.type).toLowerCase().trim()) {
                     case '':
                     case 'open':
-                        let operationTarget = deploy_helpers.toStringSafe((<deploy_contracts.DeployOpenOperation>operation).target);
+                        let openOperation = <deploy_contracts.DeployOpenOperation>operation;
+                        let operationTarget = deploy_helpers.toStringSafe(openOperation.target);
+                        let waitForExit = deploy_helpers.toBooleanSafe(openOperation.wait, true);
 
                         me.outputChannel.append(`Opening '${operationTarget}'... `);
-                        OPN(deploy_helpers.toStringSafe(operationTarget));
+                        OPN(deploy_helpers.toStringSafe(operationTarget), {
+                            wait: waitForExit,
+                        });
                         me.outputChannel.appendLine('[OK]');
                         break;
 
