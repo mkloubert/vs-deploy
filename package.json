@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.17.2",
+  "version": "3.18.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -176,6 +176,20 @@
                     "type": "number",
                     "description": "The sort order.",
                     "default": 0
+                  },
+                  "targets": {
+                    "description": "One or more explicit targets to deploy to.",
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
                   }
                 }
               }

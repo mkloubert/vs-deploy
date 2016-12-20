@@ -397,7 +397,11 @@ export interface DeployPackage {
     /**
      * The sort order.
      */
-    sortOrder: number;
+    sortOrder?: number;
+    /**
+     * One or more explicit targets to deploy to.
+     */
+    targets?: string | string[];
 }
 
 /**

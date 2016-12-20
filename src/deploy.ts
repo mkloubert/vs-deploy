@@ -360,28 +360,26 @@ export class Deployer {
 
         let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
-        let selectTarget = (item: deploy_contracts.DeployPackageQuickPickItem) => {
-            if (!item) {
+        let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
+            if (!pkg) {
                 return;
             }
 
-            let packageName = deploy_helpers.toStringSafe(item.package.name);
+            let packageName = deploy_helpers.toStringSafe(pkg.name);
 
-            let filesToDeploy = deploy_helpers.getFilesOfPackage(item.package);
+            let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
             if (filesToDeploy.length < 1) {
                 vscode.window.showWarningMessage(`There are no files to deploy!`);
                 return;
             }
 
-            let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
-
-            let deploy = (item: deploy_contracts.DeployTargetQuickPickItem) => {
+            let deploy = (t: deploy_contracts.DeployTarget) => {
                 try {
-                    if (!item) {
+                    if (!t) {
                         return;
                     }
 
-                    let targetName = deploy_helpers.toStringSafe(item.target.name);
+                    let targetName = deploy_helpers.toStringSafe(t.name);
 
                     me.outputChannel.appendLine('');
 
@@ -400,23 +398,59 @@ export class Deployer {
                         me.outputChannel.show();
                     }
 
-                    me.deployWorkspaceTo(filesToDeploy, item.target);
+                    me.deployWorkspaceTo(filesToDeploy, t);
                 }
                 catch (e) {
                     vscode.window.showErrorMessage(`Could not deploy files: ` + e);
                 }
             };
 
-            if (fileQuickPicks.length > 1) {
-                vscode.window.showQuickPick(fileQuickPicks, {
-                    placeHolder: 'Select the target to deploy to...'
-                }).then((item) => {
-                    deploy(item);
-                });
+            let targetsOfPackage = me.getTargetsFromPackage(pkg);
+            if (targetsOfPackage.length < 1) {
+                // no explicit targets
+
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                if (fileQuickPicks.length > 1) {
+                    vscode.window.showQuickPick(fileQuickPicks, {
+                        placeHolder: 'Select the target to deploy to...'
+                    }).then((item) => {
+                        if (item) {
+                            deploy(item.target);
+                        }
+                    });
+                }
+                else {
+                    // auto select
+                    deploy(fileQuickPicks[0].target);
+                }
             }
             else {
-                // auto select
-                deploy(fileQuickPicks[0]);
+                // we have explicit defined targets here
+
+                if (1 == targetsOfPackage.length) {
+                    deploy(targetsOfPackage[0]);  // deploy the one and only
+                }
+                else {
+                    // create a "batch" target
+                    // for the targets
+
+                    let virtualPkgName: string;
+                    if (packageName) {
+                        virtualPkgName = `Batch target for package '${packageName}'`;
+                    }
+                    else {
+                        virtualPkgName = `Batch target for current package`;
+                    }
+
+                    let batchTarget: any = {
+                        type: 'batch',
+                        name: `Virtual batch target for package '${packageName}'`,
+                        targets: targetsOfPackage.map(x => x.name),
+                    };
+
+                    deploy(batchTarget);
+                }
             }
         };
 
@@ -424,12 +458,14 @@ export class Deployer {
             vscode.window.showQuickPick(packageQuickPicks, {
                 placeHolder: 'Select a package...',
             }).then((item) => {
-                        selectTarget(item);
+                        if (item) {
+                            selectTarget(item.package);
+                        }
                     });
         }
         else {
             // auto select
-            selectTarget(packageQuickPicks[0]);
+            selectTarget(packageQuickPicks[0].package);
         }
     }
 
@@ -594,6 +630,47 @@ export class Deployer {
         }
 
         return deploy_helpers.sortTargets(targets);
+    }
+
+    /**
+     * Returns the targets from a package.
+     * 
+     * @param {deploy_contracts.DeployPackag} pkg The package.
+     * 
+     * @return {deploy_contracts.DeployTarget[]} The found targets.
+     */
+    protected getTargetsFromPackage(pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] {
+        let pkgTargets: deploy_contracts.DeployTarget[] = [];
+
+        let normalizeString = (val: any): string => {
+            return deploy_helpers.toStringSafe(val)
+                                 .toLowerCase().trim();
+        };
+
+        let targetNames = deploy_helpers.asArray(pkg.targets)
+                                        .map(x => normalizeString(x))
+                                        .filter(x => x);
+
+        let knownTargets = this.getTargets();
+
+        targetNames.forEach(tn => {
+            let found = false;
+            for (let i = 0; i < knownTargets.length; i++) {
+                let kt = knownTargets[i];
+                
+                if (normalizeString(kt.name) == tn) {
+                    found = true;
+                    pkgTargets.push(kt);
+                }
+            }
+
+            if (!found) {
+                // we have an unknown target here
+                vscode.window.showWarningMessage(`[vs-deploy] Could not find target '${tn}' in package!`);
+            }
+        });
+
+        return pkgTargets;
     }
 
     /**
