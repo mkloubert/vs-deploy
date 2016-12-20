@@ -113,15 +113,64 @@ export class Deployer {
         let me = this;
 
         try {
-            if (target.deployed) {
-                target.deployed.filter(x => x).forEach((x, i) => {
+            let deployedOperations = deploy_helpers.asArray(target.deployed)
+                                                   .filter(x => x);
+
+            deployedOperations.forEach((x, i) => {
+                try {
+                    me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+
+                    switch (deploy_helpers.toStringSafe(x.type).toLowerCase().trim()) {
+                        case '':
+                        case 'open':
+                            let ot = deploy_helpers.toStringSafe((<deploy_contracts.AfterDeployedOpenOperation>x).target);
+
+                            me.outputChannel.append(`Opening '${ot}'... `);
+                            OPN(deploy_helpers.toStringSafe(ot));
+                            me.outputChannel.appendLine('[OK]');
+                            break;
+
+                        default:
+                            me.outputChannel.appendLine(`UNKNOWN TYPE: ${x.type}`);
+                            break;
+                    }
+                }
+                catch (e) {
+                    me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e)}]`);
+                }
+            });
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    }
+
+    /**
+     * Invokes 'before deploy' operations for a target.
+     * 
+     * @param {string[]} files The files to deploy.
+     * @param {deploy_contracts.DeployTarget} target The target.
+     * 
+     * @return {Promise<boolean>} The promise.
+     */
+    protected beforeDeploy(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
+        let me = this;
+
+        return new Promise<any>((resolve, reject) => {
+            try {
+                let beforeDeployOperations = deploy_helpers.asArray(target.beforeDeploy)
+                                                           .filter(x => x);
+
+                let cancelled = false;
+
+                beforeDeployOperations.forEach((x, i) => {
                     try {
                         me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
 
                         switch (deploy_helpers.toStringSafe(x.type).toLowerCase().trim()) {
                             case '':
                             case 'open':
-                                let ot = deploy_helpers.toStringSafe((<deploy_contracts.AfterDeployedOpenOperation>x).target);
+                                let ot = deploy_helpers.toStringSafe((<deploy_contracts.BeforeDeployOpenOperation>x).target);
 
                                 me.outputChannel.append(`Opening '${ot}'... `);
                                 OPN(deploy_helpers.toStringSafe(ot));
@@ -137,11 +186,13 @@ export class Deployer {
                         me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e)}]`);
                     }
                 });
+
+                resolve(cancelled);
             }
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(e)}`);
-        }
+            catch (e) {
+                reject(e);
+            }
+        });
     }
 
     /**
@@ -201,7 +252,13 @@ export class Deployer {
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
                 if (item) {
-                    me.deployFileTo(file, item.target);
+                    me.beforeDeploy([file], item.target).then((cancelled) => {
+                        if (!cancelled) {
+                            me.deployFileTo(file, item.target);
+                        }
+                    }).catch((err) => {
+                        vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+                    });
                 }
             }
             catch (e) {
@@ -398,7 +455,13 @@ export class Deployer {
                         me.outputChannel.show();
                     }
 
-                    me.deployWorkspaceTo(filesToDeploy, t);
+                    me.beforeDeploy(filesToDeploy, t).then((cancelled) => {
+                        if (!cancelled) {
+                            me.deployWorkspaceTo(filesToDeploy, t);
+                        }
+                    }).catch((err) => {
+                        vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+                    });
                 }
                 catch (e) {
                     vscode.window.showErrorMessage(`Could not deploy files: ` + e);

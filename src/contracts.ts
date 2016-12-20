@@ -60,7 +60,7 @@ export interface AfterDeployedOperation {
  */
 export interface AfterDeployedOpenOperation extends AfterDeployedOperation {
     /**
-     * The thing should be opened. Can be a URL, file or executable.
+     * The thing that should be opened. Can be a URL, file or executable.
      */
     target?: string;
 }
@@ -81,6 +81,28 @@ export interface BeforeDeployFileEventArguments extends DeployFileEventArguments
      * A string that represents the destination.
      */
     destination: string;
+}
+
+/**
+ * An operation that is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployOperation {
+    /**
+     * The type.
+     */
+    type?: string;
+}
+
+/**
+ * An operation that opens something like an URI and is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployOpenOperation extends BeforeDeployOperation {
+    /**
+     * The thing that should be opened. Can be a URL, file or executable.
+     */
+    target?: string;
 }
 
 /**
@@ -501,11 +523,12 @@ export interface DeployQuickPickItem extends vscode.QuickPickItem {
  * A target.
  */
 export interface DeployTarget {
+    beforeDeploy?: BeforeDeployOpenOperation | BeforeDeployOpenOperation[];
     /**
      * List of operations that should be invoked AFTER
      * ALL files have been deployed.
      */
-    deployed?: AfterDeployedOperation[];
+    deployed?: AfterDeployedOperation | AfterDeployedOperation[];
     /**
      * The description.
      */
