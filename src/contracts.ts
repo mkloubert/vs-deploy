@@ -47,22 +47,21 @@ export const DEFAULT_PORT = 23979;
  * An operation that is invoked AFTER
  * ALL files have been deployed.
  */
-export interface AfterDeployedOperation {
-    /**
-     * The type.
-     */
-    type?: string;
+export interface AfterDeployedOperation extends DeployOperation {
 }
 
 /**
  * An operation that opens something like an URI and is invoked AFTER
  * ALL files have been deployed.
  */
-export interface AfterDeployedOpenOperation extends AfterDeployedOperation {
-    /**
-     * The thing that should be opened. Can be a URL, file or executable.
-     */
-    target?: string;
+export interface AfterDeployedOpenOperation extends AfterDeployedOperation, DeployOpenOperation {
+}
+
+/**
+ * An operation that waits a number of milliseconds and is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedWaitOperation extends AfterDeployedOperation, DeployWaitOperation {
 }
 
 /**
@@ -87,22 +86,21 @@ export interface BeforeDeployFileEventArguments extends DeployFileEventArguments
  * An operation that is invoked BEFORE
  * files will be deployed.
  */
-export interface BeforeDeployOperation {
-    /**
-     * The type.
-     */
-    type?: string;
+export interface BeforeDeployOperation extends DeployOperation {
 }
 
 /**
  * An operation that opens something like an URI and is invoked BEFORE
  * files will be deployed.
  */
-export interface BeforeDeployOpenOperation extends BeforeDeployOperation {
-    /**
-     * The thing that should be opened. Can be a URL, file or executable.
-     */
-    target?: string;
+export interface BeforeDeployOpenOperation extends BeforeDeployOperation, DeployOpenOperation {
+}
+
+/**
+ * An operation that waits a number of milliseconds and is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployWaitOperation extends BeforeDeployOperation, DeployWaitOperation {
 }
 
 /**
@@ -393,6 +391,26 @@ export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
 }
 
 /**
+ * An operation that opens something like an URI.
+ */
+export interface DeployOpenOperation extends DeployOperation {
+    /**
+     * The type.
+     */
+    target?: string;
+}
+
+/**
+ * A deploy operation.
+ */
+export interface DeployOperation {
+    /**
+     * The type.
+     */
+    type?: string;
+}
+
+/**
  * A package.
  */
 export interface DeployPackage {
@@ -587,6 +605,16 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
      * The target.
      */
     target: DeployTarget;
+}
+
+/**
+ * An operation that waits a number of milliseconds.
+ */
+export interface DeployWaitOperation extends DeployOperation {
+    /**
+     * The time in milliseconds to wait.
+     */
+    time?: number;
 }
 
 /**

@@ -107,42 +107,64 @@ export class Deployer {
     /**
      * Invokes 'after deployed' operations for a target.
      * 
+     * @param {string[]} files The files that have been deployed.
      * @param {deploy_contracts.DeployTarget} target The target.
+     * 
+     * @return {Promise<boolean>} The promise.
      */
-    protected afterDeployment(target: deploy_contracts.DeployTarget) {
+    protected afterDeployment(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
-        try {
-            let deployedOperations = deploy_helpers.asArray(target.deployed)
-                                                   .filter(x => x);
+        return new Promise<boolean>((resolve, reject) => {
+            try {
+                let afterDeployedOperations = deploy_helpers.asArray(target.deployed)
+                                                            .filter(x => x);
 
-            deployedOperations.forEach((x, i) => {
-                try {
-                    me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
-
-                    switch (deploy_helpers.toStringSafe(x.type).toLowerCase().trim()) {
-                        case '':
-                        case 'open':
-                            let ot = deploy_helpers.toStringSafe((<deploy_contracts.AfterDeployedOpenOperation>x).target);
-
-                            me.outputChannel.append(`Opening '${ot}'... `);
-                            OPN(deploy_helpers.toStringSafe(ot));
-                            me.outputChannel.appendLine('[OK]');
-                            break;
-
-                        default:
-                            me.outputChannel.appendLine(`UNKNOWN TYPE: ${x.type}`);
-                            break;
+                let i = -1;
+                let cancelled = false;
+                let completed = (err?: any) => {
+                    if (err) {
+                        reject(err);
                     }
-                }
-                catch (e) {
-                    me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e)}]`);
-                }
-            });
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(e)}`);
-        }
+                    else {
+                        resolve(cancelled);
+                    }
+                };
+
+                let invokeNext: () => void;
+                invokeNext = () => {
+                    if (afterDeployedOperations.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    let currentOperation = afterDeployedOperations.shift();
+                    ++i;
+
+                    try {
+                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+
+                        me.handleCommonDeployOperation(currentOperation).then((handled) => {
+                            if (!handled) {
+                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${currentOperation.type}`);
+                            }
+
+                            invokeNext();
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                };
+
+                invokeNext();
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
     }
 
     /**
@@ -156,38 +178,51 @@ export class Deployer {
     protected beforeDeploy(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             try {
                 let beforeDeployOperations = deploy_helpers.asArray(target.beforeDeploy)
                                                            .filter(x => x);
 
+                let i = -1;
                 let cancelled = false;
+                let completed = (err?: any) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(cancelled);
+                    }
+                };
 
-                beforeDeployOperations.forEach((x, i) => {
+                let invokeNext: () => void;
+                invokeNext = () => {
+                    if (beforeDeployOperations.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    let currentOperation = beforeDeployOperations.shift();
+                    ++i;
+
                     try {
-                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+                        me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
 
-                        switch (deploy_helpers.toStringSafe(x.type).toLowerCase().trim()) {
-                            case '':
-                            case 'open':
-                                let ot = deploy_helpers.toStringSafe((<deploy_contracts.BeforeDeployOpenOperation>x).target);
+                        me.handleCommonDeployOperation(currentOperation).then((handled) => {
+                            if (!handled) {
+                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${currentOperation.type}`);
+                            }
 
-                                me.outputChannel.append(`Opening '${ot}'... `);
-                                OPN(deploy_helpers.toStringSafe(ot));
-                                me.outputChannel.appendLine('[OK]');
-                                break;
-
-                            default:
-                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${x.type}`);
-                                break;
-                        }
+                            invokeNext();
+                        }).catch((err) => {
+                            completed(err);
+                        });
                     }
                     catch (e) {
-                        me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e)}]`);
+                        completed(e);
                     }
-                });
+                };
 
-                resolve(cancelled);
+                invokeNext();
             }
             catch (e) {
                 reject(e);
@@ -334,9 +369,11 @@ export class Deployer {
                         }
                         else {
                             me.outputChannel.appendLine('Finished.');
+
+                            me.afterDeployment([ file ], target).catch((err) => {
+                                vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(err)}`);
+                            });
                         }
-                        
-                        me.afterDeployment(target);
                     }
                 };
 
@@ -604,9 +641,11 @@ export class Deployer {
                             }
                             else {
                                 me.outputChannel.appendLine('Finished.');
-                            }
 
-                            me.afterDeployment(target);
+                                me.afterDeployment(files, target).catch((err) => {
+                                    vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(err)}`);
+                                });
+                            }
                         }
                     };
 
@@ -734,6 +773,67 @@ export class Deployer {
         });
 
         return pkgTargets;
+    }
+
+    /**
+     * Handles a "common" deploy operation.
+     * 
+     * @param {deploy_contracts.DeployOperation} operation The operation.
+     * 
+     * @return Promise<boolean> The promise.
+     */
+    protected handleCommonDeployOperation(operation: deploy_contracts.DeployOperation): Promise<boolean> {
+        let me = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            let handled = true;
+            let completed = (err?: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(handled);
+                }
+            };
+
+            try {
+                let nextAction = completed;
+
+                switch (deploy_helpers.toStringSafe(operation.type).toLowerCase().trim()) {
+                    case '':
+                    case 'open':
+                        let operationTarget = deploy_helpers.toStringSafe((<deploy_contracts.DeployOpenOperation>operation).target);
+
+                        me.outputChannel.append(`Opening '${operationTarget}'... `);
+                        OPN(deploy_helpers.toStringSafe(operationTarget));
+                        me.outputChannel.appendLine('[OK]');
+                        break;
+
+                    case 'wait':
+                        let waitTime = parseFloat(deploy_helpers.toStringSafe((<deploy_contracts.DeployWaitOperation>operation).time));
+                        if (isNaN(waitTime)) {
+                            waitTime = 1000;
+                        }
+
+                        nextAction = null;
+                        setTimeout(() => {
+                            completed();
+                        }, waitTime);
+                        break;
+
+                    default:
+                        handled = false;
+                        break;
+                }
+
+                if (nextAction) {
+                    nextAction();
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
     }
 
     /**
