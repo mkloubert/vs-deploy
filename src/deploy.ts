@@ -332,7 +332,7 @@ export class Deployer {
     protected deployFileTo(file: string, target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
-        return new Promise<boolean>((reject, resolve) => {
+        return new Promise<boolean>((resolve, reject) => {
             let completed = (err?: any, canceled?: boolean) => {
                 if (err) {
                     reject(err);
