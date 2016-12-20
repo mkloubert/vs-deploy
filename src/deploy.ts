@@ -462,9 +462,18 @@ export class Deployer {
             let packageName = deploy_helpers.toStringSafe(pkg.name);
 
             let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
-            if (filesToDeploy.length < 1) {
-                vscode.window.showWarningMessage(`There are no files to deploy!`);
-                return;
+
+            let checkFileCount = (): boolean => {
+                if (filesToDeploy.length < 1) {
+                    vscode.window.showWarningMessage(`There are no files to deploy!`);
+                    return false;
+                }
+
+                return true;
+            };
+
+            if (!checkFileCount()) {
+                return;  // no files here
             }
 
             let deploy = (t: deploy_contracts.DeployTarget) => {
@@ -493,9 +502,16 @@ export class Deployer {
                     }
 
                     me.beforeDeploy(filesToDeploy, t).then((cancelled) => {
-                        if (!cancelled) {
-                            me.deployWorkspaceTo(filesToDeploy, t);
+                        if (cancelled) {
+                            return;
                         }
+
+                        filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
+                        if (!checkFileCount()) {
+                            return;  // no files here anymore
+                        }
+                        
+                        me.deployWorkspaceTo(filesToDeploy, t);
                     }).catch((err) => {
                         vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
                     });
