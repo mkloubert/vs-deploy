@@ -515,19 +515,6 @@ export class Deployer {
 
             let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
 
-            let checkFileCount = (): boolean => {
-                if (filesToDeploy.length < 1) {
-                    vscode.window.showWarningMessage(`There are no files to deploy!`);
-                    return false;
-                }
-
-                return true;
-            };
-
-            if (!checkFileCount()) {
-                return;  // no files here
-            }
-
             let deploy = (t: deploy_contracts.DeployTarget) => {
                 try {
                     if (!t) {
@@ -559,8 +546,9 @@ export class Deployer {
                         }
 
                         filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
-                        if (!checkFileCount()) {
-                            return;  // no files here anymore
+                        if (filesToDeploy.length < 1) {
+                            vscode.window.showWarningMessage(`There are no files to deploy!`);
+                            return false;
                         }
                         
                         me.deployWorkspaceTo(filesToDeploy, t).then(() => {
@@ -934,13 +922,15 @@ export class Deployer {
                         me.outputChannel.append(`Opening '${operationTarget}'... `);
 
                         nextAction = null;
-                        OPN(operationTarget, {
+                        deploy_helpers.open(operationTarget, {
                             app: openArgs,
                             wait: waitForExit,
-                        }).then(() => {
+                        }).then(function() {
                             me.outputChannel.appendLine('[OK]');
 
                             completed();
+                        }).catch((err) => {
+                            completed(err);
                         });
                         break;
 
@@ -1717,11 +1707,19 @@ export class Deployer {
 
                             let currentTarget = targets.shift();
                             try {
-                                me.deployWorkspaceTo(files, currentTarget).then(() => {
-                                    deployNextTarget();
+                                me.beforeDeploy(files, currentTarget).then(() => {
+                                    // update package files
+                                    files = deploy_helpers.getFilesOfPackage(currentPackage);
+
+                                    me.deployWorkspaceTo(files, currentTarget).then(() => {
+                                        deployNextTarget();
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
                                 }).catch((err) => {
                                     completed(err);
                                 });
+                                
                             }
                             catch (e) {
                                 completed(e);
