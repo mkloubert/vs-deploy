@@ -548,7 +548,7 @@ export class Deployer {
                         filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
                         if (filesToDeploy.length < 1) {
                             vscode.window.showWarningMessage(`There are no files to deploy!`);
-                            return false;
+                            return;
                         }
                         
                         me.deployWorkspaceTo(filesToDeploy, t).then(() => {
