@@ -525,7 +525,7 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
             // is matching => rebuild path
 
             relativePath = Path.join(target,
-                                     Path.basename(relativePath));
+                                     relativePath.substr(source.length));  // remove the source prefix
             break;
         }
     }
