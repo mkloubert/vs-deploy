@@ -1682,6 +1682,10 @@ export class Deployer {
             else {
                 me._QUICK_DEPLOY_STATUS_ITEM.hide();
 
+                if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                    me.outputChannel.show();
+                }
+
                 let deployNextPackage: () => void;
                 deployNextPackage = () => {
                     if (packagesToDeploy.length < 1) {
