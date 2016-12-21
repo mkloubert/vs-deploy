@@ -215,7 +215,7 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
             root: vscode.workspace.rootPath,
         });
 
-        matchingFiles.forEach(x => filesToDeploy.push(x));
+        matchingFiles.forEach(y => filesToDeploy.push(y));
     });
 
     return distinctArray(filesToDeploy);
