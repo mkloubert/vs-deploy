@@ -232,6 +232,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         transformerOptions?: any;
     },
     /**
+     * Clear output on startup or not.
+     */
+    clearOutputOnStartup?: boolean;
+    /**
      * List of additional files of plugin modules to load.
      */
     modules?: string | string[];
@@ -456,6 +460,10 @@ export interface DeployPackage {
      */
     files?: string[];
     /**
+     * A list of one or more (host)names that package is visible for.
+     */
+    isFor?: string | string[];
+    /**
      * The name.
      */
     name?: string;
@@ -580,6 +588,10 @@ export interface DeployTarget {
      * The description.
      */
     description?: string;
+    /**
+     * A list of one or more (host)names that target is visible for.
+     */
+    isFor?: string | string[];
     /**
      * One or more folder mapping.
      */

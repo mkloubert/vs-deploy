@@ -30,6 +30,7 @@ const FSExtra = require('fs-extra');
 const OPN = require('opn');
 import * as Moment from 'moment';
 import * as Net from 'net';
+import * as OS from 'os';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as ZLib from 'zlib';
@@ -110,6 +111,8 @@ export class Deployer {
         this.reloadPlugins();
 
         this.resetIsCancelling();
+
+        this.clearOutputOrNot();
     }
 
     /**
@@ -247,6 +250,15 @@ export class Deployer {
         }
 
         this._isCancelling = true;
+    }
+
+    /**
+     * Clears the output on startup depending on the current configuration.
+     */
+    public clearOutputOrNot() {
+        if (deploy_helpers.toBooleanSafe(this.config.clearOutputOnStartup)) {
+            this.outputChannel.clear();
+        }
     }
 
     /**
@@ -816,7 +828,20 @@ export class Deployer {
             packages = [];
         }
 
-        return deploy_helpers.sortPackages(packages);
+        let myName = this.name;
+        packages = deploy_helpers.sortPackages(packages);
+
+        return packages.filter(p => {
+            let validHosts = deploy_helpers.asArray(p.isFor)
+                                           .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
+                                           .filter(x => x);
+
+            if (validHosts.length < 1) {
+                return true;
+            }
+
+            return validHosts.indexOf(myName) > -1;
+        });
     }
 
     /**
@@ -830,7 +855,20 @@ export class Deployer {
             targets = [];
         }
 
-        return deploy_helpers.sortTargets(targets);
+        let myName = this.name;
+        targets = deploy_helpers.sortPackages(targets);
+
+        return targets.filter(t => {
+            let validHosts = deploy_helpers.asArray(t.isFor)
+                                           .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
+                                           .filter(x => x);
+
+            if (validHosts.length < 1) {
+                return true;
+            }
+
+            return validHosts.indexOf(myName) > -1;
+        });
     }
 
     /**
@@ -1459,10 +1497,21 @@ export class Deployer {
     }
 
     /**
+     * Get the name that represents that machine.
+     */
+    public get name(): string {
+        return deploy_helpers.toStringSafe(OS.hostname())
+                             .toLowerCase().trim();
+    }
+
+    /**
      * Event after configuration changed.
      */
     public onDidChangeConfiguration() {
         this.reloadConfiguration();
+        this.reloadPlugins();
+
+        this.clearOutputOrNot();
     }
 
     /**
@@ -1933,6 +1982,47 @@ export class Deployer {
             }
 
             this.outputChannel.appendLine('');
+
+            // show current user its hostname
+            // and network interfaces
+            try {
+                this.outputChannel.appendLine(`Your hostname: '${me.name}'`);
+
+                let networkInterfaces = OS.networkInterfaces();
+                if (Object.keys(networkInterfaces).length > 0) {
+                    this.outputChannel.appendLine('Your network interfaces:');
+                    Object.keys(networkInterfaces).forEach((ifName) => {
+                        let ifaces = networkInterfaces[ifName].filter(x => {
+                            let addr = deploy_helpers.toStringSafe(x.address)
+                                                     .toLowerCase().trim();
+                            if ('IPv4' == x.family) {
+                                return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
+                            }
+
+                            if ('IPv6' == x.family) {
+                                return '::1' != addr;
+                            }
+
+                            return true;
+                        });
+
+                        if (ifaces.length > 0) {
+                            me.outputChannel.appendLine(`\t- '${ifName}':`);
+                            ifaces.forEach(x => {
+                                               me.outputChannel.appendLine(`\t\t[${x.family}] '${x.address}' / '${x.netmask}' ('${x.mac}')`);
+                                           });
+
+                            me.outputChannel.appendLine('');
+                        }
+                    });
+                }
+                else {
+                    this.outputChannel.appendLine('');
+                }
+            }
+            catch (e) {
+                this.log(`Could not get network interfaces: ${deploy_helpers.toStringSafe(e)}`);
+            }
         }
         catch (e) {
             vscode.window.showErrorMessage(`Could not update deploy settings: ${e}`);
