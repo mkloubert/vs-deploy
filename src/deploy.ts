@@ -109,6 +109,7 @@ export class Deployer {
 
         this.reloadConfiguration();
         this.reloadPlugins();
+        this.displayNetworkInfo();
 
         this.resetIsCancelling();
 
@@ -818,6 +819,52 @@ export class Deployer {
     }
 
     /**
+     * Displays information about the network of this machine.
+     */
+    public displayNetworkInfo() {
+        let me = this;
+
+        try {
+            this.outputChannel.appendLine(`Your hostname: '${this.name}'`);
+
+            let networkInterfaces = OS.networkInterfaces();
+            if (Object.keys(networkInterfaces).length > 0) {
+                this.outputChannel.appendLine('Your network interfaces:');
+                Object.keys(networkInterfaces).forEach((ifName) => {
+                    let ifaces = networkInterfaces[ifName].filter(x => {
+                        let addr = deploy_helpers.toStringSafe(x.address)
+                                                    .toLowerCase().trim();
+                        if ('IPv4' == x.family) {
+                            return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
+                        }
+
+                        if ('IPv6' == x.family) {
+                            return '::1' != addr;
+                        }
+
+                        return true;
+                    });
+
+                    if (ifaces.length > 0) {
+                        me.outputChannel.appendLine(`\t- '${ifName}':`);
+                        ifaces.forEach(x => {
+                                            me.outputChannel.appendLine(`\t\t[${x.family}] '${x.address}' / '${x.netmask}' ('${x.mac}')`);
+                                        });
+
+                        me.outputChannel.appendLine('');
+                    }
+                });
+            }
+            else {
+                this.outputChannel.appendLine('');
+            }
+        }
+        catch (e) {
+            this.log(`Could not get network interfaces: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    }
+
+    /**
      * Returns the list of packages.
      * 
      * @returns {DeployPackage[]} The packages.
@@ -1510,6 +1557,7 @@ export class Deployer {
     public onDidChangeConfiguration() {
         this.reloadConfiguration();
         this.reloadPlugins();
+        this.displayNetworkInfo();
 
         this.clearOutputOrNot();
     }
@@ -1982,47 +2030,6 @@ export class Deployer {
             }
 
             this.outputChannel.appendLine('');
-
-            // show current user its hostname
-            // and network interfaces
-            try {
-                this.outputChannel.appendLine(`Your hostname: '${me.name}'`);
-
-                let networkInterfaces = OS.networkInterfaces();
-                if (Object.keys(networkInterfaces).length > 0) {
-                    this.outputChannel.appendLine('Your network interfaces:');
-                    Object.keys(networkInterfaces).forEach((ifName) => {
-                        let ifaces = networkInterfaces[ifName].filter(x => {
-                            let addr = deploy_helpers.toStringSafe(x.address)
-                                                     .toLowerCase().trim();
-                            if ('IPv4' == x.family) {
-                                return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
-                            }
-
-                            if ('IPv6' == x.family) {
-                                return '::1' != addr;
-                            }
-
-                            return true;
-                        });
-
-                        if (ifaces.length > 0) {
-                            me.outputChannel.appendLine(`\t- '${ifName}':`);
-                            ifaces.forEach(x => {
-                                               me.outputChannel.appendLine(`\t\t[${x.family}] '${x.address}' / '${x.netmask}' ('${x.mac}')`);
-                                           });
-
-                            me.outputChannel.appendLine('');
-                        }
-                    });
-                }
-                else {
-                    this.outputChannel.appendLine('');
-                }
-            }
-            catch (e) {
-                this.log(`Could not get network interfaces: ${deploy_helpers.toStringSafe(e)}`);
-            }
         }
         catch (e) {
             vscode.window.showErrorMessage(`Could not update deploy settings: ${e}`);
