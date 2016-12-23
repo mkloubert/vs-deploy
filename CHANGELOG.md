@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 3.29.0 (December 23th, 2016; Azure blob storages)
+
+* added support for deploying to [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
+
+
 ## 3.28.0 (December 23th, 2016; Amazon S3 buckets)
 
 * added `dir` property for [Amazon S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) target settings

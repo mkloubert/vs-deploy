@@ -216,6 +216,14 @@ Add the subsection `targets` and add one or more entry:
                 "targets": ["My mail server", "My ZIP file"]
             },
             {
+                "type": "azureblob",
+                "name": "My Azure blob storage",
+                "description": "An container in an Azure blob storage",
+                "container": "my-container",
+                "account": "my-storage-account",
+                "accessKey": "<ACCESS-KEY-FROM-AZURE-PORTAL>"
+            },
+            {
                 "type": "s3bucket",
                 "name": "My Amazon Bucket",
                 "description": "An Amazon AWS S3 bucket",

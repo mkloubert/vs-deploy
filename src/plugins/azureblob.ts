@@ -23,37 +23,32 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-const AWS = require('aws-sdk');
+import * as AzureStorage from 'azure-storage';
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 
 
-interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
-    acl?: string;
-    bucket: string;
+interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
+    accessKey?: string;
+    account?: string;
+    container: string;
     dir?: string;
+    host?: string;
 }
 
-interface S3Context {
-    bucket: string;
-    connection: any;
+interface AzureBlobContext {
+    container: string;
     dir: string;
+    service: AzureStorage.BlobService;
 }
 
-class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
-    protected createContext(target: DeployTargetS3Bucket,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
-        AWS.config.signatureVersion = "v4";                    
-                            
-        let bucketName = deploy_helpers.toStringSafe(target.bucket)
-                                       .trim();
-
-        let acl = deploy_helpers.toStringSafe(target.acl);
-        if (deploy_helpers.isEmptyString(acl)) {
-            acl = 'public-read';
-        }
+class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBlobContext> {
+    protected createContext(target: DeployTargetAzureBlob,
+                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<AzureBlobContext>> {         
+        let containerName = deploy_helpers.toStringSafe(target.container)
+                                          .trim();
 
         let dir = deploy_helpers.toStringSafe(target.dir).trim();
         while ((dir.length > 0) && (0 == dir.indexOf('/'))) {
@@ -66,17 +61,13 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         
         return new Promise<deploy_objects.DeployPluginContextWrapper<any>>((resolve, reject) => {
             try {
-                let s3bucket = new AWS.S3({
-                    params: {
-                        Bucket: bucketName,
-                        ACL: acl,
-                    }
-                });
+                let service = AzureStorage.createBlobService(target.account, target.accessKey,
+                                                             target.host);
 
-                let wrapper: deploy_objects.DeployPluginContextWrapper<S3Context> = {
+                let wrapper: deploy_objects.DeployPluginContextWrapper<AzureBlobContext> = {
                     context: {
-                        bucket: bucketName,
-                        connection: s3bucket,
+                        container: containerName,
+                        service: service,
                         dir: dir,
                     },
                 };
@@ -89,8 +80,8 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         });
     }
 
-    protected deployFileWithContext(ctx: S3Context,
-                                    file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
+    protected deployFileWithContext(ctx: AzureBlobContext,
+                                    file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
         let completed = (err?: any, canceled?: boolean) => {
@@ -112,18 +103,18 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
 
             // remove leading '/' chars
-            let bucketKey = relativePath;
-            while (0 == bucketKey.indexOf('/')) {
-                bucketKey = bucketKey.substr(1);
+            let blob = relativePath;
+            while (0 == blob.indexOf('/')) {
+                blob = blob.substr(1);
             }
-            bucketKey = ctx.dir + bucketKey;
-            while (0 == bucketKey.indexOf('/')) {
-                bucketKey = bucketKey.substr(1);
+            blob = ctx.dir + blob;
+            while (0 == blob.indexOf('/')) {
+                blob = blob.substr(1);
             }
 
             if (opts.onBeforeDeploy) {
                 opts.onBeforeDeploy(me, {
-                    destination: bucketKey,
+                    destination: blob,
                     file: file,
                     target: target,
                 });
@@ -140,24 +131,19 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                     return;
                 }
 
-                ctx.connection.createBucket(() => {
+                ctx.service.createContainerIfNotExists(ctx.container, (err, result, response) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
+
                     if (me.context.isCancelling()) {
                         completed(null, true);
                         return;
                     }
 
-                    let params = {
-                        Key: bucketKey,
-                        Body: data,
-                    };
-
-                    ctx.connection.putObject(params, (err, data) => {
-                        if (err) {
-                            completed(err);
-                            return;
-                        }
-
-                        completed();
+                    ctx.service.createBlockBlobFromText(ctx.container, blob, data, (err) => {
+                        completed(err);
                     });
                 });
             });
@@ -176,5 +162,5 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
  * @returns {deploy_contracts.DeployPlugin} The new instance.
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
-    return new S3BucketPlugin(ctx);
+    return new AzureBlobPlugin(ctx);
 }
