@@ -8,6 +8,7 @@
 
 The extension supports the following destination types:
 
+* [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
 * [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
 * [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
 * [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
@@ -213,6 +214,12 @@ Add the subsection `targets` and add one or more entry:
                 "name": "My Batch",
                 "description": "A batch operation",
                 "targets": ["My mail server", "My ZIP file"]
+            },
+            {
+                "type": "s3bucket",
+                "name": "My Amazon Bucket",
+                "description": "An Amazon AWS S3 bucket",
+                "bucket": "my-bucket"
             }
         ]
     }
