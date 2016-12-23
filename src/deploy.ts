@@ -410,7 +410,9 @@ export class Deployer {
                                         }
                                     }
                                     else {
-                                        vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed${targetExpr}.`);
+                                        if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
+                                            vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed${targetExpr}.`);
+                                        }
 
                                         if (canceled) {
                                             me.outputChannel.appendLine('Canceled.');
@@ -718,7 +720,9 @@ export class Deployer {
                                         }
                                         else {
                                             if (succeeded.length > 0) {
-                                                vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully${targetExpr}.`);
+                                                if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
+                                                    vscode.window.showInformationMessage(`All ${succeeded.length} file(s) were deployed successfully${targetExpr}.`);
+                                                }
                                             }
                                             else {
                                                 vscode.window.showWarningMessage(`No file deployed${targetExpr}.`);
