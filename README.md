@@ -10,6 +10,7 @@ The extension supports the following destination types:
 
 * [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
 * [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
+* [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
 * [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
 * [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
 * [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http)
