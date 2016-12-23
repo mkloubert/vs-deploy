@@ -33,11 +33,18 @@ import * as FS from 'fs';
 interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
     acl?: string;
     bucket: string;
+    dir?: string;
 }
 
-class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
+interface S3Context {
+    bucket: string;
+    connection: any;
+    dir: string;
+}
+
+class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
     protected createContext(target: DeployTargetS3Bucket,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<any>> {
+                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
         AWS.config.signatureVersion = "v4";                    
                             
         let bucketName = deploy_helpers.toStringSafe(target.bucket)
@@ -47,6 +54,15 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         if (deploy_helpers.isEmptyString(acl)) {
             acl = 'public-read';
         }
+
+        let dir = deploy_helpers.toStringSafe(target.dir).trim();
+        while ((dir.length > 0) && (0 == dir.indexOf('/'))) {
+            dir = dir.substr(1).trim();
+        }
+        while ((dir.length > 0) && ((dir.length - 1) == dir.lastIndexOf('/'))) {
+            dir = dir.substr(0, dir.length - 1).trim();
+        }
+        dir += '/';
         
         return new Promise<deploy_objects.DeployPluginContextWrapper<any>>((resolve, reject) => {
             try {
@@ -57,8 +73,12 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
                     }
                 });
 
-                let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
-                    context: s3bucket,
+                let wrapper: deploy_objects.DeployPluginContextWrapper<S3Context> = {
+                    context: {
+                        bucket: bucketName,
+                        connection: s3bucket,
+                        dir: dir,
+                    },
                 };
 
                 resolve(wrapper);
@@ -69,7 +89,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         });
     }
 
-    protected deployFileWithContext(s3bucket: any,
+    protected deployFileWithContext(ctx: S3Context,
                                     file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
@@ -101,10 +121,14 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             while (0 == bucketKey.indexOf('/')) {
                 bucketKey = bucketKey.substr(1);
             }
+            bucketKey = ctx.dir + bucketKey;
+            while (0 == bucketKey.indexOf('/')) {
+                bucketKey = bucketKey.substr(1);
+            }
 
             if (opts.onBeforeDeploy) {
                 opts.onBeforeDeploy(me, {
-                    destination: relativePath,
+                    destination: bucketKey,
                     file: file,
                     target: target,
                 });
@@ -121,7 +145,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
                     return;
                 }
 
-                s3bucket.createBucket(() => {
+                ctx.connection.createBucket(() => {
                     if (me.context.isCancelling()) {
                         completed(null, true);
                         return;
@@ -132,7 +156,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
                         Body: data,
                     };
 
-                    s3bucket.putObject(params, (err, data) => {
+                    ctx.connection.putObject(params, (err, data) => {
                         if (err) {
                             completed(err);
                             return;

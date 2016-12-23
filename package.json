@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.27.0",
+  "version": "3.28.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -914,6 +914,11 @@
                       "bucket": {
                         "type": "string",
                         "description": "The name of the target bucket."
+                      },
+                      "dir": {
+                        "type": "string",
+                        "description": "The directory inside the bucket where to deploy to.",
+                        "default": "/"
                       },
                       "acl": {
                         "type": "string",
