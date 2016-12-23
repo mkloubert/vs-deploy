@@ -384,6 +384,11 @@
                       "host": {
                         "type": "string",
                         "description": "The optional host address."
+                      },
+                      "publicAccessLevel": {
+                        "type": "string",
+                        "description": "The publib access level of the container.",
+                        "default": "blob"
                       }
                     }
                   },

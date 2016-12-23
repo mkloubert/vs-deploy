@@ -36,6 +36,7 @@ interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
     container: string;
     dir?: string;
     host?: string;
+    publicAccessLevel?: string;
 }
 
 interface AzureBlobContext {
@@ -131,7 +132,16 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                     return;
                 }
 
-                ctx.service.createContainerIfNotExists(ctx.container, (err, result, response) => {
+                let accessLevel = deploy_helpers.toStringSafe(target.publicAccessLevel);
+                if (deploy_helpers.isEmptyString(accessLevel)) {
+                    accessLevel = 'blob';
+                }
+
+                let opts: AzureStorage.BlobService.CreateContainerOptions = {
+                    publicAccessLevel: accessLevel
+                };
+
+                ctx.service.createContainerIfNotExists(ctx.container, opts, (err, result, response) => {
                     if (err) {
                         completed(err);
                         return;
