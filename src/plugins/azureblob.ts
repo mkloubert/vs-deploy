@@ -141,7 +141,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                     publicAccessLevel: accessLevel
                 };
 
-                ctx.service.createContainerIfNotExists(ctx.container, opts, (err, result, response) => {
+                ctx.service.createContainerIfNotExists(ctx.container, opts, (err) => {
                     if (err) {
                         completed(err);
                         return;
