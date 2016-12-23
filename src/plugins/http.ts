@@ -28,6 +28,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as HTTP from 'http';
+import * as HTTPs from 'https';
 const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Path from 'path';
@@ -219,15 +220,20 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                 protocol = 'http:';
                             }
 
+                            let httpModule: any;
                             switch (protocol) {
                                 case 'http:':
-                                case 'https:':
-                                    // supported protocols
+                                    httpModule = HTTP;
                                     break;
 
-                                default:
-                                    completed(new Error(`Protocol ${protocol} is not supported!`));
-                                    return;
+                                case 'https:':
+                                    httpModule = HTTPs;
+                                    break;
+                            }
+
+                            if (!httpModule) {
+                                completed(new Error(`Protocol '${protocol}' is not supported!`));
+                                return;
                             }
 
                             let hostName = deploy_helpers.toStringSafe(targetUrl.hostname).toLowerCase().trim();
@@ -241,7 +247,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             }
 
                             // start the request
-                            let req = HTTP.request({
+                            let req = httpModule.request({
                                 headers: headersToSubmit,
                                 host: hostName,
                                 method: method,
