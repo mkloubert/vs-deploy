@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.30.1",
+  "version": "3.30.2",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -999,14 +999,14 @@
                       },
                       "credentials": {
                         "type": "object",
-                        "description": "The creditials to use.",
+                        "description": "The credentials to use.",
                         "properties": {
                           "config": {
-                            "description": "The configuration data for the creditial provider.",
+                            "description": "The configuration data for the credential provider.",
                             "type": "object"
                           },
                           "type": {
-                            "description": "The creditial provider to use.",
+                            "description": "The credential provider to use.",
                             "oneOf": [
                               {
                                 "type": "string",
