@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "3.29.3",
+  "version": "3.30.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -996,6 +996,68 @@
                       "bucket": {
                         "type": "string",
                         "description": "The name of the target bucket."
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "properties": {
+                          "config": {
+                            "type": "object"
+                          },
+                          "type": {
+                            "oneOf": [
+                              {
+                                "type": "string",
+                                "description": "Represents credentials loaded from shared credentials file.",
+                                "enum": [ "" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials retrieved from STS Web Identity Federation using the Amazon Cognito Identity service.",
+                                "enum": [ "cognito" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials received from relative URI specified in the ECS container.",
+                                "enum": [ "ec2" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials received from the metadata service on an EC2 instance.",
+                                "enum": [ "ec2meta" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials from the environment.",
+                                "enum": [ "environment" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials from a JSON file on disk.",
+                                "enum": [ "file" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials retrieved from STS SAML support.",
+                                "enum": [ "saml" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials loaded from shared credentials file.",
+                                "enum": [ "shared" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents temporary credentials retrieved from 'AWS.STS'.",
+                                "enum": [ "temp" ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "Represents credentials retrieved from STS Web Identity Federation support.",
+                                "enum": [ "web" ]
+                              }
+                            ]
+                          }
+                        }
                       },
                       "dir": {
                         "type": "string",

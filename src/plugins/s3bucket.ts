@@ -23,7 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-const AWS = require('aws-sdk');
+import * as AWS from 'aws-sdk';
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
@@ -33,6 +33,10 @@ import * as FS from 'fs';
 interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
     acl?: string;
     bucket: string;
+    credentials?: {
+        config?: any;
+        type?: string;
+    },
     dir?: string;
 }
 
@@ -42,10 +46,22 @@ interface S3Context {
     dir: string;
 }
 
+const KNOWN_CREDENTIAL_CLASSES = {
+    'cognito': AWS.CognitoIdentityCredentials,
+    'ec2': AWS.ECSCredentials,
+    'ec2meta': AWS.EC2MetadataCredentials,
+    'environment': AWS.EnvironmentCredentials,
+    'file': AWS.FileSystemCredentials,
+    'saml': AWS.SAMLCredentials,
+    'shared': AWS.SharedIniFileCredentials,
+    'temp': AWS.TemporaryCredentials,
+    'web': AWS.WebIdentityCredentials,
+};
+
 class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
     protected createContext(target: DeployTargetS3Bucket,
                             files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
-        AWS.config.signatureVersion = "v4";                    
+        AWS.config.signatureVersion = "v4";
                             
         let bucketName = deploy_helpers.toStringSafe(target.bucket)
                                        .trim();
@@ -65,7 +81,37 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         dir += '/';
         
         return new Promise<deploy_objects.DeployPluginContextWrapper<any>>((resolve, reject) => {
+            let completed = (err?: any, wrapper?: deploy_objects.DeployPluginContextWrapper<S3Context>) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(wrapper);
+                }
+            };
+
+            // detect credential provider
+            let credentalClass = AWS.SharedIniFileCredentials;
+            let credentialConfig: any;
+            let credentalType: string;
+            if (target.credentials) {
+                credentalType = deploy_helpers.toStringSafe(target.credentials.type)
+                                              .toLowerCase().trim();
+                
+                if (!deploy_helpers.isEmptyString(credentalType)) {
+                    credentalClass = KNOWN_CREDENTIAL_CLASSES[credentalType];
+                }
+                credentialConfig = target.credentials.config;
+            }
+
+            if (!credentalClass) {
+                completed(new Error(`Credental type '${credentalType}' is not supported!`));
+                return;
+            }
+
             try {
+                AWS.config.credentials = new credentalClass(credentialConfig);
+
                 let s3bucket = new AWS.S3({
                     params: {
                         Bucket: bucketName,
@@ -81,10 +127,10 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                     },
                 };
 
-                resolve(wrapper);
+                completed(null, wrapper);
             }
             catch (e) {
-                reject(e);
+                completed(e);
             }
         });
     }
