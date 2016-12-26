@@ -113,7 +113,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
         try {
             let deployNextFile: () => void;
 
-            let fileCompleted = function(sender: any, e: deploy_contracts.FileDeployedCompletedEventArguments) {
+            let fileCompleted = function(sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) {
                 try {
                     if (opts.onFileCompleted) {
                         opts.onFileCompleted(sender, e);

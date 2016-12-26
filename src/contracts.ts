@@ -270,7 +270,7 @@ export interface DeployContext {
      * 
      * @return {DeployConfiguration} The current config.
      */
-    config(): DeployConfiguration;
+    config: () => DeployConfiguration;
     /**
      * Shows an error message.
      * 
@@ -278,7 +278,7 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    error(msg: any): DeployContext;
+    error: (msg: any) => DeployContext;
     /**
      * Shows an info message.
      * 
@@ -286,11 +286,11 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    info(msg: any): DeployContext;
+    info: (msg: any) => DeployContext;
     /**
      * Returns if a cancellation is requested or not.
      */
-    isCancelling(): boolean;
+    isCancelling: () => boolean;
     /**
      * Logs a message.
      * 
@@ -298,29 +298,29 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    log(msg: any): DeployContext;
+    log: (msg: any) => DeployContext;
     /**
      * Gets the global output channel.
      */
-    outputChannel(): vscode.OutputChannel;
+    outputChannel: () => vscode.OutputChannel;
     /**
      * Returns the package file of that extension.
      * 
      * @return {PackageFile} The data of the package file.
      */
-    packageFile(): PackageFile;
+    packageFile: () => PackageFile;
     /**
      * Returns the list of packages.
      * 
      * @return {DeployPackage[]} The packages.
      */
-    packages(): DeployPackage[];
+    packages: () => DeployPackage[];
     /**
      * Returns the list of (other) plugins.
      * 
      * @return {DeployPlugin[]} The list of (other) plugins.
      */
-    plugins(): DeployPlugin[];
+    plugins: () => DeployPlugin[];
     /**
      * Loads a module from the extension context / directory.
      * 
@@ -328,7 +328,7 @@ export interface DeployContext {
      * 
      * @return {any} The module.
      */
-    require(id: string): any;
+    require: (id: string) => any;
     /**
      * Shows a warning message.
      * 
@@ -336,13 +336,13 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    warn(msg: any): DeployContext;
+    warn: (msg: any) => DeployContext;
     /**
      * Returns the root directory of the current workspace.
      * 
      * @return {string} The root directory of the current workspace.
      */
-    workspace(): string;
+    workspace: () => string;
     /**
      * Writes a messages to the output channel.
      * 
@@ -350,7 +350,7 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    write(msg: any): DeployContext;
+    write: (msg: any) => DeployContext;
     /**
      * Writes a messages to the output channel and adds a new line.
      * 
@@ -358,13 +358,13 @@ export interface DeployContext {
      * 
      * @chainable
      */
-    writeLine(msg: any): DeployContext;
+    writeLine: (msg: any) => DeployContext;
     /**
      * Returns the list of targets.
      * 
      * @return {DeployTarget[]} The targets.
      */
-    targets(): DeployTarget[];
+    targets: () => DeployTarget[];
 }
 
 /**
@@ -402,7 +402,7 @@ export interface DeployFileOptions {
     /**
      * The "completed" callback.
      */
-    onCompleted?: FileDeployedCompletedEventHandler;
+    onCompleted?: FileDeployCompletedEventHandler;
 }
 
 /**
@@ -681,13 +681,13 @@ export interface DeployWorkspaceOptions {
     /**
      * The "completed" callback for the a single file.
      */
-    onFileCompleted?: FileDeployedCompletedEventHandler;
+    onFileCompleted?: FileDeployCompletedEventHandler;
 }
 
 /**
  * Arguments for a "file deployed completed" event.
  */
-export interface FileDeployedCompletedEventArguments extends DeployEventArguments {
+export interface FileDeployCompletedEventArguments extends DeployEventArguments {
     /**
      * Gets if the operation has been canceled or not.
      */
@@ -712,7 +712,7 @@ export interface FileDeployedCompletedEventArguments extends DeployEventArgument
  * @param {any} sender The sending object.
  * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
  */
-export type FileDeployedCompletedEventHandler = (sender: any, e: FileDeployedCompletedEventArguments) => void;
+export type FileDeployCompletedEventHandler = (sender: any, e: FileDeployCompletedEventArguments) => void;
 
 /**
  * Describes the structure of the package file of that extenstion.
