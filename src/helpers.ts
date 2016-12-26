@@ -27,6 +27,7 @@ import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
 const Glob = require('glob');
+const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as Path from 'path';
@@ -150,6 +151,31 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
         label: name,
         target: target,
     };
+}
+
+/**
+ * Tries to detect the MIME type of a file.
+ * 
+ * @param {string} file The Filename.
+ * @param {any} defValue The default value.
+ * 
+ * @return {string} The MIME type.
+ */
+export function detectMimeByFilename(file: string, defValue: any = 'application/octet-stream'): string {
+    let mime: string;
+    try {
+        mime = MIME.lookup(file);
+    }
+    catch (e) {
+        log(`[ERROR] http.detectContentType(): ${toStringSafe(e)}`);
+    }
+
+    mime = toStringSafe(mime).toLowerCase().trim();
+    if (!mime) {
+        mime = defValue;
+    }
+
+    return mime;
 }
 
 /**

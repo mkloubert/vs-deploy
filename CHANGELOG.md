@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 3.31.0 (December 26th, 2016; Amazon S3 buckets)
+
+* automatic detection and definition of MIME types for files that are uploaded to [Amazon S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
+
+
 ## 3.30.0 (December 24th, 2016; Amazon S3 bucket credentials)
 
 * can define custom credential provider in a [Amazon S3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) target now

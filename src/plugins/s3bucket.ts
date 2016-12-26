@@ -37,12 +37,13 @@ interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
         config?: any;
         type?: string;
     },
+    detectMime?: boolean;
     dir?: string;
 }
 
 interface S3Context {
     bucket: string;
-    connection: any;
+    connection: AWS.S3;
     dir: string;
 }
 
@@ -192,10 +193,14 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         return;
                     }
 
-                    let params = {
+                    let params: any = {
                         Key: bucketKey,
                         Body: data,
                     };
+
+                    if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {
+                        params['ContentType'] = deploy_helpers.detectMimeByFilename(file);
+                    }
 
                     ctx.connection.putObject(params, (err, data) => {
                         if (err) {
