@@ -91,26 +91,26 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             };
 
             // detect credential provider
-            let credentalClass = AWS.SharedIniFileCredentials;
+            let credentialClass = AWS.SharedIniFileCredentials;
             let credentialConfig: any;
-            let credentalType: string;
+            let credentialType: string;
             if (target.credentials) {
-                credentalType = deploy_helpers.toStringSafe(target.credentials.type)
-                                              .toLowerCase().trim();
+                credentialType = deploy_helpers.toStringSafe(target.credentials.type)
+                                               .toLowerCase().trim();
                 
-                if (!deploy_helpers.isEmptyString(credentalType)) {
-                    credentalClass = KNOWN_CREDENTIAL_CLASSES[credentalType];
+                if (!deploy_helpers.isEmptyString(credentialType)) {
+                    credentialClass = KNOWN_CREDENTIAL_CLASSES[credentialType];
                 }
                 credentialConfig = target.credentials.config;
             }
 
-            if (!credentalClass) {
-                completed(new Error(`Credental type '${credentalType}' is not supported!`));
+            if (!credentialClass) {
+                completed(new Error(`Credental type '${credentialType}' is not supported!`));
                 return;
             }
 
             try {
-                AWS.config.credentials = new credentalClass(credentialConfig);
+                AWS.config.credentials = new credentialClass(credentialConfig);
 
                 let s3bucket = new AWS.S3({
                     params: {
