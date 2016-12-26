@@ -1407,7 +1407,6 @@
     "node-uuid": "^1.4.7",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",
-    "opn": "^4.0.2",
     "ssh2-sftp-client": "^1.0.5"
   }
 }

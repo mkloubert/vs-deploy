@@ -217,6 +217,12 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             completed(e);
         }
     }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: 'Deploys to an Amazon S3 bucket',
+        };
+    }
 }
 
 /**

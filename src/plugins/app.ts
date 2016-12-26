@@ -26,7 +26,6 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
-const OPN = require('opn');
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -89,29 +88,20 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
         let completed = (err?: any) => {
             files.forEach(x => {
-                let fileCompleted = (err?: any) => {
-                    if (opts.onFileCompleted) {
-                        opts.onFileCompleted(me, {
-                            error: err,
-                            file: x,
-                            target: target,
-                        });
-                    }
-                };
-                
-                try {
-                    if (opts.onBeforeDeployFile) {
-                        opts.onBeforeDeployFile(me, {
-                            destination: app,
-                            file: x,
-                            target: target,
-                        });
-                    }
-
-                    fileCompleted();
+                if (opts.onBeforeDeployFile) {
+                    opts.onBeforeDeployFile(me, {
+                        destination: app,
+                        file: x,
+                        target: target,
+                    });
                 }
-                catch (e) {
-                    fileCompleted(e);
+
+                if (opts.onFileCompleted) {
+                    opts.onFileCompleted(me, {
+                        error: err,
+                        file: x,
+                        target: target,
+                    });
                 }
             });
 
@@ -123,17 +113,14 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             }
         };
         
-        try {
-            OPN(firstFile, {
-                app: createAppArgsList(nextFiles.join(separator), app, args),
-                wait: false,
-            }).then(() => {
-                completed();
-            });
-        }
-        catch (e) {
-            completed(e);
-        }
+        deploy_helpers.open(firstFile, {
+            app: createAppArgsList(nextFiles.join(separator), app, args),
+            wait: false,
+        }).then(() => {
+            completed();
+        }).catch((err) => {
+            completed(err);
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {

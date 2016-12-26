@@ -29,7 +29,6 @@ import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
 import * as Moment from 'moment';
-const OPN = require('opn');
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -84,12 +83,9 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             completed();
 
                             if (openAfterCreated) {
-                                try {
-                                    OPN(zipFile);
-                                }
-                                catch (e) {
-                                    me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(e)}`)
-                                }
+                                deploy_helpers.open(zipFile).catch((err) => {
+                                    me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(err)}`);
+                                });
                             }
                         });
                     }

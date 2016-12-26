@@ -162,6 +162,12 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             completed(e);
         }
     }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: 'Deploys to a Microsoft Azure blob storage',
+        };
+    }
 }
 
 /**

@@ -27,7 +27,6 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
-const OPN = require('opn');
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as OS from 'os';
