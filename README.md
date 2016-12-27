@@ -243,10 +243,8 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 ![Demo How to execute](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo5.gif)
 
-**HINT**: Since version 2.x the shortcuts have been changed for compatiblity reasons!
-
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy: Current file` | Deploys the current opened file. | `CTRL + ALT + F` |
+| `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL + ALT + F` |
 | `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
-| `Deploy: Workspace` | Deploys a specific package. | `CTRL + ALT + W` |
+| `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL + ALT + W` |

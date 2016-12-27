@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -27,6 +25,7 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
+const Glob = require('glob');
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as OS from 'os';
@@ -276,25 +275,12 @@ export class Deployer {
     }
 
     /**
-     * Deploy the current file.
+     * Deploys a file.
+     * 
+     * @param {string} file The path of the file to deploy. 
      */
-    public deployFile() {
+    protected deployFile(file: string) {
         let me = this;
-
-        let currentEditor = vscode.window.activeTextEditor;
-
-        if (!currentEditor) {
-            vscode.window.showWarningMessage("Please select a file to deploy!");
-            return;
-        }
-
-        let currentDocument = currentEditor.document;
-        if (!currentDocument) {
-            vscode.window.showWarningMessage("Editor contains no document!");
-            return;
-        }
-
-        let file = currentDocument.fileName;
 
         let targets = this.getTargets();
         if (targets.length < 1) {
@@ -332,6 +318,62 @@ export class Deployer {
             // auto select
             deploy(quickPicks[0]);
         }
+    }
+
+    /**
+     * Deploys a file or folder.
+     * 
+     * @param {any} [uri] The URI of the file / folder to deploy. 
+     */
+    public deployFileOrFolder(uri?: any) {
+        let me = this;
+
+        let path: string;
+        
+        if (uri && uri.fsPath) {
+            path = uri.fsPath;
+        }
+        else {
+            let currentEditor = vscode.window.activeTextEditor;
+
+            if (currentEditor) {
+                let currentDocument = currentEditor.document;
+                if (currentDocument) {
+                    path = currentDocument.fileName;
+                }
+            }
+        }
+
+        if (deploy_helpers.isEmptyString(path)) {
+            return;
+        }
+
+        let showError = (err: any) => {
+            vscode.window.showErrorMessage(`Could not deploy file / folder: ${deploy_helpers.toStringSafe(err)}`);
+        };
+
+        // check if file or folder
+        FS.lstat(path, (err, stats) => {
+            if (err) {
+                showError(err);
+                return;
+            }
+
+            try {
+                if (stats.isDirectory()) {
+                    me.deployFolder(path);  // folder
+                }
+                else if (stats.isFile()) {
+                    me.deployFile(path);  // file
+                }
+                else {
+                    showError(new Error(`'${path}' is no valid item that can be deployed!`));
+                }
+            }
+            catch (e) {
+                showError(e);
+            }
+        });
     }
 
     /**
@@ -498,6 +540,71 @@ export class Deployer {
                 completed(e);
             }
         });
+    }
+
+    /**
+     * Deploys a folder.
+     * 
+     * @param {string} dir The path of the folder to deploy.
+     */
+    protected deployFolder(dir: string) {
+        let me = this;
+        
+        dir = Path.resolve(dir); 
+
+        let filesToDeploy: string[] = Glob.sync('**', {
+            absolute: true,
+            cwd: dir,
+            dot: true,
+            ignore: [],
+            nodir: true,
+            root: dir,
+        });
+
+        let targets = this.getTargets();
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
+            return;
+        }
+
+        // start deploy the folder
+        // by selected target
+        let deploy = (t: deploy_contracts.DeployTarget) => {
+            me.beforeDeploy(filesToDeploy, t).then((canceled) => {
+                if (canceled) {
+                    return;
+                }
+
+                if (filesToDeploy.length < 1) {
+                    vscode.window.showWarningMessage(`There are no files to deploy!`);
+                    return;
+                }
+                
+                me.deployWorkspaceTo(filesToDeploy, t).then(() => {
+                    //TODO
+                }).catch((err) => {
+                    vscode.window.showErrorMessage(`Could not deploy folder '${dir}': ${deploy_helpers.toStringSafe(err)}`);
+                });
+            }).catch((err) => {
+                vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+            });
+        };
+
+        // select the target
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        if (fileQuickPicks.length > 1) {
+            vscode.window.showQuickPick(fileQuickPicks, {
+                placeHolder: 'Select the target to deploy the folder to...'
+            }).then((item) => {
+                if (item) {
+                    deploy(item.target);
+                }
+            });
+        }
+        else {
+            // auto select
+            deploy(fileQuickPicks[0].target);
+        }
     }
 
     /**

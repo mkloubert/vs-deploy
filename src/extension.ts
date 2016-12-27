@@ -86,10 +86,10 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // deploy open file
-    let deployFile = vscode.commands.registerCommand('extension.deploy.file', () => {
+    // deploy open file or selected folder
+    let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?: any) => {
         try {
-            deployer.deployFile();
+            deployer.deployFileOrFolder(u);
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
@@ -121,7 +121,9 @@ export function activate(context: vscode.ExtensionContext) {
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
-    context.subscriptions.push(deploy, deployFile, listen, cancelDeploy, quickDeploy);
+    context.subscriptions.push(deploy, deployFileOrFolder,
+                               listen,
+                               cancelDeploy, quickDeploy);
 }
 
 export function deactivate() {

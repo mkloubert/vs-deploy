@@ -27,30 +27,36 @@
       "editor/title": [
         {
           "command": "extension.deploy.file",
-          "title": "Deploy this file"
+          "group": "deploy"
         }
       ],
       "editor/context": [
         {
           "command": "extension.deploy.file",
-          "title": "Deploy this file"
+          "group": "deploy"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "extension.deploy.file",
+          "group": "deploy"
         }
       ]
     },
     "commands": [
       {
         "command": "extension.deploy",
-        "title": "Workspace",
+        "title": "Deploy workspace",
         "category": "Deploy"
       },
       {
         "command": "extension.deploy.file",
-        "title": "Current file",
+        "title": "Deploy current file / folder",
         "category": "Deploy"
       },
       {
         "command": "extension.deploy.listen",
-        "title": "Start/stop listening for files",
+        "title": "Start/stop listening for remote files",
         "category": "Deploy"
       }
     ],

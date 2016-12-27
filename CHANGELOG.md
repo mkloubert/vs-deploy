@@ -1,5 +1,15 @@
 # Change Log (vs-deploy)
 
+## 4.0.0
+
+* can deploy whole folders from explorer's context menu now
+* improved [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) plugin
+* added descriptions for [https://github.com/mkloubert/vs-deploy/wiki/target_azureblob](azureblob) and [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) plugins
+* changed name of 'FileDeployedCompletedEventHandler' to 'FileDeployCompletedEventHandler'
+* cleaned up 'DeployContext' interface
+* replaced [opn](https://www.npmjs.com/package/opn) module with own and extended implementation
+
+
 ## 3.31.0 (December 26th, 2016; Amazon S3 buckets)
 
 * automatic detection and definition of MIME types for files that are uploaded to [Amazon S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
