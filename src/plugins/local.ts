@@ -26,6 +26,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
+import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -76,9 +77,8 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativeTargetFilePath) {
-            completed(new Error(`Could not get relative path for '${file}'!`));
+            completed(new Error(i18.t('couldNotResolveRelativePath', file)));
             return;
-            // TRANSLATE
         }
 
         let targetFile = Path.join(dir, <string>relativeTargetFilePath);
@@ -160,18 +160,17 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let doEmptyDir = deploy_helpers.toBooleanSafe(target.empty, false);
         if (doEmptyDir) {
-            // TRANSLATE
-            me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
+            me.context.outputChannel().append(i18.t('plugins.local.emptyTargetDirectory', targetDir));
 
             FSExtra.emptyDir(targetDir, (err) => {
                 if (err) {
-                    me.context.outputChannel().append(`[FAILED: ${deploy_helpers.toStringSafe(err)}]`);
+                    me.context.outputChannel().append(i18.t('failed', err));
 
                     completed(err);
                     return;
                 }
 
-                me.context.outputChannel().appendLine('[OK]');
+                me.context.outputChannel().appendLine(i18.t('ok'));
                 startDeploying();
             });
         }
@@ -182,9 +181,8 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
+            description: i18.t('plugins.local.description'),
         };
-        // TRANSLATE
     }
 }
 

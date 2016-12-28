@@ -28,10 +28,16 @@ export const translation: Translation = {
     countableError: 'ERROR #{0:trim}: {1}',
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
     errorWithCategory: '[ERROR] {0:trim}: {1}',
+    failed: '[FAILED: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
+    ok: '[OK]',
     plugins: {
         ftp: {
             description: 'Deploys to a FTP server',
+        },
+        local: {
+            description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
+            emptyTargetDirectory: 'Empty LOCAL target directory {0:trim,surround}... ',
         },
         mail: {
             addressSelector: {

@@ -35,10 +35,16 @@ export interface Translation {
     countableError?: string;
     couldNotResolveRelativePath?: string;
     errorWithCategory?: string;
+    failed?: string;
     noDirectory?: string;
+    ok?: string;
     plugins?: {
         ftp?: {
             description?: string;
+        },
+        local?: {
+            description?: string;
+            emptyTargetDirectory?: string;
         },
         mail?: {
             addressSelector?: {

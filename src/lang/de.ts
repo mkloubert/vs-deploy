@@ -28,10 +28,15 @@ export const translation: Translation = {
     countableError: 'FEHLER #{0:trim}: {1}',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
     errorWithCategory: '[FEHLER] {0:trim}: {1}',
+    failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
+        },
+        local: {
+            description: 'Kopiert Dateien in ein lokales Verzeichnis oder eine Netwerkfreigabe',
+            emptyTargetDirectory: 'Leere lokales Verzeichnis {0:trim,surround}... ',
         },
         mail: {
             addressSelector: {
