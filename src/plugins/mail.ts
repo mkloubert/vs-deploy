@@ -24,6 +24,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as i18 from '../i18';
 const Mailer = require('nodemailer');
 import * as Moment from 'moment';
 import * as vscode from 'vscode';
@@ -104,8 +105,8 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             text: `Your deployed files (s. attachment).
 
 
-        Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
-        https://github.com/mkloubert/vs-deploy`,
+Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
+https://github.com/mkloubert/vs-deploy`,
                             attachments: [
                                 {
                                     filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
@@ -113,7 +114,6 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                                 }
                             ]
                         };
-                        // TRANSLATE
 
                         let transporter = Mailer.createTransport({
                             host: host,
@@ -139,9 +139,9 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                 };
 
                 vscode.window.showInputBox({
-                    prompt: "Target eMail address(es)",
+                    prompt: i18.t('plugins.mail.addressSelector.prompt'),
                     ignoreFocusOut: true,
-                    placeHolder: 'One or more email address (separated by comma) to deploy to...',
+                    placeHolder: i18.t('plugins.mail.addressSelector.placeholder'),
                     value: to,
                 }).then((value) => {
                             to = deploy_helpers.toStringSafe(value).trim();
@@ -154,7 +154,6 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                         }, (err) => {
                             completed(err);
                         });
-                // TRANSLATE
             }
             catch (e) {
                 completed(e);
@@ -164,9 +163,8 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a ZIP file and sends it as attachment by mail via SMTP',
+            description: i18.t('plugins.mail.description'),
         };
-        // TRANSLATE
     }
 }
 

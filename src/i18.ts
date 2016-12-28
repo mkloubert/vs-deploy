@@ -40,6 +40,13 @@ export interface Translation {
         ftp?: {
             description?: string;
         },
+        mail?: {
+            addressSelector?: {
+                placeholder?: string;
+                prompt?: string;
+            };
+            description?: string;
+        },
         pipeline?: {
             description?: string;
             noPipeFunction?: string;

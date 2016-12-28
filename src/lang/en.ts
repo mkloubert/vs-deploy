@@ -33,6 +33,13 @@ export const translation: Translation = {
         ftp: {
             description: 'Deploys to a FTP server',
         },
+        mail: {
+            addressSelector: {
+                placeholder: 'Target eMail address(es)',
+                prompt: 'One or more email address (separated by comma) to deploy to...',
+            },
+            description: 'Deploys to a ZIP file and sends it as attachment by mail via SMTP',
+        },
         pipeline: {
             description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target',
             noPipeFunction: "{0:trim,surround} implements no 'pipe()' function!",
