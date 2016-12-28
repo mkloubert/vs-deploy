@@ -25,6 +25,7 @@ import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
 const Glob = require('glob');
+import * as i18 from './i18';
 const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Net from 'net';
@@ -116,8 +117,7 @@ export function createFileQuickPick(file: string, target: deploy_contracts.Deplo
 export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPickItem {
     let name = toStringSafe(pkg.name).trim();
     if (!name) {
-        name = `(Package #${index + 1})`;
-        // TRANSLATE
+        name = i18.t('defaultPackageName', index + 1);
     }
 
     let description = toStringSafe(pkg.description).trim();
@@ -140,8 +140,7 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
 export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployTargetQuickPickItem {
     let name = toStringSafe(target.name).trim();
     if (!name) {
-        name = `(Target #${index + 1})`;
-        // TRANSLATE
+        name = i18.t('defaultTargetName', index + 1);
     }
 
     let description = toStringSafe(target.description).trim();
@@ -358,8 +357,7 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
 
     let stats = FS.lstatSync(file);
     if (!stats.isFile()) {
-        throw new Error(`'${file}' is no file!`);
-        // TRANSLATE
+        throw new Error(i18.t('noFile', file));
     }
 
     if (!useCache) {
@@ -411,7 +409,6 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
         try {
             if (typeof target !== 'string') {
                 throw new Error('Expected a `target`');
-                // TRANSLATE
             }
 
             let cmd: string;
@@ -495,7 +492,6 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
                 cp.once('close', function (code) {
                     if (code > 0) {
                         completed(new Error('Exited with code ' + code));
-                        // TRANSLATE
                         return;
                     }
 

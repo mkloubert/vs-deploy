@@ -34,9 +34,12 @@ import * as vscode from 'vscode';
 export interface Translation {
     countableError?: string;
     couldNotResolveRelativePath?: string;
+    defaultPackageName?: string;
+    defaultTargetName?: string;
     errorWithCategory?: string;
     failed?: string;
     noDirectory?: string;
+    noFile?: string;
     ok?: string;
     plugins?: {
         app?: {

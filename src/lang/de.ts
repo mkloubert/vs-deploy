@@ -27,9 +27,12 @@ import { Translation } from '../i18';
 export const translation: Translation = {
     countableError: 'FEHLER #{0:trim}: {1}',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
+    defaultPackageName: '(Paket #{0:trim})',
+    defaultTargetName: '(Ziel #{0:trim})',
     errorWithCategory: '[FEHLER] {0:trim}: {1}',
     failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
+    noFile: "{0:trim,surround} ist keine Datei!",
     plugins: {
         app: {
             description: 'Sendet Dateien an eine ausführbare Datei',

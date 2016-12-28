@@ -27,9 +27,12 @@ import { Translation } from '../i18';
 export const translation: Translation = {
     countableError: 'ERROR #{0:trim}: {1}',
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
+    defaultPackageName: '(Package #{0:trim})',
+    defaultTargetName: '(Target #{0:trim})',
     errorWithCategory: '[ERROR] {0:trim}: {1}',
     failed: '[FAILED: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
+    noFile: "{0:trim,surround} is no file!",
     ok: '[OK]',
     plugins: {
         app: {
