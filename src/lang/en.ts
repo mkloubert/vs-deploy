@@ -32,6 +32,9 @@ export const translation: Translation = {
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     ok: '[OK]',
     plugins: {
+        azureblob: {
+            description: 'Deploys to a Microsoft Azure blob storage',
+        },
         batch: {
             description: 'Deploys to other targets',
         },

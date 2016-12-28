@@ -31,6 +31,9 @@ export const translation: Translation = {
     failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
+        azureblob: {
+            description: 'Lädt Dateien in ein Microsoft Azure Blob Speicherkonto hoch',
+        },
         batch: {
             description: 'Stapelverarbeitung von Dateien durch mehrere Ziele',
         },

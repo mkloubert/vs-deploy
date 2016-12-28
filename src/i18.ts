@@ -39,6 +39,9 @@ export interface Translation {
     noDirectory?: string;
     ok?: string;
     plugins?: {
+        azureblob?: {
+            description?: string;
+        },
         batch?: {
             description?: string;
         },
