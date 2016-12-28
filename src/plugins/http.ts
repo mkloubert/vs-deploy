@@ -27,6 +27,7 @@ import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
+import * as i18 from '../i18';
 const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Path from 'path';
@@ -49,23 +50,6 @@ interface DeployTargetHttp extends deploy_contracts.DeployTarget {
     url?: string;
 }
 
-function detectContentType(file: string): string {
-    let mime: string;
-    try {
-        mime = MIME.lookup(file);
-    }
-    catch (e) {
-        deploy_helpers.log(`[ERROR] http.detectContentType(): ${deploy_helpers.toStringSafe(e)}`);
-        // TRANSLATE
-    }
-
-    mime = deploy_helpers.toStringSafe(mime).toLowerCase().trim();
-    if (!mime) {
-        mime = 'application/octet-stream';
-    }
-
-    return mime;
-}
 
 class HttpPlugin extends deploy_objects.DeployPluginBase {
     public deployFile(file: string, target: DeployTargetHttp, opts?: deploy_contracts.DeployFileOptions): void {
@@ -95,9 +79,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
         let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativePath) {
-            completed(new Error(`Cannot get relative path for '${file}'!`));
+            completed(new Error(i18.t('couldNotResolveRelativePath', file)));
             return;
-            // TRANSLATE
         }
 
         let url = deploy_helpers.toStringSafe(target.url).trim();
@@ -128,7 +111,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
             headers['X-vsdeploy-file'] = relativePath;
         }
 
-        let contentType = detectContentType(file);
+        let contentType = deploy_helpers.detectMimeByFilename(file);
 
         // data transformer
         let dataTransformer: deploy_contracts.DataTransformer;
@@ -232,9 +215,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             }
 
                             if (!httpModule) {
-                                completed(new Error(`Protocol '${protocol}' is not supported!`));
+                                completed(new Error(i18.t('plugins.http.protocolNotSupported', protocol)));
                                 return;
-                                // TRANSLATE
                             }
 
                             let hostName = deploy_helpers.toStringSafe(targetUrl.hostname).toLowerCase().trim();
@@ -306,9 +288,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a HTTP server/service',
+            description: i18.t('plugins.http.description'),
         };
-        // TRANSLATE
     }
 }
 

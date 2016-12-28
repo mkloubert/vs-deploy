@@ -34,6 +34,10 @@ export const translation: Translation = {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },
+        http: {
+            description: 'Sendet Dateien an einen HTTP-Server/-Dienst',
+            protocolNotSupported: 'Protokolle vom Typ {0:trim,surround} werden nicht unterstützt!',
+        },
         local: {
             description: 'Kopiert Dateien in ein lokales Verzeichnis oder eine Netwerkfreigabe',
             emptyTargetDirectory: 'Leere lokales Verzeichnis {0:trim,surround}... ',

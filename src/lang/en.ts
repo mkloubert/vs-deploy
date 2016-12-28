@@ -35,6 +35,10 @@ export const translation: Translation = {
         ftp: {
             description: 'Deploys to a FTP server',
         },
+        http: {
+            description: 'Deploys to a HTTP server/service',
+            protocolNotSupported: 'Protocol {0:trim,surround} is not supported!',
+        },
         local: {
             description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
             emptyTargetDirectory: 'Empty LOCAL target directory {0:trim,surround}... ',

@@ -42,6 +42,10 @@ export interface Translation {
         ftp?: {
             description?: string;
         },
+        http?: {
+            description?: string;
+            protocolNotSupported?: string;
+        },
         local?: {
             description?: string;
             emptyTargetDirectory?: string;
