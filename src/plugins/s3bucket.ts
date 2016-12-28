@@ -26,6 +26,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
+import * as i18 from '../i18';
 
 
 interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
@@ -104,8 +105,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
 
             if (!credentialClass) {
-                completed(new Error(`Credental type '${credentialType}' is not supported!`));
-                // TRANSLATE
+                completed(new Error(i18.t('plugins.s3bucket.credentialTypeNotSupported', credentialType)));
                 return;
             }
 
@@ -153,8 +153,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         try {
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
-                completed(new Error(`Could not get relative path for '${file}'!`));
-                // TRANSLATE
+                completed(new Error(i18.t('couldNotResolveRelativePath', file)));
                 return;
             }
 
@@ -220,9 +219,8 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to an Amazon S3 bucket',
+            description: i18.t('plugins.s3bucket.description'),
         };
-        // TRANSLATE
     }
 }
 

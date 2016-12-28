@@ -31,6 +31,10 @@ export const translation: Translation = {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },
+        s3bucket: {
+            credentialTypeNotSupported: 'Das Anmeldeverfahren {0:trim,surround} wird nicht unterstützt!',
+            description: 'Lädt Dateien in ein Amazon S3 Bucket hoch',
+        },
         script: {
             deployFileFailed: 'Das Bereitstellen der Datei {0:trim,surround} über das Skript {1:trim,surround} schlug fehl!',
             deployWorkspaceFailed: 'Das Bereitstellen des Arbeitsbereiches über das Skript {0:trim,surround} schlug fehl!',

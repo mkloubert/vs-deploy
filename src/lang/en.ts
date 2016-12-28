@@ -31,6 +31,10 @@ export const translation: Translation = {
         ftp: {
             description: 'Deploys to a FTP server',
         },
+        s3bucket: {
+            credentialTypeNotSupported: 'Credental type {0:trim,surround} is not supported!',
+            description: 'Deploys to an Amazon S3 bucket',
+        },
         script: {
             deployFileFailed: 'Could not deploy file {0:trim,surround} by script {1:trim,surround}!',
             deployWorkspaceFailed: 'Could not deploy workspace by script {0:trim,surround}!',

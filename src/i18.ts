@@ -38,6 +38,10 @@ export interface Translation {
         ftp?: {
             description?: string;
         },
+        s3bucket?: {
+            credentialTypeNotSupported?: string;
+            description?: string;
+        },
         script?: {
             deployFileFailed?: string;
             deployWorkspaceFailed?: string;
