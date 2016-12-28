@@ -31,6 +31,9 @@ export const translation: Translation = {
     failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
+        batch: {
+            description: 'Stapelverarbeitung von Dateien durch mehrere Ziele',
+        },
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },

@@ -24,6 +24,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as i18 from '../i18';
 import * as vscode from 'vscode';
 
 
@@ -43,9 +44,8 @@ class BatchPlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to other targets',
+            description: i18.t('plugins.batch.description'),
         };
-        // TRANSLATE
     }
 }
 

@@ -39,6 +39,9 @@ export interface Translation {
     noDirectory?: string;
     ok?: string;
     plugins?: {
+        batch?: {
+            description?: string;
+        },
         ftp?: {
             description?: string;
         },
