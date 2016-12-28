@@ -26,6 +26,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
+import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -123,9 +124,8 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                                 });
                             }
                             else {
-                                // no
-                                completed(new Error(`'${targetDir}' is no directory!`));
-                                // TRANSLATE
+                                // no directory
+                                completed(new Error(i18.t('noDirectory', targetDir)));
                             }
                         }
                         catch (e) {
@@ -161,9 +161,8 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a ZIP file',
+            description: i18.t('plugins.zip.description'),
         };
-        // TRANSLATE
     }
 }
 

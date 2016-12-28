@@ -26,13 +26,16 @@ import { Translation } from '../i18';
 // deutsch (german)
 export const translation: Translation = {
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
-
+    noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
+        },
+        zip: {
+            description: 'Speichert Dateien in eine ZIP-Datei',
         }
     }
 };
