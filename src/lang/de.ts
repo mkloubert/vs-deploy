@@ -34,8 +34,12 @@ export const translation: Translation = {
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
         },
+        test: {
+            description: 'Ein Test-PlugIn, welches lediglich anzeigt, welche Dateien bereitgestellt würden',
+        },
         zip: {
             description: 'Speichert Dateien in eine ZIP-Datei',
+            fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
         }
     }
 };

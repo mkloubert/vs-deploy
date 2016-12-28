@@ -115,8 +115,8 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
                                 FS.exists(zipFile, (exists) => {
                                     if (exists) {
-                                        completed(new Error(`File '${zipRelativePath}' already exists! Try again...`));
-                                        // TRANSLATE
+                                        // we do not overwrite existing files
+                                        completed(new Error(i18.t('plugins.zip.fileAlreadyExists', zipRelativePath)));
                                         return;
                                     }
 

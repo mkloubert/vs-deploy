@@ -25,6 +25,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
+import * as i18 from '../i18';
 
 
 interface DeployTargetTest extends deploy_contracts.DeployTarget {
@@ -57,9 +58,8 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
 
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
-                completed(new Error(`Could not get relative path for '${file}'!`));
+                completed(new Error(i18.t('couldNotResolveRelativePath', file)));
                 return;
-                // TRANSLATE
             }
 
             if (opts.onBeforeDeploy) {
@@ -86,9 +86,8 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'A mock deployer that only displays what files would be deployed',
+            description: i18.t('plugins.test.description'),
         };
-        // TRANSLATE
     }
 }
 

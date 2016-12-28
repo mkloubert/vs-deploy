@@ -34,8 +34,12 @@ export const translation: Translation = {
         sftp: {
             description: 'Deploys to a SFTP server',
         },
+        test: {
+            description: 'A mock deployer that only displays what files would be deployed',
+        },
         zip: {
             description: 'Deploys to a ZIP file',
+            fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
         }
     }
 };

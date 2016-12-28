@@ -41,8 +41,12 @@ export interface Translation {
         sftp?: {
             description?: string;
         },
+        test?: {
+            description?: string;
+        },
         zip?: {
             description?: string;
+            fileAlreadyExists?: string;
         }
     }
 }
