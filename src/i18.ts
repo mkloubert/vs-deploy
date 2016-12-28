@@ -32,7 +32,9 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
+    cannotUseTargetRecurrence?: string;
     countableError?: string;
+    couldNotFindTarget?: string;
     couldNotResolveRelativePath?: string;
     defaultPackageName?: string;
     defaultTargetName?: string;

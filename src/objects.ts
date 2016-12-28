@@ -24,6 +24,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
+import * as i18 from './i18';
 import * as vscode from 'vscode';
 const Zip = require('node-zip');
 
@@ -619,8 +620,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
         if (targetNames.indexOf(myTargetName) > -1) {
             // no recurrence!
-            vscode.window.showWarningMessage(`[vs-deploy] Cannot use target '${myTargetName}' (recurrence)!`);
-            // TRANSLATE
+            vscode.window.showWarningMessage(i18.t('cannotUseTargetRecurrence', myTargetName));
         }
 
         // prevent recurrence
@@ -642,8 +642,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
             if (!found) {
                 // we have an unknown target here
-                vscode.window.showWarningMessage(`[vs-deploy :: batch] Could not find target '${tn}'!`);
-                // TRANSLATE
+                vscode.window.showWarningMessage(i18.t('couldNotFindTarget', tn));
             }
         });
 

@@ -25,7 +25,9 @@ import { Translation } from '../i18';
 
 // deutsch (german)
 export const translation: Translation = {
+    cannotUseTargetRecurrence: 'Kann das Ziel {0:trim,surround} nicht verwenden (Rekursion)!',
     countableError: 'FEHLER #{0:trim}: {1}',
+    couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht finden!',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
     defaultPackageName: '(Paket #{0:trim})',
     defaultTargetName: '(Ziel #{0:trim})',
