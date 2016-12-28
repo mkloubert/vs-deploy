@@ -92,5 +92,7 @@ export const translation: Translation = {
             fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
         }
     },
+    quickDeploy: 'Quick deploy!',
     relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
+    startQuickDeploy: 'Start a quick deploy...',
 };

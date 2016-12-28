@@ -99,7 +99,9 @@ export interface Translation {
             fileAlreadyExists?: string;
         }
     },
+    quickDeploy?: string;
     relativePathIsEmpty?: string;
+    startQuickDeploy?: string;
 }
 
 

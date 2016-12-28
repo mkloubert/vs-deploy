@@ -102,11 +102,8 @@ export class Deployer {
         this._OUTPUT_CHANNEL = outputChannel;
         this._PACKAGE_FILE = pkgFile;
 
-        this._QUICK_DEPLOY_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
+        this._QUICK_DEPLOY_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);        
         this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
-
-        // TRANSLATE
 
         this.reloadConfiguration();
         this.reloadPlugins();
@@ -1983,25 +1980,28 @@ export class Deployer {
      * Reloads configuration.
      */
     public reloadConfiguration() {
-        // TRANSLATE
         let me = this;
 
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
+        this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
+        this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
         deploy_i18.init(this._config.language).then(() => {
-            //TODO
+            if (me._config.button) {
+                let txt = deploy_helpers.toStringSafe(me._config.button.text).trim();
+                if (!txt) {
+                    txt = deploy_i18.t('quickDeploy');
+                }
+                me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+            }
+
+            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = deploy_i18.t('startQuickDeploy');
         }).catch((err) => {
-            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(): ${deploy_helpers.toStringSafe(err)}`);
+            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
         });
 
         this._QUICK_DEPLOY_STATUS_ITEM.hide();
         if (this._config.button) {
-            let txt = deploy_helpers.toStringSafe(this._config.button.text).trim();
-            if (!txt) {
-                txt = 'Quick deploy!';
-            }
-            this._QUICK_DEPLOY_STATUS_ITEM.text = txt;
-
             if (deploy_helpers.toBooleanSafe(this._config.button.enabled)) {
                 this._QUICK_DEPLOY_STATUS_ITEM.show();
             }
