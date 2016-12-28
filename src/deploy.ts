@@ -1984,8 +1984,15 @@ export class Deployer {
      */
     public reloadConfiguration() {
         // TRANSLATE
+        let me = this;
 
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+
+        deploy_i18.init(this._config.language).then(() => {
+            //TODO
+        }).catch((err) => {
+            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(): ${deploy_helpers.toStringSafe(err)}`);
+        });
 
         this._QUICK_DEPLOY_STATUS_ITEM.hide();
         if (this._config.button) {
@@ -2003,10 +2010,6 @@ export class Deployer {
         if (deploy_helpers.toBooleanSafe(this._config.openOutputOnStartup)) {
             this.outputChannel.show();
         }
-
-        deploy_i18.init(this._config.language).then(() => {
-        }).catch((err) => {
-        });
     }
 
     /**

@@ -32,6 +32,12 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
+    couldNotResolveRelativePath?: string;
+    plugins?: {
+        sftp?: {
+            description?: string;
+        }
+    }
 }
 
 
@@ -47,45 +53,7 @@ export function t(key: string, ...args: any[]): string {
     let formatStr = i18next.t(deploy_helpers.toStringSafe(key).trim());
     formatStr = deploy_helpers.toStringSafe(formatStr);
 
-    // apply arguments in
-    // placeholders
-    return formatStr.replace(/{(\d+)(\:)?([^}]*)}/g, (match, index, formatSeparator, formatExpr) => {
-        index = parseInt(deploy_helpers.toStringSafe(index).trim());
-        
-        let resultValue = args[index];
-
-        if (':' === formatSeparator) {
-            // collect "format providers"
-            let formatProviders = deploy_helpers.toStringSafe(formatExpr)
-                                                .split(',')
-                                                .map(x => x.toLowerCase().trim())
-                                                .filter(x => x);
-
-            // transform argument by
-            // format providers
-            formatProviders.forEach(fp => {
-                switch (fp) {
-                    case 'lower':
-                        resultValue = deploy_helpers.toStringSafe(resultValue).toLowerCase();
-                        break;
-
-                    case 'trim':
-                        resultValue = deploy_helpers.toStringSafe(resultValue).trim();
-                        break;
-
-                    case 'upper':
-                        resultValue = deploy_helpers.toStringSafe(resultValue).toUpperCase();
-                        break;
-                }
-            });
-        }
-
-        if ('undefined' === typeof resultValue) {
-            return match;
-        }
-
-        return deploy_helpers.toStringSafe(resultValue);        
-    });
+    return deploy_helpers.formatArray(formatStr, args);
 }
 
 /**

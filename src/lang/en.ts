@@ -25,6 +25,11 @@ import { Translation } from '../i18';
 
 // english
 export const translation: Translation = {
-    hello: "Hello, world!",
-    test: "Hello, {1:lower} {0:trim,upper}!",
+    couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
+
+    plugins: {
+        sftp: {
+            description: 'Deploys to a SFTP server',
+        }
+    }
 };

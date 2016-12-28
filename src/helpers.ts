@@ -196,6 +196,77 @@ export function distinctArray<T>(arr: T[]): T[] {
 }
 
 /**
+ * Formats a string.
+ * 
+ * @param {any} formatStr The value that represents the format string.
+ * @param {any[]} [args] The arguments for 'formatStr'.
+ * 
+ * @return {string} The formated string.
+ */
+export function format(formatStr: any, ...args: any[]): string {
+    return formatArray(formatStr, args);
+}
+
+/**
+ * Formats a string.
+ * 
+ * @param {any} formatStr The value that represents the format string.
+ * @param {any[]} [args] The arguments for 'formatStr'.
+ * 
+ * @return {string} The formated string.
+ */
+export function formatArray(formatStr: any, args: any[]): string {
+    if (!args) {
+        args = [];
+    }
+
+    formatStr = toStringSafe(formatStr);
+
+    // apply arguments in
+    // placeholders
+    return formatStr.replace(/{(\d+)(\:)?([^}]*)}/g, (match, index, formatSeparator, formatExpr) => {
+        index = parseInt(toStringSafe(index).trim());
+        
+        let resultValue = args[index];
+
+        if (':' === formatSeparator) {
+            // collect "format providers"
+            let formatProviders = toStringSafe(formatExpr).split(',')
+                                                          .map(x => x.toLowerCase().trim())
+                                                          .filter(x => x);
+
+            // transform argument by
+            // format providers
+            formatProviders.forEach(fp => {
+                switch (fp) {
+                    case 'lower':
+                        resultValue = toStringSafe(resultValue).toLowerCase();
+                        break;
+
+                    case 'trim':
+                        resultValue = toStringSafe(resultValue).trim();
+                        break;
+
+                    case 'upper':
+                        resultValue = toStringSafe(resultValue).toUpperCase();
+                        break;
+
+                    case 'surround':
+                        resultValue = "'" + toStringSafe(resultValue) + "'";
+                        break;
+                }
+            });
+        }
+
+        if ('undefined' === typeof resultValue) {
+            return match;
+        }
+
+        return toStringSafe(resultValue);        
+    });
+}
+
+/**
  * Returns the list of a package that should be deployed.
  * 
  * @param {deploy_contracts.DeployPackage} pkg The package.
