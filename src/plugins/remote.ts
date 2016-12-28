@@ -25,6 +25,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
+import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Net from 'net';
 const UUID = require('node-uuid');
@@ -108,9 +109,8 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
 
             if (allErrors.length > 1) {
-                err = new Error(allErrors.map((x, i) => `ERROR #${i + 1}: ${deploy_helpers.toStringSafe(x)}`)
+                err = new Error(allErrors.map((x, i) => i18.t('countableError', i + 1, x))
                                          .join('\n\n'));
-                // TRANSLATE
             }
             else if (1 == allErrors.length) {
                 err = allErrors[0];
@@ -157,8 +157,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         try {
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
-                completed(new Error(`Could not get relative path for '${file}' file!`));
-                // TRANSLATE
+                completed(new Error(i18.t('couldNotResolveRelativePath', file)));
                 return;
             }
 
@@ -167,8 +166,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
 
             if (!relativePath) {
-                completed(new Error(`Relative path for '${file}' file is empty!`));
-                // TRANSLATE
+                completed(new Error(i18.t('relativePathIsEmpty', file)));
                 return;
             }
 
@@ -321,9 +319,8 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a remote machine over a TCP connection',
+            description: i18.t('plugins.remote.description'),
         };
-        // TRANSLATE
     }
 }
 

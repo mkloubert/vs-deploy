@@ -156,6 +156,11 @@
                 }
               }
             },
+            "language": {
+              "type": "string",
+              "description": "The ID of the (display) language to use.",
+              "default": "en"
+            },
             "openOutputOnDeploy": {
               "type": "boolean",
               "description": "Open the output window before deploying starts or not.",

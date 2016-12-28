@@ -25,11 +25,15 @@ import { Translation } from '../i18';
 
 // english
 export const translation: Translation = {
+    countableError: 'ERROR #{0:trim}: {1}',
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
         ftp: {
             description: 'Deploys to a FTP server',
+        },
+        remote: {
+            description: 'Deploys to a remote machine over a TCP connection',
         },
         s3bucket: {
             credentialTypeNotSupported: 'Credental type {0:trim,surround} is not supported!',
@@ -51,5 +55,6 @@ export const translation: Translation = {
             description: 'Deploys to a ZIP file',
             fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
         }
-    }
+    },
+    relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
 };

@@ -32,10 +32,14 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
+    countableError?: string;
     couldNotResolveRelativePath?: string;
     noDirectory?: string;
     plugins?: {
         ftp?: {
+            description?: string;
+        },
+        remote?: {
             description?: string;
         },
         s3bucket?: {
@@ -58,7 +62,8 @@ export interface Translation {
             description?: string;
             fileAlreadyExists?: string;
         }
-    }
+    },
+    relativePathIsEmpty?: string;
 }
 
 

@@ -25,11 +25,15 @@ import { Translation } from '../i18';
 
 // deutsch (german)
 export const translation: Translation = {
+    countableError: 'FEHLER #{0:trim}: {1}',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
+        },
+        remote: {
+            description: 'Überträgt Dateien über eine TCP-Verbindung',
         },
         s3bucket: {
             credentialTypeNotSupported: 'Das Anmeldeverfahren {0:trim,surround} wird nicht unterstützt!',
@@ -51,5 +55,6 @@ export const translation: Translation = {
             description: 'Speichert Dateien in eine ZIP-Datei',
             fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
         }
-    }
+    },
+    relativePathIsEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
 };
