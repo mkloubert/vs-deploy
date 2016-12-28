@@ -24,6 +24,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -168,8 +169,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
             let scriptModule = loadScriptModule(scriptFile);
             if (!scriptModule.deployFile) {
-                throw new Error(`'${relativeScriptPath}' implements no 'deployFile()' function!`);
-                // TRANSLATE
+                throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
             }
 
             let args: DeployFileArguments = {
@@ -185,8 +185,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 completed(null, (a || args).canceled);
             }).catch((err) => {
                 if (!err) {
-                    err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}'!`);
-                    // TRANSLATE
+                    // define generic error message
+                    err = new Error(i18.t('plugins.script.deployFileFailed', file, relativeScriptPath));
                 }
 
                 completed(err);
@@ -244,8 +244,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     completed(null, (a || args).canceled);
                 }).catch((err) => {
                     if (!err) {
-                        err = new Error(`Could not deploy workspace by script '${relativeScriptPath}'!`);
-                        // TRANSLATE
+                        // define generic error message
+                        err = new Error(i18.t('plugins.script.deployWorkspaceFailed', relativeScriptPath));
                     }
 
                     completed(err);
@@ -263,9 +263,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys via a JS script',
+            description: i18.t('plugins.script.description'),
         };
-        // TRANSLATE
     }
 }
 

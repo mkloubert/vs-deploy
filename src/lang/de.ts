@@ -31,6 +31,12 @@ export const translation: Translation = {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },
+        script: {
+            deployFileFailed: 'Das Bereitstellen der Datei {0:trim,surround} über das Skript {1:trim,surround} schlug fehl!',
+            deployWorkspaceFailed: 'Das Bereitstellen des Arbeitsbereiches über das Skript {0:trim,surround} schlug fehl!',
+            description: 'Stellt Dateien über ein NodeJS-Skript bereit',
+            noDeployFileFunction: "{0:trim,surround} implementiert keine 'deployFile()' Funktion!",
+        },
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
         },

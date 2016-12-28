@@ -38,6 +38,12 @@ export interface Translation {
         ftp?: {
             description?: string;
         },
+        script?: {
+            deployFileFailed?: string;
+            deployWorkspaceFailed?: string;
+            description?: string;
+            noDeployFileFunction?: string;
+        },
         sftp?: {
             description?: string;
         },
