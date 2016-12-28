@@ -3,6 +3,7 @@
 ## 4.0.0
 
 * can deploy whole folders from explorer's context menu now
+* added support for translations
 * improved [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) plugin
 * added descriptions for [https://github.com/mkloubert/vs-deploy/wiki/target_azureblob](azureblob) and [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) plugins
 * changed name of 'FileDeployedCompletedEventHandler' to 'FileDeployCompletedEventHandler'

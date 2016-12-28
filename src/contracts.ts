@@ -234,6 +234,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     clearOutputOnStartup?: boolean;
     /**
+     * The ID of the language to use (e.g. 'en', 'de')
+     */
+    language?: string;
+    /**
      * List of additional files of plugin modules to load.
      */
     modules?: string | string[];
