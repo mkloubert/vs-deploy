@@ -34,10 +34,15 @@ import * as vscode from 'vscode';
 export interface Translation {
     countableError?: string;
     couldNotResolveRelativePath?: string;
+    errorWithCategory?: string;
     noDirectory?: string;
     plugins?: {
         ftp?: {
             description?: string;
+        },
+        pipeline?: {
+            description?: string;
+            noPipeFunction?: string;
         },
         remote?: {
             description?: string;

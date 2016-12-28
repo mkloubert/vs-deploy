@@ -24,6 +24,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -169,8 +170,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
             let scriptModule = loadScriptModule(scriptFile);
             if (!scriptModule.pipe) {
-                throw new Error(`'${relativeScriptPath}' implements no 'pipe()' function!`);
-                // TRANSLATE
+                throw new Error(i18.t('plugins.pipeline.noPipeFunction', relativeScriptPath));
             }
 
             let args: PipeArguments = {
@@ -217,8 +217,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                       scriptModule.onPipeCompleted(a, e.error).then(() => {
                                                           pipeCompleted();
                                                       }).catch((err) => {
-                                                          me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(2): ${deploy_helpers.toStringSafe(err)}`);
-                                                          // TRANSLATE
+                                                          me.context.log(i18.t('errorWithCategory', 'PipelinePlugin.deployWorkspace(2)', err));
 
                                                           pipeCompleted();
                                                       });
@@ -228,8 +227,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                   }
                                               }
                                               catch (ex) {
-                                                  me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(1): ${deploy_helpers.toStringSafe(ex)}`);
-                                                  // TRANSLATE
+                                                  me.context.log(i18.t('errorWithCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
 
                                                   pipeCompleted();
                                               }
@@ -254,9 +252,8 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.',
+            description: i18.t('plugins.pipeline.description'),
         };
-        // TRANSLATE
     }
 }
 

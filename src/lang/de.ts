@@ -27,10 +27,15 @@ import { Translation } from '../i18';
 export const translation: Translation = {
     countableError: 'FEHLER #{0:trim}: {1}',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
+    errorWithCategory: '[FEHLER] {0:trim}: {1}',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     plugins: {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
+        },
+        pipeline: {
+            description: 'Leitet eine Liste von Quelldateien über ein Skript an einen anderen Ort und übermittelt die neuen Dateien an eine Liste von Zielen',
+            noPipeFunction: "{0:trim,surround} implementiert keine 'pipe()' Funktion!",
         },
         remote: {
             description: 'Überträgt Dateien über eine TCP-Verbindung',
