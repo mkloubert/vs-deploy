@@ -23,16 +23,78 @@
 
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
-let i18next = require('i18next');
+const i18next = require('i18next');
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
 
-export function t(id: string, ...args: any[]): string {
-    //TODO
-    return null;
+/**
+ * Stores the strings of a translation.
+ */
+export interface Translation {
 }
 
+
+/**
+ * Returns a translated string by key.
+ * 
+ * @param {string} key The key.
+ * @param {any} [args] The optional arguments.
+ * 
+ * @return {string} The "translated" string.
+ */
+export function t(key: string, ...args: any[]): string {
+    let formatStr = i18next.t(deploy_helpers.toStringSafe(key).trim());
+    formatStr = deploy_helpers.toStringSafe(formatStr);
+
+    // apply arguments in
+    // placeholders
+    return formatStr.replace(/{(\d+)(\:)?([^}]*)}/g, (match, index, formatSeparator, formatExpr) => {
+        index = parseInt(deploy_helpers.toStringSafe(index).trim());
+        
+        let resultValue = args[index];
+
+        if (':' === formatSeparator) {
+            // collect "format providers"
+            let formatProviders = deploy_helpers.toStringSafe(formatExpr)
+                                                .split(',')
+                                                .map(x => x.toLowerCase().trim())
+                                                .filter(x => x);
+
+            // transform argument by
+            // format providers
+            formatProviders.forEach(fp => {
+                switch (fp) {
+                    case 'lower':
+                        resultValue = deploy_helpers.toStringSafe(resultValue).toLowerCase();
+                        break;
+
+                    case 'trim':
+                        resultValue = deploy_helpers.toStringSafe(resultValue).trim();
+                        break;
+
+                    case 'upper':
+                        resultValue = deploy_helpers.toStringSafe(resultValue).toUpperCase();
+                        break;
+                }
+            });
+        }
+
+        if ('undefined' === typeof resultValue) {
+            return match;
+        }
+
+        return deploy_helpers.toStringSafe(resultValue);        
+    });
+}
+
+/**
+ * Initializes the language repository.
+ * 
+ * @param {string} [lang] The custom language to use.
+ * 
+ * @returns {Promise<any>} The promise.
+ */
 export function init(lang?: string): Promise<any> {
     if (deploy_helpers.isEmptyString(lang)) {
         lang = vscode.env.language;
@@ -43,12 +105,12 @@ export function init(lang?: string): Promise<any> {
     }
 
     return new Promise<any>((resolve, reject) => {
-        let completed = (err?: any, lf?: LanguageFile) => {
+        let completed = (err?: any, tr?: any) => {
             if (err) {
                 reject(err);
             }
             else {
-                resolve(null);
+                resolve(tr);
             }
         };
 
@@ -57,10 +119,19 @@ export function init(lang?: string): Promise<any> {
 
             let resources: any = {};
 
+            // initialize 'i18next'
+            // with collected data
             let initLang = () => {
-
+                i18next.init({
+                    lng: lang,
+                    resources: resources,
+                    fallbackLng: 'en',
+                }, (err, tr) => {
+                    completed(err, tr);
+                });
             };
 
+            // load language files
             let loadFiles = () => {
                 FS.readdir(langDir, (err, files) => {
                     if (err) {
@@ -68,6 +139,7 @@ export function init(lang?: string): Promise<any> {
                         return;
                     }
 
+                    // load files
                     for (let i = 0; i < files.length; i++) {
                         try {
                             let fileName = files[i];
@@ -76,12 +148,12 @@ export function init(lang?: string): Promise<any> {
                             }
 
                             if ('.js' != fileName.substr(fileName.length - 3)) {
-                                continue;
+                                continue;  // no JavaScript file
                             }
 
                             let langName = fileName.substr(0, fileName.length - 3).toLowerCase().trim();
                             if (!langName) {
-                                continue;
+                                continue;  // no language name available
                             }
 
                             let fullPath = Path.join(langDir, fileName);
@@ -89,18 +161,27 @@ export function init(lang?: string): Promise<any> {
 
                             let stats = FS.lstatSync(fullPath);
                             if (!stats.isFile()) {
-                                continue;
+                                continue;  // no file
                             }
 
+                            // deleted cached data
+                            // and load current translation
+                            // from file
                             delete require.cache[fullPath];
+                            resources[langName] = {
+                                translation: require(fullPath).translation,
+                            };
                         }
                         catch (e) {
-
+                            deploy_helpers.log(`[vs-deploy :: ERROR] i18.init(): ${deploy_helpers.toStringSafe(e)}`);
                         }
                     }
+
+                    initLang();
                 })
             };
 
+            // check if directory
             let checkIfDirectory = () => {
                 FS.lstat(langDir, (err, stats) => {
                     if (stats.isDirectory()) {
@@ -125,8 +206,4 @@ export function init(lang?: string): Promise<any> {
             completed(e);
         }
     });
-}
-
-export interface LanguageFile {
-
 }

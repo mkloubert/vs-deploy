@@ -21,9 +21,10 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import { LanguageFile } from '../i18';
+import { Translation } from '../i18';
 
 // deutsch (german)
-exports = <LanguageFile>{
-
+export const translation: Translation = {
+    hello: "Hallo, Welt!",
+    test: "Hallo, {1:lower} {0:trim, upper}!",
 };

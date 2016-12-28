@@ -24,4 +24,4 @@
 import * as lang_en from './en';
 
 // alias for 'en'
-exports = lang_en;
+export const translation = lang_en.translation;
