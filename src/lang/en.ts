@@ -28,6 +28,9 @@ export const translation: Translation = {
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
 
     plugins: {
+        ftp: {
+            description: 'Deploys to a FTP server',
+        },
         sftp: {
             description: 'Deploys to a SFTP server',
         }

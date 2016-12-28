@@ -25,6 +25,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 const FTP = require('ftp');
+import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -149,9 +150,8 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
 
         let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativeFilePath) {
-            completed(new Error(`Could not get relative path for '${file}'!`));
+            completed(new Error(i18.t('couldNotResolveRelativePath', file)));
             return;
-            // TRANSLATE
         }
 
         let dir = getDirFromTarget(target);
@@ -200,9 +200,8 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to a FTP server',
+            description: i18.t('plugins.ftp.description'),
         };
-        // TRANSLATE
     }
 }
 

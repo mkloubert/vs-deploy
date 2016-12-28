@@ -34,6 +34,9 @@ import * as vscode from 'vscode';
 export interface Translation {
     couldNotResolveRelativePath?: string;
     plugins?: {
+        ftp?: {
+            description?: string;
+        },
         sftp?: {
             description?: string;
         }
