@@ -24,6 +24,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -123,9 +124,8 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: 'Deploys to an app, like a script or executable, on the local machine',
+            description: i18.t('plugins.app.description'),
         };
-        // TRANSLATE
     }
 }
 
