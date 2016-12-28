@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -172,6 +170,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
             let scriptModule = loadScriptModule(scriptFile);
             if (!scriptModule.pipe) {
                 throw new Error(`'${relativeScriptPath}' implements no 'pipe()' function!`);
+                // TRANSLATE
             }
 
             let args: PipeArguments = {
@@ -219,6 +218,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                           pipeCompleted();
                                                       }).catch((err) => {
                                                           me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(2): ${deploy_helpers.toStringSafe(err)}`);
+                                                          // TRANSLATE
 
                                                           pipeCompleted();
                                                       });
@@ -229,6 +229,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                               }
                                               catch (ex) {
                                                   me.context.log(`[ERROR] PipelinePlugin.deployWorkspace(1): ${deploy_helpers.toStringSafe(ex)}`);
+                                                  // TRANSLATE
 
                                                   pipeCompleted();
                                               }
@@ -255,6 +256,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
         return {
             description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.',
         };
+        // TRANSLATE
     }
 }
 

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -107,6 +105,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
 
             if (!credentialClass) {
                 completed(new Error(`Credental type '${credentialType}' is not supported!`));
+                // TRANSLATE
                 return;
             }
 
@@ -155,6 +154,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}'!`));
+                // TRANSLATE
                 return;
             }
 
@@ -222,6 +222,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         return {
             description: 'Deploys to an Amazon S3 bucket',
         };
+        // TRANSLATE
     }
 }
 

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -119,6 +117,7 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
     let name = toStringSafe(pkg.name).trim();
     if (!name) {
         name = `(Package #${index + 1})`;
+        // TRANSLATE
     }
 
     let description = toStringSafe(pkg.description).trim();
@@ -142,6 +141,7 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
     let name = toStringSafe(target.name).trim();
     if (!name) {
         name = `(Target #${index + 1})`;
+        // TRANSLATE
     }
 
     let description = toStringSafe(target.description).trim();
@@ -288,6 +288,7 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
     let stats = FS.lstatSync(file);
     if (!stats.isFile()) {
         throw new Error(`'${file}' is no file!`);
+        // TRANSLATE
     }
 
     if (!useCache) {
@@ -339,6 +340,7 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
         try {
             if (typeof target !== 'string') {
                 throw new Error('Expected a `target`');
+                // TRANSLATE
             }
 
             let cmd: string;
@@ -422,6 +424,7 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
                 cp.once('close', function (code) {
                     if (code > 0) {
                         completed(new Error('Exited with code ' + code));
+                        // TRANSLATE
                         return;
                     }
 

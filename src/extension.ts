@@ -1,7 +1,5 @@
 'use strict';
 
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -73,6 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+            // TRANSLATE
         }
     });
 
@@ -83,6 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY CANCEL ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+            // TRANSLATE
         }
     });
 
@@ -93,6 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+            // TRANSLATE
         }
     });
 
@@ -103,6 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY LISTEN ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+            // TRANSLATE
         }
     });
 
@@ -113,6 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY QUICK DEPLOY ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+            // TRANSLATE
         }
     });
 

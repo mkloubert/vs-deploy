@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -622,6 +620,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
         if (targetNames.indexOf(myTargetName) > -1) {
             // no recurrence!
             vscode.window.showWarningMessage(`[vs-deploy] Cannot use target '${myTargetName}' (recurrence)!`);
+            // TRANSLATE
         }
 
         // prevent recurrence
@@ -644,6 +643,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
             if (!found) {
                 // we have an unknown target here
                 vscode.window.showWarningMessage(`[vs-deploy :: batch] Could not find target '${tn}'!`);
+                // TRANSLATE
             }
         });
 

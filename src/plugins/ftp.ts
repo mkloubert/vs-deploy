@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -153,6 +151,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         if (false === relativeFilePath) {
             completed(new Error(`Could not get relative path for '${file}'!`));
             return;
+            // TRANSLATE
         }
 
         let dir = getDirFromTarget(target);
@@ -203,6 +202,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         return {
             description: 'Deploys to a FTP server',
         };
+        // TRANSLATE
     }
 }
 

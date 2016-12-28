@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -80,6 +78,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         if (false === relativeTargetFilePath) {
             completed(new Error(`Could not get relative path for '${file}'!`));
             return;
+            // TRANSLATE
         }
 
         let targetFile = Path.join(dir, <string>relativeTargetFilePath);
@@ -161,6 +160,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let doEmptyDir = deploy_helpers.toBooleanSafe(target.empty, false);
         if (doEmptyDir) {
+            // TRANSLATE
             me.context.outputChannel().append(`Empty LOCAL target directory '${targetDir}'... `);
 
             FSExtra.emptyDir(targetDir, (err) => {
@@ -184,6 +184,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
         };
+        // TRANSLATE
     }
 }
 

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -101,6 +99,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}'!`));
                 return;
+                // TRANSLATE
             }
 
             // remove leading '/' chars
@@ -167,6 +166,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         return {
             description: 'Deploys to a Microsoft Azure blob storage',
         };
+        // TRANSLATE
     }
 }
 

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -171,6 +169,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             let scriptModule = loadScriptModule(scriptFile);
             if (!scriptModule.deployFile) {
                 throw new Error(`'${relativeScriptPath}' implements no 'deployFile()' function!`);
+                // TRANSLATE
             }
 
             let args: DeployFileArguments = {
@@ -187,6 +186,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }).catch((err) => {
                 if (!err) {
                     err = new Error(`Could not deploy file '${file}' by script '${relativeScriptPath}'!`);
+                    // TRANSLATE
                 }
 
                 completed(err);
@@ -245,6 +245,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 }).catch((err) => {
                     if (!err) {
                         err = new Error(`Could not deploy workspace by script '${relativeScriptPath}'!`);
+                        // TRANSLATE
                     }
 
                     completed(err);
@@ -264,6 +265,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: 'Deploys via a JS script',
         };
+        // TRANSLATE
     }
 }
 

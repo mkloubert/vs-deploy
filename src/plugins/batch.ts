@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -47,6 +45,7 @@ class BatchPlugin extends deploy_objects.MultiTargetDeployPluginBase {
         return {
             description: 'Deploys to other targets',
         };
+        // TRANSLATE
     }
 }
 

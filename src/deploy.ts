@@ -105,6 +105,8 @@ export class Deployer {
         this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
         this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
 
+        // TRANSLATE
+
         this.reloadConfiguration();
         this.reloadPlugins();
         this.displayNetworkInfo();
@@ -152,6 +154,8 @@ export class Deployer {
                     ++i;
 
                     try {
+                        // TRANSLATE
+
                         me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
@@ -215,6 +219,8 @@ export class Deployer {
                     ++i;
 
                     try {
+                        // TRANSLATE
+
                         me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
@@ -282,6 +288,8 @@ export class Deployer {
     protected deployFile(file: string) {
         let me = this;
 
+        // TRANSLATE
+
         let targets = this.getTargets();
         if (targets.length < 1) {
             vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
@@ -348,6 +356,8 @@ export class Deployer {
             return;
         }
 
+        // TRANSLATE
+
         let showError = (err: any) => {
             vscode.window.showErrorMessage(`Could not deploy file / folder: ${deploy_helpers.toStringSafe(err)}`);
         };
@@ -385,6 +395,8 @@ export class Deployer {
      */
     protected deployFileTo(file: string, target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
+
+        // TRANSLATE
 
         return new Promise<boolean>((resolve, reject) => {
             let completed = (err?: any, canceled?: boolean) => {
@@ -548,6 +560,8 @@ export class Deployer {
      * @param {string} dir The path of the folder to deploy.
      */
     protected deployFolder(dir: string) {
+        // TRANSLATE
+
         let me = this;
         
         dir = Path.resolve(dir); 
@@ -611,6 +625,8 @@ export class Deployer {
      * Deploys files of the workspace.
      */
     public deployWorkspace() {
+        // TRANSLATE
+
         let me = this;
 
         let packages = this.getPackages();
@@ -760,6 +776,8 @@ export class Deployer {
      */
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
+
+        // TRANSLATE
 
         return new Promise<any>((resolve, reject) => {
             let completed = (err?: any, canceled?: boolean) => {
@@ -934,6 +952,8 @@ export class Deployer {
     public displayNetworkInfo() {
         let me = this;
 
+        // TRANSLATE
+
         try {
             this.outputChannel.appendLine(`Your hostname: '${this.name}'`);
 
@@ -1036,6 +1056,8 @@ export class Deployer {
      * @return {deploy_contracts.DeployTarget[]} The found targets.
      */
     protected getTargetsFromPackage(pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] {
+        // TRANSLATE
+
         let pkgTargets: deploy_contracts.DeployTarget[] = [];
 
         let normalizeString = (val: any): string => {
@@ -1078,6 +1100,8 @@ export class Deployer {
      */
     protected handleCommonDeployOperation(operation: deploy_contracts.DeployOperation): Promise<boolean> {
         let me = this;
+
+        // TRANSLATE
 
         return new Promise<boolean>((resolve, reject) => {
             let handled = true;
@@ -1168,6 +1192,8 @@ export class Deployer {
      */
     public listen() {
         let me = this;
+
+        // TRANSLATE
 
         // destroy old status bar item
         let statusItem = me._serverStatusItem;
@@ -1682,6 +1708,8 @@ export class Deployer {
             return;
         }
 
+        // TRANSLATE
+
         let me = this;
 
         let docFile = deploy_helpers.replaceAllStrings(doc.fileName, Path.sep, '/');
@@ -1825,6 +1853,8 @@ export class Deployer {
     public quickDeploy() {
         let me = this;
 
+        // TRANSLATE
+
         try {
             let cfg = this.config;
 
@@ -1952,6 +1982,8 @@ export class Deployer {
      * Reloads configuration.
      */
     public reloadConfiguration() {
+        // TRANSLATE
+
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
         this._QUICK_DEPLOY_STATUS_ITEM.hide();
@@ -1977,6 +2009,8 @@ export class Deployer {
      */
     public reloadPlugins() {
         let me = this;
+
+        // TRANSLATE
 
         try {
             let loadedPlugins: deploy_contracts.DeployPlugin[] = [];

@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -112,6 +110,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             if (allErrors.length > 1) {
                 err = new Error(allErrors.map((x, i) => `ERROR #${i + 1}: ${deploy_helpers.toStringSafe(x)}`)
                                          .join('\n\n'));
+                // TRANSLATE
             }
             else if (1 == allErrors.length) {
                 err = allErrors[0];
@@ -159,6 +158,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}' file!`));
+                // TRANSLATE
                 return;
             }
 
@@ -168,6 +168,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
             if (!relativePath) {
                 completed(new Error(`Relative path for '${file}' file is empty!`));
+                // TRANSLATE
                 return;
             }
 
@@ -322,6 +323,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         return {
             description: 'Deploys to a remote machine over a TCP connection',
         };
+        // TRANSLATE
     }
 }
 

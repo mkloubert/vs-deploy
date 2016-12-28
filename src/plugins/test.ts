@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -61,6 +59,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             if (false === relativePath) {
                 completed(new Error(`Could not get relative path for '${file}'!`));
                 return;
+                // TRANSLATE
             }
 
             if (opts.onBeforeDeploy) {
@@ -89,6 +88,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: 'A mock deployer that only displays what files would be deployed',
         };
+        // TRANSLATE
     }
 }
 

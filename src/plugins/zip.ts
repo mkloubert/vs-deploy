@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -117,6 +115,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                                 FS.exists(zipFile, (exists) => {
                                     if (exists) {
                                         completed(new Error(`File '${zipRelativePath}' already exists! Try again...`));
+                                        // TRANSLATE
                                         return;
                                     }
 
@@ -126,6 +125,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             else {
                                 // no
                                 completed(new Error(`'${targetDir}' is no directory!`));
+                                // TRANSLATE
                             }
                         }
                         catch (e) {
@@ -163,6 +163,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
         return {
             description: 'Deploys to a ZIP file',
         };
+        // TRANSLATE
     }
 }
 

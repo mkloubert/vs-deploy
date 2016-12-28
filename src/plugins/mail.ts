@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -115,6 +113,7 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                                 }
                             ]
                         };
+                        // TRANSLATE
 
                         let transporter = Mailer.createTransport({
                             host: host,
@@ -155,6 +154,7 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                         }, (err) => {
                             completed(err);
                         });
+                // TRANSLATE
             }
             catch (e) {
                 completed(e);
@@ -166,6 +166,7 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
         return {
             description: 'Deploys to a ZIP file and sends it as attachment by mail via SMTP',
         };
+        // TRANSLATE
     }
 }
 

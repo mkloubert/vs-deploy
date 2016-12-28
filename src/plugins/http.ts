@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -58,6 +56,7 @@ function detectContentType(file: string): string {
     }
     catch (e) {
         deploy_helpers.log(`[ERROR] http.detectContentType(): ${deploy_helpers.toStringSafe(e)}`);
+        // TRANSLATE
     }
 
     mime = deploy_helpers.toStringSafe(mime).toLowerCase().trim();
@@ -98,6 +97,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
         if (false === relativePath) {
             completed(new Error(`Cannot get relative path for '${file}'!`));
             return;
+            // TRANSLATE
         }
 
         let url = deploy_helpers.toStringSafe(target.url).trim();
@@ -234,6 +234,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             if (!httpModule) {
                                 completed(new Error(`Protocol '${protocol}' is not supported!`));
                                 return;
+                                // TRANSLATE
                             }
 
                             let hostName = deploy_helpers.toStringSafe(targetUrl.hostname).toLowerCase().trim();
@@ -307,6 +308,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: 'Deploys to a HTTP server/service',
         };
+        // TRANSLATE
     }
 }
 

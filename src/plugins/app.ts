@@ -1,5 +1,3 @@
-/// <reference types="node" />
-
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
@@ -127,6 +125,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
         return {
             description: 'Deploys to an app, like a script or executable, on the local machine',
         };
+        // TRANSLATE
     }
 }
 
