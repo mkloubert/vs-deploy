@@ -32,6 +32,9 @@ export const translation: Translation = {
         file: {
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
+        fileOrFolder: {
+            failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+        },
         operations: {
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         }
@@ -62,6 +65,7 @@ export const translation: Translation = {
     isNo: {
         directory: "{0:trim,surround} ist kein Verzeichnis!",
         file: "{0:trim,surround} ist keine Datei!",
+        validItem: '{0:trim,surround} ist kein gültiges Element, das bereitgestellt werden kann!',
     },
     packages: {
         defaultName: '(Paket #{0:trim})',

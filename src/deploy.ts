@@ -348,10 +348,8 @@ export class Deployer {
             return;
         }
 
-        // TRANSLATE
-
         let showError = (err: any) => {
-            vscode.window.showErrorMessage(`Could not deploy file / folder: ${deploy_helpers.toStringSafe(err)}`);
+            vscode.window.showErrorMessage(i18.t('deploy.fileOrFolder.failed', path, err));
         };
 
         // check if file or folder
@@ -369,7 +367,7 @@ export class Deployer {
                     me.deployFile(path);  // file
                 }
                 else {
-                    showError(new Error(`'${path}' is no valid item that can be deployed!`));
+                    showError(new Error(i18.t('isNo.validItem', path)));
                 }
             }
             catch (e) {

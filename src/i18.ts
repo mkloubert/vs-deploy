@@ -39,6 +39,9 @@ export interface Translation {
         file?: {
             failed?: string;
         },
+        fileOrFolder?: {
+            failed?: string;
+        },
         operations?: {
             unknownType?: string;
         }
@@ -70,6 +73,7 @@ export interface Translation {
     isNo?: {
         directory?: string;
         file?: string;
+        validItem?: string;
     },
     ok?: string;
     packages?: {

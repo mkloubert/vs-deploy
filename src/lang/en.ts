@@ -32,6 +32,9 @@ export const translation: Translation = {
         file: {
             failed: 'Could not deploy file {0:trim,surround}: {1}',
         },
+        fileOrFolder: {
+            failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
+        },
         operations: {
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
         }
@@ -63,6 +66,7 @@ export const translation: Translation = {
     isNo: {
         directory: "{0:trim,surround} is no directory!",
         file: "{0:trim,surround} is no file!",
+        validItem: '{0:trim,surround} is no valid item that can be deployed!',
     },
     ok: '[OK]',
     packages: {
