@@ -840,11 +840,11 @@ export class Deployer {
                                             if (allCount > 0) {
                                                 if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
                                                     if (targetExpr) {
-                                                        vscode.window.showErrorMessage(i18.t('deploy.workspace.allSucceededWithTarget', allCount
-                                                                                                                                      , targetExpr));
+                                                        vscode.window.showInformationMessage(i18.t('deploy.workspace.allSucceededWithTarget', allCount
+                                                                                                                                            , targetExpr));
                                                     }
                                                     else {
-                                                        vscode.window.showErrorMessage(i18.t('deploy.workspace.allSucceeded', allCount));
+                                                        vscode.window.showInformationMessage(i18.t('deploy.workspace.allSucceeded', allCount));
                                                     }
                                                 }
                                             }
@@ -909,7 +909,7 @@ export class Deployer {
                                     }
 
                                     statusBarItem.tooltip = statusMsg + ` (${i18.t('deploy.workspace.clickToCancel')})`;
-                                    me.outputChannel.append(statusMsg + '... ');
+                                    me.outputChannel.append(statusMsg);
                                 },
 
                                 onCompleted: (sender, e) => {
