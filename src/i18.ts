@@ -32,17 +32,22 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
+    beforeDeployOperations?: {
+        failed?: string;
+    },
     cannotUseTargetRecurrence?: string;
     countableError?: string;
     couldNotFindTarget?: string;
     couldNotResolveRelativePath?: string;
     defaultPackageName?: string;
-    defaultTargetName?: string;
+    deployFileFailed?: string;
     errorWithCategory?: string;
     failed?: string;
     noDirectory?: string;
     noFile?: string;
+    noPackageDefined?: string;
     noPackageToDeploy?: string;
+    noTargetDefined?: string;
     ok?: string;
     packageNotFound?: string;
     plugins?: {
@@ -104,9 +109,13 @@ export interface Translation {
     quickDeploy?: {
         caption?: string;
         failed?: string;
+        start?: string;
     },
     relativePathIsEmpty?: string;
-    startQuickDeploy?: string;
+    targets?: {
+        defaultName?: string;
+        select?: string;
+    },
     unknownOperationType?: string;
 }
 

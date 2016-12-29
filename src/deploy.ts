@@ -282,11 +282,9 @@ export class Deployer {
     protected deployFile(file: string) {
         let me = this;
 
-        // TRANSLATE
-
         let targets = this.getTargets();
         if (targets.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
+            vscode.window.showWarningMessage(i18.t('noTargetDefined'));
             return;
         }
 
@@ -300,18 +298,18 @@ export class Deployer {
                             me.deployFileTo(file, item.target);
                         }
                     }).catch((err) => {
-                        vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+                        vscode.window.showErrorMessage(i18.t('beforeDeployOperations.failed', err));
                     });
                 }
             }
             catch (e) {
-                vscode.window.showErrorMessage(`Could not deploy file '${file}': ` + e);
+                vscode.window.showErrorMessage(i18.t('deployFileFailed', file, e));
             }
         };
 
         if (quickPicks.length > 1) {
             vscode.window.showQuickPick(quickPicks, {
-                placeHolder: 'Select the target to deploy to...'
+                placeHolder: i18.t('targets.select'),
             }).then((item) => {
                         deploy(item);
                     });
@@ -1989,7 +1987,7 @@ export class Deployer {
                 me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
             }
 
-            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('startQuickDeploy');
+            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
         }).catch((err) => {
             me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
         });

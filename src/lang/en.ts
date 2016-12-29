@@ -25,17 +25,22 @@ import { Translation } from '../i18';
 
 // english
 export const translation: Translation = {
+    beforeDeployOperations: {
+        failed: "Could not invoke 'before deploy' operations: {0}",
+    },
     cannotUseTargetRecurrence: 'Cannot use target {0:trim,surround} (recurrence)!',
     countableError: 'ERROR #{0:trim}: {1}',
     couldNotFindTarget: 'Could not find target {0:trim,surround}!',
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
     defaultPackageName: '(Package #{0:trim})',
-    defaultTargetName: '(Target #{0:trim})',
+    deployFileFailed: 'Could not deploy file {0:trim,surround}: {1}',
     errorWithCategory: '[ERROR] {0:trim}: {1}',
     failed: '[FAILED: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     noFile: "{0:trim,surround} is no file!",
+    noPackageDefined: "Please define a least one PACKAGE in your 'settings.json'!",
     noPackageToDeploy: 'No package to deploy!',
+    noTargetDefined: "Please define a least one TARGET in your 'settings.json'!",
     ok: '[OK]',
     packageNotFound: 'Package {0:trim,surround} not found!',
     plugins: {
@@ -97,8 +102,12 @@ export const translation: Translation = {
     quickDeploy: {
         caption: 'Quick deploy!',
         failed: 'Quick deploy failed: {0}',
+        start: 'Start a quick deploy...',
     },
     relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
-    startQuickDeploy: 'Start a quick deploy...',
+    targets: {
+        defaultName: '(Target #{0:trim})',
+        select: 'Select the target to deploy to...',
+    },
     unknownOperationType: 'UNKNOWN TYPE: {0:trim,surround}',
 };

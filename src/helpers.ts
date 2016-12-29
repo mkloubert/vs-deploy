@@ -140,7 +140,7 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
 export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployTargetQuickPickItem {
     let name = toStringSafe(target.name).trim();
     if (!name) {
-        name = i18.t('defaultTargetName', index + 1);
+        name = i18.t('targets.defaultName', index + 1);
     }
 
     let description = toStringSafe(target.description).trim();
