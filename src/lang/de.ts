@@ -35,6 +35,11 @@ export const translation: Translation = {
         fileOrFolder: {
             failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
+        folder: {
+            failed: 'Das Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+            selectTarget: 'Wählen Sie das Ziel in welches das Verzeichnis bereitgestellt werden soll...',
+        },
+        noFiles: 'Es gibt keine Dateien zum Bereitstellen!',
         operations: {
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         }

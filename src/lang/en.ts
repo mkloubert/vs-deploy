@@ -35,6 +35,11 @@ export const translation: Translation = {
         fileOrFolder: {
             failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
         },
+        folder: {
+            failed: 'Could not deploy folder {0:trim,surround}: {1}',
+            selectTarget: 'Select the target to deploy the folder to...',
+        },
+        noFiles: 'There are no files to deploy!',
         operations: {
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
         }

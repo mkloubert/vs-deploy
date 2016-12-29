@@ -550,8 +550,6 @@ export class Deployer {
      * @param {string} dir The path of the folder to deploy.
      */
     protected deployFolder(dir: string) {
-        // TRANSLATE
-
         let me = this;
         
         dir = Path.resolve(dir); 
@@ -567,7 +565,7 @@ export class Deployer {
 
         let targets = this.getTargets();
         if (targets.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
         }
 
@@ -580,17 +578,17 @@ export class Deployer {
                 }
 
                 if (filesToDeploy.length < 1) {
-                    vscode.window.showWarningMessage(`There are no files to deploy!`);
+                    vscode.window.showWarningMessage(i18.t('deploy.noFiles'));
                     return;
                 }
                 
                 me.deployWorkspaceTo(filesToDeploy, t).then(() => {
                     //TODO
                 }).catch((err) => {
-                    vscode.window.showErrorMessage(`Could not deploy folder '${dir}': ${deploy_helpers.toStringSafe(err)}`);
+                    vscode.window.showErrorMessage(i18.t('deploy.folder.failed', dir, err));
                 });
             }).catch((err) => {
-                vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+                vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
             });
         };
 
@@ -598,7 +596,7 @@ export class Deployer {
         let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
-                placeHolder: 'Select the target to deploy the folder to...'
+                placeHolder: i18.t('deploy.folder.selectTarget'),
             }).then((item) => {
                 if (item) {
                     deploy(item.target);

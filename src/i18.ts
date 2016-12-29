@@ -42,6 +42,11 @@ export interface Translation {
         fileOrFolder?: {
             failed?: string;
         },
+        folder?: {
+            failed?: string;
+            selectTarget?: string;
+        },
+        noFiles?: string;
         operations?: {
             unknownType?: string;
         }
