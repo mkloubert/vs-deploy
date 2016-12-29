@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.1.1 (December 29th, 2016; hints for new installed versions)
+
+* now showing info popup (once) if new version of extension is installed (can be disabled by [disableNewVersionPopups](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting)
+
+
 ## 4.0.0 (December 29th, 2016; translations and deploy via context menu)
 
 * can deploy whole folders from [explorer's context menu](https://github.com/mkloubert/vs-deploy#how-to-execute-) now
