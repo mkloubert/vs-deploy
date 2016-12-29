@@ -89,14 +89,21 @@ export interface Translation {
             allSucceeded?: string;
             allSucceededWithTarget?: string;
             clickToCancel?: string;
+            deploying?: string;
+            deployingWithTarget?: string;
             failed?: string;
+            failedWithCategory?: string;
             failedWithTarget?: string;
             nothingDeployed?: string;
             nothingDeployedWithTarget?: string;
+            selectPackage?: string;
+            selectTarget?: string;
             someFailed?: string;
             someFailedWithTarget?: string;
             status?: string;
             statusWithDestination?: string;
+            virtualTargetName?: string;
+            virtualTargetNameWithPackage?: string;
         }
     },
     errors?: {

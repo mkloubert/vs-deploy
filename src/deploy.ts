@@ -609,19 +609,17 @@ export class Deployer {
      * Deploys files of the workspace.
      */
     public deployWorkspace() {
-        // TRANSLATE
-
         let me = this;
 
         let packages = this.getPackages();
         if (packages.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one PACKAGE in your 'settings.json'!");
+            vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
             return;
         }
 
         let targets = this.getTargets();
         if (targets.length < 1) {
-            vscode.window.showWarningMessage("Please define a least one TARGET in your 'settings.json'!");
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
         }
 
@@ -646,14 +644,13 @@ export class Deployer {
 
                     me.outputChannel.appendLine('');
 
-                    let deployMsg = `Deploying package`;
-                    if (packageName) {
-                        deployMsg += ` '${packageName}'`;
-                    }
+                    let deployMsg: string;
                     if (targetName) {
-                        deployMsg += ` to '${targetName}'`;
+                        deployMsg = i18.t('deploy.workspace.deployingWithTarget', packageName, targetName);
                     }
-                    deployMsg += '...';
+                    else {
+                        deployMsg = i18.t('deploy.workspace.deploying', packageName);
+                    }
 
                     me.outputChannel.appendLine(deployMsg);
 
@@ -668,21 +665,21 @@ export class Deployer {
 
                         filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
                         if (filesToDeploy.length < 1) {
-                            vscode.window.showWarningMessage(`There are no files to deploy!`);
+                            vscode.window.showWarningMessage(i18.t('deploy.noFiles'));
                             return;
                         }
                         
                         me.deployWorkspaceTo(filesToDeploy, t).then(() => {
                             //TODO
                         }).catch((err) => {
-                            vscode.window.showErrorMessage(`Could not deploy files (2): ${deploy_helpers.toStringSafe(err)}`);
+                            vscode.window.showErrorMessage(i18.t('deploy.workspace.failedWithCategory', 2, err));
                         });
                     }).catch((err) => {
-                        vscode.window.showErrorMessage(`Could not invoke 'before deploy' operations: ${deploy_helpers.toStringSafe(err)}`);
+                        vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
                     });
                 }
                 catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy files (1): ${deploy_helpers.toStringSafe(e)}`);
+                    vscode.window.showErrorMessage(i18.t('deploy.workspace.failedWithCategory', 1, e));
                 }
             };
 
@@ -694,7 +691,7 @@ export class Deployer {
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
-                        placeHolder: 'Select the target to deploy to...'
+                        placeHolder: i18.t('deploy.workspace.selectTarget'),
                     }).then((item) => {
                         if (item) {
                             deploy(item.target);
@@ -713,20 +710,20 @@ export class Deployer {
                     deploy(targetsOfPackage[0]);  // deploy the one and only
                 }
                 else {
-                    // create a "batch" target
-                    // for the targets
+                    // create a virtual "batch" target
+                    // for the underlying "real" targets
 
                     let virtualPkgName: string;
                     if (packageName) {
-                        virtualPkgName = `Batch target for package '${packageName}'`;
+                        virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
                     }
                     else {
-                        virtualPkgName = `Batch target for current package`;
+                        virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
                     }
 
                     let batchTarget: any = {
                         type: 'batch',
-                        name: `Virtual batch target for package '${packageName}'`,
+                        name: virtualPkgName,
                         targets: targetsOfPackage.map(x => x.name),
                     };
 
@@ -737,7 +734,7 @@ export class Deployer {
 
         if (packageQuickPicks.length > 1) {
             vscode.window.showQuickPick(packageQuickPicks, {
-                placeHolder: 'Select a package...',
+                placeHolder: i18.t('deploy.workspace.selectPackage'),
             }).then((item) => {
                         if (item) {
                             selectTarget(item.package);
