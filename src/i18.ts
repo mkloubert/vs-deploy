@@ -32,12 +32,15 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
-    beforeDeployOperations?: {
-        failed?: string;
-    },
     deploy?: {
+        before?: {
+            failed?: string;
+        },
         file?: {
             failed?: string;
+        },
+        operations?: {
+            unknownType?: string;
         }
     },
     errors?: {
@@ -128,7 +131,6 @@ export interface Translation {
         notFound?: string;
         select?: string;
     },
-    unknownOperationType?: string;
 }
 
 

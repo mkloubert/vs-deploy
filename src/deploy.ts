@@ -156,7 +156,7 @@ export class Deployer {
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
                             if (!handled) {
-                                me.outputChannel.appendLine(i18.t('unknownOperationType', currentOperation.type));
+                                me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
@@ -219,7 +219,7 @@ export class Deployer {
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
                             if (!handled) {
-                                me.outputChannel.appendLine(i18.t('unknownOperationType', currentOperation.type));
+                                me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
@@ -298,7 +298,7 @@ export class Deployer {
                             me.deployFileTo(file, item.target);
                         }
                     }).catch((err) => {
-                        vscode.window.showErrorMessage(i18.t('beforeDeployOperations.failed', err));
+                        vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
                     });
                 }
             }

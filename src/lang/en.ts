@@ -25,13 +25,16 @@ import { Translation } from '../i18';
 
 // english
 export const translation: Translation = {
-    beforeDeployOperations: {
-        failed: "Could not invoke 'before deploy' operations: {0}",
-    },
     deploy: {
+        before: {
+            failed: "Could not invoke 'before deploy' operations: {0}",
+        },
         file: {
             failed: 'Could not deploy file {0:trim,surround}: {1}',
         },
+        operations: {
+            unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
+        }
     },
     errors: {
         countable: 'ERROR #{0:trim}: {1}',
@@ -121,5 +124,4 @@ export const translation: Translation = {
         notFound: 'Could not find target {0:trim,surround}!',
         select: 'Select the target to deploy to...',
     },
-    unknownOperationType: 'UNKNOWN TYPE: {0:trim,surround}',
 };

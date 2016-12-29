@@ -25,13 +25,16 @@ import { Translation } from '../i18';
 
 // deutsch (german)
 export const translation: Translation = {
-    beforeDeployOperations: {
-        failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
-    },
     deploy: {
+        before: {
+            failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
+        },
         file: {
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
+        operations: {
+            unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
+        }
     },
     errors: {
         countable: 'FEHLER #{0:trim}: {1}',
@@ -120,5 +123,4 @@ export const translation: Translation = {
         notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
         select: 'Bitte wählen Sie ein Ziel aus...',
     },
-    unknownOperationType: 'UNBEKANNTER TYP: {0:trim,surround}',
 };
