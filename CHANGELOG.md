@@ -2,12 +2,12 @@
 
 ## 4.0.0 (December 29th, 2016; translations and deploy via context menu)
 
-* can deploy whole folders from explorer's context menu now
+* can deploy whole folders from [explorer's context menu](https://github.com/mkloubert/vs-deploy#how-to-execute-) now
 * added support for translations (s. [Issue #18](https://github.com/mkloubert/vs-deploy/issues/18))
 * improved [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) plugin
 * added descriptions for [https://github.com/mkloubert/vs-deploy/wiki/target_azureblob](azureblob) and [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) plugins
-* changed name of 'FileDeployedCompletedEventHandler' to 'FileDeployCompletedEventHandler'
-* cleaned up 'DeployContext' interface
+* changed name of 'FileDeployedCompletedEventHandler' to [FileDeployCompletedEventHandler](https://mkloubert.github.io/vs-deploy/modules/_contracts_.html#filedeploycompletedeventhandler)
+* cleaned up [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html) interface
 * replaced [opn](https://www.npmjs.com/package/opn) module with own and extended implementation
 
 
