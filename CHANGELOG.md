@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 4.0.0
+## 4.0.0 (December 29th, 2016; translations and deploy via context menu)
 
 * can deploy whole folders from explorer's context menu now
 * added support for translations (s. [Issue #18](https://github.com/mkloubert/vs-deploy/issues/18))
