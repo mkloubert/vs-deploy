@@ -50,6 +50,11 @@ export const translation: Translation = {
             selectTarget: 'Wählen Sie das Ziel in welches das Verzeichnis bereitgestellt werden soll...',
         },
         noFiles: 'Es gibt keine Dateien zum Bereitstellen!',
+        onSave: {
+            couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht im Paket{1:trim,surround,leading_space} finden!',
+            failed: 'Konnte {0:trim,surround} nach dem Speichern nicht bereitstellen ({1:trim}): {2}',
+            failedTarget: 'Konnte {0:trim,surround} nach dem Speichern nicht in das Ziel ${1:trim} bereitstellen: {2}',
+        },
         operations: {
             open: 'Öffne {0:trim,surround}... ',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',

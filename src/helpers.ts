@@ -258,7 +258,10 @@ export function formatArray(formatStr: any, args: any[]): string {
                         break;
 
                     case 'surround':
-                        resultValue = "'" + toStringSafe(resultValue) + "'";
+                        resultValue = toStringSafe(resultValue);
+                        if (resultValue) {
+                            resultValue = "'" + toStringSafe(resultValue) + "'";
+                        }
                         break;
                 }
             });

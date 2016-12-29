@@ -57,6 +57,11 @@ export interface Translation {
             selectTarget?: string;
         },
         noFiles?: string;
+        onSave?: {
+            couldNotFindTarget?: string;
+            failed?: string;
+            failedTarget?: string;
+        },
         operations?: {
             open?: string;
             unknownType?: string;

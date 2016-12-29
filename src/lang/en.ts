@@ -50,6 +50,11 @@ export const translation: Translation = {
             selectTarget: 'Select the target to deploy the folder to...',
         },
         noFiles: 'There are no files to deploy!',
+        onSave: {
+            couldNotFindTarget: 'Deploy target {0:trim,surround} defined in package{1:trim,surround,leading_space} does not exist!',
+            failed: 'Could not deploy {0:trim,surround} on save ({1:trim}): {2}',
+            failedTarget: 'Could not deploy {0:trim,surround} to ${1:trim} on save: {2}',
+        },
         operations: {
             open: 'Opening {0:trim,surround}... ',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',

@@ -1688,8 +1688,6 @@ export class Deployer {
             return;
         }
 
-        // TRANSLATE
-
         let me = this;
 
         let docFile = deploy_helpers.replaceAllStrings(doc.fileName, Path.sep, '/');
@@ -1721,42 +1719,38 @@ export class Deployer {
 
                     // check for non existing target names
                     let targets = me.getTargets();
-                    packagesToDeploy.forEach(x => {
-                        if (true === x.deployOnSave) {
+                    packagesToDeploy.forEach(pkg => {
+                        if (true === pkg.deployOnSave) {
                             return;
                         }
 
-                        let packageName = normalizeString(x.name);
+                        let packageName = normalizeString(pkg.name);
 
-                        let targetsOfPackage = deploy_helpers.asArray(x.deployOnSave)
+                        let targetsOfPackage = deploy_helpers.asArray(pkg.deployOnSave)
                                                              .map(x => normalizeString(x))
                                                              .filter(x => x);
                         
-                        targetsOfPackage.forEach(y => {
+                        targetsOfPackage.forEach(tn => {
                             let foundTarget = false;
                             for (let i = 0; i < targets.length; i++) {
                                 let targetName = normalizeString(targets[i].name);
 
-                                if (targetName == y) {
+                                if (targetName == tn) {
                                     foundTarget = true;
                                     break;
                                 }
                             }
 
                             if (!foundTarget) {
-                                if (packageName) {
-                                    vscode.window.showWarningMessage(`Deploy target ${deploy_helpers.toStringSafe(y)} defined in package ${deploy_helpers.toStringSafe(x.name)} does not exist.`);
-                                }
-                                else {
-                                    vscode.window.showWarningMessage(`Deploy target ${deploy_helpers.toStringSafe(y)} defined in package does not exist.`);
-                                }
+                                vscode.window.showWarningMessage(i18.t('deploy.onSave.couldNotFindTarget',
+                                                                       tn, packageName));
                             }
                         });
                     });
 
                     // find matching targets
-                    targets = targets.filter(x => {
-                        let targetName = normalizeString(x.name);
+                    targets = targets.filter(t => {
+                        let targetName = normalizeString(t.name);
 
                         for (let i = 0; i < packagesToDeploy.length; i++) {
                             let pkg = packagesToDeploy[i];
@@ -1778,31 +1772,35 @@ export class Deployer {
                     });
 
                     // deploy file to targets
-                    targets.forEach(x => {
-                        let targetName = deploy_helpers.toStringSafe(x.name).trim();
+                    targets.forEach(t => {
+                        let targetName = deploy_helpers.toStringSafe(t.name).trim();
 
-                        try {
-                            me.deployFileTo(docFile, x);
-                        }
-                        catch (e) {
-                            let errMsg = deploy_helpers.toStringSafe(e);
+                        let showError = (err: any) => {
+                            let errMsg = deploy_helpers.toStringSafe(err);
 
                             let targetExpr = 'target';
                             if (targetName) {
                                 targetExpr = `'${targetName}'`;
                             }
 
-                            vscode.window.showWarningMessage(`Could not deploy '${relativeDocFilePath}' to ${targetExpr} on save: ${errMsg}`);
-                        }
+                            vscode.window.showWarningMessage(i18.t('deploy.onSave.failedTarget',
+                                                                   relativeDocFilePath, targetExpr, errMsg));
+                        };
+
+                        me.deployFileTo(docFile, t).then(() => {
+                            //TODO
+                        }).catch((err) => {
+                            showError(err);
+                        });
                     });
                 }
                 catch (e) {
-                    vscode.window.showErrorMessage(`Could not deploy '${relativeDocFilePath}' on save (2): ${deploy_helpers.toStringSafe(e)}`);
+                    vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 2, e));
                 }
             });
         }
         catch (e) {
-            vscode.window.showErrorMessage(`Could not deploy '${relativeDocFilePath}' on save (1): ${deploy_helpers.toStringSafe(e)}`);
+            vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 1, e));
         }
     }
 
