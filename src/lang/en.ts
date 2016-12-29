@@ -51,6 +51,7 @@ export const translation: Translation = {
         },
         noFiles: 'There are no files to deploy!',
         operations: {
+            open: 'Opening {0:trim,surround}... ',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
         }
     },

@@ -1081,8 +1081,6 @@ export class Deployer {
     protected handleCommonDeployOperation(operation: deploy_contracts.DeployOperation): Promise<boolean> {
         let me = this;
 
-        // TRANSLATE
-
         return new Promise<boolean>((resolve, reject) => {
             let handled = true;
             let completed = (err?: any) => {
@@ -1118,14 +1116,14 @@ export class Deployer {
                             openArgs = [ app ].concat(openArgs);
                         }
 
-                        me.outputChannel.append(`Opening '${operationTarget}'... `);
+                        me.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
 
                         nextAction = null;
                         deploy_helpers.open(operationTarget, {
                             app: openArgs,
                             wait: waitForExit,
                         }).then(function() {
-                            me.outputChannel.appendLine('[OK]');
+                            me.outputChannel.appendLine(i18.t('ok'));
 
                             completed();
                         }).catch((err) => {

@@ -58,6 +58,7 @@ export interface Translation {
         },
         noFiles?: string;
         operations?: {
+            open?: string;
             unknownType?: string;
         }
     },

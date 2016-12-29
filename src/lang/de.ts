@@ -51,6 +51,7 @@ export const translation: Translation = {
         },
         noFiles: 'Es gibt keine Dateien zum Bereitstellen!',
         operations: {
+            open: 'Öffne {0:trim,surround}... ',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         }
     },
