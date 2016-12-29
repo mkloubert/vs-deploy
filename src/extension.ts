@@ -124,6 +124,9 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(deploy, deployFileOrFolder,
                                listen,
                                cancelDeploy, quickDeploy);
+
+    // tell the "deployer" that anything has been activated
+    deployer.onActivated();
 }
 
 export function deactivate() {

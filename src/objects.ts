@@ -671,3 +671,55 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
         return batchTargets;
     }
 }
+
+/**
+ * A simple popup button.
+ */
+export class SimplePopupButton implements deploy_contracts.PopupButton {
+    /**
+     * Stores the action.
+     */
+    protected _action: deploy_contracts.PopupButtonAction;
+    /**
+     * Stores the value that should be linked with that instance.
+     */
+    protected _tag: any;
+    /**
+     * Stores the title.
+     */
+    protected _title: string;
+
+    /** @inheritdoc */
+    public get action(): deploy_contracts.PopupButtonAction {
+        return this._action;
+    }
+    public set action(newValue: deploy_contracts.PopupButtonAction) {
+        this._action = newValue;
+    }
+
+    /** @inheritdoc */
+    public get tag(): any {
+        return this._tag;
+    }
+    public set tag(newValue: any) {
+        this._tag = newValue;
+    }
+
+    /** @inheritdoc */
+    public get title(): string {
+        return this._title;
+    }
+    public set title(newValue: string) {
+        this._title = newValue;
+    }
+
+    /** @inheritdoc */
+    public toString(): string {
+        let t = this._title;
+        if (t) {
+            return t;
+        }
+
+        return 'SimplePopupButton';
+    }
+}

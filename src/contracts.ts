@@ -236,6 +236,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     clearOutputOnStartup?: boolean;
     /**
+     * Disables the display of popups that reports for a new version of that extension.
+     */
+    disableNewVersionPopups?: boolean;
+    /**
      * The ID of the language to use (e.g. 'en', 'de')
      */
     language?: string;
@@ -735,6 +739,25 @@ export interface PackageFile {
      */
     version: string;
 }
+
+/**
+ * Describes a button of a popup.
+ */
+export interface PopupButton extends vscode.MessageItem {
+    /**
+     * Gets the action of that button.
+     */
+    action?: PopupButtonAction;
+    /**
+     * Contains an additional object that should be linked with that instance.
+     */
+    tag?: any;
+}
+
+/**
+ * A popup button action.
+ */
+export type PopupButtonAction = () => void;
 
 /**
  * Event handler for a completed "deploy workspace" operation.

@@ -199,6 +199,12 @@ export const translation: Translation = {
             fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
         }
     },
+    popups: {
+        newVersion: {
+            message: "Sie nutzen die neue Version {0:trim} von 'vs-deploy'!",
+            showChangeLog: 'Änderungsprotokoll anzeigen (englisch)...',
+        },
+    },
     quickDeploy: {
         caption: 'Bereitstellen!',
         failed: 'Schnelles Bereitstellen fehlgeschlagen: {0}',

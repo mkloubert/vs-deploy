@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -114,6 +114,12 @@
             },
             "clearOutputOnStartup": {
               "type": "boolean",
+              "description": "Clear output on startup or not.",
+              "default": false
+            },
+            "disableNewVersionPopups": {
+              "type": "boolean",
+              "description": "Clear output on startup or not.",
               "default": false
             },
             "host": {

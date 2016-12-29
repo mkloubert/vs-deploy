@@ -208,6 +208,12 @@ export interface Translation {
             fileAlreadyExists?: string;
         }
     },
+    popups?: {
+        newVersion?: {
+            message?: string;
+            showChangeLog?: string;
+        },
+    },
     quickDeploy?: {
         caption?: string;
         failed?: string;
@@ -226,7 +232,7 @@ export interface Translation {
     },
     warnings?: {
         withCategory?: string;
-    }
+    },
 }
 
 

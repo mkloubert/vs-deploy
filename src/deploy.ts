@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_objects from './objects';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
 const Glob = require('glob');
@@ -106,10 +107,6 @@ export class Deployer {
 
         this._QUICK_DEPLOY_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);        
         this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
-
-        this.reloadConfiguration();
-
-        this.resetIsCancelling();
     }
 
     /**
@@ -1698,6 +1695,15 @@ export class Deployer {
     }
 
     /**
+     * The 'on activated' event.
+     */
+    public onActivated() {
+        this.reloadConfiguration();
+
+        this.resetIsCancelling();
+    }
+
+    /**
      * Event after configuration changed.
      */
     public onDidChangeConfiguration() {
@@ -1991,6 +1997,8 @@ export class Deployer {
             me.displayNetworkInfo();
 
             me.clearOutputOrNot();
+
+            me.showExtensionInfoPopups();
         };
 
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
@@ -2208,5 +2216,75 @@ export class Deployer {
      */
     protected resetIsCancelling(newValue: boolean = false) {
         this._isCancelling = newValue;
+    }
+
+    /**
+     * Shows info popups of / for this extension.
+     */
+    protected showExtensionInfoPopups() {
+        this.showNewVersionPopup();
+    }
+
+    /**
+     * Shows the popup of for new version.
+     */
+    protected showNewVersionPopup() {
+        let me = this;
+
+        const KEY_LAST_KNOWN_VERSION = 'vsdLastKnownVersion';
+
+        if (this._PACKAGE_FILE) {
+            let currentVersion = this._PACKAGE_FILE.version;
+
+            if (currentVersion) {
+                // update last known version
+                let updateCurrentVersion = false;
+                try {
+                    let lastKnownVersion: any = this._CONTEXT.globalState.get(KEY_LAST_KNOWN_VERSION, false);
+                    if (lastKnownVersion != currentVersion) {
+                        if (!deploy_helpers.toBooleanSafe(this.config.disableNewVersionPopups)) {
+                            // tell the user that it runs on a new version
+                            updateCurrentVersion = true;
+
+                            // [BUTTON] show change log
+                            let changeLogBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                            changeLogBtn.action = () => {
+                                deploy_helpers.open('https://github.com/mkloubert/vs-deploy/blob/master/CHANGELOG.md');
+                            };
+                            changeLogBtn.title = i18.t('popups.newVersion.showChangeLog');
+
+                            vscode.window
+                                  .showInformationMessage(i18.t('popups.newVersion.message', currentVersion),
+                                                          changeLogBtn)
+                                  .then((item) => {
+                                            if (!item || !item.action) {
+                                                return;
+                                            }
+
+                                            try {
+                                                item.action();
+                                            }
+                                            catch (e) { 
+                                                me.log(i18.t('errors.withCategory', 'Deployer.showExtensionInfoPopups(3)', e));
+                                            }
+                                        });
+                        }
+                    }
+                }
+                catch (e) { 
+                    me.log(i18.t('errors.withCategory', 'Deployer.showExtensionInfoPopups(2)', e));
+                }
+
+                if (updateCurrentVersion) {
+                    // update last known version
+                    try {
+                        this._CONTEXT.globalState.update(KEY_LAST_KNOWN_VERSION, currentVersion);
+                    }
+                    catch (e) {
+                        me.log(i18.t('errors.withCategory', 'Deployer.showExtensionInfoPopups(1)', e));
+                    }
+                }
+            }
+        }
     }
 }
