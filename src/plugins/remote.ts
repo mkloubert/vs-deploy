@@ -109,7 +109,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
 
             if (allErrors.length > 1) {
-                err = new Error(allErrors.map((x, i) => i18.t('countableError', i + 1, x))
+                err = new Error(allErrors.map((x, i) => i18.t('errors.countable', i + 1, x))
                                          .join('\n\n'));
             }
             else if (1 == allErrors.length) {
@@ -157,7 +157,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         try {
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
-                completed(new Error(i18.t('couldNotResolveRelativePath', file)));
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
             }
 
@@ -166,7 +166,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
 
             if (!relativePath) {
-                completed(new Error(i18.t('relativePathIsEmpty', file)));
+                completed(new Error(i18.t('relativePaths.isEmpty', file)));
                 return;
             }
 

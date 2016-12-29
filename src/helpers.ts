@@ -357,7 +357,7 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
 
     let stats = FS.lstatSync(file);
     if (!stats.isFile()) {
-        throw new Error(i18.t('noFile', file));
+        throw new Error(i18.t('isNo.file', file));
     }
 
     if (!useCache) {

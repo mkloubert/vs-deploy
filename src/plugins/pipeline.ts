@@ -217,7 +217,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                       scriptModule.onPipeCompleted(a, e.error).then(() => {
                                                           pipeCompleted();
                                                       }).catch((err) => {
-                                                          me.context.log(i18.t('errorWithCategory', 'PipelinePlugin.deployWorkspace(2)', err));
+                                                          me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));
 
                                                           pipeCompleted();
                                                       });
@@ -227,7 +227,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                   }
                                               }
                                               catch (ex) {
-                                                  me.context.log(i18.t('errorWithCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
+                                                  me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
 
                                                   pipeCompleted();
                                               }

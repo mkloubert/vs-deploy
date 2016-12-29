@@ -35,17 +35,20 @@ export interface Translation {
     beforeDeployOperations?: {
         failed?: string;
     },
-    countableError?: string;
-    couldNotResolveRelativePath?: string;
     deploy?: {
         file?: {
             failed?: string;
         }
     },
-    errorWithCategory?: string;
+    errors?: {
+        countable?: string;
+        withCategory?: string;
+    },
     failed?: string;
-    noDirectory?: string;
-    noFile?: string;
+    isNo?: {
+        directory?: string;
+        file?: string;
+    },
     ok?: string;
     packages?: {
         defaultName?: string;
@@ -114,7 +117,10 @@ export interface Translation {
         failed?: string;
         start?: string;
     },
-    relativePathIsEmpty?: string;
+    relativePaths?: {
+        couldNotResolve?: string;
+        isEmpty?: string;
+    },
     targets?: {
         cannotUseRecurrence?: string;
         defaultName?: string;

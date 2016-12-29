@@ -28,17 +28,20 @@ export const translation: Translation = {
     beforeDeployOperations: {
         failed: "Could not invoke 'before deploy' operations: {0}",
     },
-    countableError: 'ERROR #{0:trim}: {1}',
-    couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
     deploy: {
         file: {
             failed: 'Could not deploy file {0:trim,surround}: {1}',
         },
     },
-    errorWithCategory: '[ERROR] {0:trim}: {1}',
+    errors: {
+        countable: 'ERROR #{0:trim}: {1}',
+        withCategory: '[ERROR] {0:trim}: {1}',
+    },
     failed: '[FAILED: {0}]',
-    noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
-    noFile: "{0:trim,surround} is no file!",
+    isNo: {
+        directory: "{0:trim,surround} is no directory!",
+        file: "{0:trim,surround} is no file!",
+    },
     ok: '[OK]',
     packages: {
         defaultName: '(Package #{0:trim})',
@@ -107,7 +110,10 @@ export const translation: Translation = {
         failed: 'Quick deploy failed: {0}',
         start: 'Start a quick deploy...',
     },
-    relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
+    relativePaths: {
+        couldNotResolve: "Could not get relative path for {0:trim,surround}!",
+        isEmpty: 'Relative path for {0:trim,surround} file is empty!',
+    },
     targets: {
         cannotUseRecurrence: 'Cannot use target {0:trim,surround} (recurrence)!',
         defaultName: '(Target #{0:trim})',

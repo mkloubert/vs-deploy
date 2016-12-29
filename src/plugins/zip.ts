@@ -125,7 +125,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             }
                             else {
                                 // no directory
-                                completed(new Error(i18.t('noDirectory', targetDir)));
+                                completed(new Error(i18.t('isNo.directory', targetDir)));
                             }
                         }
                         catch (e) {

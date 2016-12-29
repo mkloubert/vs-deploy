@@ -98,7 +98,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         try {
             let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
             if (false === relativePath) {
-                completed(new Error(i18.t('couldNotResolveRelativePath', file)));
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
             }
 

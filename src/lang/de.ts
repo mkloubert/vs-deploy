@@ -28,17 +28,20 @@ export const translation: Translation = {
     beforeDeployOperations: {
         failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
     },
-    countableError: 'FEHLER #{0:trim}: {1}',
-    couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
     deploy: {
         file: {
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
     },
-    errorWithCategory: '[FEHLER] {0:trim}: {1}',
+    errors: {
+        countable: 'FEHLER #{0:trim}: {1}',
+        withCategory: '[FEHLER] {0:trim}: {1}',
+    },
     failed: '[FEHLGESCHLAGEN: {0}]',
-    noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
-    noFile: "{0:trim,surround} ist keine Datei!",
+    isNo: {
+        directory: "{0:trim,surround} ist kein Verzeichnis!",
+        file: "{0:trim,surround} ist keine Datei!",
+    },
     packages: {
         defaultName: '(Paket #{0:trim})',
         noneDefined: "Definieren sie bitte mindestens ein PAKET in Ihrer 'settings.json'-Datei!",
@@ -106,7 +109,10 @@ export const translation: Translation = {
         failed: 'Schnelles Bereitstellen fehlgeschlagen: {0}',
         start: 'Schnelles Bereitstellen...',
     },
-    relativePathIsEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
+    relativePaths: {
+        couldNotResolve: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
+        isEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
+    },
     targets: {
         cannotUseRecurrence: 'Kann das Ziel {0:trim,surround} nicht verwenden (Rekursion)!',
         defaultName: '(Ziel #{0:trim})',

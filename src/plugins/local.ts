@@ -77,7 +77,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
         if (false === relativeTargetFilePath) {
-            completed(new Error(i18.t('couldNotResolveRelativePath', file)));
+            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
             return;
         }
 
