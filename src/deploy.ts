@@ -106,12 +106,8 @@ export class Deployer {
         this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
 
         this.reloadConfiguration();
-        this.reloadPlugins();
-        this.displayNetworkInfo();
 
         this.resetIsCancelling();
-
-        this.clearOutputOrNot();
     }
 
     /**
@@ -940,14 +936,12 @@ export class Deployer {
     public displayNetworkInfo() {
         let me = this;
 
-        // TRANSLATE
-
         try {
-            this.outputChannel.appendLine(`Your hostname: '${this.name}'`);
+            this.outputChannel.appendLine(i18.t('network.hostname', this.name));
 
             let networkInterfaces = OS.networkInterfaces();
             if (Object.keys(networkInterfaces).length > 0) {
-                this.outputChannel.appendLine('Your network interfaces:');
+                this.outputChannel.appendLine(i18.t('network.interfaces.list'));
                 Object.keys(networkInterfaces).forEach((ifName) => {
                     let ifaces = networkInterfaces[ifName].filter(x => {
                         let addr = deploy_helpers.toStringSafe(x.address)
@@ -978,7 +972,7 @@ export class Deployer {
             }
         }
         catch (e) {
-            this.log(`Could not get network interfaces: ${deploy_helpers.toStringSafe(e)}`);
+            this.log(i18.t('network.interfaces.failed', e));
         }
     }
 
@@ -1686,10 +1680,6 @@ export class Deployer {
      */
     public onDidChangeConfiguration() {
         this.reloadConfiguration();
-        this.reloadPlugins();
-        this.displayNetworkInfo();
-
-        this.clearOutputOrNot();
     }
 
     /**
@@ -1976,6 +1966,13 @@ export class Deployer {
     public reloadConfiguration() {
         let me = this;
 
+        let next = () => {
+            me.reloadPlugins();
+            me.displayNetworkInfo();
+
+            me.clearOutputOrNot();
+        };
+
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
         this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
@@ -1990,8 +1987,12 @@ export class Deployer {
             }
 
             me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+
+            next();
         }).catch((err) => {
             me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+
+            next();
         });
 
         this._QUICK_DEPLOY_STATUS_ITEM.hide();

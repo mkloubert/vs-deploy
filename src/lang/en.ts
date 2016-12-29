@@ -83,6 +83,13 @@ export const translation: Translation = {
         file: "{0:trim,surround} is no file!",
         validItem: '{0:trim,surround} is no valid item that can be deployed!',
     },
+    network: {
+        hostname: 'Your hostname: {0:trim,surround}',
+        interfaces: {
+            failed: 'Could not get network interfaces: {0}',
+            list: 'Your network interfaces:',
+        }
+    },
     ok: '[OK]',
     packages: {
         defaultName: '(Package #{0:trim})',

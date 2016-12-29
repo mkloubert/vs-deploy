@@ -82,6 +82,13 @@ export const translation: Translation = {
         file: "{0:trim,surround} ist keine Datei!",
         validItem: '{0:trim,surround} ist kein gültiges Element, das bereitgestellt werden kann!',
     },
+    network: {
+        hostname: 'Name dieses Computers: {0:trim,surround}',
+        interfaces: {
+            failed: 'Konnte Netzwerk-Adapter nicht ermitteln: {0}',
+            list: 'Netzwerk-Adapter:',
+        }
+    },
     packages: {
         defaultName: '(Paket #{0:trim})',
         noneDefined: "Definieren sie bitte mindestens ein PAKET in Ihrer 'settings.json'-Datei!",

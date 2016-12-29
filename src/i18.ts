@@ -90,6 +90,13 @@ export interface Translation {
         file?: string;
         validItem?: string;
     },
+    network?: {
+        hostname?: string;
+        interfaces?: {
+            failed?: string;
+            list?: string;
+        }
+    },
     ok?: string;
     packages?: {
         defaultName?: string;
