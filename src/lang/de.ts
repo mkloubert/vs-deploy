@@ -51,7 +51,11 @@ export const translation: Translation = {
         canceled: 'Abgebrochen.',
         canceledWithErrors: 'Abgebrochen mit Fehlern!',
         file: {
+            deploying: 'Stelle Datei {0:trim,surround}{1:trim,leading_space} bereit... ',
+            deployingWithDestination: 'Stelle Datei {0:trim,surround} in {1:trim,surround}{2:trim,leading_space} bereit... ',
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+            succeeded: 'Die Datei {0:trim,surround} wurde erfolgreich bereitgestellt.',
+            succeededWithTarget: 'Die Datei {0:trim,surround} wurde erfolgreich in {1:trim,surround} bereitgestellt.',
         },
         fileOrFolder: {
             failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
@@ -63,6 +67,8 @@ export const translation: Translation = {
             selectTarget: 'Wählen Sie das Ziel in welches das Verzeichnis bereitgestellt werden soll...',
         },
         noFiles: 'Es gibt keine Dateien zum Bereitstellen!',
+        noPlugins: 'Keine passenden PlugIns gefunden!',
+        noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
         onSave: {
             couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht im Paket{1:trim,surround,leading_space} finden!',
             failed: 'Konnte {0:trim,surround} nach dem Speichern nicht bereitstellen ({1:trim}): {2}',
@@ -80,8 +86,6 @@ export const translation: Translation = {
             clickToCancel: 'hier klicken, um abzubrechen',
             failed: 'Das Bereitstellen der Dateien schlug fehl: {0}',
             failedWithTarget: 'Das Bereitstellen der Dateien nach {0:trim,surround} schlug fehl: {1}',
-            noPlugins: 'Keine passenden PlugIns gefunden!',
-            noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
             nothingDeployed: 'Keine Datei bereitgestellt!',
             nothingDeployedWithTarget: 'Keine Datei in {0:trim,surround} bereitgestellt!',
             someFailed: '{0:trim} der {1:trim} Datei(en) konnten nicht bereitgestellt werden!',

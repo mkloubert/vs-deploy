@@ -382,8 +382,6 @@ export class Deployer {
     protected deployFileTo(file: string, target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
-        // TRANSLATE
-
         return new Promise<boolean>((resolve, reject) => {
             let completed = (err?: any, canceled?: boolean) => {
                 if (err) {
@@ -434,33 +432,33 @@ export class Deployer {
                                     statusBarItem.dispose();
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
-                                    if (targetExpr) {
-                                        targetExpr = ` to '${targetExpr}'`;
-                                    }
 
                                     if (err) {
-                                        vscode.window.showErrorMessage(`Could not deploy file '${relativePath}'${targetExpr}: ${err}`);
-
                                         if (canceled) {
-                                            me.outputChannel.appendLine('Canceled with errors!');
+                                            me.outputChannel.appendLine(i18.t('deploy.canceledWithErrors'));
                                         }
                                         else {
-                                            me.outputChannel.appendLine('Finished with errors!');
+                                            me.outputChannel.appendLine(i18.t('deploy.finishedWithErrors'));
                                         }
                                     }
                                     else {
                                         if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
-                                            vscode.window.showInformationMessage(`File '${relativePath}' has been successfully deployed${targetExpr}.`);
+                                            if (targetExpr) {
+                                                vscode.window.showInformationMessage(i18.t('deploy.file.succeededWithTarget', file, targetExpr));
+                                            }
+                                            else {
+                                                vscode.window.showInformationMessage(i18.t('deploy.file.succeeded', file));
+                                            }
                                         }
 
                                         if (canceled) {
-                                            me.outputChannel.appendLine('Canceled.');
+                                            me.outputChannel.appendLine(i18.t('deploy.canceled'));
                                         }
                                         else {
-                                            me.outputChannel.appendLine('Finished.');
+                                            me.outputChannel.appendLine(i18.t('deploy.finished'));
 
                                             me.afterDeployment([ file ], target).catch((err) => {
-                                                vscode.window.showErrorMessage(`Could not invoke 'after deployed' operations: ${deploy_helpers.toStringSafe(err)}`);
+                                                vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
                                             });
                                         }
                                     }
@@ -478,14 +476,16 @@ export class Deployer {
 
                                         me.outputChannel.appendLine('');
 
-                                        let deployMsg = `Deploying file '${relativePath}'`;
-                                        if (destination) {
-                                            deployMsg += ` to '${destination}'`;
-                                        }
+                                        let deployMsg: string;
                                         if (targetName) {
-                                            deployMsg += ` ('${targetName}')`;
+                                            targetName = ` ('${targetName}')`;
                                         }
-                                        deployMsg += '... ';
+                                        if (destination) {
+                                            deployMsg = i18.t('deploy.file.deployingWithDestination', file, destination, targetName);
+                                        }
+                                        else {
+                                            deployMsg = i18.t('deploy.file.deploying', file, targetName);
+                                        }
 
                                         me.outputChannel.append(deployMsg);
 
@@ -495,17 +495,17 @@ export class Deployer {
 
                                         statusBarItem.color = '#ffffff';
                                         statusBarItem.command = "extension.deploy.cancel";
-                                        statusBarItem.tooltip = `Click here to cancel deployment of '${relativePath}'...`;
-                                        statusBarItem.text = `Deploying...`;
+                                        statusBarItem.text = i18.t('deploy.button.text');
+                                        statusBarItem.tooltip = i18.t('deploy.button.tooltip');
                                         statusBarItem.show();
                                     },
 
                                     onCompleted: (sender, e) => {
                                         if (e.error) {
-                                            me.outputChannel.appendLine(`[FAILED: ${deploy_helpers.toStringSafe(e.error)}]`);
+                                            me.outputChannel.appendLine(i18.t('failed', e.error));
                                         }
                                         else {
-                                            me.outputChannel.appendLine('[OK]');
+                                            me.outputChannel.appendLine(i18.t('ok'));
                                         }
 
                                         showResult(e.error, e.canceled);
@@ -525,10 +525,10 @@ export class Deployer {
                 }
                 else {
                     if (type) {
-                        vscode.window.showWarningMessage(`No matching plugin(s) found for '${type}'!`);
+                        vscode.window.showWarningMessage(i18.t('deploy.noPluginsForType', type));
                     }
                     else {
-                        vscode.window.showWarningMessage(`No machting plugin(s) found!`);
+                        vscode.window.showWarningMessage(i18.t('deploy.noPlugins'));
                     }
 
                     completed();
@@ -942,10 +942,10 @@ export class Deployer {
                 }
                 else {
                     if (type) {
-                        vscode.window.showWarningMessage(i18.t('deploy.workspace.noPluginsForType', type));
+                        vscode.window.showWarningMessage(i18.t('deploy.noPluginsForType', type));
                     }
                     else {
-                        vscode.window.showWarningMessage(i18.t('deploy.workspace.noPlugins'));
+                        vscode.window.showWarningMessage(i18.t('deploy.noPlugins'));
                     }
 
                     completed();

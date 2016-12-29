@@ -51,7 +51,11 @@ export const translation: Translation = {
         canceled: 'Canceled.',
         canceledWithErrors: 'Canceled with errors!',
         file: {
+            deploying: 'Deploying file {0:trim,surround}{1:trim,leading_space}... ',
+            deployingWithDestination: 'Deploying file {0:trim,surround} to {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Could not deploy file {0:trim,surround}: {1}',
+            succeeded: 'File {0:trim,surround} has been successfully deployed.',
+            succeededWithTarget: 'File {0:trim,surround} has been successfully deployed to {1:trim,surround}.',
         },
         fileOrFolder: {
             failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
@@ -63,6 +67,8 @@ export const translation: Translation = {
             selectTarget: 'Select the target to deploy the folder to...',
         },
         noFiles: 'There are no files to deploy!',
+        noPlugins: 'No plugin(s) found!',
+        noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
         onSave: {
             couldNotFindTarget: 'Deploy target {0:trim,surround} defined in package{1:trim,surround,leading_space} does not exist!',
             failed: 'Could not deploy {0:trim,surround} on save ({1:trim}): {2}',
@@ -80,8 +86,6 @@ export const translation: Translation = {
             clickToCancel: 'click here to cancel',
             failed: 'Could not deploy files: {0}',
             failedWithTarget: 'Could not deploy files to {0:trim,surround}: {1}',
-            noPlugins: 'No plugin(s) found!',
-            noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
             nothingDeployed: 'No file deployed!',
             nothingDeployedWithTarget: 'No file deployed to {0:trim,surround}!',
             someFailed: '{0:trim} of the {1:trim} file(s) could not be deployed!',

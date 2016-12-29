@@ -56,7 +56,11 @@ export interface Translation {
         canceled?: string;
         canceledWithErrors?: string;
         file?: {
+            deploying?: string;
+            deployingWithDestination?: string;
             failed?: string;
+            succeeded?: string;
+            succeededWithTarget?: string;
         },
         fileOrFolder?: {
             failed?: string;
@@ -68,6 +72,8 @@ export interface Translation {
             selectTarget?: string;
         },
         noFiles?: string;
+        noPlugins?: string;
+        noPluginsForType?: string;
         onSave?: {
             couldNotFindTarget?: string;
             failed?: string;
@@ -85,8 +91,6 @@ export interface Translation {
             clickToCancel?: string;
             failed?: string;
             failedWithTarget?: string;
-            noPlugins?: string;
-            noPluginsForType?: string;
             nothingDeployed?: string;
             nothingDeployedWithTarget?: string;
             someFailed?: string;
