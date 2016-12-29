@@ -25,6 +25,16 @@ import { Translation } from '../i18';
 
 // deutsch (german)
 export const translation: Translation = {
+    __plugins: {
+        reload: {
+            failed: 'Das Neuladen der PlugIns ist fehlgeschlagen: {0}',
+            loaded: {
+                more: '{0:trim} PlugIns geladen.',
+                none: 'Keine PlugIns geladen.',
+                one: '1 PlugIn geladen.',
+            }
+        }
+    },
     deploy: {
         before: {
             failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',

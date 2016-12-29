@@ -32,6 +32,16 @@ import * as vscode from 'vscode';
  * Stores the strings of a translation.
  */
 export interface Translation {
+    __plugins?: {
+        reload?: {
+            failed?: string;
+            loaded?: {
+                more?: string;
+                none?: string;
+                one?: string;
+            }
+        }
+    },
     deploy?: {
         before?: {
             failed?: string;

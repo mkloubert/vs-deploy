@@ -25,6 +25,16 @@ import { Translation } from '../i18';
 
 // english
 export const translation: Translation = {
+    __plugins: {
+        reload: {
+            failed: 'Could not reload plugins: {0}',
+            loaded: {
+                more: '{0:trim} plugins loaded.',
+                none: 'No plugin loaded.',
+                one: '1 plugin loaded.',
+            }
+        }
+    },
     deploy: {
         before: {
             failed: "Could not invoke 'before deploy' operations: {0}",

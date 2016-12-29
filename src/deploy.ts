@@ -2012,8 +2012,6 @@ export class Deployer {
     public reloadPlugins() {
         let me = this;
 
-        // TRANSLATE
-
         try {
             let loadedPlugins: deploy_contracts.DeployPlugin[] = [];
 
@@ -2033,7 +2031,7 @@ export class Deployer {
                             }
                         }
                         catch (e) { 
-                            me.log(`[ERROR] Deployer.reloadPlugins(1): ${deploy_helpers.toStringSafe(e)}`);
+                            me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(1)', e));
                         }
                         
                         return false;
@@ -2143,7 +2141,7 @@ export class Deployer {
                             }
                         }
                         catch (e) {
-                            me.log(`[ERROR] Deployer.reloadPlugins(2): ${deploy_helpers.toStringSafe(e)}`);
+                            me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(2)', e));
                         }
                     });
                 }
@@ -2157,7 +2155,7 @@ export class Deployer {
                         me.outputChannel.append(`- ${x.__file}`);
                     }
                     catch (e) {
-                        me.log(`[ERROR] Deployer.reloadPlugins(3): ${deploy_helpers.toStringSafe(e)}`);
+                        me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(3)', e));
                     }
 
                     me.outputChannel.appendLine('');
@@ -2165,20 +2163,20 @@ export class Deployer {
 
                 me.outputChannel.appendLine('');
                 if (loadedPlugins.length != 1) {
-                    this.outputChannel.appendLine(`${loadedPlugins.length} plugins loaded.`);
+                    this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', loadedPlugins.length));
                 }
                 else {
-                    this.outputChannel.appendLine(`1 plugin loaded.`);
+                    this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.one'));
                 }
             }
             else {
-                this.outputChannel.appendLine(`No plugin loaded.`);
+                this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.none'));
             }
 
             this.outputChannel.appendLine('');
         }
         catch (e) {
-            vscode.window.showErrorMessage(`Could not update deploy settings: ${e}`);
+            vscode.window.showErrorMessage(i18.t('__plugins.reload.failed', e));
         }
     }
 
