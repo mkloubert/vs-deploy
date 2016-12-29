@@ -35,21 +35,24 @@ export interface Translation {
     beforeDeployOperations?: {
         failed?: string;
     },
-    cannotUseTargetRecurrence?: string;
     countableError?: string;
-    couldNotFindTarget?: string;
     couldNotResolveRelativePath?: string;
-    defaultPackageName?: string;
-    deployFileFailed?: string;
+    deploy?: {
+        file?: {
+            failed?: string;
+        }
+    },
     errorWithCategory?: string;
     failed?: string;
     noDirectory?: string;
     noFile?: string;
-    noPackageDefined?: string;
-    noPackageToDeploy?: string;
-    noTargetDefined?: string;
     ok?: string;
-    packageNotFound?: string;
+    packages?: {
+        defaultName?: string;
+        noneDefined?: string;
+        notFound?: string;
+        nothingToDeploy?: string;
+    },
     plugins?: {
         app?: {
             description?: string;
@@ -113,7 +116,10 @@ export interface Translation {
     },
     relativePathIsEmpty?: string;
     targets?: {
+        cannotUseRecurrence?: string;
         defaultName?: string;
+        noneDefined?: string;
+        notFound?: string;
         select?: string;
     },
     unknownOperationType?: string;

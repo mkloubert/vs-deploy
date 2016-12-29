@@ -28,20 +28,23 @@ export const translation: Translation = {
     beforeDeployOperations: {
         failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
     },
-    cannotUseTargetRecurrence: 'Kann das Ziel {0:trim,surround} nicht verwenden (Rekursion)!',
     countableError: 'FEHLER #{0:trim}: {1}',
-    couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht finden!',
     couldNotResolveRelativePath: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
-    defaultPackageName: '(Paket #{0:trim})',
-    deployFileFailed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+    deploy: {
+        file: {
+            failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+        },
+    },
     errorWithCategory: '[FEHLER] {0:trim}: {1}',
     failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     noFile: "{0:trim,surround} ist keine Datei!",
-    noPackageDefined: "Definieren sie bitte mindestens ein Packet in Ihrer 'settings.json'-Datei!",
-    noPackageToDeploy: 'Kein Paket zum Bereitstellen gefunden!',
-    noTargetDefined: "Definieren sie bitte mindestens ein Ziel in Ihrer 'settings.json'-Datei!",
-    packageNotFound: 'Packet {0:trim,surround} wurde nicht gefunden!',
+    packages: {
+        defaultName: '(Paket #{0:trim})',
+        noneDefined: "Definieren sie bitte mindestens ein PAKET in Ihrer 'settings.json'-Datei!",
+        notFound: 'Paket {0:trim,surround} wurde nicht gefunden!',
+        nothingToDeploy: 'Kein Paket zum Bereitstellen gefunden!',
+    },
     plugins: {
         app: {
             description: 'Sendet Dateien an eine ausführbare Datei',
@@ -105,7 +108,10 @@ export const translation: Translation = {
     },
     relativePathIsEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
     targets: {
+        cannotUseRecurrence: 'Kann das Ziel {0:trim,surround} nicht verwenden (Rekursion)!',
         defaultName: '(Ziel #{0:trim})',
+        noneDefined: "Definieren sie bitte mindestens ein ZIEL in Ihrer 'settings.json'-Datei!",
+        notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
         select: 'Bitte wählen Sie ein Ziel aus...',
     },
     unknownOperationType: 'UNBEKANNTER TYP: {0:trim,surround}',

@@ -28,21 +28,24 @@ export const translation: Translation = {
     beforeDeployOperations: {
         failed: "Could not invoke 'before deploy' operations: {0}",
     },
-    cannotUseTargetRecurrence: 'Cannot use target {0:trim,surround} (recurrence)!',
     countableError: 'ERROR #{0:trim}: {1}',
-    couldNotFindTarget: 'Could not find target {0:trim,surround}!',
     couldNotResolveRelativePath: "Could not get relative path for {0:trim,surround}!",
-    defaultPackageName: '(Package #{0:trim})',
-    deployFileFailed: 'Could not deploy file {0:trim,surround}: {1}',
+    deploy: {
+        file: {
+            failed: 'Could not deploy file {0:trim,surround}: {1}',
+        },
+    },
     errorWithCategory: '[ERROR] {0:trim}: {1}',
     failed: '[FAILED: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     noFile: "{0:trim,surround} is no file!",
-    noPackageDefined: "Please define a least one PACKAGE in your 'settings.json'!",
-    noPackageToDeploy: 'No package to deploy!',
-    noTargetDefined: "Please define a least one TARGET in your 'settings.json'!",
     ok: '[OK]',
-    packageNotFound: 'Package {0:trim,surround} not found!',
+    packages: {
+        defaultName: '(Package #{0:trim})',
+        noneDefined: "Please define a least one PACKAGE in your 'settings.json'!",
+        notFound: 'Package {0:trim,surround} not found!',
+        nothingToDeploy: 'No package to deploy!',
+    },
     plugins: {
         app: {
             description: 'Deploys to an app, like a script or executable, on the local machine',
@@ -106,7 +109,10 @@ export const translation: Translation = {
     },
     relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
     targets: {
+        cannotUseRecurrence: 'Cannot use target {0:trim,surround} (recurrence)!',
         defaultName: '(Target #{0:trim})',
+        noneDefined: "Please define a least one TARGET in your 'settings.json'!",
+        notFound: 'Could not find target {0:trim,surround}!',
         select: 'Select the target to deploy to...',
     },
     unknownOperationType: 'UNKNOWN TYPE: {0:trim,surround}',

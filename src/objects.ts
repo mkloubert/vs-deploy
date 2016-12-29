@@ -620,7 +620,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
         if (targetNames.indexOf(myTargetName) > -1) {
             // no recurrence!
-            vscode.window.showWarningMessage(i18.t('cannotUseTargetRecurrence', myTargetName));
+            vscode.window.showWarningMessage(i18.t('targets.cannotUseRecurrence', myTargetName));
         }
 
         // prevent recurrence
@@ -642,7 +642,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
             if (!found) {
                 // we have an unknown target here
-                vscode.window.showWarningMessage(i18.t('couldNotFindTarget', tn));
+                vscode.window.showWarningMessage(i18.t('targets.notFound', tn));
             }
         });
 

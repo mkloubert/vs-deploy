@@ -284,7 +284,7 @@ export class Deployer {
 
         let targets = this.getTargets();
         if (targets.length < 1) {
-            vscode.window.showWarningMessage(i18.t('noTargetDefined'));
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
         }
 
@@ -303,7 +303,7 @@ export class Deployer {
                 }
             }
             catch (e) {
-                vscode.window.showErrorMessage(i18.t('deployFileFailed', file, e));
+                vscode.window.showErrorMessage(i18.t('deploy.file.failed', file, e));
             }
         };
 
@@ -1874,7 +1874,7 @@ export class Deployer {
                     }
 
                     if (!found) {
-                        vscode.window.showWarningMessage(i18.t('packageNotFound', pn));
+                        vscode.window.showWarningMessage(i18.t('packages.notFound', pn));
                     }
                 });
             }
@@ -1894,7 +1894,7 @@ export class Deployer {
             };
 
             if (packagesToDeploy.length < 1) {
-                vscode.window.showWarningMessage(i18.t('noPackageToDeploy'));
+                vscode.window.showWarningMessage(i18.t('packages.nothingToDeploy'));
             }
             else {
                 me._QUICK_DEPLOY_STATUS_ITEM.hide();
