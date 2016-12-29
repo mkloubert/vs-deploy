@@ -48,6 +48,25 @@ export interface Translation {
         withCategory?: string;
     },
     failed?: string;
+    host?: {
+        button?: {
+            text?: string;
+            tooltip?: string;
+        },
+        errors?: {
+            cannotListen?: string;
+            couldNotStop?: string;
+            noData?: string;
+            noFilename?: string;
+        },
+        receiveFile?: {
+            failed?: string;
+            ok?: string;
+            receiving?: string;
+        },
+        started?: string;
+        stopped?: string;
+    },
     isNo?: {
         directory?: string;
         file?: string;
@@ -131,6 +150,9 @@ export interface Translation {
         notFound?: string;
         select?: string;
     },
+    warnings?: {
+        withCategory?: string;
+    }
 }
 
 

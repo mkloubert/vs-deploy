@@ -1185,8 +1185,6 @@ export class Deployer {
     public listen() {
         let me = this;
 
-        // TRANSLATE
-
         // destroy old status bar item
         let statusItem = me._serverStatusItem;
         if (statusItem) {
@@ -1194,7 +1192,7 @@ export class Deployer {
                 statusItem.dispose();
             }
             catch (e) {
-                me.log(`[ERROR] Deployer.listen(): ${deploy_helpers.toStringSafe(e)}`);
+                me.log(i18.t('errors.withCategory', 'Deployer.listen()', e));
             }
 
             statusItem = null;
@@ -1205,7 +1203,7 @@ export class Deployer {
         if (server) {
             server.close((err) => {
                 if (err) {
-                    let errMsg = `Could not stop deploy host: ${deploy_helpers.toStringSafe(err)}`;
+                    let errMsg = i18.t('host.errors.couldNotStop', err);
 
                     vscode.window.showErrorMessage(errMsg);
                     me.outputChannel.appendLine(errMsg);
@@ -1214,7 +1212,7 @@ export class Deployer {
 
                 me._server = null;
 
-                let successMsg = `Deploy host has been stopped.`;
+                let successMsg = i18.t('host.stopped');
 
                 vscode.window.showInformationMessage(successMsg);
                 me.outputChannel.appendLine(successMsg);
@@ -1271,7 +1269,7 @@ export class Deployer {
         transformer = deploy_helpers.toDataTransformerSafe(transformer);
 
         let showError = (err: any) => {
-            vscode.window.showErrorMessage(`Could not start listening for files: ${deploy_helpers.toStringSafe(err)}`);
+            vscode.window.showErrorMessage(i18.t('host.errors.cannotListen', err));
         };
 
         server = Net.createServer((socket) => {
@@ -1283,14 +1281,15 @@ export class Deployer {
                     socket.destroy();
                 }
                 catch (e) {
-                    me.log(`[ERROR] Deployer.listen().createServer(1): ${deploy_helpers.toStringSafe(e)}`);
+                    me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(1)', e));
                 }
             };
 
             try {
                 deploy_helpers.readSocket(socket, 4).then((dlBuff) => {
                     if (4 != dlBuff.length) {  // must have the size of 4
-                        me.log(`[WARN] Deployer.listen().createServer(): Invalid data buffer length ${dlBuff.length}`);
+                        me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
+                                     `Invalid data buffer length ${dlBuff.length}`));
 
                         closeSocket();
                         return;
@@ -1298,7 +1297,8 @@ export class Deployer {
 
                     let dataLength = dlBuff.readUInt32LE(0);
                     if (dataLength > maxMsgSize) {  // out of range
-                        me.log(`[WARN] Deployer.listen().createServer(): Invalid data length ${dataLength}`);
+                        me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
+                                     `Invalid data length ${dataLength}`));
 
                         closeSocket();
                         return;
@@ -1308,26 +1308,29 @@ export class Deployer {
                         closeSocket();
 
                         if (msgBuff.length != dataLength) {  // non-exptected data length
-                            me.log(`[WARN] Deployer.listen().createServer(): Invalid buffer length ${msgBuff.length}`);
+                            me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
+                                         `Invalid buffer length ${msgBuff.length}`));
 
                             return;
                         }
                         
                         let completed = (err?: any, file?: string) => {
                             if (err) {
-                                me.outputChannel.append(`[FAILED: `);
+                                let failMsg = '';
                                 if (file) {
-                                    me.outputChannel.append(`'${deploy_helpers.toStringSafe(file)}'; `);
+                                    failMsg += `'${deploy_helpers.toStringSafe(file)}'; `;
                                 }
-                                me.outputChannel.append(`${deploy_helpers.toStringSafe(err)}]`);
-                                me.outputChannel.appendLine(`]`);
+                                failMsg += deploy_helpers.toStringSafe(err);
+
+                                me.outputChannel.appendLine(i18.t('host.receiveFile.failed', failMsg));
                             }
                             else {
-                                me.outputChannel.append('[OK');
+                                let okMsg = '';
                                 if (file) {
-                                    me.outputChannel.append(`: '${deploy_helpers.toStringSafe(file)}'`);
+                                    okMsg = `: '${deploy_helpers.toStringSafe(file)}'`;
                                 }
-                                me.outputChannel.appendLine(']');
+
+                                me.outputChannel.appendLine(i18.t('host.receiveFile.ok', okMsg));
                             }
                         };
 
@@ -1347,27 +1350,30 @@ export class Deployer {
 
                                 if (file) {
                                     // output that we are receiving a file...
-                                    let receiveFileMsg = `Receiving file`;
+
+                                    let fileInfo = '';
                                     if (!deploy_helpers.isNullOrUndefined(file.nr)) {
                                         let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
                                         if (!isNaN(fileNr)) {
-                                            receiveFileMsg += ` (${fileNr}`;
+                                            fileInfo += ` (${fileNr}`;
                                             if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
                                                 let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
                                                 if (!isNaN(totalCount)) {
-                                                    receiveFileMsg += ` / ${totalCount}`;
+                                                    fileInfo += ` / ${totalCount}`;
 
                                                     if (0 != totalCount) {
                                                         let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
                                                         
-                                                        receiveFileMsg += `; ${percentage}%`;
+                                                        fileInfo += `; ${percentage}%`;
                                                     }
                                                 }
                                             }
-                                            receiveFileMsg += ")";
+                                            fileInfo += ")";
                                         }
                                     }
-                                    receiveFileMsg += ` from '${remoteAddr}:${remotePort}'... `;
+
+                                    let receiveFileMsg = i18.t('host.receiveFile.receiving',
+                                                               remoteAddr, remotePort, fileInfo);
 
                                     me.outputChannel.append(receiveFileMsg);
 
@@ -1430,7 +1436,7 @@ export class Deployer {
                                                                 }
                                                                 else {
                                                                     // no => ERROR
-                                                                    fileCompleted(new Error(`'${targetDir}' is not directory!`));
+                                                                    fileCompleted(new Error(i18.t('isNo.directory', targetDir)));
                                                                 }
                                                             });
                                                         };
@@ -1476,7 +1482,7 @@ export class Deployer {
                                                                             });
                                                                         }
                                                                         else {
-                                                                            fileCompleted(new Error(`'${targetFile}' is no file!`));
+                                                                            fileCompleted(new Error(i18.t('isNo.file', targetFile)));
                                                                         }
                                                                     });
                                                                 }
@@ -1490,7 +1496,7 @@ export class Deployer {
                                                         });
                                                     }
                                                     else {
-                                                        fileCompleted(new Error('No filename (2)!'));
+                                                        fileCompleted(new Error(i18.t('host.errors.noFilename', 2)));
                                                     }
                                                     // if (file.name) #2
                                                 }
@@ -1541,12 +1547,12 @@ export class Deployer {
                                         }
                                     }
                                     else {
-                                        completed(new Error('No filename (1)!'));
+                                        completed(new Error(i18.t('host.errors.noFilename', 1)));
                                     }
                                     // if (file.name) #1
                                 }
                                 else {
-                                    completed(new Error('No data!'));
+                                    completed(new Error(i18.t('host.errors.noData')));
                                 }
                                 // if (file)
                             }
@@ -1557,18 +1563,18 @@ export class Deployer {
                             completed(err);
                         });
                     }).catch((err) => {
-                        me.log(`[ERROR] Deployer.listen().createServer(3): ${deploy_helpers.toStringSafe(err)}`);
+                        me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(3)', err));
 
                         closeSocket();
                     });
                 }).catch((err) => {
-                    me.log(`[ERROR] Deployer.listen().createServer(4): ${deploy_helpers.toStringSafe(err)}`);
+                    me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(4)', err));
 
                     closeSocket();
                 });
             }
             catch (e) {
-                me.log(`[ERROR] Deployer.listen().createServer(5): ${deploy_helpers.toStringSafe(e)}`);
+                me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(5)', e));
 
                 closeSocket();
             }
@@ -1582,7 +1588,7 @@ export class Deployer {
                 try {
                     me._server = server;
 
-                    let successMsg = `Started deploy host on port ${port} in directory '${dir}'.`;
+                    let successMsg = i18.t('host.started', port, dir);
 
                     me.outputChannel.appendLine(successMsg);
                     vscode.window.showInformationMessage(successMsg);
@@ -1590,8 +1596,8 @@ export class Deployer {
                     statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
                     statusItem.tooltip = '';
                     statusItem.command = 'extension.deploy.listen';
-                    statusItem.text = 'Waiting for files...';
-                    statusItem.tooltip = 'Click here to close deploy host';
+                    statusItem.text = i18.t('host.button.text');
+                    statusItem.tooltip = i18.t('host.button.tooltip');
                     statusItem.show();
 
                     me._serverStatusItem = statusItem;
@@ -1629,7 +1635,7 @@ export class Deployer {
                     startListening();  // all is fine => start listening
                 }
                 else {
-                    showError(new Error(`'${dir}' is no directory!`));
+                    showError(new Error(i18.t('isNo.directory', dir)));
                 }
             });
         };

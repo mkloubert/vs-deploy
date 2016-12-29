@@ -41,6 +41,25 @@ export const translation: Translation = {
         withCategory: '[ERROR] {0:trim}: {1}',
     },
     failed: '[FAILED: {0}]',
+    host: {
+        button: {
+            text: 'Waiting for files...',
+            tooltip: 'Click here to close deploy host',
+        },
+        errors: {
+            cannotListen: 'Could not start listening for files: {0}',
+            couldNotStop: 'Could not stop deploy host: {0}',
+            noData: 'No data!',
+            noFilename: 'No filename {0:trim}!',
+        },
+        receiveFile: {
+            failed: '[FAILED:{0:trim,leading_space}]',
+            ok: '[OK{0:trim}]',
+            receiving: "Receiving file{2:trim,leading_space} from '{0:trim}:{1:trim}'... ",
+        },
+        started: 'Started deploy host on port {0:trim} in directory {1:trim,surround}.',
+        stopped: 'Deploy host has been stopped.',
+    },
     isNo: {
         directory: "{0:trim,surround} is no directory!",
         file: "{0:trim,surround} is no file!",
@@ -123,5 +142,8 @@ export const translation: Translation = {
         noneDefined: "Please define a least one TARGET in your 'settings.json'!",
         notFound: 'Could not find target {0:trim,surround}!',
         select: 'Select the target to deploy to...',
+    },
+    warnings: {
+        withCategory: '[WARN] {0:trim}: {1}',
     },
 };

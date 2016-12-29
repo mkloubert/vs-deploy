@@ -41,6 +41,24 @@ export const translation: Translation = {
         withCategory: '[FEHLER] {0:trim}: {1}',
     },
     failed: '[FEHLGESCHLAGEN: {0}]',
+    host: {
+        button: {
+            text: 'Warte auf Dateien...',
+            tooltip: 'Hier klicken, um den Host zu schließen',
+        },
+        errors: {
+            cannotListen: 'Das Starten des Bereitstellungs-Dienstes schlug fehl: {0}',
+            couldNotStop: 'Das Beenden des Bereitstellungs-Dienstes schlug fehl: {0}',
+            noData: 'Keine Daten!',
+            noFilename: 'Kein Dateiname {0:trim}!',
+        },
+        receiveFile: {
+            failed: '[FEHLGESCHLAGEN:{0:trim,leading_space}]',
+            receiving: "Empfange Datei{2:trim,leading_space} von '{0:trim}:{1:trim}'... ",
+        },
+        started: 'Bereitstellungs-Dienst wurde erfolgreich auf Port {0:trim} im Verzeichnis {1:trim,surround} gestartet.',
+        stopped: 'Bereitstellungs-Dienst wurde beendet.',
+    },
     isNo: {
         directory: "{0:trim,surround} ist kein Verzeichnis!",
         file: "{0:trim,surround} ist keine Datei!",
@@ -122,5 +140,8 @@ export const translation: Translation = {
         noneDefined: "Definieren sie bitte mindestens ein ZIEL in Ihrer 'settings.json'-Datei!",
         notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
         select: 'Bitte wählen Sie ein Ziel aus...',
+    },
+    warnings: {
+        withCategory: '[WARNUNG] {0:trim}: {1}',
     },
 };

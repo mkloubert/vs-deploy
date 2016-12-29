@@ -238,6 +238,13 @@ export function formatArray(formatStr: any, args: any[]): string {
             // format providers
             formatProviders.forEach(fp => {
                 switch (fp) {
+                    case 'leading_space':
+                        resultValue = toStringSafe(resultValue);
+                        if (resultValue) {
+                            resultValue = ' ' + resultValue;
+                        }
+                        break;
+
                     case 'lower':
                         resultValue = toStringSafe(resultValue).toLowerCase();
                         break;
