@@ -35,6 +35,8 @@ export const translation: Translation = {
     failed: '[FEHLGESCHLAGEN: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     noFile: "{0:trim,surround} ist keine Datei!",
+    noPackageToDeploy: 'Kein Paket zum Bereitstellen gefunden!',
+    packageNotFound: 'Packet {0:trim,surround} wurde nicht gefunden!',
     plugins: {
         app: {
             description: 'Sendet Dateien an eine ausführbare Datei',
@@ -91,7 +93,11 @@ export const translation: Translation = {
             fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
         }
     },
-    quickDeploy: 'Bereitstellen!',
+    quickDeploy: {
+        caption: 'Bereitstellen!',
+        failed: 'Schnelles Bereitstellen fehlgeschlagen: {0}',
+    },
     relativePathIsEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
     startQuickDeploy: 'Schnelles Bereitstellen...',
+    unknownOperationType: 'UNBEKANNTER TYP: {0:trim,surround}',
 };

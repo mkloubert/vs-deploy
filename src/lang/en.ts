@@ -35,7 +35,9 @@ export const translation: Translation = {
     failed: '[FAILED: {0}]',
     noDirectory: "{0:trim,surround} ist kein Verzeichnis!",
     noFile: "{0:trim,surround} is no file!",
+    noPackageToDeploy: 'No package to deploy!',
     ok: '[OK]',
+    packageNotFound: 'Package {0:trim,surround} not found!',
     plugins: {
         app: {
             description: 'Deploys to an app, like a script or executable, on the local machine',
@@ -92,7 +94,11 @@ export const translation: Translation = {
             fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
         }
     },
-    quickDeploy: 'Quick deploy!',
+    quickDeploy: {
+        caption: 'Quick deploy!',
+        failed: 'Quick deploy failed: {0}',
+    },
     relativePathIsEmpty: 'Relative path for {0:trim,surround} file is empty!',
     startQuickDeploy: 'Start a quick deploy...',
+    unknownOperationType: 'UNKNOWN TYPE: {0:trim,surround}',
 };

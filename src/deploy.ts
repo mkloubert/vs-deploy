@@ -23,10 +23,10 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
-import * as deploy_i18 from './i18';
 import * as FS from 'fs';
 const FSExtra = require('fs-extra');
 const Glob = require('glob');
+import * as i18 from './i18';
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as OS from 'os';
@@ -152,13 +152,11 @@ export class Deployer {
                     ++i;
 
                     try {
-                        // TRANSLATE
-
                         me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
                             if (!handled) {
-                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${currentOperation.type}`);
+                                me.outputChannel.appendLine(i18.t('unknownOperationType', currentOperation.type));
                             }
 
                             invokeNext();
@@ -217,13 +215,11 @@ export class Deployer {
                     ++i;
 
                     try {
-                        // TRANSLATE
-
                         me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
 
                         me.handleCommonDeployOperation(currentOperation).then((handled) => {
                             if (!handled) {
-                                me.outputChannel.appendLine(`UNKNOWN TYPE: ${currentOperation.type}`);
+                                me.outputChannel.appendLine(i18.t('unknownOperationType', currentOperation.type));
                             }
 
                             invokeNext();
@@ -1851,8 +1847,6 @@ export class Deployer {
     public quickDeploy() {
         let me = this;
 
-        // TRANSLATE
-
         try {
             let cfg = this.config;
 
@@ -1882,7 +1876,7 @@ export class Deployer {
                     }
 
                     if (!found) {
-                        vscode.window.showWarningMessage(`Package '${pn}' not found!`);
+                        vscode.window.showWarningMessage(i18.t('packageNotFound', pn));
                     }
                 });
             }
@@ -1897,12 +1891,12 @@ export class Deployer {
                 }
 
                 if (err) {
-                    vscode.window.showErrorMessage(`Quick deploy failed: ${deploy_helpers.toStringSafe(err)}`);
+                    vscode.window.showErrorMessage(i18.t('quickDeploy.failed', err));
                 }
             };
 
             if (packagesToDeploy.length < 1) {
-                vscode.window.showWarningMessage('No package found to deploy!');
+                vscode.window.showWarningMessage(i18.t('noPackageToDeploy'));
             }
             else {
                 me._QUICK_DEPLOY_STATUS_ITEM.hide();
@@ -1972,7 +1966,7 @@ export class Deployer {
             }
         }
         catch (e) {
-            vscode.window.showErrorMessage(`Quick deploy failed: ${deploy_helpers.toStringSafe(e)}`);
+            vscode.window.showErrorMessage(i18.t('quickDeploy.failed', e));
         }
     }
 
@@ -1986,16 +1980,16 @@ export class Deployer {
 
         this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
         this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
-        deploy_i18.init(this._config.language).then(() => {
+        i18.init(this._config.language).then(() => {
             if (me._config.button) {
                 let txt = deploy_helpers.toStringSafe(me._config.button.text).trim();
                 if (!txt) {
-                    txt = deploy_i18.t('quickDeploy');
+                    txt = i18.t('quickDeploy.caption');
                 }
                 me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
             }
 
-            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = deploy_i18.t('startQuickDeploy');
+            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('startQuickDeploy');
         }).catch((err) => {
             me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
         });

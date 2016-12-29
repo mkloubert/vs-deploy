@@ -42,7 +42,9 @@ export interface Translation {
     failed?: string;
     noDirectory?: string;
     noFile?: string;
+    noPackageToDeploy?: string;
     ok?: string;
+    packageNotFound?: string;
     plugins?: {
         app?: {
             description?: string;
@@ -99,9 +101,13 @@ export interface Translation {
             fileAlreadyExists?: string;
         }
     },
-    quickDeploy?: string;
+    quickDeploy?: {
+        caption?: string;
+        failed?: string;
+    },
     relativePathIsEmpty?: string;
     startQuickDeploy?: string;
+    unknownOperationType?: string;
 }
 
 
