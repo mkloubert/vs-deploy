@@ -43,15 +43,26 @@ export interface Translation {
         }
     },
     deploy?: {
+        after?: {
+            failed?: string;
+        },
         before?: {
             failed?: string;
         },
+        button?: {
+            text?: string;
+            tooltip?: string;
+        },
+        canceled?: string;
+        canceledWithErrors?: string;
         file?: {
             failed?: string;
         },
         fileOrFolder?: {
             failed?: string;
         },
+        finished?: string;
+        finishedWithErrors?: string;
         folder?: {
             failed?: string;
             selectTarget?: string;
@@ -65,6 +76,23 @@ export interface Translation {
         operations?: {
             open?: string;
             unknownType?: string;
+        },
+        workspace?: {
+            allFailed?: string;
+            allFailedWithTarget?: string;
+            allSucceeded?: string;
+            allSucceededWithTarget?: string;
+            clickToCancel?: string;
+            failed?: string;
+            failedWithTarget?: string;
+            noPlugins?: string;
+            noPluginsForType?: string;
+            nothingDeployed?: string;
+            nothingDeployedWithTarget?: string;
+            someFailed?: string;
+            someFailedWithTarget?: string;
+            status?: string;
+            statusWithDestination?: string;
         }
     },
     errors?: {

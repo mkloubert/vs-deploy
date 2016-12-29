@@ -24,6 +24,8 @@
 import { Translation } from '../i18';
 
 // english
+// 
+// Translated by: Marcel Joachim Kloubert (https://github.com/mkloubert)
 export const translation: Translation = {
     __plugins: {
         reload: {
@@ -36,15 +38,26 @@ export const translation: Translation = {
         }
     },
     deploy: {
+        after: {
+            failed: "Could not invoke 'after deployed' operations: {0}",
+        },
         before: {
             failed: "Could not invoke 'before deploy' operations: {0}",
         },
+        button: {
+            text: 'Deploying...',
+            tooltip: 'Click here to cancel deployment...',
+        },
+        canceled: 'Canceled.',
+        canceledWithErrors: 'Canceled with errors!',
         file: {
             failed: 'Could not deploy file {0:trim,surround}: {1}',
         },
         fileOrFolder: {
             failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
         },
+        finished: 'Finished.',
+        finishedWithErrors: 'Finished with errors!',
         folder: {
             failed: 'Could not deploy folder {0:trim,surround}: {1}',
             selectTarget: 'Select the target to deploy the folder to...',
@@ -58,6 +71,23 @@ export const translation: Translation = {
         operations: {
             open: 'Opening {0:trim,surround}... ',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
+        },
+        workspace: {
+            allFailed: 'No file could be deployed: {0}',
+            allFailedWithTarget: 'No file could be deployed to {0:trim,surround}: {1}',
+            allSucceeded: 'All {0:trim} file(s) were successfully deployed.',
+            allSucceededWithTarget: 'All {0:trim} file(s) were successfully deployed to {1:trim,surround}.',
+            clickToCancel: 'click here to cancel',
+            failed: 'Could not deploy files: {0}',
+            failedWithTarget: 'Could not deploy files to {0:trim,surround}: {1}',
+            noPlugins: 'No plugin(s) found!',
+            noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
+            nothingDeployed: 'No file deployed!',
+            nothingDeployedWithTarget: 'No file deployed to {0:trim,surround}!',
+            someFailed: '{0:trim} of the {1:trim} file(s) could not be deployed!',
+            someFailedWithTarget: '{0:trim} of the {1:trim} file(s) could not be deployed to {2:trim,surround}!',
+            status: 'Deploying {0:trim,surround}... ',
+            statusWithDestination: 'Deploying {0:trim,surround} to {1:trim,surround}... ',
         }
     },
     errors: {

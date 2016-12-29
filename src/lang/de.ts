@@ -24,6 +24,8 @@
 import { Translation } from '../i18';
 
 // deutsch (german)
+// 
+// Translated by: Marcel Joachim Kloubert (https://github.com/mkloubert)
 export const translation: Translation = {
     __plugins: {
         reload: {
@@ -36,15 +38,26 @@ export const translation: Translation = {
         }
     },
     deploy: {
+        after: {
+            failed: 'Fehler beim Ausführen der Aufgaben, die NACH dem Bereitstellen ausgeführt werden sollen: {0}',
+        },
         before: {
             failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
         },
+        button: {
+            text: 'Bereitstellen läuft...',
+            tooltip: 'Hier klicken, um den Vorgang abzubrechen...',
+        },
+        canceled: 'Abgebrochen.',
+        canceledWithErrors: 'Abgebrochen mit Fehlern!',
         file: {
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
         fileOrFolder: {
             failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
+        finished: 'Fertig.',
+        finishedWithErrors: 'Beendet mit Fehlern!',
         folder: {
             failed: 'Das Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
             selectTarget: 'Wählen Sie das Ziel in welches das Verzeichnis bereitgestellt werden soll...',
@@ -58,6 +71,23 @@ export const translation: Translation = {
         operations: {
             open: 'Öffne {0:trim,surround}... ',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
+        },
+        workspace: {
+            allFailed: 'Keine Datei konnte bereitgestellt werden: {0}',
+            allFailedWithTarget: 'Keine Datei konnte nach {0:trim,surround} bereitgestellt werden: {1}',
+            allSucceeded: 'Alle {0:trim} Datei(en) wurden erfolgreich bereitgestellt.',
+            allSucceededWithTarget: 'Alle {0:trim} Datei(en) wurden erfolgreich in {1:trim,surround} bereitgestellt.',
+            clickToCancel: 'hier klicken, um abzubrechen',
+            failed: 'Das Bereitstellen der Dateien schlug fehl: {0}',
+            failedWithTarget: 'Das Bereitstellen der Dateien nach {0:trim,surround} schlug fehl: {1}',
+            noPlugins: 'Keine passenden PlugIns gefunden!',
+            noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
+            nothingDeployed: 'Keine Datei bereitgestellt!',
+            nothingDeployedWithTarget: 'Keine Datei in {0:trim,surround} bereitgestellt!',
+            someFailed: '{0:trim} der {1:trim} Datei(en) konnten nicht bereitgestellt werden!',
+            someFailedWithTarget: '{0:trim} der {1:trim} Datei(en) konnte nicht in {2:trim,surround} bereitgestellt werden!',
+            status: 'Stelle {0:trim,surround} bereit... ',
+            statusWithDestination: 'Stelle {0:trim,surround} in {1:trim,surround} bereit... ',
         }
     },
     errors: {
