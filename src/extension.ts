@@ -1,5 +1,7 @@
 'use strict';
 
+/// <reference types="node" />
+
 // The MIT License (MIT)
 // 
 // vs-deploy (https://github.com/mkloubert/vs-deploy)
