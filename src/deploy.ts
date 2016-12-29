@@ -1038,8 +1038,6 @@ export class Deployer {
      * @return {deploy_contracts.DeployTarget[]} The found targets.
      */
     protected getTargetsFromPackage(pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] {
-        // TRANSLATE
-
         let pkgTargets: deploy_contracts.DeployTarget[] = [];
 
         let normalizeString = (val: any): string => {
@@ -1066,7 +1064,7 @@ export class Deployer {
 
             if (!found) {
                 // we have an unknown target here
-                vscode.window.showWarningMessage(`[vs-deploy] Could not find target '${tn}' in package!`);
+                vscode.window.showWarningMessage(i18.t('packages.couldNotFindTarget', tn, pkg.name));
             }
         });
 

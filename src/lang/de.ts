@@ -90,6 +90,7 @@ export const translation: Translation = {
         }
     },
     packages: {
+        couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht im Paket {1:trim,surround} finden!',
         defaultName: '(Paket #{0:trim})',
         noneDefined: "Definieren sie bitte mindestens ein PAKET in Ihrer 'settings.json'-Datei!",
         notFound: 'Paket {0:trim,surround} wurde nicht gefunden!',

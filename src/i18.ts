@@ -99,6 +99,7 @@ export interface Translation {
     },
     ok?: string;
     packages?: {
+        couldNotFindTarget?: string;
         defaultName?: string;
         noneDefined?: string;
         notFound?: string;
