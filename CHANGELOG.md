@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.3.0 (December 30th, 2016; deploy on save behavior)
+
+* added `submitFileList` and `wait` settings for [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) targets
+
+
 ## 4.2.0 (December 30th, 2016; deploy on save behavior)
 
 * added [useTargetListForDeployOnSave](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting, which can define the behavior of 'deploy on save' feature

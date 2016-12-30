@@ -35,6 +35,8 @@ interface DeployTargetApp extends deploy_contracts.DeployTarget {
     app?: string;
     arguments?: string | string[];
     separator?: string;
+    submitFileList?: boolean;
+    wait?: boolean;
 }
 
 function createAppArgsList(file: string, app: string, args: string[]): string[] {
@@ -71,6 +73,8 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let app = deploy_helpers.toStringSafe(target.app);
+        let submitTheListOfFiles = deploy_helpers.toBooleanSafe(target.submitFileList, true);
+        let waitForApp = deploy_helpers.toBooleanSafe(target.wait);
 
         let firstFile = files[0];
         let nextFiles = files.filter((x, i) => i > 0);
@@ -79,8 +83,11 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
         if (target.arguments) {
             args = args.concat(deploy_helpers.asArray(target.arguments));
         }
-        args = args.concat(nextFiles)
-                   .filter(x => x);
+
+        if (submitTheListOfFiles) {
+            args = args.concat(nextFiles)
+                       .filter(x => x);
+        }
 
         let separator = deploy_helpers.toStringSafe(target.separator);
         if (!separator) {
@@ -113,10 +120,27 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 });
             }
         };
-        
-        deploy_helpers.open(firstFile, {
-            app: createAppArgsList(nextFiles.join(separator), app, args),
-            wait: false,
+
+        let appOpts: any;
+        let firstAppArg: any;
+        if (submitTheListOfFiles) {
+            firstAppArg = firstFile;
+            appOpts = createAppArgsList(nextFiles.join(separator), app, args);
+        }
+        else {
+            if (args.length < 1) {
+                firstAppArg = app;
+            }
+            else {
+                firstAppArg = args[0];
+                appOpts = createAppArgsList(nextFiles.join(separator), app,
+                                            args.filter((x, i) => i > 0));
+            }
+        }
+
+        deploy_helpers.open(firstAppArg, {
+            app: appOpts,
+            wait: waitForApp,
         }).then(() => {
             completed();
         }).catch((err) => {
