@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.5.0 (December 30th, 2016; tag support for remote targets)
+
+* added optional `tag` setting for [remote](https://github.com/mkloubert/vs-deploy/wiki/target_remote) targets, that sends this value with each remote JSON file message
+
+
 ## 4.4.0 (December 30th, 2016; deploy on save behavior for packages)
 
 * [useTargetListForDeployOnSave](https://github.com/mkloubert/vs-deploy/wiki#packages-) setting is also available for single packages now, which would overwrite the [global setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) value
