@@ -1732,8 +1732,6 @@ export class Deployer {
         try {
             FS.exists(doc.fileName, (exists) => {
                 try {
-                    let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
-
                     let normalizeString = (str: string): string => {
                         return deploy_helpers.toStringSafe(str)
                                              .toLowerCase()
@@ -1741,6 +1739,12 @@ export class Deployer {
                     };
 
                     let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
+                        let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
+                        if (!deploy_helpers.isNullOrUndefined(pkg.useTargetListForDeployOnSave)) {
+                            // use package specific setting
+                            useTargetLists = deploy_helpers.toBooleanSafe(pkg.useTargetListForDeployOnSave);
+                        }
+
                         let targetSource: string[] = [];
                         if (pkg) {
                             if (useTargetLists) {

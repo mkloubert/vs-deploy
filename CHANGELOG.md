@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.4.0 (December 30th, 2016; deploy on save behavior for packages)
+
+* [useTargetListForDeployOnSave](https://github.com/mkloubert/vs-deploy/wiki#packages-) setting is also available for single packages now, which would overwrite the [global setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) value
+
+
 ## 4.3.0 (December 30th, 2016; app targets)
 
 * added `submitFileList` and `wait` settings for [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) targets

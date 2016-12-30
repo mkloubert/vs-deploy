@@ -492,6 +492,11 @@ export interface DeployPackage {
      * One or more explicit targets to deploy to.
      */
     targets?: string | string[];
+    /**
+     * Use 'targets' property of this package instead,
+     * if its 'deployOnSave' property is set to (true).
+     */
+    useTargetListForDeployOnSave?: boolean;
 }
 
 /**
