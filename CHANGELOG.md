@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 4.3.0 (December 30th, 2016; deploy on save behavior)
+## 4.3.0 (December 30th, 2016; app targets)
 
 * added `submitFileList` and `wait` settings for [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) targets
 
