@@ -195,6 +195,14 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         text?: string;
     },
     /**
+     * Clear output on startup or not.
+     */
+    clearOutputOnStartup?: boolean;
+    /**
+     * Disables the display of popups that reports for a new version of that extension.
+     */
+    disableNewVersionPopups?: boolean;
+    /**
      * Deploy host settings.
      */
     host?: {
@@ -232,14 +240,6 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         transformerOptions?: any;
     },
     /**
-     * Clear output on startup or not.
-     */
-    clearOutputOnStartup?: boolean;
-    /**
-     * Disables the display of popups that reports for a new version of that extension.
-     */
-    disableNewVersionPopups?: boolean;
-    /**
      * The ID of the language to use (e.g. 'en', 'de')
      */
     language?: string;
@@ -267,6 +267,11 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * List of targets.
      */
     targets?: DeployTarget[];
+    /**
+     * Use 'targets' property of a package instead, if its 'deployOnSave' property is
+     * set to (true).
+     */
+    useTargetListForDeployOnSave?: boolean;
 }
 
 /**

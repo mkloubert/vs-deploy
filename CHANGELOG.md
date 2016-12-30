@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.2.0 (December 30th, 2016; deploy on save behavior)
+
+* added [useTargetListForDeployOnSave](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting, which can define the behavior of 'deploy on save' feature
+
+
 ## 4.1.1 (December 29th, 2016; hints for new installed versions)
 
 * now showing info popup (once) if new version of extension is installed (can be disabled by [disableNewVersionPopups](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting)
@@ -11,7 +16,7 @@
 * added support for translations (s. [Issue #18](https://github.com/mkloubert/vs-deploy/issues/18))
 * improved [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) plugin
 * added descriptions for [https://github.com/mkloubert/vs-deploy/wiki/target_azureblob](azureblob) and [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) plugins
-* changed name of 'FileDeployedCompletedEventHandler' to [FileDeployCompletedEventHandler](https://mkloubert.github.io/vs-deploy/modules/_contracts_.html#filedeploycompletedeventhandler)
+* changed name of `FileDeployedCompletedEventHandler` interface to [FileDeployCompletedEventHandler](https://mkloubert.github.io/vs-deploy/modules/_contracts_.html#filedeploycompletedeventhandler)
 * cleaned up [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html) interface
 * replaced [opn](https://www.npmjs.com/package/opn) module with own and extended implementation
 

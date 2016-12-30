@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -1382,6 +1382,11 @@
                   }
                 ]
               }
+            },
+            "useTargetListForDeployOnSave": {
+              "type": "boolean",
+              "description": "Use 'targets' property of a package instead, if its 'deployOnSave' property is set to (true).",
+              "default": false
             }
           }
         }

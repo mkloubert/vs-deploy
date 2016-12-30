@@ -1732,10 +1732,43 @@ export class Deployer {
         try {
             FS.exists(doc.fileName, (exists) => {
                 try {
+                    let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
+
                     let normalizeString = (str: string): string => {
                         return deploy_helpers.toStringSafe(str)
                                              .toLowerCase()
                                              .trim();
+                    };
+
+                    let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
+                        let targetSource: string[] = [];
+                        if (pkg) {
+                            if (useTargetLists) {
+                                // use targets from the 'targets' property
+                                // of package
+
+                                if (true !== pkg.deployOnSave) {
+                                    targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
+                                }
+
+                                targetSource = targetSource.concat(deploy_helpers.asArray(pkg.targets));
+                            }
+                            else {
+                                // use targets from 'deployOnSave' property
+
+                                if (true === pkg.deployOnSave) {
+                                    targetSource = targetSource.concat(me.getTargets()
+                                                                         .map(x => x.name));
+                                }
+                                else {
+                                    targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
+                                }
+                            }
+                        }
+
+                        return deploy_helpers.asArray(targetSource)
+                                             .map(x => normalizeString(x))
+                                             .filter(x => x);
                     };
 
                     // find packages that would deploy the file
@@ -1752,16 +1785,9 @@ export class Deployer {
                     // check for non existing target names
                     let targets = me.getTargets();
                     packagesToDeploy.forEach(pkg => {
-                        if (true === pkg.deployOnSave) {
-                            return;
-                        }
-
                         let packageName = normalizeString(pkg.name);
 
-                        let targetsOfPackage = deploy_helpers.asArray(pkg.deployOnSave)
-                                                             .map(x => normalizeString(x))
-                                                             .filter(x => x);
-                        
+                        let targetsOfPackage = getTargetNamesByPackage(pkg);
                         targetsOfPackage.forEach(tn => {
                             let foundTarget = false;
                             for (let i = 0; i < targets.length; i++) {
@@ -1786,15 +1812,9 @@ export class Deployer {
 
                         for (let i = 0; i < packagesToDeploy.length; i++) {
                             let pkg = packagesToDeploy[i];
-                            if (true === pkg.deployOnSave) {
-                                return true;  // deploy to each target
-                            }
 
                             // extract targets that are defined in the package
-                            let targetsOfPackage = deploy_helpers.asArray(pkg.deployOnSave)
-                                                                 .map(x => normalizeString(x))
-                                                                 .filter(x => x);
-                            
+                            let targetsOfPackage = getTargetNamesByPackage(pkg);                            
                             if (targetsOfPackage.indexOf(targetName) > -1) {
                                 return true;
                             }
