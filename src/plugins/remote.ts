@@ -38,6 +38,7 @@ interface DeployTargetRemote extends deploy_contracts.DeployTarget {
     hosts?: string | string[];
     messageTransformer?: string;
     messageTransformerOptions?: any;
+    tag?: any;
     transformer?: string;
     transformerOptions?: any;
 }
@@ -192,6 +193,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                     name: <string>relativePath,
                     nr: ctx.counter,
                     session: ctx.session,
+                    tag: target.tag,
                     totalCount: ctx.totalCount,
                 };
 
