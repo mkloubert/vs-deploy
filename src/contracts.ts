@@ -699,30 +699,38 @@ export interface DeployWaitOperation extends DeployOperation {
  */
 export interface DeployWebDeployOperation extends DeployOperation {
     // s. https://technet.microsoft.com/en-us/library/d860fa74-738a-4f09-87f6-66c6705145f9
-    verb: string;
-    source: string;
-    dest?: string;
+    allowUntrusted?: boolean;
+    appHostConfigDir?: string;
+    args?: string[];
     declareParam?: string;
-    setParam?: string;
-    setParamFile?: string;
     declareParamFile?: string;
-    removeParam?: string;
+    dest?: string;
+    disableAppStore?: boolean;
     disableLink?: string;
-    enableLink?: string;
     disableRule?: string;
+    disableSkipDirective?: string;
+    enableLink?: string;
     enableRule?: string;
+    enableSkipDirective?: string;
+    postSync?: string;
+    preSync?: string;
+    removeParam?: string;
     replace?: string;
     retryAttempts?: number;
     retryInterval?: number;
+    setParam?: string;
+    setParamFile?: string;
+    showSecure?: boolean;
     skip?: string;
-    disableSkipDirective?: string;
-    enableSkipDirective?: string;
+    source: string;
+    unicode?: boolean;
+    useCheckSum?: boolean;
+    verb: string;
+    verbose?: boolean;
+    webServerDir?: string;
     whatif?: boolean;
-    disableAppStore?: boolean;
-    allowUntrusted?: boolean;
-    preSync?: string;
-    postSync?: string;
-    args?: string[];
+    xml?: boolean;
+    xpath?: string;
     
     /**
      * The working directory.

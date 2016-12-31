@@ -1187,6 +1187,7 @@ export class Deployer {
                                 'replace', 'skip', 'disableSkipDirective', 'enableSkipDirective',
                                 'preSync', 'postSync',
                                 'retryAttempts', 'retryInterval',
+                                'appHostConfigDir', 'webServerDir', 'xpath',
                             ];
                             for (let i = 0; i < paramsWithValues.length; i++) {
                                 let p = paramsWithValues[i];
@@ -1199,6 +1200,8 @@ export class Deployer {
                             // -<param>
                             let boolParams = [
                                 'whatif', 'disableAppStore', 'allowUntrusted',
+                                'showSecure', 'xml', 'unicode', 'useCheckSum',
+                                'verbose',
                             ];
                             for (let i = 0; i < boolParams.length; i++) {
                                 let p = boolParams[i];

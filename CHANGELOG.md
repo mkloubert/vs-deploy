@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.6.0 (December 31th, 2016; Web Deploy)
+
+* added support for [Web Deploy](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy)
+
+
 ## 4.5.0 (December 30th, 2016; tag support for remote targets)
 
 * added optional `tag` setting for [remote](https://github.com/mkloubert/vs-deploy/wiki/target_remote) targets, that sends this value with each remote JSON file message
