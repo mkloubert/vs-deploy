@@ -65,6 +65,13 @@ export interface AfterDeployedWaitOperation extends AfterDeployedOperation, Depl
 }
 
 /**
+ * An operation that starts Web Deploy (msdeploy)
+ * and is invoked AFTER ALL files have been deployed.
+ */
+export interface AfterDeployedWebDeployOperation extends AfterDeployedOperation, DeployWebDeployOperation {
+}
+
+/**
  * Describes an event handler that is raised BEFORE a file starts to be deployed.
  * 
  * @param {any} sender The sending object.
@@ -101,6 +108,13 @@ export interface BeforeDeployOpenOperation extends BeforeDeployOperation, Deploy
  * files will be deployed.
  */
 export interface BeforeDeployWaitOperation extends BeforeDeployOperation, DeployWaitOperation {
+}
+
+/**
+ * An operation that starts Web Deploy (msdeploy)
+ * and is invoked BEFORE files will be deployed.
+ */
+export interface BeforeDeployWebDeployOperation extends BeforeDeployOperation, DeployWebDeployOperation {
 }
 
 /**
@@ -678,6 +692,50 @@ export interface DeployWaitOperation extends DeployOperation {
      * The time in milliseconds to wait.
      */
     time?: number;
+}
+
+/**
+ * An operation that starts Web Deploy (msdeploy).
+ */
+export interface DeployWebDeployOperation extends DeployOperation {
+    // s. https://technet.microsoft.com/en-us/library/d860fa74-738a-4f09-87f6-66c6705145f9
+    verb: string;
+    source: string;
+    dest?: string;
+    declareParam?: string;
+    setParam?: string;
+    setParamFile?: string;
+    declareParamFile?: string;
+    removeParam?: string;
+    disableLink?: string;
+    enableLink?: string;
+    disableRule?: string;
+    enableRule?: string;
+    replace?: string;
+    retryAttempts?: number;
+    retryInterval?: number;
+    skip?: string;
+    disableSkipDirective?: string;
+    enableSkipDirective?: string;
+    whatif?: boolean;
+    disableAppStore?: boolean;
+    allowUntrusted?: boolean;
+    preSync?: string;
+    postSync?: string;
+    args?: string[];
+    
+    /**
+     * The working directory.
+     */
+    dir?: string;
+    /**
+     * The optional path to the executable.
+     */
+    exec?: string;
+    /**
+     * Wait for execution finished or not.
+     */
+    wait?: boolean;
 }
 
 /**

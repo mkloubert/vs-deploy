@@ -1166,6 +1166,69 @@ export class Deployer {
                         }, waitTime);
                         break;
 
+                    case 'webdeploy':
+                        {
+                            let webDeployOp = <deploy_contracts.DeployWebDeployOperation>operation;
+
+                            let msDeploy = 'msdeploy.exe';
+                            if (!deploy_helpers.isEmptyString(webDeployOp.exec)) {
+                                msDeploy = deploy_helpers.toStringSafe(webDeployOp.exec);
+                            }
+
+                            let args = [
+                                // -source
+                                `-source:${deploy_helpers.toStringSafe(webDeployOp.source)}`,
+                            ];
+
+                            // -<param>:<value>
+                            let paramsWithValues = [
+                                'dest', 'declareParam', 'setParam', 'setParamFile', 'declareParamFile',
+                                'removeParam', 'disableLink', 'enableLink', 'disableRule', 'enableRule',
+                                'replace', 'skip', 'disableSkipDirective', 'enableSkipDirective',
+                                'preSync', 'postSync',
+                                'retryAttempts', 'retryInterval',
+                            ];
+                            for (let i = 0; i < paramsWithValues.length; i++) {
+                                let p = paramsWithValues[i];
+                                
+                                if (!deploy_helpers.isEmptyString(webDeployOp[p])) {
+                                    args.push(`-${p}:${deploy_helpers.toStringSafe(webDeployOp[p])}`);
+                                }
+                            }
+
+                            // -<param>
+                            let boolParams = [
+                                'whatif', 'disableAppStore', 'allowUntrusted',
+                            ];
+                            for (let i = 0; i < boolParams.length; i++) {
+                                let p = boolParams[i];
+                                
+                                if (deploy_helpers.toBooleanSafe(webDeployOp[p])) {
+                                    args.push(`-${p}`);
+                                }
+                            }
+
+                            let openOpts: deploy_helpers.OpenOptions = {
+                                app: [ msDeploy ].concat(args)
+                                                 .map(x => deploy_helpers.toStringSafe(x))
+                                                 .filter(x => x),
+                                cwd: webDeployOp.dir,
+                                wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
+                            };
+
+                            let target = `-verb:${deploy_helpers.toStringSafe(webDeployOp.verb)}`;
+
+                            nextAction = null;
+                            deploy_helpers.open(target, openOpts).then(() => {
+                                me.outputChannel.appendLine(i18.t('ok'));
+
+                                completed();
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        break;
+
                     default:
                         handled = false;
                         break;
