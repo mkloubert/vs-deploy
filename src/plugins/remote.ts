@@ -291,7 +291,8 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                                                 client.destroy();
                                             }
                                             catch (e) {
-                                                me.context.log(`[ERROR] RemotePlugin.deployFile().client.connect(): ${deploy_helpers.toStringSafe(e)}`);
+                                                me.context.log(i18.t('errors.withCategory',
+                                                                     'RemotePlugin.deployFile().client.connect()', e));
                                             }
 
                                             hostCompleted();
