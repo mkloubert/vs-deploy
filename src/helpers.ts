@@ -168,7 +168,8 @@ export function detectMimeByFilename(file: string, defValue: any = 'application/
         mime = MIME.lookup(file);
     }
     catch (e) {
-        log(`[ERROR] http.detectContentType(): ${toStringSafe(e)}`);
+        log(i18.t('errors.withCategory',
+                  'helpers.detectMimeByFilename()', e));
     }
 
     mime = toStringSafe(mime).toLowerCase().trim();
@@ -735,8 +736,9 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
             }
         }
     }
-    catch (e) { 
-        log('[ERROR] helpers.toRelativePath(): ' + e)
+    catch (e) {
+        log(i18.t('errors.withCategory',
+                  'helpers.toRelativePath()', e));
     }
 
     return result;

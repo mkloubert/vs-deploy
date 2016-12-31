@@ -85,7 +85,8 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
                             if (openAfterCreated) {
                                 deploy_helpers.open(zipFile).catch((err) => {
-                                    me.context.log(`[ERROR] ZIPPlugin.deployWorkspace(): ${deploy_helpers.toStringSafe(err)}`);
+                                    me.context.log(i18.t('errors.withCategory',
+                                                         'ZIPPlugin.deployWorkspace()', err));
                                 });
                             }
                         });

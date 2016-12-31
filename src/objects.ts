@@ -128,7 +128,8 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                     }
                 }
                 catch (err) {
-                    me.context.log('[ERROR] DeployPluginBase.deployWorkspace(1): ' + err);
+                    me.context.log(i18.t('errors.withCategory',
+                                         'DeployPluginBase.deployWorkspace(1)', err));
                 }
             };
 
@@ -278,7 +279,8 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                     wrapper.destroy().then(() => {
                         completed(completedErr, canceled);
                     }).catch((e) => {
-                        me.context.log(`[ERROR] DeployPluginWithContextBase.deployWorkspace(2): ${deploy_helpers.toStringSafe(e)}`);
+                        me.context.log(i18.t('errors.withCategory',
+                                             'DeployPluginWithContextBase.deployWorkspace(2)', e));
 
                         completed(completedErr, canceled);
                     });
@@ -288,7 +290,8 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 }
             }
             catch (e) {
-                me.context.log(`[ERROR] DeployPluginWithContextBase.deployWorkspace(1): ${deploy_helpers.toStringSafe(e)}`);
+                me.context.log(i18.t('errors.withCategory',
+                                     'DeployPluginWithContextBase.deployWorkspace(1)', e));
 
                 completed(completedErr, canceled);
             }
