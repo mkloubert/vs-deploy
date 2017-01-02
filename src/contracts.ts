@@ -473,7 +473,7 @@ export interface DeployOperation {
 /**
  * A package.
  */
-export interface DeployPackage {
+export interface DeployPackage extends Sortable {
     /**
      * Deploy files of the package on save or not.
      */
@@ -498,10 +498,6 @@ export interface DeployPackage {
      * The name.
      */
     name?: string;
-    /**
-     * The sort order.
-     */
-    sortOrder?: number;
     /**
      * One or more explicit targets to deploy to.
      */
@@ -609,7 +605,7 @@ export interface DeployQuickPickItem extends vscode.QuickPickItem {
 /**
  * A target.
  */
-export interface DeployTarget {
+export interface DeployTarget extends Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -646,10 +642,6 @@ export interface DeployTarget {
      * if that target is only shown in GUI if one of the package(s) has been selected.
      */
     showIf?: string | string[];
-    /**
-     * The sort order.
-     */
-    sortOrder?: number;
     /**
      * The type.
      */
@@ -826,6 +818,7 @@ export interface PackageFile {
     version: string;
 }
 
+
 /**
  * Describes a button of a popup.
  */
@@ -844,6 +837,23 @@ export interface PopupButton extends vscode.MessageItem {
  * A popup button action.
  */
 export type PopupButtonAction = () => void;
+
+/**
+ * Describes an object that is sortable.
+ */
+export interface Sortable {
+    /**
+     * The sort order.
+     */
+    sortOrder?: number | Object;
+}
+
+/**
+ * Describes a function that provides a value.
+ * 
+ * @return {TValue} The value.
+ */
+export type ValueProvider<TValue> = () => TValue;
 
 /**
  * Event handler for a completed "deploy workspace" operation.

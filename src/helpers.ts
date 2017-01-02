@@ -331,6 +331,53 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
 }
 
 /**
+ * Returns the sort value from a sortable.
+ * 
+ * @param {deploy_contracts.Sortable} s The sortable object.
+ * @param {deploy_contracts.ValueProvider<string>} [nameProvider] The custom function that provides the name of the machine.
+ * 
+ * @return {any} The sort value.
+ */
+export function getSortValue(s: deploy_contracts.Sortable,
+                             nameProvider?: deploy_contracts.ValueProvider<string>): any {
+    let name: string;
+    if (nameProvider) {
+        name = normalizeString(nameProvider());
+    }
+
+    let sortValue: any = s.sortOrder;
+    if (!sortValue) {
+        sortValue = 0;
+    }
+    if ('number' !== typeof sortValue) {
+        // handle as object and find a property
+        // that has the same name as this machine
+
+        let sortObj = sortValue;
+        let valueAlreadySet = false;
+
+        Object.getOwnPropertyNames(sortObj).forEach(p => {
+            if (!valueAlreadySet && !normalizeString(p)) {
+                sortValue = sortObj[p];  // custom default value defined
+            }
+
+            if (normalizeString(p) == name) {
+                sortValue = sortObj[p];  // found
+                valueAlreadySet = true;
+            }
+        });
+    }
+
+    // keep sure to have a number here
+    sortValue = parseFloat(('' + sortValue).trim());
+    if (isNaN(sortValue)) {
+        sortValue = 0;
+    }
+
+    return sortValue;
+}
+
+/**
  * Checks if the string representation of a value is empty
  * or contains whitespaces only.
  * 
@@ -608,19 +655,23 @@ export function replaceAllStrings(str: string, searchValue: string, replaceValue
  * Sorts a list of packages.
  * 
  * @param {deploy_contracts.DeployPackage[]} pkgs The input list.
+ * @param {deploy_contracts.ValueProvider<string>} [nameProvider] The custom function that provides the name of the machine.
  * 
  * @return {deploy_contracts.DeployPackage[]} The sorted list.
  */
-export function sortPackages(pkgs: deploy_contracts.DeployPackage[]): deploy_contracts.DeployPackage[] {
+export function sortPackages(pkgs: deploy_contracts.DeployPackage[],
+                             nameProvider?: deploy_contracts.ValueProvider<string>): deploy_contracts.DeployPackage[] {
     if (!pkgs) {
         pkgs = [];
     }
+
+    
 
     return pkgs.filter(x => x)
                .map((x, i) => {
                         return {
                             index: i,
-                            level0: x.sortOrder || 0,  // first sort by "sortOrder"
+                            level0: getSortValue(x, nameProvider),  // first sort by "sortOrder"
                             level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
                             value: x,
                         };
@@ -644,11 +695,13 @@ export function sortPackages(pkgs: deploy_contracts.DeployPackage[]): deploy_con
 /**
  * Sorts a list of targets.
  * 
- * @param {deploy_contracts.DeployTarget[]} pkgs The input list.
+ * @param {deploy_contracts.DeployTarget[]} targets The input list.
+ * @param @param {deploy_contracts.ValueProvider<string>} [nameProvider] The custom function that provides the name of the machine.
  * 
  * @return {deploy_contracts.DeployTarget[]} The sorted list.
  */
-export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_contracts.DeployTarget[] {
+export function sortTargets(targets: deploy_contracts.DeployTarget[],
+                            nameProvider?: deploy_contracts.ValueProvider<string>): deploy_contracts.DeployTarget[] {
     if (!targets) {
         targets = [];
     }
@@ -657,7 +710,7 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[]): deploy_co
                   .map((x, i) => {
                            return {
                                index: i,
-                               level0: x.sortOrder || 0,  // first sort by "sortOrder"
+                               level0: getSortValue(x, nameProvider),  // first sort by "sortOrder"
                                level1: toStringSafe(x.name).toLowerCase().trim(),  // then by "name"
                                value: x,
                            };

@@ -224,8 +224,15 @@
                     "description": "The name of the package."
                   },
                   "sortOrder": {
-                    "type": "number",
-                    "description": "The sort order.",
+                    "description": "The sort order(s).",
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "object"
+                      }
+                    ],
                     "default": 0
                   },
                   "isFor": {
@@ -286,8 +293,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -382,8 +396,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -492,8 +513,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -573,8 +601,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -688,8 +723,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -821,8 +863,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -915,8 +964,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1047,8 +1103,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1129,8 +1192,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1238,8 +1308,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1426,8 +1503,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1563,8 +1647,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1641,8 +1732,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {
@@ -1708,8 +1806,15 @@
                         "description": "The name of the target."
                       },
                       "sortOrder": {
-                        "type": "number",
-                        "description": "The sort order.",
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
                         "default": 0
                       },
                       "isFor": {

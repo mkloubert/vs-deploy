@@ -1045,13 +1045,15 @@ export class Deployer {
      * @returns {DeployPackage[]} The packages.
      */
     public getPackages(): deploy_contracts.DeployPackage[] {
+        let me = this;
+
         let packages = this.config.packages;
         if (!packages) {
             packages = [];
         }
 
         let myName = this.name;
-        packages = deploy_helpers.sortPackages(packages);
+        packages = deploy_helpers.sortPackages(packages, () => me.name);
 
         return packages.filter(p => {
             let validHosts = deploy_helpers.asArray(p.isFor)
@@ -1072,13 +1074,15 @@ export class Deployer {
      * @returns {DeployTarget[]} The targets.
      */
     public getTargets(): deploy_contracts.DeployTarget[] {
+        let me = this;
+
         let targets = this.config.targets;
         if (!targets) {
             targets = [];
         }
 
         let myName = this.name;
-        targets = deploy_helpers.sortPackages(targets);
+        targets = deploy_helpers.sortPackages(targets, () => me.name);
 
         return targets.filter(t => {
             let validHosts = deploy_helpers.asArray(t.isFor)
