@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
             outputChannel.appendLine(`${pkgFile.displayName} (${pkgFile.name}) - v${pkgFile.version}`);
         }
 
-        outputChannel.appendLine(`Copyright (c) ${now.format('YYYY')}  Marcel Joachim Kloubert <marcel.kloubert@gmx.net>`);
+        outputChannel.appendLine(`Copyright (c) 2016-${now.format('YYYY')}  Marcel Joachim Kloubert <marcel.kloubert@gmx.net>`);
         outputChannel.appendLine('');
         outputChannel.appendLine(`GitHub : https://github.com/mkloubert/vs-deploy`);
         outputChannel.appendLine(`Twitter: https://twitter.com/mjkloubert`);
