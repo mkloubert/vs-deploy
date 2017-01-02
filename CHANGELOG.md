@@ -1,8 +1,14 @@
 # Change Log (vs-deploy)
 
+## 4.7.0 (January 2th, 2017; visibility and sortability of packages and targets)
+
+* added `hideIf` and `showIf` properties for [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can control the visibilty of targets by [package name(s)](https://github.com/mkloubert/vs-deploy/wiki#packages-)
+* extended `sortOrder` properties for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can contain object instead of number and define own sort values for machines
+
+
 ## 4.6.0 (December 31th, 2016; Web Deploy)
 
-* added support for [Web Deploy](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy)
+* added support for [Web Deploy](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy-)
 
 
 ## 4.5.0 (December 30th, 2016; tag support for remote targets)
