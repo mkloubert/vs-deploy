@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -304,6 +304,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to an app, like a script or executable, on the local machine.",
@@ -379,6 +407,34 @@
                           "azureblob"
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -442,6 +498,34 @@
                       },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -523,6 +607,34 @@
                             }
                           }
                         }
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
                       },
                       "type": {
                         "type": "string",
@@ -610,6 +722,34 @@
                             }
                           }
                         }
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                       "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
                       },
                       "type": {
                         "type": "string",
@@ -699,6 +839,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN.",
@@ -753,6 +921,34 @@
                       },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -869,6 +1065,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target.",
@@ -911,6 +1135,34 @@
                       },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -992,6 +1244,34 @@
                       },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -1164,6 +1444,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys to a SFTP server.",
@@ -1273,6 +1581,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "Deploys via a JS script.",
@@ -1323,6 +1659,34 @@
                           }
                         ]
                       },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "type": {
                         "type": "string",
                         "description": "A mock deployer that only checks what files will be deployed.",
@@ -1350,6 +1714,34 @@
                       },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
                           {
                             "type": "string"

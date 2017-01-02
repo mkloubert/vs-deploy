@@ -616,16 +616,16 @@ export class Deployer {
             return;
         }
 
-        let targets = this.getTargets();
-        if (targets.length < 1) {
-            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
-            return;
-        }
-
         let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
+                return;
+            }
+
+            let targets = me.filterTargetsByPackage(pkg);
+            if (targets.length < 1) {
+                vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
                 return;
             }
 
@@ -997,6 +997,46 @@ export class Deployer {
         catch (e) {
             this.log(i18.t('network.interfaces.failed', e));
         }
+    }
+
+    /**
+     * Filters the list of targets by a package.
+     * 
+     * @param {deploy_contracts.DeployPackage} pkg The package.
+     * 
+     * @return {deploy_contracts.DeployTarget[]} The filtered targets.
+     */
+    public filterTargetsByPackage(pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] {
+        let pkgName = deploy_helpers.normalizeString(pkg.name);
+
+        return this.getTargets().filter(t => {
+            let takeTarget = true;
+
+            let excludeForPackages = deploy_helpers.asArray(t.hideIf)
+                                                   .map(x => deploy_helpers.normalizeString(x))
+                                                   .filter(x => x);
+            for (let i = 0; i < excludeForPackages.length; i++) {
+                if (excludeForPackages[i] == pkgName) {
+                    return false;  // exclude
+                }
+            }
+
+            let showForPackages = deploy_helpers.asArray(t.showIf)
+                                                .map(x => deploy_helpers.normalizeString(x))
+                                                .filter(x => x);
+            if (showForPackages.length > 0) {
+                takeTarget = false;  // exclude by default now
+
+                for (let i = 0; i < showForPackages.length; i++) {
+                    if (showForPackages[i] == pkgName) {
+                        takeTarget = true;  // include
+                        break;
+                    }
+                }
+            }
+
+            return takeTarget;
+        });
     }
 
     /**

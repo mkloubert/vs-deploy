@@ -625,6 +625,11 @@ export interface DeployTarget {
      */
     description?: string;
     /**
+     * A list of one or more package names that indicates
+     * if that target is hidden from GUI if one of the package(s) has been selected.
+     */
+    hideIf?: string | string[];
+    /**
      * A list of one or more (host)names that target is visible for.
      */
     isFor?: string | string[];
@@ -636,6 +641,11 @@ export interface DeployTarget {
      * The name.
      */
     name?: string;
+    /**
+     * A list of one or more package names that indicates
+     * if that target is only shown in GUI if one of the package(s) has been selected.
+     */
+    showIf?: string | string[];
     /**
      * The sort order.
      */

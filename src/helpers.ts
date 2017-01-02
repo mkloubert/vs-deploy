@@ -393,6 +393,22 @@ export function log(msg: any) {
 }
 
 /**
+ * Normalizes a value as string so that is comparable.
+ * 
+ * @param {any} val The value to convert.
+ * @param {(str: string) => string} [normalizer] The custom normalizer.
+ * 
+ * @return {string} The normalized value.
+ */
+export function normalizeString(val: any, normalizer?: (str: string) => string): string {
+    if (!normalizer) {
+        normalizer = (str) => str.toLowerCase().trim();
+    }
+
+    return normalizer(toStringSafe(val));
+}
+
+/**
  * Opens a target.
  * 
  * @param {string} target The target to open.
