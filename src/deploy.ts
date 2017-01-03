@@ -26,29 +26,15 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_objects from './objects';
+import { DeployHost } from './host';
 import * as FS from 'fs';
-const FSExtra = require('fs-extra');
 const Glob = require('glob');
 import * as i18 from './i18';
 import * as Moment from 'moment';
-import * as Net from 'net';
 import * as OS from 'os';
 import * as Path from 'path';
 import * as vscode from 'vscode';
-import * as ZLib from 'zlib';
 
-
-interface RemoteFile {
-    data?: Buffer;
-    isCompressed?: boolean;
-    isFirst?: boolean;
-    isLast?: boolean;
-    name?: string;
-    nr?: number;
-    session?: string;
-    tag?: any;
-    totalCount?: number;
-}
 
 /**
  * Deployer class.
@@ -62,6 +48,10 @@ export class Deployer {
      * Stores the underlying extension context.
      */
     protected _CONTEXT: vscode.ExtensionContext;
+    /**
+     * Stores the current host.
+     */
+    protected _host: DeployHost;
     /**
      * Stores if cancellation has been requested or not.
      */
@@ -82,10 +72,6 @@ export class Deployer {
      * The "quick deploy button".
      */
     protected _QUICK_DEPLOY_STATUS_ITEM: vscode.StatusBarItem;
-    /**
-     * Stores the current server instance.
-     */
-    protected _server: Net.Server;
     /**
      * The current status item of the running server.
      */
@@ -1304,6 +1290,22 @@ export class Deployer {
     public listen() {
         let me = this;
 
+        let cfg = me.config;
+
+        let dir: string;
+        let port = deploy_contracts.DEFAULT_PORT;
+        if (cfg.host) {
+            dir = cfg.host.dir;
+
+            port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
+                                                        '' + deploy_contracts.DEFAULT_PORT));
+        }
+
+        dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
+        if (!Path.isAbsolute(dir)) {
+            dir = Path.join(vscode.workspace.rootPath, dir);
+        }
+
         // destroy old status bar item
         let statusItem = me._serverStatusItem;
         if (statusItem) {
@@ -1318,465 +1320,49 @@ export class Deployer {
         }
         me._serverStatusItem = null;
 
-        let server = me._server;
-        if (server) {
-            server.close((err) => {
-                if (err) {
-                    let errMsg = i18.t('host.errors.couldNotStop', err);
+        let host = me._host;
+        if (host) {
+            // stop
 
-                    vscode.window.showErrorMessage(errMsg);
-                    me.outputChannel.appendLine(errMsg);
-                    return;
-                }
-
-                me._server = null;
+            host.stop().then(() => {
+                me._host = null;
 
                 let successMsg = i18.t('host.stopped');
 
                 vscode.window.showInformationMessage(successMsg);
                 me.outputChannel.appendLine(successMsg);
+            }).catch((err) => {
+                let errMsg = i18.t('host.errors.couldNotStop', err);
+
+                vscode.window.showErrorMessage(errMsg);
+                me.outputChannel.appendLine(errMsg);
             });
-
-            return;
         }
+        else {
+            // start
 
-        let cfg = me.config;
+            host = new DeployHost(me);
 
-        let dir: string;
-        let jsonTransformer: deploy_contracts.DataTransformer;
-        let jsonTransformerOpts: any;
-        let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
-        let port = deploy_contracts.DEFAULT_PORT;
-        let transformer: deploy_contracts.DataTransformer;
-        let transformerOpts: any;
-        if (cfg.host) {
-            port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
-                                                        '' + deploy_contracts.DEFAULT_PORT));
+            host.start().then(() => {
+                me._host = host;
 
-            maxMsgSize = parseInt(deploy_helpers.toStringSafe(cfg.host.maxMessageSize,
-                                                              '' + deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE));
+                let successMsg = i18.t('host.started', port, dir);
 
-            dir = cfg.host.dir;
+                me.outputChannel.appendLine(successMsg);
+                vscode.window.showInformationMessage(successMsg);
 
-            // file data transformer
-            transformerOpts = cfg.host.transformerOptions;
-            if (cfg.host.transformer) {
-                let transformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.transformer);
-                if (transformerModule) {
-                    transformer = transformerModule.restoreData ||
-                                  transformerModule.transformData;
-                }
-            }
+                statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+                statusItem.tooltip = '';
+                statusItem.command = 'extension.deploy.listen';
+                statusItem.text = i18.t('host.button.text');
+                statusItem.tooltip = i18.t('host.button.tooltip');
+                statusItem.show();
 
-            // JSON data transformer
-            jsonTransformerOpts = cfg.host.messageTransformerOptions;
-            if (cfg.host.messageTransformer) {
-                let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.messageTransformer);
-                if (jsonTransformerModule) {
-                    jsonTransformer = jsonTransformerModule.restoreData ||
-                                      jsonTransformerModule.transformData;
-                }
-            }
-        }
-
-        dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
-        if (!Path.isAbsolute(dir)) {
-            dir = Path.join(vscode.workspace.rootPath, dir);
-        }
-
-        jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
-        transformer = deploy_helpers.toDataTransformerSafe(transformer);
-
-        let showError = (err: any) => {
-            vscode.window.showErrorMessage(i18.t('host.errors.cannotListen', err));
-        };
-
-        server = Net.createServer((socket) => {
-            let remoteAddr = socket.remoteAddress;
-            let remotePort = socket.remotePort;
-            
-            let closeSocket = () => {
-                try {
-                    socket.destroy();
-                }
-                catch (e) {
-                    me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(1)', e));
-                }
-            };
-
-            try {
-                deploy_helpers.readSocket(socket, 4).then((dlBuff) => {
-                    if (4 != dlBuff.length) {  // must have the size of 4
-                        me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
-                                     `Invalid data buffer length ${dlBuff.length}`));
-
-                        closeSocket();
-                        return;
-                    }
-
-                    let dataLength = dlBuff.readUInt32LE(0);
-                    if (dataLength > maxMsgSize) {  // out of range
-                        me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
-                                     `Invalid data length ${dataLength}`));
-
-                        closeSocket();
-                        return;
-                    }
-
-                    deploy_helpers.readSocket(socket, dataLength).then((msgBuff) => {
-                        closeSocket();
-
-                        if (msgBuff.length != dataLength) {  // non-exptected data length
-                            me.log(i18.t('warnings.withCategory', 'Deployer.listen().createServer()',
-                                         `Invalid buffer length ${msgBuff.length}`));
-
-                            return;
-                        }
-                        
-                        let completed = (err?: any, file?: string) => {
-                            if (err) {
-                                let failMsg = '';
-                                if (file) {
-                                    failMsg += `'${deploy_helpers.toStringSafe(file)}'; `;
-                                }
-                                failMsg += deploy_helpers.toStringSafe(err);
-
-                                me.outputChannel.appendLine(i18.t('host.receiveFile.failed', failMsg));
-                            }
-                            else {
-                                let okMsg = '';
-                                if (file) {
-                                    okMsg = `: '${deploy_helpers.toStringSafe(file)}'`;
-                                }
-
-                                me.outputChannel.appendLine(i18.t('host.receiveFile.ok', okMsg));
-                            }
-                        };
-
-                        // restore "transformered" JSON message
-                        jsonTransformer({
-                            data: msgBuff,
-                            options: jsonTransformerOpts,
-                            mode: deploy_contracts.DataTransformerMode.Restore,
-                        }).then((untransformedMsgBuff) => {
-                            try {
-                                let json = untransformedMsgBuff.toString('utf8');
-                                
-                                let file: RemoteFile;
-                                if (json) {
-                                    file = JSON.parse(json);
-                                }
-
-                                if (file) {
-                                    // output that we are receiving a file...
-
-                                    let fileInfo = '';
-                                    if (!deploy_helpers.isNullOrUndefined(file.nr)) {
-                                        let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
-                                        if (!isNaN(fileNr)) {
-                                            fileInfo += ` (${fileNr}`;
-                                            if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
-                                                let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
-                                                if (!isNaN(totalCount)) {
-                                                    fileInfo += ` / ${totalCount}`;
-
-                                                    if (0 != totalCount) {
-                                                        let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
-                                                        
-                                                        fileInfo += `; ${percentage}%`;
-                                                    }
-                                                }
-                                            }
-                                            fileInfo += ")";
-                                        }
-                                    }
-
-                                    let receiveFileMsg = i18.t('host.receiveFile.receiving',
-                                                               remoteAddr, remotePort, fileInfo);
-
-                                    me.outputChannel.append(receiveFileMsg);
-
-                                    file.name = deploy_helpers.toStringSafe(file.name);
-                                    file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
-
-                                    if (file.name) {
-                                        let fileCompleted = (err?: any) => {
-                                            completed(err, file.name);
-                                        };
-
-                                        try {
-                                            let base64 = deploy_helpers.toStringSafe(file.data);
-
-                                            let data: Buffer;
-                                            if (base64) {
-                                                data = new Buffer(base64, 'base64');
-                                            }
-                                            else {
-                                                data = Buffer.alloc(0);
-                                            }
-                                            file.data = data;
-
-                                            let handleData = function(data: Buffer) {
-                                                try {
-                                                    while (0 == file.name.indexOf('/')) {
-                                                        file.name = file.name.substr(1);
-                                                    }
-
-                                                    if (file.name) {
-                                                        let targetFile = Path.join(dir, file.name);
-                                                        let targetDir = Path.dirname(targetFile);
-                                                        
-                                                        let copyFile = () => {
-                                                            try {
-                                                                FS.writeFile(targetFile, file.data, (err) => {
-                                                                    if (err) {
-                                                                        fileCompleted(err);
-                                                                        return;
-                                                                    }
-
-                                                                    fileCompleted();
-                                                                });
-                                                            }
-                                                            catch (e) {
-                                                                fileCompleted(e);
-                                                            }
-                                                        };
-
-                                                        // check if targetDir is a directory
-                                                        let checkIfTargetDirIsDir = () => {
-                                                            FS.lstat(targetDir, (err, stats) => {
-                                                                if (err) {
-                                                                    fileCompleted(err);
-                                                                    return;
-                                                                }
-
-                                                                if (stats.isDirectory()) {
-                                                                    copyFile();  // yes, continue...
-                                                                }
-                                                                else {
-                                                                    // no => ERROR
-                                                                    fileCompleted(new Error(i18.t('isNo.directory', targetDir)));
-                                                                }
-                                                            });
-                                                        };
-
-                                                        // check if targetDir exists
-                                                        let checkIfTargetDirExists = () => {
-                                                            FS.exists(targetDir, (exists) => {
-                                                                if (exists) {
-                                                                    // yes, continue...
-                                                                    checkIfTargetDirIsDir();
-                                                                }
-                                                                else {
-                                                                    // no, try to create
-                                                                    FSExtra.mkdirs(targetDir, function (err) {
-                                                                        if (err) {
-                                                                            fileCompleted(err);
-                                                                            return;
-                                                                        }
-
-                                                                        checkIfTargetDirIsDir();
-                                                                    });
-                                                                }
-                                                            });
-                                                        };
-                                                        
-                                                        FS.exists(targetFile, (exists) => {
-                                                            if (exists) {
-                                                                try {
-                                                                    FS.lstat(targetFile, (err, stats) => {
-                                                                        if (err) {
-                                                                            fileCompleted(err);
-                                                                            return;
-                                                                        }
-
-                                                                        if (stats.isFile()) {
-                                                                            FS.unlink(targetFile, (err) => {
-                                                                                if (err) {
-                                                                                    fileCompleted(err);
-                                                                                    return;
-                                                                                }
-
-                                                                                checkIfTargetDirExists();
-                                                                            });
-                                                                        }
-                                                                        else {
-                                                                            fileCompleted(new Error(i18.t('isNo.file', targetFile)));
-                                                                        }
-                                                                    });
-                                                                }
-                                                                catch (e) {
-                                                                    fileCompleted(e);
-                                                                }
-                                                            }
-                                                            else {
-                                                                checkIfTargetDirExists();
-                                                            }
-                                                        });
-                                                    }
-                                                    else {
-                                                        fileCompleted(new Error(i18.t('host.errors.noFilename', 2)));
-                                                    }
-                                                    // if (file.name) #2
-                                                }
-                                                catch (e) {
-                                                    fileCompleted(e);
-                                                }
-                                            };  // handleData()
-
-                                            let untransformTheData = function(data?: Buffer) {
-                                                if (arguments.length > 0) {
-                                                    file.data = data;
-                                                }
-
-                                                try {
-                                                    transformer({
-                                                        data: file.data,
-                                                        options: transformerOpts,
-                                                        mode: deploy_contracts.DataTransformerMode.Restore,
-                                                    }).then((untransformedData) => {
-                                                        file.data = untransformedData;
-
-                                                        handleData(untransformedData);
-                                                    }).catch((err) => {
-                                                        fileCompleted(err);
-                                                    });
-                                                }
-                                                catch (e) {
-                                                    fileCompleted(e);
-                                                }
-                                            };  // untransformTheData()
-
-                                            if (file.isCompressed) {
-                                                ZLib.gunzip(file.data, (err, uncompressedData) => {
-                                                    if (err) {
-                                                        fileCompleted(err);
-                                                        return;
-                                                    }
-
-                                                    untransformTheData(uncompressedData);                                                
-                                                });
-                                            }
-                                            else {
-                                                untransformTheData();
-                                            }
-                                        }
-                                        catch (e) {
-                                            fileCompleted(e);
-                                        }
-                                    }
-                                    else {
-                                        completed(new Error(i18.t('host.errors.noFilename', 1)));
-                                    }
-                                    // if (file.name) #1
-                                }
-                                else {
-                                    completed(new Error(i18.t('host.errors.noData')));
-                                }
-                                // if (file)
-                            }
-                            catch (e) {
-                                completed(e);
-                            }
-                        }).catch((err) => {
-                            completed(err);
-                        });
-                    }).catch((err) => {
-                        me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(3)', err));
-
-                        closeSocket();
-                    });
-                }).catch((err) => {
-                    me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(4)', err));
-
-                    closeSocket();
-                });
-            }
-            catch (e) {
-                me.log(i18.t('errors.withCategory', 'Deployer.listen().createServer(5)', e));
-
-                closeSocket();
-            }
-        });
-
-        server.on('listening', (err) => {
-            if (err) {
-                showError(err);
-            }
-            else {
-                try {
-                    me._server = server;
-
-                    let successMsg = i18.t('host.started', port, dir);
-
-                    me.outputChannel.appendLine(successMsg);
-                    vscode.window.showInformationMessage(successMsg);
-
-                    statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-                    statusItem.tooltip = '';
-                    statusItem.command = 'extension.deploy.listen';
-                    statusItem.text = i18.t('host.button.text');
-                    statusItem.tooltip = i18.t('host.button.tooltip');
-                    statusItem.show();
-
-                    me._serverStatusItem = statusItem;
-                }
-                catch (e) {
-                    showError(e);
-                }
-            }
-        });
-
-        server.on('error', (err) => {
-            if (err) {
-                showError(err);
-            }
-        });
-
-        let startListening = () => {
-            try {
-                server.listen(port);
-            }
-            catch (e) {
-                showError(e);
-            }
-        };
-
-        let checkIfDirIsDirectory = () => {
-            // now check if directory
-            FS.lstat(dir, (err, stats) => {
-                if (err) {
-                    showError(err);
-                    return;
-                }
-
-                if (stats.isDirectory()) {
-                    startListening();  // all is fine => start listening
-                }
-                else {
-                    showError(new Error(i18.t('isNo.directory', dir)));
-                }
+                me._serverStatusItem = statusItem;
+            }).catch((err) => {
+                vscode.window.showErrorMessage(i18.t('host.errors.cannotListen', err));
             });
-        };
-
-        // first check if target directory does exist
-        FS.exists(dir, (exists) => {
-            if (exists) {
-                checkIfDirIsDirectory();
-            }
-            else {
-                // directory does not exist => create
-
-                FSExtra.mkdirs(dir, function (err) {
-                    if (err) {
-                        showError(err);
-                        return;
-                    }
-
-                    checkIfDirIsDirectory();
-                });
-            }
-        });
+        }
     }
 
     /**

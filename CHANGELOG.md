@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.8.0 (January 2th, 2017; deploy hosts)
+
+* optimized [deploy host](https://github.com/mkloubert/vs-deploy/wiki#host-) feature
+
+
 ## 4.7.0 (January 2th, 2017; visibility and sortability of packages and targets)
 
 * added `hideIf` and `showIf` properties for [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can control the visibilty of targets by [package name(s)](https://github.com/mkloubert/vs-deploy/wiki#packages-)
