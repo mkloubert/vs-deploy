@@ -114,6 +114,7 @@ export const translation: Translation = {
         errors: {
             cannotListen: 'Das Starten des Bereitstellungs-Dienstes schlug fehl: {0}',
             couldNotStop: 'Das Beenden des Bereitstellungs-Dienstes schlug fehl: {0}',
+            fileRejected: 'Die Datei wurde abgelehnt!',
             noData: 'Keine Daten!',
             noFilename: 'Kein Dateiname {0:trim}!',
         },

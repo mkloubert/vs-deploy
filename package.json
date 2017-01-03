@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -159,6 +159,14 @@
                 },
                 "transformerOptions": {
                   "description": "The data for the 'file data transformation', if needed."
+                },
+                "validator": {
+                  "type": "string",
+                  "description": "The optional path to the script that validates received files.",
+                  "default": "./my-remote-file-validator.js"
+                },
+                "validatorOptions": {
+                  "description": "The data for the 'validator', if needed."
                 }
               }
             },

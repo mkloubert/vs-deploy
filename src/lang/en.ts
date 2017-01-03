@@ -113,6 +113,7 @@ export const translation: Translation = {
         errors: {
             cannotListen: 'Could not start listening for files: {0}',
             couldNotStop: 'Could not stop deploy host: {0}',
+            fileRejected: 'The file has been rejected!',
             noData: 'No data!',
             noFilename: 'No filename {0:trim}!',
         },

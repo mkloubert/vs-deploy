@@ -252,6 +252,16 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * The optional options for the "file data" transformer script.
          */
         transformerOptions?: any;
+        /**
+         * The path to the script that validates received files.
+         * 
+         * s. 'ValidatorModule' interface
+         */
+        validator?: string;
+        /**
+         * The optional options for the "validator" script.
+         */
+        validatorOptions?: any;
     },
     /**
      * The ID of the language to use (e.g. 'en', 'de')
@@ -846,6 +856,43 @@ export interface Sortable {
      * The sort order.
      */
     sortOrder?: number | Object;
+}
+
+/**
+ * A function that validates a value.
+ * 
+ * @param {ValidatorArguments<T>} args The arguments.
+ * 
+ * @return {Promise<boolean>} The promise.
+ */
+export type Validator<T> = (args: ValidatorArguments<T>) => Promise<boolean>;
+
+/**
+ * Arguments for a "validator" function.
+ */
+export interface ValidatorArguments<T> {
+    /**
+     * Additional context data, defined by "caller".
+     */
+    context?: any;
+    /**
+     * The options for validation.
+     */
+    options?: any;
+    /**
+     * The value to check.
+     */
+    value: T;
+}
+
+/**
+ * A validator module.
+ */
+export interface ValidatorModule<T> {
+    /**
+     * Validates a value.
+     */
+    validate?: Validator<T>;
 }
 
 /**

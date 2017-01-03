@@ -80,6 +80,29 @@ export interface RemoteFile {
 }
 
 /**
+ * A validator context.
+ */
+export interface ValidatorContext {
+    /**
+     * Information about the remote client.
+     */
+    remote: {
+        /**
+         * The address of the client.
+         */
+        address: string;
+        /**
+         * The port of the client.
+         */
+        port: number;
+    },
+    /**
+     * The (planned) path of the target.
+     */
+    target: string;
+}
+
+/**
  * A deploy host.
  */
 export class DeployHost {
@@ -166,6 +189,8 @@ export class DeployHost {
             let port = deploy_contracts.DEFAULT_PORT;
             let transformer: deploy_contracts.DataTransformer;
             let transformerOpts: any;
+            let validator: deploy_contracts.Validator<RemoteFile>;
+            let validatorOpts: any;
             if (cfg.host) {
                 port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
                                                             '' + deploy_contracts.DEFAULT_PORT));
@@ -194,6 +219,15 @@ export class DeployHost {
                                           jsonTransformerModule.transformData;
                     }
                 }
+
+                // file validator
+                validatorOpts = cfg.host.validatorOptions;
+                if (cfg.host.validator) {
+                    let validatorModule = deploy_helpers.loadValidatorModule<RemoteFile>(cfg.host.validator);
+                    if (validatorModule) {
+                        validator = validatorModule.validate;
+                    }
+                }
             }
 
             dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
@@ -203,6 +237,7 @@ export class DeployHost {
 
             jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
             transformer = deploy_helpers.toDataTransformerSafe(transformer);
+            validator = deploy_helpers.toValidatorSafe(validator);
 
             let server = Net.createServer((socket) => {
                 let remoteAddr = socket.remoteAddress;
@@ -334,6 +369,8 @@ export class DeployHost {
                                                     }
                                                     file.data = data;
 
+                                                    let targetFile = Path.join(dir, file.name);
+
                                                     let handleData = function(data: Buffer) {
                                                         try {
                                                             while (0 == file.name.indexOf('/')) {
@@ -341,7 +378,6 @@ export class DeployHost {
                                                             }
 
                                                             if (file.name) {
-                                                                let targetFile = Path.join(dir, file.name);
                                                                 let targetDir = Path.dirname(targetFile);
                                                                 
                                                                 let copyFile = () => {
@@ -442,6 +478,60 @@ export class DeployHost {
                                                         }
                                                     };  // handleData()
 
+                                                    let validateFile = () => {
+                                                        let validatorCtx: ValidatorContext = {
+                                                            remote: {
+                                                                address: remoteAddr,
+                                                                port: remotePort,
+                                                            },
+                                                            target: targetFile,
+                                                        };
+
+                                                        let validatorArgs: deploy_contracts.ValidatorArguments<RemoteFile> = {
+                                                            context: validatorCtx,
+                                                            options: validatorOpts,
+                                                            value: file,
+                                                        };
+
+                                                        try {
+                                                            let updateTargetFile = (action: () => void) => {
+                                                                let vc: ValidatorContext = validatorArgs.context;
+                                                                if (vc) {
+                                                                    if (!deploy_helpers.isEmptyString(vc.target)) {
+                                                                        targetFile = vc.target;
+                                                                    }
+                                                                }
+
+                                                                if (!Path.isAbsolute(targetFile)) {
+                                                                    targetFile = Path.join(vscode.workspace.rootPath, targetFile);
+                                                                }
+
+                                                                action();
+                                                            };  // updateTargetFile()
+
+                                                            // check if file is valid
+                                                            validator(validatorArgs).then((isValid) => {
+                                                                if (isValid) {
+                                                                    updateTargetFile(() => {
+                                                                        handleData(file.data);
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    // no => rejected
+
+                                                                    updateTargetFile(() => {
+                                                                        fileCompleted(new Error(i18.t('host.errors.fileRejected', file.name)));
+                                                                    });
+                                                                }
+                                                            }).catch((err) => {
+                                                                fileCompleted(err);
+                                                            });
+                                                        }
+                                                        catch (e) {
+                                                            fileCompleted(e);
+                                                        }
+                                                    };  // validateFile
+
                                                     let untransformTheData = function(data?: Buffer) {
                                                         if (arguments.length > 0) {
                                                             file.data = data;
@@ -455,7 +545,7 @@ export class DeployHost {
                                                             }).then((untransformedData) => {
                                                                 file.data = untransformedData;
 
-                                                                handleData(untransformedData);
+                                                                validateFile();
                                                             }).catch((err) => {
                                                                 fileCompleted(err);
                                                             });

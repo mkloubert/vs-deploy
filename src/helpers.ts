@@ -428,6 +428,32 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
 }
 
 /**
+ * Loads a "validator" module.
+ * 
+ * @param {string} file The path of the module's file.
+ * @param {boolean} useCache Use cache or not.
+ * 
+ * @return {deploy_contracts.ValidatorModule<T>} The loaded module.
+ */
+export function loadValidatorModule<T>(file: string, useCache: boolean = false): deploy_contracts.ValidatorModule<T> {
+    if (!Path.isAbsolute(file)) {
+        file = Path.join(vscode.workspace.rootPath, file);
+    }
+    file = Path.resolve(file);
+
+    let stats = FS.lstatSync(file);
+    if (!stats.isFile()) {
+        throw new Error(i18.t('isNo.file', file));
+    }
+
+    if (!useCache) {
+        delete require.cache[file];  // remove from cache
+    }
+    
+    return require(file);
+}
+
+/**
  * Logs a message.
  * 
  * @param {any} msg The message to log.
@@ -880,4 +906,25 @@ export function toStringSafe(str: any, defValue: any = ''): string {
     }
 
     return str;
+}
+
+/**
+ * Keeps sure to return a "validator" that is NOT (null) or (undefined).
+ * 
+ * @param {deploy_contracts.Validator<T>} validator The input value.
+ * 
+ * @return {deploy_contracts.Validator<T>} The output value.
+ */
+export function toValidatorSafe<T>(validator: deploy_contracts.Validator<T>): deploy_contracts.Validator<T> {
+    if (!validator) {
+        // use "dummy" validator
+
+        validator = (): Promise<boolean> => {
+            return new Promise<boolean>((resolve) => {
+                resolve(true);
+            });
+        };
+    }
+    
+    return validator;
 }

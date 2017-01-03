@@ -121,6 +121,7 @@ export interface Translation {
         errors?: {
             cannotListen?: string;
             couldNotStop?: string;
+            fileRejected?: string;
             noData?: string;
             noFilename?: string;
         },
