@@ -58,6 +58,13 @@ export interface AfterDeployedOpenOperation extends AfterDeployedOperation, Depl
 }
 
 /**
+ * An operation that uses a script and is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployScriptOperation extends AfterDeployedOperation, DeployScriptOperation {
+}
+
+/**
  * An operation that waits a number of milliseconds and is invoked AFTER
  * ALL files have been deployed.
  */
@@ -101,6 +108,13 @@ export interface BeforeDeployOperation extends DeployOperation {
  * files will be deployed.
  */
 export interface BeforeDeployOpenOperation extends BeforeDeployOperation, DeployOpenOperation {
+}
+
+/**
+ * An operation that uses a script and is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployScriptOperation extends BeforeDeployOperation, DeployScriptOperation {
 }
 
 /**
@@ -223,7 +237,7 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
     /**
      * Defines an object that contains global values and objects, categorized by its properties.
      */
-    globals?: Object;
+    globals?: GlobalVariables;
     /**
      * Deploy host settings.
      */
@@ -331,7 +345,7 @@ export interface DeployContext {
     /**
      * Gets the list of global vars.
      */
-    globals: () => Object;
+    globals: () => GlobalVariables;
     /**
      * Shows an info message.
      * 
@@ -497,6 +511,20 @@ export interface DeployOperation {
 }
 
 /**
+ * List of deploy operation kinds.
+ */
+export enum DeployOperationKind {
+    /**
+     * Before deployment starts.
+     */
+    Before = 0,
+    /**
+     * After successful deployment.
+     */
+    After = 1,
+}
+
+/**
  * A package.
  */
 export interface DeployPackage extends Sortable {
@@ -626,6 +654,69 @@ export interface DeployPluginModule {
  * A quick pick item.
  */
 export interface DeployQuickPickItem extends vscode.QuickPickItem {
+}
+
+/**
+ * A deploy operation that uses a script.
+ */
+export interface DeployScriptOperation extends DeployOperation {
+    /**
+     * Addtional data for the script.
+     */
+    options?: any;
+    /**
+     * The path to the script.
+     */
+    script: string;
+}
+
+/**
+ * The arguments for a script of a deploy operation.
+ */
+export interface DeployScriptOperationArguments {
+    /**
+     * The files that should be deployed.
+     */
+    files: string[];
+    /**
+     * The kind of operation.
+     */
+    kind: DeployOperationKind;
+    /**
+     * Gets the list of global vars.
+     */
+    globals: GlobalVariables;
+    /**
+     * The addtional options.
+     */
+    options?: any;
+    /**
+     * Loads a module from the script context.
+     * 
+     * @param {string} id The ID / path to the module.
+     * 
+     * @return {any} The loaded module.
+     */
+    require: (id: string) => any;
+}
+
+/**
+ * A function for a script based deploy operation.
+ * 
+ * @param {DeployScriptOperationArguments} args The arguments for the execution.
+ * 
+ * @return The promise.
+ */
+export type DeployScriptOperationExecutor = (args: DeployScriptOperationArguments) => Promise<any>;
+
+/**
+ * A module for a script operation.
+ */
+export interface DeployScriptOperationModule {
+    /**
+     * Executes the logic of the script.
+     */
+    execute?: DeployScriptOperationExecutor;
 }
 
 /**
@@ -827,6 +918,11 @@ export interface FileDeployCompletedEventArguments extends DeployEventArguments 
 export type FileDeployCompletedEventHandler = (sender: any, e: FileDeployCompletedEventArguments) => void;
 
 /**
+ * Global variables.
+ */
+export type GlobalVariables = Object;
+
+/**
  * Describes the structure of the package file of that extenstion.
  */
 export interface PackageFile {
@@ -843,7 +939,6 @@ export interface PackageFile {
      */
     version: string;
 }
-
 
 /**
  * Describes a button of a popup.

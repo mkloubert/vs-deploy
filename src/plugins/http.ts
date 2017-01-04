@@ -63,7 +63,7 @@ export interface DataTransformerContext {
     /**
      * Gets the list of global variables defined in settings.
      */
-    globals: Object;
+    globals: deploy_contracts.GlobalVariables;
     /**
      * The target URL of the HTTP service.
      */

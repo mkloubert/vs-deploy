@@ -75,6 +75,7 @@ export const translation: Translation = {
             failedTarget: 'Konnte {0:trim,surround} nach dem Speichern nicht in das Ziel ${1:trim} bereitstellen: {2}',
         },
         operations: {
+            noFunctionInScript: "Die Funktion {0:trim,surround} wurde nicht in {1:trim,surround} gefunden!",
             open: 'Öffne {0:trim,surround}... ',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         },

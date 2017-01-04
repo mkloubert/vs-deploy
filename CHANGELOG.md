@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.13.0 (January 4th, 2017; script support for "before" and "after" deploy actions)
+
+* added script support for actions / tasks that are invoked [before and after a deployment](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script-)
+
+
 ## 4.12.0 (January 4th, 2017; global variables)
 
 * added [globals](https://github.com/mkloubert/vs-deploy/wiki#settings--) property

@@ -116,7 +116,7 @@ export interface TranformerContext {
     /**
      * Gets the list of global variables defined in settings.
      */
-    globals: Object;
+    globals: deploy_contracts.GlobalVariables;
     /**
      * Information about the remote client.
      */
@@ -148,7 +148,7 @@ export interface ValidatorContext {
     /**
      * Gets the list of global variables defined in settings.
      */
-    globals: Object;
+    globals: deploy_contracts.GlobalVariables;
     /**
      * Information about the remote client.
      */

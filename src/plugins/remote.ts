@@ -116,7 +116,7 @@ export interface TransformerContext {
     /**
      * Gets the list of global variables defined in settings.
      */
-    globals: Object;
+    globals: deploy_contracts.GlobalVariables;
     /**
      * The file to send.
      */

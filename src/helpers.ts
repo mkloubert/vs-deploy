@@ -69,6 +69,21 @@ export function asArray<T>(val: T | T[]): T[] {
 }
 
 /**
+ * Clones an object / value deep.
+ * 
+ * @param {T} val The value / object to clone.
+ * 
+ * @return {T} The cloned value / object.
+ */
+export function cloneObject<T>(val: T): T {
+    if (!val) {
+        return val;
+    }
+
+    return JSON.parse(JSON.stringify(val));
+}
+
+/**
  * Compares two values for a sort operation.
  * 
  * @param {T} x The left value.
@@ -410,6 +425,30 @@ export function isNullOrUndefined(val: any): boolean {
  * @return {deploy_contracts.DataTransformModule} The loaded module.
  */
 export function loadDataTransformerModule(file: string, useCache: boolean = false): deploy_contracts.DataTransformModule {
+    return loadModule(file, useCache);
+}
+
+/**
+ * Loads a module for a deploy operation.
+ * 
+ * @param {string} file The path of the module's file.
+ * @param {boolean} useCache Use cache or not.
+ * 
+ * @return {deploy_contracts.DeployScriptOperationModule} The loaded module.
+ */
+export function loadDeployScriptOperationModule(file: string, useCache: boolean = false): deploy_contracts.DeployScriptOperationModule {
+    return loadModule(file, useCache);
+}
+
+/**
+ * Loads a module.
+ * 
+ * @param {string} file The path of the module's file.
+ * @param {boolean} useCache Use cache or not.
+ * 
+ * @return {TModule} The loaded module.
+ */
+export function loadModule<TModule>(file: string, useCache: boolean = false): TModule {
     if (!Path.isAbsolute(file)) {
         file = Path.join(vscode.workspace.rootPath, file);
     }
@@ -436,21 +475,7 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
  * @return {deploy_contracts.ValidatorModule<T>} The loaded module.
  */
 export function loadValidatorModule<T>(file: string, useCache: boolean = false): deploy_contracts.ValidatorModule<T> {
-    if (!Path.isAbsolute(file)) {
-        file = Path.join(vscode.workspace.rootPath, file);
-    }
-    file = Path.resolve(file);
-
-    let stats = FS.lstatSync(file);
-    if (!stats.isFile()) {
-        throw new Error(i18.t('isNo.file', file));
-    }
-
-    if (!useCache) {
-        delete require.cache[file];  // remove from cache
-    }
-    
-    return require(file);
+    return loadModule(file, useCache);
 }
 
 /**

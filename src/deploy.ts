@@ -135,7 +135,10 @@ export class Deployer {
                     try {
                         me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
 
-                        me.handleCommonDeployOperation(currentOperation).then((handled) => {
+                        me.handleCommonDeployOperation(currentOperation,
+                                                       deploy_contracts.DeployOperationKind.After,
+                                                       files,
+                                                       target).then((handled) => {
                             if (!handled) {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
@@ -198,7 +201,10 @@ export class Deployer {
                     try {
                         me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
 
-                        me.handleCommonDeployOperation(currentOperation).then((handled) => {
+                        me.handleCommonDeployOperation(currentOperation,
+                                                       deploy_contracts.DeployOperationKind.Before,
+                                                       files,
+                                                       target).then((handled) => {
                             if (!handled) {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
@@ -1028,14 +1034,14 @@ export class Deployer {
     /**
      * Returns the global variables defined in settings.
      * 
-     * @return {Object} The globals.
+     * @return {deploy_contracts.GlobalVariables} The globals.
      */
-    public getGlobals(): Object {
-        let result: Object = {};
+    public getGlobals(): deploy_contracts.GlobalVariables {
+        let result: deploy_contracts.GlobalVariables = {};
         
         let cfgGlobals = this.config.globals;
         if (cfgGlobals) {
-            result = JSON.parse(JSON.stringify(cfgGlobals));
+            result = deploy_helpers.cloneObject(cfgGlobals);
         }
 
         return result;
@@ -1144,10 +1150,16 @@ export class Deployer {
      * Handles a "common" deploy operation.
      * 
      * @param {deploy_contracts.DeployOperation} operation The operation.
+     * @param {deploy_contracts.DeployOperationKind} kind The kind of operation.
+     * @param {string[]} files The files to deploy.
+     * @param {deploy_contracts.DeployTarget} target The target.
      * 
      * @return Promise<boolean> The promise.
      */
-    protected handleCommonDeployOperation(operation: deploy_contracts.DeployOperation): Promise<boolean> {
+    protected handleCommonDeployOperation(operation: deploy_contracts.DeployOperation,
+                                          kind: deploy_contracts.DeployOperationKind,
+                                          files: string[],
+                                          target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
 
         return new Promise<boolean>((resolve, reject) => {
@@ -1198,6 +1210,45 @@ export class Deployer {
                         }).catch((err) => {
                             completed(err);
                         });
+                        break;
+
+                    case 'script':
+                        let scriptExecutor: deploy_contracts.DeployScriptOperationExecutor;
+
+                        let scriptOpts = <deploy_contracts.DeployScriptOperation>operation;
+                        if (!deploy_helpers.isEmptyString(scriptOpts.script)) {
+                            let scriptModule = deploy_helpers.loadDeployScriptOperationModule(scriptOpts.script);
+                            if (scriptModule) {
+                                scriptExecutor = scriptModule.execute;
+                            }
+                        }
+
+                        nextAction = null;
+                        if (scriptExecutor) {
+                            let scriptArgs: deploy_contracts.DeployScriptOperationArguments = {
+                                files: files,
+                                globals: me.getGlobals(),
+                                kind: kind,
+                                options: deploy_helpers.cloneObject(scriptOpts.options),
+                                require: function(id) {
+                                    return require(id);
+                                },
+                            };
+
+                            scriptExecutor(scriptArgs).then(() => {
+                                completed();
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        else {
+                            // execute() function not found in script!
+
+                            nextAction = () => {
+                                completed(new Error(i18.t('deploy.operations.noFunctionInScript',
+                                                          'execute', scriptOpts.script)));
+                            };
+                        }
                         break;
 
                     case 'wait':

@@ -82,6 +82,7 @@ export interface Translation {
             failedTarget?: string;
         },
         operations?: {
+            noFunctionInScript?: string;
             open?: string;
             unknownType?: string;
         },
