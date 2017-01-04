@@ -1026,6 +1026,22 @@ export class Deployer {
     }
 
     /**
+     * Returns the global variables defined in settings.
+     * 
+     * @return {Object} The globals.
+     */
+    public getGlobals(): Object {
+        let result: Object = {};
+        
+        let cfgGlobals = this.config.globals;
+        if (cfgGlobals) {
+            result = JSON.parse(JSON.stringify(cfgGlobals));
+        }
+
+        return result;
+    }
+
+    /**
      * Returns the list of packages.
      * 
      * @returns {DeployPackage[]} The packages.
@@ -1835,6 +1851,7 @@ export class Deployer {
 
                                             return this;
                                         },
+                                        globals: () => me.getGlobals(),
                                         info: function(msg) {
                                             if (msg) {
                                                 vscode.window.showInformationMessage('' + msg);

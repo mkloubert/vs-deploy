@@ -114,6 +114,10 @@ export interface TransformerContext {
      */
     file: string;
     /**
+     * Gets the list of global variables defined in settings.
+     */
+    globals: Object;
+    /**
      * The file to send.
      */
     remoteFile: RemoteFile;
@@ -256,6 +260,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
                 let transformCtx: FileDataTransformerContext = {
                     file: file,
+                    globals: me.context.globals(),
                     remoteFile: remoteFile,
                 };
 
@@ -300,6 +305,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
                         let jsonTransformerCtx: MessageTransformerContext = {
                             file: file,
+                            globals: me.context.globals(),
                             remoteFile: remoteFile,
                         };
 

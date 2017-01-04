@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.12.0 (January 4th, 2017; global variables)
+
+* added [globals](https://github.com/mkloubert/vs-deploy/wiki#settings--) property
+
+
 ## 4.11.0 (January 4th, 2017; supress deploy host popups)
 
 * added `showPopupOnSuccess` for [deploy hosts](https://github.com/mkloubert/vs-deploy/wiki#host-), which can set to `(false)` if no popup should be shown if a host has started / stopped successfully

@@ -61,6 +61,10 @@ export interface DataTransformerContext {
      */
     file: string;
     /**
+     * Gets the list of global variables defined in settings.
+     */
+    globals: Object;
+    /**
      * The target URL of the HTTP service.
      */
     url: string;
@@ -168,6 +172,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
                     try {
                         let dataTransformerCtx: DataTransformerContext = {
+                            globals: me.context.globals(),
                             file: file,
                             url: url,
                         };

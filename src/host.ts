@@ -114,6 +114,10 @@ export interface RemoteFile {
  */
 export interface TranformerContext {
     /**
+     * Gets the list of global variables defined in settings.
+     */
+    globals: Object;
+    /**
      * Information about the remote client.
      */
     remote: RemoteClient;
@@ -141,6 +145,10 @@ export enum TransformationType {
  * A validator context.
  */
 export interface ValidatorContext {
+    /**
+     * Gets the list of global variables defined in settings.
+     */
+    globals: Object;
     /**
      * Information about the remote client.
      */
@@ -358,6 +366,7 @@ export class DeployHost {
                                 };
 
                                 let jsonTransformerCtx: MessageTransformerContext = {
+                                    globals: me.deployer.getGlobals(),
                                     remote: remoteClient,
                                     type: TransformationType.Message,
                                 };
@@ -538,6 +547,7 @@ export class DeployHost {
 
                                                     let validateFile = () => {
                                                         let validatorCtx: ValidatorContext = {
+                                                            globals: me.deployer.getGlobals(),
                                                             remote: remoteClient,
                                                             target: targetFile,
                                                         };
@@ -595,6 +605,7 @@ export class DeployHost {
                                                         try {
                                                             let transformerCtx: FileDataTransformerContext = {
                                                                 file: file,
+                                                                globals: me.deployer.getGlobals(),
                                                                 remote: remoteClient,
                                                                 type: TransformationType.FileData,
                                                             };

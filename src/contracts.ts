@@ -221,6 +221,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     disableNewVersionPopups?: boolean;
     /**
+     * Defines an object that contains global values and objects, categorized by its properties.
+     */
+    globals?: Object;
+    /**
      * Deploy host settings.
      */
     host?: {
@@ -324,6 +328,10 @@ export interface DeployContext {
      * @chainable
      */
     error: (msg: any) => DeployContext;
+    /**
+     * Gets the list of global vars.
+     */
+    globals: () => Object;
     /**
      * Shows an info message.
      * 

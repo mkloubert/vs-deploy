@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.11.0",
+  "version": "4.12.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -121,6 +121,10 @@
               "type": "boolean",
               "description": "Clear output on startup or not.",
               "default": false
+            },
+            "globals": {
+              "type": "object",
+              "description": "A list of variables that can be accessed globally (from scripts, e.g.)."
             },
             "host": {
               "type": "object",
