@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.11.0 (January 4th, 2017; supress deploy host popups)
+
+* added `showPopupOnSuccess` for [deploy hosts](https://github.com/mkloubert/vs-deploy/wiki#host-), which can set to `(false)` if no popup should be shown if a host has started / stopped successfully
+
+
 ## 4.10.0 (January 4th, 2017; data transformation)
 
 * extended [DataTransformerContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.datatransformercontext.html) interface with `context` property

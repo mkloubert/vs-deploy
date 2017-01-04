@@ -1294,11 +1294,14 @@ export class Deployer {
 
         let dir: string;
         let port = deploy_contracts.DEFAULT_PORT;
+        let showPopup = true;
         if (cfg.host) {
             dir = cfg.host.dir;
 
             port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
                                                         '' + deploy_contracts.DEFAULT_PORT));
+
+            showPopup = deploy_helpers.toBooleanSafe(cfg.host.showPopupOnSuccess, true);
         }
 
         dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
@@ -1329,7 +1332,10 @@ export class Deployer {
 
                 let successMsg = i18.t('host.stopped');
 
-                vscode.window.showInformationMessage(successMsg);
+                if (showPopup) {
+                    vscode.window.showInformationMessage(successMsg);
+                }
+
                 me.outputChannel.appendLine(successMsg);
             }).catch((err) => {
                 let errMsg = i18.t('host.errors.couldNotStop', err);
@@ -1349,7 +1355,10 @@ export class Deployer {
                 let successMsg = i18.t('host.started', port, dir);
 
                 me.outputChannel.appendLine(successMsg);
-                vscode.window.showInformationMessage(successMsg);
+                
+                if (showPopup) {
+                    vscode.window.showInformationMessage(successMsg);
+                }
 
                 statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
                 statusItem.tooltip = '';

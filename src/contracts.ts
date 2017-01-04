@@ -247,6 +247,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          */
         port?: number;
         /**
+         * Show popup if host has been started or stopped successfully.
+         */
+        showPopupOnSuccess?: boolean;
+        /**
          * The path to a module that UNtransforms received file data.
          * 
          * s. 'TranformerModule' interface
