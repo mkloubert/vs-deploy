@@ -131,6 +131,10 @@ export type DataTransformer = (ctx: DataTransformerContext) => Promise<Buffer>;
  */
 export interface DataTransformerContext {
     /**
+     * An optional context / object value defined by the "sender".
+     */
+    context?: any;
+    /**
      * The data to transform.
      */
     data: Buffer;

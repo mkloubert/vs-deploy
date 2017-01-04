@@ -43,15 +43,45 @@ interface DeployTargetRemote extends deploy_contracts.DeployTarget {
     transformerOptions?: any;
 }
 
-interface RemoteFile {
+/**
+ * A file to send (JSON message).
+ */
+export interface RemoteFile {
+    /**
+     * The data.
+     */
     data?: string;
+    /**
+     * Indicates if 'data' is compressed or not.
+     */
     isCompressed?: boolean;
+    /**
+     * Indicates if entry is the first one or not.
+     */
     isFirst: boolean;
+    /**
+     * Indicates if entry is the last one or not.
+     */
     isLast: boolean;
+    /**
+     * The name / path of the file.
+     */
     name: string;
+    /**
+     * The index / number of the file (beginning at 1).
+     */
     nr: number;
+    /**
+     * The session ID.
+     */
     session: string;
+    /**
+     * An addtional value send by remote client.
+     */
     tag?: any;
+    /**
+     * The total number of files that will be send.
+     */
     totalCount: number;
 }
 
@@ -60,6 +90,33 @@ interface RemoteContext {
     hosts: string[];
     session: string;
     totalCount: number;
+}
+
+/**
+ * A file data transformer sub context.
+ */
+export interface FileDataTransformerContext extends TransformerContext {
+    compress?: boolean;
+}
+
+/**
+ * A message transformer sub context.
+ */
+export interface MessageTransformerContext extends TransformerContext {
+}
+
+/**
+ * A transformer sub context.
+ */
+export interface TransformerContext {
+    /**
+     * The path of the local file.
+     */
+    file: string;
+    /**
+     * The file to send.
+     */
+    remoteFile: RemoteFile;
 }
 
 class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteContext> {
@@ -197,7 +254,13 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                     totalCount: ctx.totalCount,
                 };
 
+                let transformCtx: FileDataTransformerContext = {
+                    file: file,
+                    remoteFile: remoteFile,
+                };
+
                 transformer({
+                    context: transformer,
                     data: data,
                     mode: deploy_contracts.DataTransformerMode.Transform,
                     options: target.transformerOptions,
@@ -208,7 +271,14 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                             return;
                         }
 
-                        remoteFile.isCompressed = compressedData.length < transformedFileData.length;
+                        if (deploy_helpers.isNullOrUndefined(transformCtx.compress)) {
+                            // auto compression
+                            remoteFile.isCompressed = compressedData.length < transformedFileData.length;
+                        }
+                        else {
+                            remoteFile.isCompressed = deploy_helpers.toBooleanSafe(transformCtx.compress);
+                        }
+
                         let dataToSend = remoteFile.isCompressed ? compressedData : transformedFileData;
 
                         try {
@@ -228,7 +298,13 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                             return;
                         }
 
+                        let jsonTransformerCtx: MessageTransformerContext = {
+                            file: file,
+                            remoteFile: remoteFile,
+                        };
+
                         jsonTransformer({
+                            context: jsonTransformerCtx,
                             data: json,
                             mode: deploy_contracts.DataTransformerMode.Transform,
                             options: target.messageTransformerOptions,

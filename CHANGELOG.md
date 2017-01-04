@@ -1,11 +1,16 @@
 # Change Log (vs-deploy)
 
-## 4.9.0 (January 2th, 2017; validate remote files)
+## 4.10.0 (January 4th, 2017; data transformation)
+
+* extended [DataTransformerContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.datatransformercontext.html) interface with `context` property
+
+
+## 4.9.0 (January 3th, 2017; validate remote files)
 
 * can define a script for a [deploy host](https://github.com/mkloubert/vs-deploy/wiki#validation-) now, which validates a received file
 
 
-## 4.8.0 (January 2th, 2017; deploy hosts)
+## 4.8.0 (January 3th, 2017; deploy hosts)
 
 * optimized [deploy host](https://github.com/mkloubert/vs-deploy/wiki#host-) feature
 

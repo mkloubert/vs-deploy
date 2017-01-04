@@ -52,6 +52,20 @@ interface DeployTargetHttp extends deploy_contracts.DeployTarget {
     url?: string;
 }
 
+/**
+ * A data transformer sub context.
+ */
+export interface DataTransformerContext {
+    /**
+     * The path of the local file whats data should be transformed.
+     */
+    file: string;
+    /**
+     * The target URL of the HTTP service.
+     */
+    url: string;
+}
+
 
 class HttpPlugin extends deploy_objects.DeployPluginBase {
     public deployFile(file: string, target: DeployTargetHttp, opts?: deploy_contracts.DeployFileOptions): void {
@@ -153,7 +167,13 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                     }
 
                     try {
+                        let dataTransformerCtx: DataTransformerContext = {
+                            file: file,
+                            url: url,
+                        };
+
                         dataTransformer({
+                            context: dataTransformerCtx,
                             data: untransformedData,
                             mode: deploy_contracts.DataTransformerMode.Transform,
                             options: target.transformerOptions,

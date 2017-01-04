@@ -38,6 +38,36 @@ import * as ZLib from 'zlib';
 
 
 /**
+ * A file data transformer sub context.
+ */
+export interface FileDataTransformerContext extends TranformerContext {
+    /**
+     * The underlying file.
+     */
+    file: RemoteFile;
+}
+
+/**
+ * A JSON message transformer sub context.
+ */
+export interface MessageTransformerContext extends TranformerContext {
+}
+
+/**
+ * Data of a remote client.
+ */
+export interface RemoteClient {
+    /**
+     * The address of the client.
+     */
+    address: string;
+    /**
+     * The port of the client.
+     */
+    port: number;
+}
+
+/**
  * Describes a remote file (entry).
  */
 export interface RemoteFile {
@@ -80,22 +110,41 @@ export interface RemoteFile {
 }
 
 /**
+ * A data transformer sub context.
+ */
+export interface TranformerContext {
+    /**
+     * Information about the remote client.
+     */
+    remote: RemoteClient;
+    /**
+     * The type of transformation.
+     */
+    type: TransformationType;
+}
+
+/**
+ * Transformation type.
+ */
+export enum TransformationType {
+    /**
+     * File data
+     */
+    FileData = 0,
+    /**
+     * (JSON) message
+     */
+    Message = 1,
+}
+
+/**
  * A validator context.
  */
 export interface ValidatorContext {
     /**
      * Information about the remote client.
      */
-    remote: {
-        /**
-         * The address of the client.
-         */
-        address: string;
-        /**
-         * The port of the client.
-         */
-        port: number;
-    },
+    remote: RemoteClient;
     /**
      * The (planned) path of the target.
      */
@@ -240,8 +289,10 @@ export class DeployHost {
             validator = deploy_helpers.toValidatorSafe(validator);
 
             let server = Net.createServer((socket) => {
-                let remoteAddr = socket.remoteAddress;
-                let remotePort = socket.remotePort;
+                let remoteClient: RemoteClient = {
+                    address: socket.remoteAddress,
+                    port: socket.remotePort,
+                };
 
                 let showError = (err: any) => {
                     me.log(i18.t('errors.withCategory', 'DeployHost.start().createServer()', err));
@@ -306,8 +357,14 @@ export class DeployHost {
                                     }
                                 };
 
+                                let jsonTransformerCtx: MessageTransformerContext = {
+                                    remote: remoteClient,
+                                    type: TransformationType.Message,
+                                };
+
                                 // restore "transformered" JSON message
                                 jsonTransformer({
+                                    context: jsonTransformerCtx,
                                     data: msgBuff,
                                     options: jsonTransformerOpts,
                                     mode: deploy_contracts.DataTransformerMode.Restore,
@@ -345,7 +402,8 @@ export class DeployHost {
                                             }
 
                                             let receiveFileMsg = i18.t('host.receiveFile.receiving',
-                                                                       remoteAddr, remotePort, fileInfo);
+                                                                       remoteClient.address, remoteClient.port,
+                                                                       fileInfo);
 
                                             me.outputChannel.append(receiveFileMsg);
 
@@ -480,10 +538,7 @@ export class DeployHost {
 
                                                     let validateFile = () => {
                                                         let validatorCtx: ValidatorContext = {
-                                                            remote: {
-                                                                address: remoteAddr,
-                                                                port: remotePort,
-                                                            },
+                                                            remote: remoteClient,
                                                             target: targetFile,
                                                         };
 
@@ -538,7 +593,14 @@ export class DeployHost {
                                                         }
 
                                                         try {
+                                                            let transformerCtx: FileDataTransformerContext = {
+                                                                file: file,
+                                                                remote: remoteClient,
+                                                                type: TransformationType.FileData,
+                                                            };
+
                                                             transformer({
+                                                                context: context,
                                                                 data: file.data,
                                                                 options: transformerOpts,
                                                                 mode: deploy_contracts.DataTransformerMode.Restore,
