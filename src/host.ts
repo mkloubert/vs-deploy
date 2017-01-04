@@ -600,7 +600,7 @@ export class DeployHost {
                                                             };
 
                                                             transformer({
-                                                                context: context,
+                                                                context: transformerCtx,
                                                                 data: file.data,
                                                                 options: transformerOpts,
                                                                 mode: deploy_contracts.DataTransformerMode.Restore,
