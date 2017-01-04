@@ -1233,6 +1233,7 @@ export class Deployer {
                                 require: function(id) {
                                     return require(id);
                                 },
+                                target: target,
                             };
 
                             scriptExecutor(scriptArgs).then(() => {

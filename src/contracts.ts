@@ -698,6 +698,10 @@ export interface DeployScriptOperationArguments {
      * @return {any} The loaded module.
      */
     require: (id: string) => any;
+    /**
+     * The underlying target configuration.
+     */
+    target: DeployTarget;
 }
 
 /**
