@@ -232,7 +232,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 try {
                     let headersToSubmit = {
                         'Authorization': `Bearer ${ctx.token}`,
-                        'Content-Type': deploy_helpers.detectMimeByFilename(file),
+                        'Content-Type': 'application/octet-stream',
                         'Dropbox-API-Arg': JSON.stringify({
                             "path": targetFile,
                             "mode": "overwrite",
