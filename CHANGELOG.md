@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.15.0 (January 5th, 2017; Empty DropBox folder)
+
+* added support for empty the root directory of a [DropBox folder](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
+
+
 ## 4.14.0 (January 5th, 2017; DropBox support)
 
 * added support for deploying to [DropBox folder](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)

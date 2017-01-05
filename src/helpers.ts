@@ -27,6 +27,7 @@ import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
 import * as FS from 'fs';
 const Glob = require('glob');
+import * as HTTP from 'http';
 import * as i18 from './i18';
 const MIME = require('mime');
 import * as Moment from 'moment';
@@ -343,6 +344,73 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
     });
 
     return distinctArray(filesToDeploy);
+}
+
+/**
+ * Loads the body from a HTTP response.
+ * 
+ * @param {HTTP.IncomingMessage} resp The response.
+ * 
+ * @return {Promise<Buffer>} The promise.
+ */
+export function getHttpBody(resp: HTTP.IncomingMessage): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        let body: Buffer;
+        let completed = (err?: any) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(body);
+            }
+        };
+
+        if (!resp) {
+            completed();
+            return;
+        }
+
+        body = Buffer.alloc(0);
+
+        try {
+            let appendChunk = (chunk: Buffer): boolean => {
+                try {
+                    if (chunk) {
+                        body = Buffer.concat([body, chunk]);
+                    }
+
+                    return true;
+                }
+                catch (e) {
+                    completed(e);
+                    return false;
+                }
+            };
+
+            resp.on('data', (chunk: Buffer) => {
+                if (!appendChunk(chunk)) {
+                    return;
+                }
+            });
+
+            resp.on('end', (chunk: Buffer) => {
+                if (!appendChunk(chunk)) {
+                    return;
+                }
+
+                let l = body.length;
+                
+                completed();
+            });
+
+            resp.on('error', (err) => {
+                completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**
