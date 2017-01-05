@@ -32,6 +32,8 @@ import * as i18 from '../i18';
 import * as Path from 'path';
 
 
+const PATH_SEP = '/';
+
 interface DeployTargetDropbox extends deploy_contracts.DeployTarget {
     dir?: string;
     empty?: boolean;
@@ -52,16 +54,37 @@ interface TransformerContext {
 
 
 function getDirFromTarget(target: DeployTargetDropbox): string {
-    let dir = deploy_helpers.toStringSafe(target.dir);
+    let dir = deploy_helpers.toStringSafe(target.dir).trim();
     if (!dir) {
-        dir = '/';
+        dir = PATH_SEP;
     }
 
     return dir;
 }
 
 function toDropboxPath(path: string): string {
-    return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
+    let result = deploy_helpers.replaceAllStrings(path, Path.sep, PATH_SEP).trim();
+    
+    // remote leading path separators
+    while (0 == result.indexOf(PATH_SEP)) {
+        result = result.substr(1).trim();
+    }
+
+    // remote ending path separators
+    while ((result.length) > 0 &&
+           (result.lastIndexOf(PATH_SEP) == (result.length - 1))) {
+        result = result.substr(0, result.length - 1).trim();
+    }
+
+    if (0 != result.indexOf(PATH_SEP)) {
+        result = PATH_SEP + result;
+    }
+
+    if (PATH_SEP == result) {
+        result = '';
+    }
+
+    return result;
 }
 
 
