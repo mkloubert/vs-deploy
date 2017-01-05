@@ -295,23 +295,22 @@ export function formatArray(formatStr: any, args: any[]): string {
 }
 
 /**
- * Returns the list of a package that should be deployed.
+ * Returns the list of files by a filter that should be deployed.
  * 
- * @param {deploy_contracts.DeployPackage} pkg The package.
+ * @param {deploy_contracts.FileFilter} filter The filter.
  * 
  * @return {string[]} The list of files.
  */
-export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
-    if (!pkg) {
+export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] {
+    if (!filter) {
         return [];
     }
 
     // files in include
     let allFilePatterns: string[] = [];
-    if (pkg.files) {
-        allFilePatterns = pkg.files
-                             .map(x => toStringSafe(x))
-                             .filter(x => x);
+    if (filter.files) {
+        allFilePatterns = asArray(filter.files).map(x => toStringSafe(x))
+                                               .filter(x => x);
 
         allFilePatterns = distinctArray(allFilePatterns);
     }
@@ -321,10 +320,9 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
 
     // files to exclude
     let allExcludePatterns: string[] = [];
-    if (pkg.exclude) {
-        allExcludePatterns = pkg.exclude
-                                .map(x => toStringSafe(x))
-                                .filter(x => x);
+    if (filter.exclude) {
+        allExcludePatterns = asArray(filter.exclude).map(x => toStringSafe(x))
+                                                    .filter(x => x);
     }
     allExcludePatterns = distinctArray(allExcludePatterns);
 
@@ -344,6 +342,17 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
     });
 
     return distinctArray(filesToDeploy);
+}
+
+/**
+ * Returns the list of files of a package that should be deployed.
+ * 
+ * @param {deploy_contracts.DeployPackage} pkg The package.
+ * 
+ * @return {string[]} The list of files.
+ */
+export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
+    return getFilesByFilter(pkg);
 }
 
 /**
@@ -1020,4 +1029,27 @@ export function toValidatorSafe<T>(validator: deploy_contracts.Validator<T>): de
     }
     
     return validator;
+}
+
+/**
+ * Tries to dispose an object.
+ * 
+ * @param {vscode.Disposable} obj The object to dispose.
+ * 
+ * @return {boolean} Operation was successful or not.
+ */
+export function tryDispose(obj: vscode.Disposable): boolean {
+    try {
+        if (obj) {
+            obj.dispose();
+        }
+
+        return true;
+    }
+    catch (e) {
+        log(i18.t('errors.withCategory',
+                  'helpers.tryDispose()', e));
+
+        return false;
+    }
 }

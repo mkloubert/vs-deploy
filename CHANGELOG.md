@@ -1,6 +1,11 @@
 # Change Log (vs-deploy)
 
-## 4.15.0 (January 5th, 2017; Empty DropBox folder)
+## 4.16.0 (January 5th, 2017; deploy on change)
+
+* can define files that will be [deployed on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change)
+
+
+## 4.15.0 (January 5th, 2017; empty DropBox folder)
 
 * added support for empty the root directory of a [DropBox folder](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
 

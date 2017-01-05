@@ -34,6 +34,8 @@ import * as vs_contracts from './contracts';
 import * as vs_deploy from './deploy';
 
 
+let deployer: vs_deploy.Deployer;
+
 export function activate(context: vscode.ExtensionContext) {
     let now = Moment();
 
@@ -64,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('');
     }
 
-    let deployer = new vs_deploy.Deployer(context, outputChannel, pkgFile);
+    deployer = new vs_deploy.Deployer(context, outputChannel, pkgFile);
 
     // deploy workspace
     let deploy = vscode.commands.registerCommand('extension.deploy', () => {
@@ -130,4 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+    if (deployer) {
+        deployer.onDeactivate();
+    }
 }

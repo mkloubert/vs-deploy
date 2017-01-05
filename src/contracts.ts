@@ -483,6 +483,16 @@ export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
 }
 
 /**
+ * 'Deploy on change' file filter.
+ */
+export interface DeployOnChangeFileFilter extends FileFilter {
+    /**
+     * Use target lists or not.
+     */
+    useTargetList?: boolean;
+}
+
+/**
  * An operation that opens something like an URI.
  */
 export interface DeployOpenOperation extends DeployOperation {
@@ -529,6 +539,10 @@ export enum DeployOperationKind {
  */
 export interface DeployPackage extends Sortable {
     /**
+     * Deploys files on change.
+     */
+    deployOnChange?: true | DeployOnChangeFileFilter;
+    /**
      * Deploy files of the package on save or not.
      */
     deployOnSave?: true | string | string[];
@@ -541,7 +555,7 @@ export interface DeployPackage extends Sortable {
      */
     exclude?: string[];
     /**
-     * Files to include
+     * Files to include.
      */
     files?: string[];
     /**
@@ -920,6 +934,20 @@ export interface FileDeployCompletedEventArguments extends DeployEventArguments 
  * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
  */
 export type FileDeployCompletedEventHandler = (sender: any, e: FileDeployCompletedEventArguments) => void;
+
+/**
+ * A file filter.
+ */
+export interface FileFilter {
+    /**
+     * Files to exclude.
+     */
+    exclude?: string | string[];
+    /**
+     * Files to include.
+     */
+    files?: string | string[];
+}
 
 /**
  * Global variables.

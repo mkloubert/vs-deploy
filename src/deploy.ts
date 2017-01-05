@@ -49,6 +49,10 @@ export class Deployer {
      */
     protected _CONTEXT: vscode.ExtensionContext;
     /**
+     * The global file system watcher.
+     */
+    protected _fileSystemWatcher: vscode.FileSystemWatcher;
+    /**
      * Stores the current host.
      */
     protected _host: DeployHost;
@@ -1474,6 +1478,17 @@ export class Deployer {
         this.reloadConfiguration();
 
         this.resetIsCancelling();
+
+        this.setupFileSystemWatcher();
+    }
+
+    /**
+     * The 'on deactivate' event.
+     */
+    public onDeactivate() {
+        if (deploy_helpers.tryDispose(this._fileSystemWatcher)) {
+            this._fileSystemWatcher = null;
+        }
     }
 
     /**
@@ -1486,16 +1501,18 @@ export class Deployer {
     /**
      * Event after a document has been saved.
      * 
-     * @param {vscode.TextDocument} doc The document.
+     * @param {string} fileName The path of the file.
+     * @param {deploy_contracts.DeployPackage[]} [packagesToDeploy] The custom package list.
      */
-    public onDidSaveTextDocument(doc: vscode.TextDocument) {
-        if (!doc) {
+    public onDidSaveFile(fileName: string,
+                         packagesToDeploy?: deploy_contracts.DeployPackage[]) {
+        if (deploy_helpers.isEmptyString(fileName)) {
             return;
         }
 
         let me = this;
 
-        let docFile = deploy_helpers.replaceAllStrings(doc.fileName, Path.sep, '/');
+        let docFile = deploy_helpers.replaceAllStrings(fileName, Path.sep, '/');
 
         let relativeDocFilePath = deploy_helpers.toRelativePath(docFile);
         if (false === relativeDocFilePath) {
@@ -1503,7 +1520,7 @@ export class Deployer {
         }
 
         try {
-            FS.exists(doc.fileName, (exists) => {
+            FS.exists(fileName, (exists) => {
                 try {
                     let normalizeString = (str: string): string => {
                         return deploy_helpers.toStringSafe(str)
@@ -1513,9 +1530,28 @@ export class Deployer {
 
                     let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
                         let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
-                        if (!deploy_helpers.isNullOrUndefined(pkg.useTargetListForDeployOnSave)) {
-                            // use package specific setting
-                            useTargetLists = deploy_helpers.toBooleanSafe(pkg.useTargetListForDeployOnSave);
+
+                        let checkForPackageSpecificTargetListSetting = true;
+                        if (packagesToDeploy) {
+                            // we are in "deploy on change" context
+
+                            if (pkg.deployOnChange) {
+                                if (true !== pkg.deployOnChange) {
+                                    if (!deploy_helpers.isNullOrUndefined(pkg.deployOnChange.useTargetList)) {
+                                        // use "deploy on change" specific setting
+
+                                        useTargetLists = deploy_helpers.toBooleanSafe(pkg.deployOnChange.useTargetList);
+                                        checkForPackageSpecificTargetListSetting = false;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (checkForPackageSpecificTargetListSetting) {
+                            if (!deploy_helpers.isNullOrUndefined(pkg.useTargetListForDeployOnSave)) {
+                                // use package specific setting
+                                useTargetLists = deploy_helpers.toBooleanSafe(pkg.useTargetListForDeployOnSave);
+                            }
                         }
 
                         let targetSource: string[] = [];
@@ -1548,17 +1584,20 @@ export class Deployer {
                                              .filter(x => x);
                     };
 
-                    // find packages that would deploy the file
-                    let packagesToDeploy = me.getPackages();
-                    packagesToDeploy = packagesToDeploy.filter(x => {
-                        if (!x.deployOnSave) {
-                            return false;  // do NOT deploy on save
-                        }
+                    if (!packagesToDeploy) {
+                        // find packages that would deploy the file
 
-                        let packageFiles = deploy_helpers.getFilesOfPackage(x);
-                        return packageFiles.indexOf(docFile) > -1;
-                    });
+                        packagesToDeploy = me.getPackages();
+                        packagesToDeploy = packagesToDeploy.filter(x => {
+                            if (!x.deployOnSave) {
+                                return false;  // do NOT deploy on save
+                            }
 
+                            let packageFiles = deploy_helpers.getFilesOfPackage(x);
+                            return packageFiles.indexOf(docFile) > -1;
+                        });
+                    }
+                    
                     // check for non existing target names
                     let targets = me.getTargets();
                     packagesToDeploy.forEach(pkg => {
@@ -1630,6 +1669,82 @@ export class Deployer {
         }
         catch (e) {
             vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 1, e));
+        }
+    }
+
+    /**
+     * Event after a document has been saved.
+     * 
+     * @param {vscode.TextDocument} doc The document.
+     */
+    public onDidSaveTextDocument(doc: vscode.TextDocument) {
+        if (!doc) {
+            return;
+        }
+
+        this.onDidSaveFile(doc.fileName);
+    }
+
+    /**
+     * Is invoked on a file / directory change.
+     * 
+     * @param {vscode.Uri} e The URI of the item.
+     * @param {string} type The type of change.
+     */
+    protected onFileChange(e: vscode.Uri, type: string) {
+        let me = this;
+
+        try {
+            let filePath = Path.resolve(e.fsPath);
+
+            let normalizePath = (str: string) => {
+                return str ? deploy_helpers.replaceAllStrings(str, Path.sep, '/')
+                           : str;
+            };
+
+            FS.exists(filePath, (exists) => {
+                if (!exists) {
+                    return;
+                }
+
+                FS.lstat(filePath, (err, stats) => {
+                    if (err || !stats.isFile()) {
+                        return;
+                    }
+
+                    let packagesToDeploy: deploy_contracts.DeployPackage[] = [];
+
+                    let allPackages = me.getPackages();
+                    for (let i = 0; i < allPackages.length; i++) {
+                        let pkg = allPackages[i];
+                        if (deploy_helpers.isNullOrUndefined(pkg.deployOnChange)) {
+                            continue;
+                        }
+
+                        let matchingFiles: string[];
+
+                        if (true === pkg.deployOnChange) {
+                            matchingFiles = deploy_helpers.getFilesOfPackage(pkg);
+                        }
+                        else {
+                            matchingFiles = deploy_helpers.getFilesByFilter(pkg.deployOnChange)
+                                                          .filter(x => Path.resolve(x));
+                        }
+
+                        if (matchingFiles.map(x => normalizePath(x)).indexOf(normalizePath(filePath)) > 0) {
+                            packagesToDeploy.push(pkg);
+                        }
+                    }
+
+                    if (packagesToDeploy.length > 0) {
+                        me.onDidSaveFile(filePath, packagesToDeploy);
+                    }
+                });
+            });
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.onFileChange()', e));
         }
     }
 
@@ -2014,6 +2129,49 @@ export class Deployer {
      */
     protected resetIsCancelling(newValue: boolean = false) {
         this._isCancelling = newValue;
+    }
+
+    /**
+     * Set ups the file system watcher.
+     */
+    protected setupFileSystemWatcher() {
+        let me = this;
+        
+        let cfg = me.config;
+
+        let createWatcher = () => {
+            me._fileSystemWatcher = null;
+
+            let newWatcher: vscode.FileSystemWatcher;
+            try {
+                newWatcher = vscode.workspace.createFileSystemWatcher('**',
+                                                                      false, false, true);
+                newWatcher.onDidChange((e) => {
+                    me.onFileChange(e, 'change');
+                }, newWatcher);
+                newWatcher.onDidCreate((e) => {
+                    me.onFileChange(e, 'create');
+                }, newWatcher);
+
+                me._fileSystemWatcher = newWatcher;
+            }
+            catch (e) {
+                deploy_helpers.tryDispose(newWatcher);
+
+                me.log(i18.t('errors.withCategory',
+                             'Deployer.setupFileSystemWatcher(2)', e));
+            }
+        };
+
+        try {
+            if (deploy_helpers.tryDispose(me._fileSystemWatcher)) {
+                createWatcher();
+            }
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.setupFileSystemWatcher(1)', e));
+        }
     }
 
     /**
