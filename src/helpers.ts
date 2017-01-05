@@ -793,8 +793,6 @@ export function sortPackages(pkgs: deploy_contracts.DeployPackage[],
         pkgs = [];
     }
 
-    
-
     return pkgs.filter(x => x)
                .map((x, i) => {
                         return {

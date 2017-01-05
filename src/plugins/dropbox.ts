@@ -252,7 +252,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                     try {
                                         let err: Error;
 
-
                                         switch (resp.statusCode) {
                                             case 200:
                                             case 409:  // not found

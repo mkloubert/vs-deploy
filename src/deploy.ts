@@ -1065,7 +1065,7 @@ export class Deployer {
         }
 
         let myName = this.name;
-        packages = deploy_helpers.sortPackages(packages, () => me.name);
+        packages = deploy_helpers.sortPackages(packages, () => myName);
 
         return packages.filter(p => {
             let validHosts = deploy_helpers.asArray(p.isFor)
@@ -1094,7 +1094,7 @@ export class Deployer {
         }
 
         let myName = this.name;
-        targets = deploy_helpers.sortPackages(targets, () => me.name);
+        targets = deploy_helpers.sortTargets(targets, () => myName);
 
         return targets.filter(t => {
             let validHosts = deploy_helpers.asArray(t.isFor)
