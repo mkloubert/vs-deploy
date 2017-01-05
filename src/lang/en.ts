@@ -156,6 +156,10 @@ export const translation: Translation = {
         batch: {
             description: 'Deploys to other targets',
         },
+        dropbox: {
+            description: 'Deploys to a DropBox folder.',
+            unknownResponse: 'Unexpected response {0:trim} ({1:trim}): {2:trim,surround}',
+        },
         ftp: {
             description: 'Deploys to a FTP server',
         },

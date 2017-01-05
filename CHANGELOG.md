@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.14.0 (January 5th, 2017; DropBox support)
+
+* added support for deploying to [DropBox folder](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
+
+
 ## 4.13.0 (January 4th, 2017; script support for "before" and "after" deploy actions)
 
 * added script support for actions / tasks that are invoked [before and after a deployment](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script-)

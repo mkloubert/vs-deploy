@@ -82,7 +82,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         }
         dir += '/';
         
-        return new Promise<deploy_objects.DeployPluginContextWrapper<any>>((resolve, reject) => {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<S3Context>>((resolve, reject) => {
             let completed = (err?: any, wrapper?: deploy_objects.DeployPluginContextWrapper<S3Context>) => {
                 if (err) {
                     reject(err);

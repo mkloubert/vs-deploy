@@ -164,6 +164,10 @@ export interface Translation {
         batch?: {
             description?: string;
         },
+        dropbox?: {
+            description?: string;
+            unknownResponse?: string;
+        },
         ftp?: {
             description?: string;
         },

@@ -155,6 +155,10 @@ export const translation: Translation = {
         batch: {
             description: 'Stapelverarbeitung von Dateien durch mehrere Ziele',
         },
+        dropbox: {
+            description: 'Lädt Dateien in ein DropBox-Verzeichnis.',
+            unknownResponse: 'Unerwartete Antwort {0:trim} ({1:trim}): {2:trim,surround}',
+        },
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },

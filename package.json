@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "4.13.1",
+  "version": "4.14.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -15,8 +15,8 @@
     "Deploy",
     "Workspace",
     "Files",
-    "FTP",
-    "SSH"
+    "SFTP",
+    "Cloud"
   ],
   "activationEvents": [
     "*"
@@ -603,6 +603,111 @@
                             }
                           }
                         ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "sortOrder": {
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
+                        "default": 0
+                      },
+                      "isFor": {
+                        "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Deploys to a DropBox folder.",
+                        "enum": [
+                          "dropbox"
+                        ]
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
+                      "dir": {
+                        "type": "string",
+                        "description": "The target directory.",
+                        "default": "/"
+                      },
+                      "empty": {
+                        "type": "boolean",
+                        "description": "Delete target directory BEFORE upload file or not.",
+                        "default": false
+                      },
+                      "token": {
+                        "type": "string",
+                        "description": "The API token."
                       }
                     }
                   },
