@@ -119,12 +119,12 @@
             },
             "deployOnChange": {
               "type": "boolean",
-              "description": "Activate or deactivate 'deploy on change'",
+              "description": "Activate or deactivate 'deploy on change' for all packages.",
               "default": true
             },
             "deployOnSave": {
               "type": "boolean",
-              "description": "Activate or deactivate 'deploy on save'",
+              "description": "Activate or deactivate 'deploy on save' for all packages.",
               "default": true
             },
             "disableNewVersionPopups": {
