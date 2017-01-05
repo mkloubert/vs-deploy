@@ -43,6 +43,7 @@ interface DeployTargetDropbox extends deploy_contracts.DeployTarget {
 }
 
 interface DropboxContext {
+    dir: string;
     transformer: deploy_contracts.DataTransformer;
     token: string;
 }
@@ -91,6 +92,7 @@ function toDropboxPath(path: string): string {
 class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxContext> {
     protected createContext(target: DeployTargetDropbox,
                             files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
+        let dir = getDirFromTarget(target);
 
         // data transformer
         let transformer: deploy_contracts.DataTransformer;
@@ -102,6 +104,8 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             }
         }
         transformer = deploy_helpers.toDataTransformerSafe(transformer);
+
+        let empty = deploy_helpers.toBooleanSafe(target.empty);
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>>((resolve, reject) => {
             let completed = (err?: any, wrapper?: deploy_objects.DeployPluginContextWrapper<DropboxContext>) => {
@@ -115,6 +119,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             
             try {
                 let ctx: DropboxContext = {
+                    dir: dir,
                     transformer: transformer,
                     token: deploy_helpers.toStringSafe(target.token),
                 };
@@ -123,7 +128,61 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     context: ctx,
                 };
 
-                completed(null, wrapper);
+                if (empty) {
+                    let targetDirectory = toDropboxPath(dir);
+
+                    let headersToSubmit = {
+                        'Authorization': `Bearer ${ctx.token}`,
+                        'Content-Type': 'application/json',
+                    };
+
+                    let req = HTTPs.request({
+                        headers: headersToSubmit,
+                        host: 'api.dropboxapi.com',
+                        method: 'POST',
+                        path: '/2/files/delete',
+                        port: 443,
+                        protocol: 'https:',
+                    }, (resp) => {
+                        let err: Error;
+
+                        switch (resp.statusCode) {
+                            case 200:
+                            case 409:  // not found
+                                // OK
+                                break;
+
+                            default:
+                                err = new Error(i18.t('plugins.dropbox.unknownResponse',
+                                                    resp.statusCode, 2, resp.statusMessage));
+                                break;
+                        }
+
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            completed();
+                        }
+                    });
+
+                    req.once('error', (err) => {
+                        if (err) {
+                            completed(err);
+                        }
+                    });
+
+                    let json = JSON.stringify({
+                        path: targetDirectory,
+                    });
+
+                    req.write(json);
+
+                    req.end();
+                }
+                else {
+                    completed(null, wrapper);
+                }
             }
             catch (e) {
                 completed(e);
@@ -157,12 +216,8 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             return;
         }
 
-        let dir = getDirFromTarget(target);
-
-        let targetFile = toDropboxPath(Path.join(dir, relativeFilePath));
+        let targetFile = toDropboxPath(Path.join(ctx.dir, relativeFilePath));
         let targetDirectory = toDropboxPath(Path.dirname(targetFile));
-
-        let empty = deploy_helpers.toBooleanSafe(target.empty);
 
         if (opts.onBeforeDeploy) {
             opts.onBeforeDeploy(me, {
@@ -227,89 +282,33 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 }
             }
 
-            let startDeployment = () => {
-                FS.readFile(file, (err, data) => {
-                    if (err) {
+            FS.readFile(file, (err, data) => {
+                if (err) {
+                    completed(err);
+                    return;
+                }
+
+                try {
+                    let transformerCtx: TransformerContext = {
+                        file: file,
+                        globals: me.context.globals(),
+                    };
+
+                    ctx.transformer({
+                        context: transformerCtx,
+                        data: data,
+                        mode: deploy_contracts.DataTransformerMode.Transform,
+                        options: target.transformerOptions,
+                    }).then((transformedData) => {
+                        uploadFile(transformedData);
+                    }).catch((err) => {
                         completed(err);
-                        return;
-                    }
-
-                    try {
-                        let transformerCtx: TransformerContext = {
-                            file: file,
-                            globals: me.context.globals(),
-                        };
-
-                        ctx.transformer({
-                            context: transformerCtx,
-                            data: data,
-                            mode: deploy_contracts.DataTransformerMode.Transform,
-                            options: target.transformerOptions,
-                        }).then((transformedData) => {
-                            uploadFile(transformedData);
-                        }).catch((err) => {
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                });
-            };
-
-            if (empty) {
-                let headersToSubmit = {
-                    'Authorization': `Bearer ${ctx.token}`,
-                    'Content-Type': 'application/json',
-                };
-
-                let req = HTTPs.request({
-                    headers: headersToSubmit,
-                    host: 'api.dropboxapi.com',
-                    method: 'POST',
-                    path: '/2/files/delete',
-                    port: 443,
-                    protocol: 'https:',
-                }, (resp) => {
-                    let err: Error;
-
-                    switch (resp.statusCode) {
-                        case 200:
-                        case 409:  // not found
-                            // OK
-                            break;
-
-                        default:
-                            err = new Error(i18.t('plugins.dropbox.unknownResponse',
-                                                  resp.statusCode, 2, resp.statusMessage));
-                            break;
-                    }
-
-                    if (err) {
-                        completed(err);
-                    }
-                    else {
-                        startDeployment();
-                    }
-                });
-
-                req.once('error', (err) => {
-                    if (err) {
-                        completed(err);
-                    }
-                });
-
-                let json = JSON.stringify({
-                    path: targetDirectory,
-                });
-
-                req.write(json);
-
-                req.end();
-            }
-            else {
-                startDeployment();
-            }
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            });
         }
         catch (e) {
             completed(e);
