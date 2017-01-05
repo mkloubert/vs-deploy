@@ -162,7 +162,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                             completed(err);
                         }
                         else {
-                            completed();
+                            completed(null, wrapper);
                         }
                     });
 
