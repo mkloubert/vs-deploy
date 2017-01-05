@@ -231,6 +231,14 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     clearOutputOnStartup?: boolean;
     /**
+     * Activates or deactivates "deploy on change" feature.
+     */
+    deployOnChange?: boolean;
+    /**
+     * Activates or deactivates "deploy on save" feature.
+     */
+    deployOnSave?: boolean;
+    /**
      * Disables the display of popups that reports for a new version of that extension.
      */
     disableNewVersionPopups?: boolean;

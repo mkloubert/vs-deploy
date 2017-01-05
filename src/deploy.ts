@@ -1682,7 +1682,10 @@ export class Deployer {
             return;
         }
 
-        this.onDidSaveFile(doc.fileName);
+        if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true)) {
+            // only if activated
+            this.onDidSaveFile(doc.fileName);
+        }
     }
 
     /**
@@ -1692,6 +1695,11 @@ export class Deployer {
      * @param {string} type The type of change.
      */
     protected onFileChange(e: vscode.Uri, type: string) {
+        if (!deploy_helpers.toBooleanSafe(this.config.deployOnChange, true)) {
+            // deactivated
+            return;
+        }
+
         let me = this;
 
         try {

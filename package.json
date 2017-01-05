@@ -117,6 +117,16 @@
               "description": "Clear output on startup or not.",
               "default": false
             },
+            "deployOnChange": {
+              "type": "boolean",
+              "description": "Activate or deactivate 'deploy on change'",
+              "default": true
+            },
+            "deployOnSave": {
+              "type": "boolean",
+              "description": "Activate or deactivate 'deploy on save'",
+              "default": true
+            },
             "disableNewVersionPopups": {
               "type": "boolean",
               "description": "Clear output on startup or not.",
