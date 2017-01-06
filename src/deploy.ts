@@ -2144,8 +2144,6 @@ export class Deployer {
      */
     protected setupFileSystemWatcher() {
         let me = this;
-        
-        let cfg = me.config;
 
         let createWatcher = () => {
             me._fileSystemWatcher = null;
