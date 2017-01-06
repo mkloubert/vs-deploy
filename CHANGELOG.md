@@ -1,18 +1,18 @@
 # Change Log (vs-deploy)
 
-# 4.19.0 (January 6th, 2017; warning if already running)
+## 4.19.0 (January 6th, 2017; warning if already running)
 
 * now showing popup if a deployment is currently running, to prevent running deployments several times
 
 
-# 4.18.0 (January 6th, 2017; improved deployment)
+## 4.18.0 (January 6th, 2017; improved deployment)
 
 * add [showDeployResultInStatusBar](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting that can display a button in the status bar after deployment has been finished
 * improved deploy status bar button
 * fixed cancellation of deployments in (s)ftp plugins
 
 
-# 4.17.0 (January 6th, 2017; full IntelliSense support for settings.json)
+## 4.17.0 (January 6th, 2017; full IntelliSense support for settings.json)
 
 * completed "IntelliSense" support for `settings.json` file, especially for ['beforeDeploy' and 'deploy' properties](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) in [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-)  
 
