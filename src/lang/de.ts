@@ -57,6 +57,7 @@ export const translation: Translation = {
         canceledWithErrors: 'Abgebrochen mit Fehlern!',
         cancelling: 'Breche das Bereitstellen ab...',
         file: {
+            alreadyStarted: 'Sie haben schon einen Bereitstellungs-Vorgang für {0:trim,surround} gestartet! Möchten Sie die Aktion dennoch durchführen?',
             deploying: 'Stelle Datei {0:trim,surround}{1:trim,leading_space} bereit... ',
             deployingWithDestination: 'Stelle Datei {0:trim,surround} in {1:trim,surround}{2:trim,leading_space} bereit... ',
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
@@ -90,6 +91,7 @@ export const translation: Translation = {
             allFailedWithTarget: 'Keine Datei konnte nach {0:trim,surround} bereitgestellt werden: {1}',
             allSucceeded: 'Alle {0:trim} Datei(en) wurden erfolgreich bereitgestellt.',
             allSucceededWithTarget: 'Alle {0:trim} Datei(en) wurden erfolgreich in {1:trim,surround} bereitgestellt.',
+            alreadyStarted: 'Sie haben schon einen Bereitstellungs-Vorgang an {0:trim,surround} gestartet! Möchten Sie die Aktion dennoch durchführen?',
             clickToCancel: 'hier klicken, um abzubrechen',
             deploying: 'Stelle Paket{0:trim,surround,leading_space} bereit...',
             deployingWithTarget: 'Stelle Paket{0:trim,surround,leading_space} in {1:trim,surround} bereit...',
@@ -236,4 +238,5 @@ export const translation: Translation = {
     warnings: {
         withCategory: '[WARNUNG] {0:trim}: {1}',
     },
+    yes: 'Ja',
 };

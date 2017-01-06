@@ -57,6 +57,7 @@ export const translation: Translation = {
         canceledWithErrors: 'Canceled with errors!',
         cancelling: 'Cancelling deployment...',
         file: {
+            alreadyStarted: 'You have already started a deployment of {0:trim,surround}! Do you really want to start this operation?',
             deploying: 'Deploying file {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Deploying file {0:trim,surround} to {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Could not deploy file {0:trim,surround}: {1}',
@@ -90,6 +91,7 @@ export const translation: Translation = {
             allFailedWithTarget: 'No file could be deployed to {0:trim,surround}: {1}',
             allSucceeded: 'All {0:trim} file(s) were successfully deployed.',
             allSucceededWithTarget: 'All {0:trim} file(s) were successfully deployed to {1:trim,surround}.',
+            alreadyStarted: 'You have already started a deployment to {0:trim,surround}! Do you really want to start this operation?',
             clickToCancel: 'click here to cancel',
             deploying: 'Deploying package{0:trim,surround,leading_space}...',
             deployingWithTarget: 'Deploying package{0:trim,surround,leading_space} to {1:trim,surround}...',
@@ -237,4 +239,5 @@ export const translation: Translation = {
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',
     },
+    yes: 'Yes',
 };

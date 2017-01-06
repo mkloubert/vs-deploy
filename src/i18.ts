@@ -64,6 +64,7 @@ export interface Translation {
         canceledWithErrors?: string;
         cancelling?: string;
         file?: {
+            alreadyStarted?: string;
             deploying?: string;
             deployingWithDestination?: string;
             failed?: string;
@@ -97,6 +98,7 @@ export interface Translation {
             allFailedWithTarget?: string;
             allSucceeded?: string;
             allSucceededWithTarget?: string;
+            alreadyStarted?: string;
             clickToCancel?: string;
             deploying?: string;
             deployingWithTarget?: string;
@@ -245,6 +247,7 @@ export interface Translation {
     warnings?: {
         withCategory?: string;
     },
+    yes?: string,
 }
 
 
