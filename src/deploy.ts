@@ -417,17 +417,22 @@ export class Deployer {
                         }
 
                         let currentPlugin = matchIngPlugins.shift();
+                        let statusBarItem: vscode.StatusBarItem;
                         try {
-                            let statusBarItem = vscode.window.createStatusBarItem(
+                            statusBarItem = vscode.window.createStatusBarItem(
                                 vscode.StatusBarAlignment.Left,
                             );
+                            statusBarItem.color = '#ffffff';
+                            statusBarItem.command = "extension.deploy.cancel";
+                            statusBarItem.text = i18.t('deploy.button.prepareText');
+                            statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
                             let showResult = (err?: any, canceled?: boolean) => {
                                 canceled = deploy_helpers.toBooleanSafe(canceled);
                                 try {
                                     me.resetIsCancelling();
 
-                                    statusBarItem.dispose();
+                                    deploy_helpers.tryDispose(statusBarItem);
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -491,10 +496,7 @@ export class Deployer {
                                             me.outputChannel.show();
                                         }
 
-                                        statusBarItem.color = '#ffffff';
-                                        statusBarItem.command = "extension.deploy.cancel";
                                         statusBarItem.text = i18.t('deploy.button.text');
-                                        statusBarItem.tooltip = i18.t('deploy.button.tooltip');
                                         statusBarItem.show();
                                     },
 
@@ -515,6 +517,8 @@ export class Deployer {
                             }
                         }
                         catch (e) {
+                            deploy_helpers.tryDispose(statusBarItem);
+
                             completed(e);
                         }
                     };
@@ -788,10 +792,15 @@ export class Deployer {
                         }
 
                         let currentPlugin = matchIngPlugins.shift();
+                        let statusBarItem: vscode.StatusBarItem;
                         try {
-                            let statusBarItem = vscode.window.createStatusBarItem(
+                            statusBarItem = vscode.window.createStatusBarItem(
                                 vscode.StatusBarAlignment.Left,
                             );
+                            statusBarItem.color = '#ffffff';
+                            statusBarItem.command = 'extension.deploy.cancel';
+                            statusBarItem.text = i18.t('deploy.button.prepareText');
+                            statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
                             let failed: string[] = [];
                             let succeeded: string[] = [];
@@ -800,7 +809,7 @@ export class Deployer {
                                 try {
                                     me.resetIsCancelling();
 
-                                    statusBarItem.dispose();
+                                    deploy_helpers.tryDispose(statusBarItem);
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -883,10 +892,6 @@ export class Deployer {
                                 }
                             };
 
-                            statusBarItem.color = '#ffffff';
-                            statusBarItem.command = 'extension.deploy.cancel';
-                            statusBarItem.text = i18.t('deploy.button.text');
-                            statusBarItem.tooltip = i18.t('deploy.button.tooltip');
                             statusBarItem.show();
 
                             currentPlugin.deployWorkspace(files, target, {
@@ -906,7 +911,9 @@ export class Deployer {
                                         statusMsg = i18.t('deploy.workspace.status', relativePath);
                                     }
 
+                                    statusBarItem.text = i18.t('deploy.button.text');
                                     statusBarItem.tooltip = statusMsg + ` (${i18.t('deploy.workspace.clickToCancel')})`;
+
                                     me.outputChannel.append(statusMsg);
                                 },
 
@@ -929,6 +936,8 @@ export class Deployer {
                             });
                         }
                         catch (e) {
+                            deploy_helpers.tryDispose(statusBarItem);
+            
                             vscode.window.showErrorMessage(i18.t('deploy.workspace.failed', e));
                         }
                     };

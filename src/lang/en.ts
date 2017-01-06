@@ -45,6 +45,7 @@ export const translation: Translation = {
             failed: "Could not invoke 'before deploy' operations: {0}",
         },
         button: {
+            prepareText: 'Preparing deployment...',
             text: 'Deploying...',
             tooltip: 'Click here to cancel deployment...',
         },

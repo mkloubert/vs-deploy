@@ -52,6 +52,7 @@ export interface Translation {
             failed?: string;
         },
         button?: {
+            prepareText?: string;
             text?: string;
             tooltip?: string;
         },
