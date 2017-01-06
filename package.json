@@ -441,6 +441,44 @@
                         "type": "boolean",
                         "description": "Wait for app has been executed or not.",
                         "default": false
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -558,6 +596,44 @@
                         "type": "string",
                         "description": "The publib access level of the container.",
                         "default": "blob"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -646,6 +722,44 @@
                             }
                           }
                         ]
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -759,6 +873,44 @@
                       },
                       "transformerOptions": {
                         "description": "The data for the 'file data transformation', if needed."
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -881,6 +1033,44 @@
                         "type": "string",
                         "description": "The username for the authentication.",
                         "default": "anonymous"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1021,6 +1211,44 @@
                       "user": {
                         "type": "string",
                         "description": "The optional username for basic authentication."
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1122,6 +1350,44 @@
                         "type": "boolean",
                         "description": "Empty target directory BEFORE deploy or not.",
                         "default": false
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1261,6 +1527,44 @@
                       "user": {
                         "type": "string",
                         "description": "The username."
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1347,6 +1651,44 @@
                       "target": {
                         "type": "string",
                         "description": "The target to deploy to."
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     },
                     "required": [
@@ -1474,6 +1816,44 @@
                       },
                       "transformerOptions": {
                         "description": "The data for the 'data transformation', if needed."
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1669,6 +2049,44 @@
                         "type": "string",
                         "description": "The ACL for the target files.",
                         "default": "public-read"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1813,6 +2231,44 @@
                         "type": "string",
                         "description": "The username.",
                         "default": "anonymous"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -1895,6 +2351,44 @@
                         "type": "string",
                         "description": "The script file to exeute.",
                         "default": "./deploy.js"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     },
                     "required": [
@@ -1972,6 +2466,44 @@
                         "enum": [
                           "test"
                         ]
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   },
@@ -2073,6 +2605,44 @@
                         "type": "string",
                         "description": "The target directory of the new ZIP file.",
                         "default": "./"
+                        },
+                        "beforeDeploy": {
+                          "type": "array",
+                          "description": "One or more local command to be run before deploy action",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "deployed": {
+                          "type": "array",
+                          "description": "One or more local command to be run after deploy",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "type": "string",
+                                "description": "Target command/executable"
+                              },
+                              "arguments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
                       }
                     }
                   }
