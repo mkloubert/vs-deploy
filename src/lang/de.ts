@@ -50,6 +50,7 @@ export const translation: Translation = {
         },
         canceled: 'Abgebrochen.',
         canceledWithErrors: 'Abgebrochen mit Fehlern!',
+        cancelling: 'Breche das Bereitstellen ab...',
         file: {
             deploying: 'Stelle Datei {0:trim,surround}{1:trim,leading_space} bereit... ',
             deployingWithDestination: 'Stelle Datei {0:trim,surround} in {1:trim,surround}{2:trim,leading_space} bereit... ',

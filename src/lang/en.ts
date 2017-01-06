@@ -50,6 +50,7 @@ export const translation: Translation = {
         },
         canceled: 'Canceled.',
         canceledWithErrors: 'Canceled with errors!',
+        cancelling: 'Cancelling deployment...',
         file: {
             deploying: 'Deploying file {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Deploying file {0:trim,surround} to {1:trim,surround}{2:trim,leading_space}... ',

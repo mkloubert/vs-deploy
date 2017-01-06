@@ -239,6 +239,9 @@ export class Deployer {
             return;
         }
 
+        this.outputChannel.appendLine('');
+        this.outputChannel.appendLine(i18.t('deploy.cancelling'));
+
         this._isCancelling = true;
     }
 

@@ -215,6 +215,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
 
         // upload the file
         let uploadFile = () => {
+            if (me.context.isCancelling()) {
+                completed(null, true);  // cancellation requested
+                return;
+            }
+
             try {
                 conn.put(file, targetFile).then(() => {
                     completed();
@@ -240,6 +245,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             uploadFile();
         }).catch((err) => {
             // no => try to create
+
+            if (me.context.isCancelling()) {
+                completed(null, true);  // cancellation requested
+                return;
+            }
 
             conn.mkdir(targetDirectory, true).then(() => {
                 uploadFile();

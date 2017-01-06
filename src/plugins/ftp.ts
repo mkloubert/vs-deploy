@@ -162,6 +162,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
         let uploadFile = () => {
+            if (me.context.isCancelling()) {
+                completed(null, true);  // cancellation requested
+                return;
+            }
+
             try {
                 conn.put(file, targetFile, (err) => {
                     completed(err);
@@ -181,6 +186,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         }
 
         conn.cwd(targetDirectory, (err) => {
+            if (me.context.isCancelling()) {
+                completed(null, true);  // cancellation requested
+                return;
+            }
+
             if (err) {
                 // directory not found
                 // try to create...
