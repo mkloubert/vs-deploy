@@ -331,6 +331,11 @@
                 }
               }
             },
+            "showDeployResultInStatusBar": {
+              "type": "boolean",
+              "description": "Show an item in the status bar after deployment or not.",
+              "default": false
+            },
             "showPopupOnSuccess": {
               "type": "boolean",
               "description": "Indicates if an info popup / notification should be displayed after a successful deployment or not.",

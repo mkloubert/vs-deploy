@@ -470,6 +470,30 @@ export function getSortValue(s: deploy_contracts.Sortable,
 }
 
 /**
+ * Returns the color for a status bar item based an operation result.
+ * 
+ * @param {any} err The error.
+ * @param {number} succeedCount The number of successed operations.
+ * @param {number} failedCount The number of failed operations.
+ * 
+ * @return {string} The color.
+ */
+export function getStatusBarItemColor(err: any,
+                                      succeedCount: number, failedCount: number): string {
+    let color: string;
+    if (err || failedCount > 0) {
+        if (succeedCount < 1) {
+            color = '#ff0000';
+        }
+        else {
+            color = '#ffff00';
+        }
+    }
+
+    return color;
+}
+
+/**
  * Checks if the string representation of a value is empty
  * or contains whitespaces only.
  * 

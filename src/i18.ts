@@ -46,6 +46,10 @@ export interface Translation {
     },
     deploy?: {
         after?: {
+            button?: {
+                text?: string;
+                tooltip?: string;
+            },
             failed?: string;
         },
         before?: {

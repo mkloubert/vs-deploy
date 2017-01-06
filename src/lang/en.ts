@@ -39,6 +39,10 @@ export const translation: Translation = {
     },
     deploy: {
         after: {
+            button: {
+                text: "Deploy: {0}",
+                tooltip: "Click here to show output...",
+            },
             failed: "Could not invoke 'after deployed' operations: {0}",
         },
         before: {

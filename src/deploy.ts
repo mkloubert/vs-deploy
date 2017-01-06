@@ -41,6 +41,10 @@ import * as vscode from 'vscode';
  */
 export class Deployer {
     /**
+     * Information button that is shown after a deployment has been finished.
+     */
+    protected _AFTER_DEPLOYMENT_STATUS_ITEM: vscode.StatusBarItem;
+    /**
      * Stores the current configuration.
      */
     protected _config: deploy_contracts.DeployConfiguration;
@@ -97,6 +101,10 @@ export class Deployer {
 
         this._QUICK_DEPLOY_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);        
         this._QUICK_DEPLOY_STATUS_ITEM.command = 'extension.deploy.quickDeploy';
+
+        this._AFTER_DEPLOYMENT_STATUS_ITEM = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);        
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.command = 'extension.deploy.openOutputAfterDeploment';
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = 'Click here to open output...';
     }
 
     /**
@@ -391,6 +399,8 @@ export class Deployer {
             };
 
             try {
+                me.hideAfterDeploymentStatusBarItem();
+
                 let type = deploy_helpers.parseTargetType(target.type);
 
                 let matchIngPlugins = this.plugins.filter(x => {
@@ -428,6 +438,9 @@ export class Deployer {
                             statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
                             let showResult = (err?: any, canceled?: boolean) => {
+                                let afterDeployButtonMsg = 'Deployment finished.';
+                                let afterDeployButtonColor: string;
+
                                 canceled = deploy_helpers.toBooleanSafe(canceled);
                                 try {
                                     me.resetIsCancelling();
@@ -436,12 +449,13 @@ export class Deployer {
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
+                                    let resultMsg;
                                     if (err) {
                                         if (canceled) {
-                                            me.outputChannel.appendLine(i18.t('deploy.canceledWithErrors'));
+                                            resultMsg = i18.t('deploy.canceledWithErrors');
                                         }
                                         else {
-                                            me.outputChannel.appendLine(i18.t('deploy.finishedWithErrors'));
+                                            resultMsg = i18.t('deploy.finishedWithErrors');
                                         }
                                     }
                                     else {
@@ -455,23 +469,37 @@ export class Deployer {
                                         }
 
                                         if (canceled) {
-                                            me.outputChannel.appendLine(i18.t('deploy.canceled'));
+                                            resultMsg = i18.t('deploy.canceled');
                                         }
                                         else {
-                                            me.outputChannel.appendLine(i18.t('deploy.finished'));
+                                            resultMsg = i18.t('deploy.finished');
 
                                             me.afterDeployment([ file ], target).catch((err) => {
                                                 vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
                                             });
                                         }
                                     }
+
+                                    afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
+                                                                                                  0, err ? 1 : 0);
+
+                                    if (resultMsg) {
+                                        afterDeployButtonMsg = resultMsg;
+
+                                        me.outputChannel.appendLine(resultMsg);
+                                    }
                                 }
                                 finally {
+                                    me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
+                                                                        afterDeployButtonColor);
+
                                     completed(err, canceled);
                                 }
                             };
 
                             try {
+                                statusBarItem.show();
+
                                 currentPlugin.deployFile(file, target, {
                                     onBeforeDeploy: (sender, e) => {
                                         let destination = deploy_helpers.toStringSafe(e.destination); 
@@ -497,7 +525,6 @@ export class Deployer {
                                         }
 
                                         statusBarItem.text = i18.t('deploy.button.text');
-                                        statusBarItem.show();
                                     },
 
                                     onCompleted: (sender, e) => {
@@ -771,6 +798,8 @@ export class Deployer {
             };
 
             try {
+                me.hideAfterDeploymentStatusBarItem();
+
                 let type = deploy_helpers.parseTargetType(target.type);
 
                 let matchIngPlugins = this.plugins.filter(x => {
@@ -805,6 +834,9 @@ export class Deployer {
                             let failed: string[] = [];
                             let succeeded: string[] = [];
                             let showResult = (err?: any, canceled?: boolean) => {
+                                let afterDeployButtonMsg = 'Deployment finished.';
+                                let afterDeployButtonColor: string;
+
                                 canceled = deploy_helpers.toBooleanSafe(canceled);
                                 try {
                                     me.resetIsCancelling();
@@ -866,28 +898,39 @@ export class Deployer {
                                         }
                                     }
 
+                                    let resultMsg: string;
+                                    afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
+                                                                                                  succeeded.length, failed.length);
                                     if (err || failed.length > 0) {
                                         if (canceled) {
-                                            me.outputChannel.appendLine(i18.t('deploy.canceledWithErrors'));
+                                            resultMsg = i18.t('deploy.canceledWithErrors');
                                         }
                                         else {
-                                            me.outputChannel.appendLine(i18.t('deploy.finishedWithErrors'));
+                                            resultMsg = i18.t('deploy.finishedWithErrors');
                                         }
                                     }
                                     else {
                                         if (canceled) {
-                                            me.outputChannel.appendLine(i18.t('deploy.canceled'));
+                                            resultMsg = i18.t('deploy.canceled');
                                         }
                                         else {
-                                            me.outputChannel.appendLine(i18.t('deploy.finished'));
+                                            resultMsg = i18.t('deploy.finished');
 
                                             me.afterDeployment(files, target).catch((err) => {
                                                 vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
                                             });
                                         }
                                     }
+
+                                    if (resultMsg) {
+                                        afterDeployButtonMsg = resultMsg;
+
+                                        me.outputChannel.appendLine(resultMsg);
+                                    }
                                 }
                                 finally {
+                                    me.showStatusBarItemAfterDeployment(afterDeployButtonMsg, afterDeployButtonColor);
+
                                     completed(err, canceled);
                                 }
                             };
@@ -1359,6 +1402,13 @@ export class Deployer {
                 completed(e);
             }
         });
+    }
+
+    /**
+     * Hides the 'after deploy' status bar item.
+     */
+    public hideAfterDeploymentStatusBarItem() {
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.hide();
     }
 
     /**
@@ -2259,6 +2309,38 @@ export class Deployer {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Action to open the output after an deployment.
+     */
+    public openOutputAfterDeploment() {
+        this.hideAfterDeploymentStatusBarItem();
+        this.outputChannel.show();
+    }
+
+    /**
+     * Shows the 'after deploy' status bar item based of the current settings.
+     * 
+     * @param {string} text The text for the item.
+     * @param {string} [color] The custom color to use.
+     */
+    protected showStatusBarItemAfterDeployment(text: string, color?: string) {
+        if (deploy_helpers.isEmptyString(color)) {
+            color = '#ffffff';
+        }
+
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.color = color;
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.text = i18.t('deploy.after.button.text', text);
+        this._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = i18.t('deploy.after.button.tooltip');
+
+        let cfg = this.config;
+        if (deploy_helpers.toBooleanSafe(cfg.showDeployResultInStatusBar)) {
+            this._AFTER_DEPLOYMENT_STATUS_ITEM.show();
+        }
+        else {
+            this.hideAfterDeploymentStatusBarItem();
         }
     }
 }

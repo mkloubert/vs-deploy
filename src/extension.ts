@@ -118,6 +118,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // open output window after deployment
+    let openOutputAfterDeploment = vscode.commands.registerCommand('extension.deploy.openOutputAfterDeploment', () => {
+        try {
+            deployer.openOutputAfterDeploment();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY OPEN OUTPUT ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
@@ -125,7 +135,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(deploy, deployFileOrFolder,
                                listen,
-                               cancelDeploy, quickDeploy);
+                               cancelDeploy, quickDeploy,
+                               openOutputAfterDeploment);
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();

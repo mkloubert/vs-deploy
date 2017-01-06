@@ -198,12 +198,12 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
                 }
             },
 
-            onFileCompleted: (sender, e) => {
+            onCompleted: (sender, e) => {
                 if (opts.onCompleted) {
                     opts.onCompleted(sender, {
                         canceled: e.canceled,
                         error: e.error,
-                        file: e.file,
+                        file: file,
                         target: e.target,
                     });
                 }

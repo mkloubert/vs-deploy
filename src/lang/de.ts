@@ -39,6 +39,10 @@ export const translation: Translation = {
     },
     deploy: {
         after: {
+            button: {
+                text: "Bereitstellen: {0}",
+                tooltip: "Hier klicken, um die Ausgabe zu öffnen...",
+            },
             failed: 'Fehler beim Ausführen der Aufgaben, die NACH dem Bereitstellen ausgeführt werden sollen: {0}',
         },
         before: {

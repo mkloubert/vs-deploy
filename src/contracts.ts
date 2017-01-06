@@ -318,6 +318,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     packages?: DeployPackage[];
     /**
+     * Show an item in the status bar after deployment or not.
+     */
+    showDeployResultInStatusBar?: boolean;
+    /**
      * Indicates if an info popup / notification should be displayed after a successful deployment or not.
      */
     showPopupOnSuccess?: boolean;

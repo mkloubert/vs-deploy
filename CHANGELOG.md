@@ -1,8 +1,13 @@
 # Change Log (vs-deploy)
 
+# 4.18.0 (January 6th, 2017; improved deployment)
+
+* add [showDeployResultInStatusBar](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting that can display a button in the status bar after deployment has been finished
+
+
 # 4.17.0 (January 6th, 2017; full IntelliSense support for settings.json)
 
-* completed "IntelliSense" support for `settings.json` file, especially for ['beforeDeploy' and 'deploy' properties](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) in [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) 
+* completed "IntelliSense" support for `settings.json` file, especially for ['beforeDeploy' and 'deploy' properties](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) in [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-)  
 
 
 ## 4.16.0 (January 5th, 2017; deploy on change)
