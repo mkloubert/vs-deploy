@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+# 4.17.0 (January 6th, 2017; full IntelliSense support for settings.json)
+
+* completed "IntelliSense" support for `settings.json` file, especially for ['beforeDeploy' and 'deploy' properties](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) in [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) 
+
+
 ## 4.16.0 (January 5th, 2017; deploy on change)
 
 * can define files that will be [deployed on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change)
