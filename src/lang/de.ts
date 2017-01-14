@@ -57,7 +57,6 @@ export const translation: Translation = {
         canceledWithErrors: 'Abgebrochen mit Fehlern!',
         cancelling: 'Breche das Bereitstellen ab...',
         file: {
-            alreadyStarted: 'Sie haben schon einen Bereitstellungs-Vorgang für {0:trim,surround} gestartet! Möchten Sie die Aktion dennoch durchführen?',
             deploying: 'Stelle Datei {0:trim,surround}{1:trim,leading_space} bereit... ',
             deployingWithDestination: 'Stelle Datei {0:trim,surround} in {1:trim,surround}{2:trim,leading_space} bereit... ',
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',

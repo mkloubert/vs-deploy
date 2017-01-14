@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.20.0 (January 14th, 2017; warning if already running)
+
+* removed warn popups for single files, that are being deployed several times
+
+
 ## 4.19.0 (January 6th, 2017; warning if already running)
 
 * now showing popup if a deployment is currently running, to prevent running deployments several times

@@ -57,7 +57,6 @@ export const translation: Translation = {
         canceledWithErrors: 'Canceled with errors!',
         cancelling: 'Cancelling deployment...',
         file: {
-            alreadyStarted: 'You have already started a deployment of {0:trim,surround}! Do you really want to start this operation?',
             deploying: 'Deploying file {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Deploying file {0:trim,surround} to {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Could not deploy file {0:trim,surround}: {1}',

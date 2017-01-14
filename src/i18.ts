@@ -64,7 +64,6 @@ export interface Translation {
         canceledWithErrors?: string;
         cancelling?: string;
         file?: {
-            alreadyStarted?: string;
             deploying?: string;
             deployingWithDestination?: string;
             failed?: string;

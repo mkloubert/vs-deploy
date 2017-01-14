@@ -8,4 +8,5 @@ src/**
 .gitignore
 .npmignore
 tsconfig.json
-pushall.sh
+/pushall.sh
+/typedoc.cmd
