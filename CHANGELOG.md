@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.21.0 (January 14th, 2017; (S)FTP improvements)
+
+* improved speed when deploying to [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) or [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) servers
+
+
 ## 4.20.0 (January 14th, 2017; warning if already running)
 
 * removed warn popups for single files, that are being deployed several times

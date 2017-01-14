@@ -42,6 +42,11 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
     secure?: boolean;
 }
 
+interface FTPContext {
+    cachedRemoteDirectories: any;
+    connection: any;
+}
+
 function getDirFromTarget(target: DeployTargetFTP): string {
     let dir = deploy_helpers.toStringSafe(target.dir);
     if (!dir) {
@@ -55,18 +60,25 @@ function toFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
-class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
-    protected createContext(target: DeployTargetFTP): Promise<deploy_objects.DeployPluginContextWrapper<any>> {
-        return new Promise<deploy_objects.DeployPluginContextWrapper<any>>(((resolve, reject) => {
+class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
+    protected createContext(target: DeployTargetFTP): Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>> {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>(((resolve, reject) => {
             let completed = (err: any, conn?: any) => {
                 if (err) {
                     reject(err);
                 }
                 else {
+                    let ctx: FTPContext = {
+                        cachedRemoteDirectories: {},
+                        connection: conn,
+                    };
+
                     let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
-                        context: conn,
+                        context: ctx,
                         destroy: function(): Promise<any> {
                             return new Promise<any>((resolve2, reject2) => {
+                                delete ctx.cachedRemoteDirectories;
+
                                 try {
                                     conn.end();
 
@@ -130,7 +142,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         }));
     }
 
-    protected deployFileWithContext(conn: any,
+    protected deployFileWithContext(ctx: FTPContext,
                                     file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
         
@@ -161,14 +173,18 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
         let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
         let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
-        let uploadFile = () => {
+        let uploadFile = (initDirCache?: boolean) => {
             if (me.context.isCancelling()) {
                 completed(null, true);  // cancellation requested
                 return;
             }
 
+            if (deploy_helpers.toBooleanSafe(initDirCache)) {
+                ctx.cachedRemoteDirectories[targetDirectory] = [];
+            }
+
             try {
-                conn.put(file, targetFile, (err) => {
+                ctx.connection.put(file, targetFile, (err) => {
                     completed(err);
                 });
             }
@@ -185,29 +201,34 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<any> {
             });
         }
 
-        conn.cwd(targetDirectory, (err) => {
-            if (me.context.isCancelling()) {
-                completed(null, true);  // cancellation requested
-                return;
-            }
+        if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
+            ctx.connection.cwd(targetDirectory, (err) => {
+                if (me.context.isCancelling()) {
+                    completed(null, true);  // cancellation requested
+                    return;
+                }
 
-            if (err) {
-                // directory not found
-                // try to create...
+                if (err) {
+                    // directory not found
+                    // try to create...
 
-                conn.mkdir(targetDirectory, true, (err) => {
-                    if (err) {
-                        completed(err);
-                        return;
-                    }
+                    ctx.connection.mkdir(targetDirectory, true, (err) => {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
 
-                    uploadFile();
-                });
-            }
-            else {
-                uploadFile();
-            }
-        });
+                        uploadFile(true);
+                    });
+                }
+                else {
+                    uploadFile(true);
+                }
+            });
+        }
+        else {
+            uploadFile();
+        }
     }
 
     public info(): deploy_contracts.DeployPluginInfo {
