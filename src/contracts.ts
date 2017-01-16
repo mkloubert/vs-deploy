@@ -243,6 +243,14 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     disableNewVersionPopups?: boolean;
     /**
+     * Display loaded plugins in output window or not.
+     */
+    displayLoadedPlugins?: boolean;
+    /**
+     * Display network information in output window or not.
+     */
+    displayNetworkInfo?: boolean;
+    /**
      * Defines an object that contains global values and objects, categorized by its properties.
      */
     globals?: GlobalVariables;

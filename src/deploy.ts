@@ -1045,9 +1045,17 @@ export class Deployer {
 
     /**
      * Displays information about the network of this machine.
+     * 
+     * @param {boolean} [force] Force displaying information or not.
      */
-    public displayNetworkInfo() {
+    public displayNetworkInfo(force = false) {
         let me = this;
+
+        if (!force) {
+            if (!deploy_helpers.toBooleanSafe(me.config.displayNetworkInfo, true)) {
+                return;
+            }
+        }
 
         try {
             this.outputChannel.appendLine(i18.t('network.hostname', this.name));
@@ -2058,8 +2066,10 @@ export class Deployer {
 
     /**
      * Reloads plugins.
+     * 
+     * @param {boolean} [forceDisplay] Force displaying loaded plugins or not.
      */
-    public reloadPlugins() {
+    public reloadPlugins(forceDisplay = false) {
         let me = this;
 
         try {
@@ -2200,31 +2210,35 @@ export class Deployer {
 
             this._plugins = loadedPlugins;
 
-            if (loadedPlugins.length > 0) {
-                loadedPlugins.forEach(x => {
-                    try {
-                        me.outputChannel.append(`- ${x.__file}`);
-                    }
-                    catch (e) {
-                        me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(3)', e));
-                    }
+            if (forceDisplay || deploy_helpers.toBooleanSafe(this.config.displayLoadedPlugins, true)) {
+                // display loaded plugins
 
-                    me.outputChannel.appendLine('');
-                });
+                if (loadedPlugins.length > 0) {
+                    loadedPlugins.forEach(x => {
+                        try {
+                            me.outputChannel.append(`- ${x.__file}`);
+                        }
+                        catch (e) {
+                            me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(3)', e));
+                        }
 
-                me.outputChannel.appendLine('');
-                if (loadedPlugins.length != 1) {
-                    this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', loadedPlugins.length));
+                        me.outputChannel.appendLine('');
+                    });
+
+                    this.outputChannel.appendLine('');
+                    if (loadedPlugins.length != 1) {
+                        this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', loadedPlugins.length));
+                    }
+                    else {
+                        this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.one'));
+                    }
                 }
                 else {
-                    this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.one'));
+                    this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.none'));
                 }
-            }
-            else {
-                this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.none'));
-            }
 
-            this.outputChannel.appendLine('');
+                this.outputChannel.appendLine('');
+            }
         }
         catch (e) {
             vscode.window.showErrorMessage(i18.t('__plugins.reload.failed', e));

@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 4.22.0 (January 16th, 2017; display loaded plugins and network info)
+
+* added `displayLoadedPlugins` and `displayNetworkInfo` [settings](https://github.com/mkloubert/vs-deploy/wiki#settings--)
+
+
 ## 4.21.0 (January 14th, 2017; (S)FTP improvements)
 
 * improved speed when deploying to [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) or [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) servers
