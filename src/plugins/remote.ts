@@ -265,7 +265,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                 };
 
                 transformer({
-                    context: transformer,
+                    context: transformCtx,
                     data: data,
                     mode: deploy_contracts.DataTransformerMode.Transform,
                     options: target.transformerOptions,
