@@ -258,7 +258,11 @@ export class Deployer extends Events.EventEmitter {
         this.outputChannel.appendLine(i18.t('deploy.cancelling'));
 
         try {
-            this.emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+            let eventArgs: deploy_contracts.EventArguments = {
+            };
+
+            this.emit(deploy_contracts.EVENT_CANCEL_DEPLOY,
+                      this, eventArgs);
         }
         catch (e) {
             this.log(i18.t('errors.withCategory', 'Deployer.cancelDeployment()', e));
@@ -1876,6 +1880,15 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
+     * Action to open the output after an deployment.
+     */
+    public openOutputAfterDeploment() {
+        this.hideAfterDeploymentStatusBarItem();
+
+        this.outputChannel.show();
+    }
+
+    /**
      * Gets the global output channel.
      */
     public get outputChannel(): vscode.OutputChannel {
@@ -2156,12 +2169,21 @@ export class Deployer extends Events.EventEmitter {
 
                                             return this;
                                         },
-                                        isCancelling: function() {
-                                            return me.isCancelling;
-                                        },
                                         log: function(msg) {
                                             me.log(msg);
                                             return this;
+                                        },
+                                        once: function(event, cb) {
+                                            me.once(event, function(sender, e) {
+                                                try {
+                                                    if (cb) {
+                                                        cb(sender, e);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx', e));
+                                                }
+                                            });
                                         },
                                         outputChannel: () => me.outputChannel,
                                         packageFile: () => me.packageFile,
@@ -2378,14 +2400,6 @@ export class Deployer extends Events.EventEmitter {
                 }
             }
         }
-    }
-
-    /**
-     * Action to open the output after an deployment.
-     */
-    public openOutputAfterDeploment() {
-        this.hideAfterDeploymentStatusBarItem();
-        this.outputChannel.show();
     }
 
     /**

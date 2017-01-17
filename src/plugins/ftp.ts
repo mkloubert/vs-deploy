@@ -146,10 +146,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                                     file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
         
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -157,77 +158,79 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativeFilePath) {
-            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-            return;
-        }
-
-        let dir = getDirFromTarget(target);
-
-        let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
-        let targetDirectory = toFTPPath(Path.dirname(targetFile));
-
-        let uploadFile = (initDirCache?: boolean) => {
-            if (me.context.isCancelling()) {
-                completed(null, true);  // cancellation requested
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
             }
 
-            if (deploy_helpers.toBooleanSafe(initDirCache)) {
-                ctx.cachedRemoteDirectories[targetDirectory] = [];
-            }
+            let dir = getDirFromTarget(target);
 
-            try {
-                ctx.connection.put(file, targetFile, (err) => {
-                    completed(err);
-                });
-            }
-            catch (e) {
-                completed(e);
-            }
-        };
+            let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
+            let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: targetDirectory,
-                file: file,
-                target: target,
-            });
-        }
-
-        if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
-            ctx.connection.cwd(targetDirectory, (err) => {
-                if (me.context.isCancelling()) {
-                    completed(null, true);  // cancellation requested
+            let uploadFile = (initDirCache?: boolean) => {
+                if (hasCanceled) {
+                    completed();  // cancellation requested
                     return;
                 }
 
-                if (err) {
-                    // directory not found
-                    // try to create...
+                if (deploy_helpers.toBooleanSafe(initDirCache)) {
+                    ctx.cachedRemoteDirectories[targetDirectory] = [];
+                }
 
-                    ctx.connection.mkdir(targetDirectory, true, (err) => {
-                        if (err) {
-                            completed(err);
-                            return;
-                        }
-
-                        uploadFile(true);
+                try {
+                    ctx.connection.put(file, targetFile, (err) => {
+                        completed(err);
                     });
                 }
-                else {
-                    uploadFile(true);
+                catch (e) {
+                    completed(e);
                 }
-            });
-        }
-        else {
-            uploadFile();
+            };
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
+                ctx.connection.cwd(targetDirectory, (err) => {
+                    if (hasCanceled) {
+                        completed();  // cancellation requested
+                        return;
+                    }
+
+                    if (err) {
+                        // directory not found
+                        // try to create...
+
+                        ctx.connection.mkdir(targetDirectory, true, (err) => {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
+
+                            uploadFile(true);
+                        });
+                    }
+                    else {
+                        uploadFile(true);
+                    }
+                });
+            }
+            else {
+                uploadFile();
+            }
         }
     }
 

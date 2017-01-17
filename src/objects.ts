@@ -93,84 +93,99 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
             opts = {};
         }
 
+        let hasCanceled = false;
         let filesTodo = files.map(x => x);
-        let completed = (err?: any, canceled?: boolean) => {
+        let completed = (err?: any) => {
             filesTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-        
-        try {
-            let deployNextFile: () => void;
+        else {
+            try {
+                let deployNextFile: () => void;
 
-            let fileCompleted = function(sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) {
-                try {
-                    if (opts.onFileCompleted) {
-                        opts.onFileCompleted(sender, e);
-                    }
-
-                    if (deploy_helpers.toBooleanSafe(e.canceled)) {
-                        completed(null, true);  // cancellation requested
-                    }
-                    else {
-                        deployNextFile();
-                    }
-                }
-                catch (err) {
-                    me.context.log(i18.t('errors.withCategory',
-                                         'DeployPluginBase.deployWorkspace(1)', err));
-                }
-            };
-
-            deployNextFile = () => {
-                if (filesTodo.length < 1) {
-                    completed();
-                    return;
-                }
-
-                let f = filesTodo.shift();
-                if (!f) {
-                    completed();
-                    return;
-                }
-                
-                try {
-                    me.deployFile(f, target, {
-                        onBeforeDeploy: (sender, e) => {
-                            if (opts.onBeforeDeployFile) {
-                                opts.onBeforeDeployFile(sender, e);
-                            }
-                        },
-                        onCompleted: (sender, e) => {
-                            fileCompleted(sender, e);
+                let fileCompleted = function(sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) {
+                    try {
+                        if (opts.onFileCompleted) {
+                            opts.onFileCompleted(sender, e);
                         }
-                    });
-                }
-                catch (e) {
-                    fileCompleted(me, {
-                        error: e,
-                        file: f,
-                        target: target,
-                    });
-                }
-            };
 
-            deployNextFile();
+                        hasCanceled = hasCanceled || deploy_helpers.toBooleanSafe(e.canceled);
+                        if (hasCanceled) {
+                            completed();  // cancellation requested
+                        }
+                        else {
+                            deployNextFile();
+                        }
+                    }
+                    catch (err) {
+                        me.context.log(i18.t('errors.withCategory',
+                                            'DeployPluginBase.deployWorkspace(1)', err));
+                    }
+                };
+
+                deployNextFile = () => {
+                    if (filesTodo.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    let f = filesTodo.shift();
+                    if (!f) {
+                        completed();
+                        return;
+                    }
+                    
+                    try {
+                        me.deployFile(f, target, {
+                            onBeforeDeploy: (sender, e) => {
+                                if (opts.onBeforeDeployFile) {
+                                    opts.onBeforeDeployFile(sender, e);
+                                }
+                            },
+                            onCompleted: (sender, e) => {
+                                fileCompleted(sender, e);
+                            }
+                        });
+                    }
+                    catch (e) {
+                        fileCompleted(me, {
+                            error: e,
+                            file: f,
+                            target: target,
+                        });
+                    }
+                };
+
+                deployNextFile();
+            }
+            catch (e) {
+                completed(e);
+            }
         }
-        catch (e) {
-            completed(e);
-        }
+    }
+
+    /**
+     * Registers for a callback for a 'cancel' event that is called once.
+     * 
+     * @param {deploy_contracts.EventHandler} callback The callback to register.
+     */
+    protected onCancelling(callback: deploy_contracts.EventHandler) {
+        this.context
+            .once(deploy_contracts.EVENT_CANCEL_DEPLOY,
+                  callback);
     }
 }
 
@@ -252,118 +267,122 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         
         // report that whole operation has been completed
         let filesTodo = files.map(x => x);  // create "TODO"" list
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             filesTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        // destroy context before raise
-        // "completed" event
-        let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any, canceled?: boolean) => {
-            try {
-                if (wrapper.destroy) {
-                    // destroy context
-
-                    wrapper.destroy().then(() => {
-                        completed(completedErr, canceled);
-                    }).catch((e) => {
-                        me.context.log(i18.t('errors.withCategory',
-                                             'DeployPluginWithContextBase.deployWorkspace(2)', e));
-
-                        completed(completedErr, canceled);
-                    });
-                }
-                else {
-                    completed(completedErr, canceled);
-                }
-            }
-            catch (e) {
-                me.context.log(i18.t('errors.withCategory',
-                                     'DeployPluginWithContextBase.deployWorkspace(1)', e));
-
-                completed(completedErr, canceled);
-            }
-        };
-
-        try {
-            // create context...
-            this.createContext(target, files).then((wrapper) => {
+        else {
+            // destroy context before raise
+            // "completed" event
+            let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any) => {
                 try {
-                    let deployNext: () => void;
+                    if (wrapper.destroy) {
+                        // destroy context
 
-                    // report that single file
-                    // deployment has been completed
-                    let fileCompleted = function(file: string, err?: any, canceled?: boolean) {
-                        if (opts.onFileCompleted) {
-                            opts.onFileCompleted(me, {
-                                canceled: canceled,
-                                error: err,
-                                file: file,
-                                target: target,
-                            });
-                        }
+                        wrapper.destroy().then(() => {
+                            completed(completedErr);
+                        }).catch((e) => {
+                            me.context.log(i18.t('errors.withCategory',
+                                                'DeployPluginWithContextBase.deployWorkspace(2)', e));
 
-                        if (deploy_helpers.toBooleanSafe(canceled)) {
-                            destroyContext(wrapper, null, true);
-                        }
-                        else {
-                            deployNext();  // deploy next
-                        }
-                    };
-
-                    deployNext = () => {
-                        if (filesTodo.length < 1) {
-                            destroyContext(wrapper);
-                            return;
-                        }
-
-                        let currentFile = filesTodo.shift();
-                        try {
-                            me.deployFileWithContext(wrapper.context,
-                                                     currentFile, target, {
-                                                         onBeforeDeploy: (sender, e) => {
-                                                             if (opts.onBeforeDeployFile) {
-                                                                 opts.onBeforeDeployFile(sender, {
-                                                                     destination: e.destination,
-                                                                     file: e.file,
-                                                                     target: e.target,
-                                                                 });
-                                                             }
-                                                         },
-
-                                                         onCompleted: (sender, e) => {
-                                                             fileCompleted(e.file, e.error, e.canceled);
-                                                         }
-                                                     });
-                        }
-                        catch (e) {
-                            fileCompleted(currentFile, e); // deploy error
-                        }
-                    };
-
-                    deployNext();  // start with first file
+                            completed(completedErr);
+                        });
+                    }
+                    else {
+                        completed(completedErr);
+                    }
                 }
                 catch (e) {
-                    destroyContext(wrapper, e);  // global deploy error
+                    me.context.log(i18.t('errors.withCategory',
+                                        'DeployPluginWithContextBase.deployWorkspace(1)', e));
+
+                    completed(completedErr);
                 }
-            }).catch((err) => {
-                completed(err);  // could not create context
-            });
-        }
-        catch (e) {
-            completed(e);  // global error
+            };
+
+            try {
+                // create context...
+                this.createContext(target, files).then((wrapper) => {
+                    try {
+                        let deployNext: () => void;
+
+                        // report that single file
+                        // deployment has been completed
+                        let fileCompleted = function(file: string, err?: any, canceled?: boolean) {
+                            if (opts.onFileCompleted) {
+                                opts.onFileCompleted(me, {
+                                    canceled: canceled,
+                                    error: err,
+                                    file: file,
+                                    target: target,
+                                });
+                            }
+
+                            hasCanceled = hasCanceled || deploy_helpers.toBooleanSafe(canceled);
+                            if (hasCanceled) {
+                                destroyContext(wrapper, null);
+                            }
+                            else {
+                                deployNext();  // deploy next
+                            }
+                        };
+
+                        deployNext = () => {
+                            if (filesTodo.length < 1) {
+                                destroyContext(wrapper);
+                                return;
+                            }
+
+                            let currentFile = filesTodo.shift();
+                            try {
+                                me.deployFileWithContext(wrapper.context,
+                                                        currentFile, target, {
+                                                            onBeforeDeploy: (sender, e) => {
+                                                                if (opts.onBeforeDeployFile) {
+                                                                    opts.onBeforeDeployFile(sender, {
+                                                                        destination: e.destination,
+                                                                        file: e.file,
+                                                                        target: e.target,
+                                                                    });
+                                                                }
+                                                            },
+
+                                                            onCompleted: (sender, e) => {
+                                                                fileCompleted(e.file, e.error, e.canceled);
+                                                            }
+                                                        });
+                            }
+                            catch (e) {
+                                fileCompleted(currentFile, e); // deploy error
+                            }
+                        };
+
+                        deployNext();  // start with first file
+                    }
+                    catch (e) {
+                        destroyContext(wrapper, e);  // global deploy error
+                    }
+                }).catch((err) => {
+                    completed(err);  // could not create context
+                });
+            }
+            catch (e) {
+                completed(e);  // global error
+            }
         }
     }
 }
@@ -404,10 +423,11 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
 
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -415,48 +435,50 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
+        else {
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativePath) {
+                relativePath = file;
+            }
 
-        let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativePath) {
-            relativePath = file;
-        }
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: `zip://${relativePath}`,
+                    file: file,
+                    target: target,
+                });
+            }
 
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: `zip://${relativePath}`,
-                file: file,
-                target: target,
-            });
-        }
-
-        try {
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
-                    return;
-                }
-
-                try {
-                    let zipEntry = (<string>relativePath).trim();
-                    while (0 == zipEntry.indexOf('/')) {
-                        zipEntry = zipEntry.substr(1);
+            try {
+                FS.readFile(file, (err, data) => {
+                    if (err) {
+                        completed(err);
+                        return;
                     }
 
-                    zipFile.file(zipEntry, data);
+                    try {
+                        let zipEntry = (<string>relativePath).trim();
+                        while (0 == zipEntry.indexOf('/')) {
+                            zipEntry = zipEntry.substr(1);
+                        }
 
-                    completed();
-                }
-                catch (e) {
-                    completed(e);
-                }
-            });
-        }
-        catch (e) {
-            completed(e);
+                        zipFile.file(zipEntry, data);
+
+                        completed();
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 
@@ -494,13 +516,14 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
         let ctx = this.createContext(target);
         
+        let hasCanceled = false;
         let targetsTodo = ctx.targets.map(x => x);
-        let completed = (err?: any, canceled?: boolean) => {
+        let completed = (err?: any) => {
             targetsTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     target: target,
                 });
             }
@@ -514,8 +537,8 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
                     return;
                 }
 
-                if (me.context.isCancelling()) {
-                    completed(null, true);
+                if (hasCanceled) {
+                    completed();
                     return;
                 }
 
@@ -535,8 +558,8 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
                         return;
                     }
 
-                    if (me.context.isCancelling()) {
-                        completed(null, true);
+                    if (hasCanceled) {
+                        completed();
                         return;
                     }
 

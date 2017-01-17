@@ -148,107 +148,111 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
         let me = this;
         
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     target: target,
                 });
             }
         };
 
-        if (this.context.isCancelling()) {
-            completed(null, true);
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
+        else {
+            try {
+                let scriptFile = getScriptFile(target);
 
-        try {
-            let scriptFile = getScriptFile(target);
-
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
-            if (false === relativeScriptPath) {
-                relativeScriptPath = scriptFile;
-            }
-
-            let scriptModule = loadScriptModule(scriptFile);
-            if (!scriptModule.pipe) {
-                throw new Error(i18.t('plugins.pipeline.noPipeFunction', relativeScriptPath));
-            }
-
-            let args: PipeArguments = {
-                baseDirectory: opts.baseDirectory,
-                context: me.context,
-                deployOptions: opts,
-                files: files,
-                sender: me,
-                target: target,
-                targetOptions: target.options,
-            };
-
-            scriptModule.pipe(args).then((a) => {
-                if (me.context.isCancelling()) {
-                    completed(null, true);
-                    return;
+                let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
+                if (false === relativeScriptPath) {
+                    relativeScriptPath = scriptFile;
                 }
 
-                a = a || args;
+                let scriptModule = loadScriptModule(scriptFile);
+                if (!scriptModule.pipe) {
+                    throw new Error(i18.t('plugins.pipeline.noPipeFunction', relativeScriptPath));
+                }
 
-                let newFileList = deploy_helpers.asArray(a.files)
-                                                .filter(x => !deploy_helpers.isEmptyString(x));
+                let args: PipeArguments = {
+                    baseDirectory: opts.baseDirectory,
+                    context: me.context,
+                    deployOptions: opts,
+                    files: files,
+                    sender: me,
+                    target: target,
+                    targetOptions: target.options,
+                };
 
-                super.deployWorkspace(newFileList,
-                                      target,
-                                      {
-                                          baseDirectory: a.baseDirectory,
-                                          onBeforeDeployFile: (sender, e) => {
-                                              if (opts.onBeforeDeployFile) {
-                                                  opts.onBeforeDeployFile(sender, {
-                                                      destination: e.destination,
-                                                      file: e.file,
-                                                      target: e.target,
-                                                  });
-                                              }
-                                          },
-                                          onCompleted: (sender, e) => {
-                                              let pipeCompleted = () => {
-                                                  completed(e.error, e.canceled);
-                                              };
+                scriptModule.pipe(args).then((a) => {
+                    if (hasCanceled) {
+                        completed();
+                        return;
+                    }
 
-                                              try {
-                                                  if (scriptModule.onPipeCompleted) {
-                                                      scriptModule.onPipeCompleted(a, e.error).then(() => {
-                                                          pipeCompleted();
-                                                      }).catch((err) => {
-                                                          me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));
+                    a = a || args;
 
-                                                          pipeCompleted();
-                                                      });
-                                                  }
-                                                  else {
-                                                      pipeCompleted();
-                                                  }
-                                              }
-                                              catch (ex) {
-                                                  me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
+                    let newFileList = deploy_helpers.asArray(a.files)
+                                                    .filter(x => !deploy_helpers.isEmptyString(x));
 
-                                                  pipeCompleted();
-                                              }
-                                          },
-                                          onFileCompleted: (sender, e) => {
-                                              if (opts.onFileCompleted) {
-                                                  opts.onFileCompleted(sender, {
-                                                      file: e.file,
-                                                      target: e.target,
-                                                  });
-                                              }
-                                          }
-                                      })
-            }).catch((err) => {
-                completed(err);
-            });
-        }
-        catch (e) {
-            completed(e);
+                    super.deployWorkspace(newFileList,
+                                        target,
+                                        {
+                                            baseDirectory: a.baseDirectory,
+                                            onBeforeDeployFile: (sender, e) => {
+                                                if (opts.onBeforeDeployFile) {
+                                                    opts.onBeforeDeployFile(sender, {
+                                                        destination: e.destination,
+                                                        file: e.file,
+                                                        target: e.target,
+                                                    });
+                                                }
+                                            },
+                                            onCompleted: (sender, e) => {
+                                                let pipeCompleted = () => {
+                                                    hasCanceled = e.canceled;
+                                                    completed(e.error);
+                                                };
+
+                                                try {
+                                                    if (scriptModule.onPipeCompleted) {
+                                                        scriptModule.onPipeCompleted(a, e.error).then(() => {
+                                                            pipeCompleted();
+                                                        }).catch((err) => {
+                                                            me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));
+
+                                                            pipeCompleted();
+                                                        });
+                                                    }
+                                                    else {
+                                                        pipeCompleted();
+                                                    }
+                                                }
+                                                catch (ex) {
+                                                    me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
+
+                                                    pipeCompleted();
+                                                }
+                                            },
+                                            onFileCompleted: (sender, e) => {
+                                                if (opts.onFileCompleted) {
+                                                    opts.onFileCompleted(sender, {
+                                                        file: e.file,
+                                                        target: e.target,
+                                                    });
+                                                }
+                                            }
+                                        })
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

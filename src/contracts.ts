@@ -379,10 +379,6 @@ export interface DeployContext {
      */
     info: (msg: any) => DeployContext;
     /**
-     * Returns if a cancellation is requested or not.
-     */
-    isCancelling: () => boolean;
-    /**
      * Logs a message.
      * 
      * @param {any} msg The message to log.
@@ -390,6 +386,14 @@ export interface DeployContext {
      * @chainable
      */
     log: (msg: any) => DeployContext;
+    /**
+     * Registers a callback for an event that is invoked once.
+     * 
+     * @param {string | symbol} event The event.
+     * @param {() => void} callback The callback to register.
+     */
+    once: (event: string | symbol,
+           handler: EventHandler) => void;
     /**
      * Gets the global output channel.
      */
@@ -942,6 +946,20 @@ export interface DeployWorkspaceOptions {
      */
     onFileCompleted?: FileDeployCompletedEventHandler;
 }
+
+/**
+ * Arguments for an event.
+ */
+export interface EventArguments {    
+}
+
+/**
+ * An event handler.
+ * 
+ * @param {any} sender The sending object.
+ * @param {EventArguments} e The arguments for the event.
+ */
+export type EventHandler = (sender: any, e: EventArguments) => void;
 
 /**
  * Arguments for a "file deployed completed" event.

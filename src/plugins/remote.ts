@@ -167,7 +167,8 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         ++ctx.counter;
 
         let allErrors: any[] = [];
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (err) {
                 allErrors.push(err);
             }
@@ -182,7 +183,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -190,217 +191,219 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        // data transformer
-        let transformer: deploy_contracts.DataTransformer;
-        if (target.transformer) {
-            let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
-            if (transformerModule) {
-                transformer = transformerModule.transformData ||
-                              transformerModule.restoreData;
+        else {
+            // data transformer
+            let transformer: deploy_contracts.DataTransformer;
+            if (target.transformer) {
+                let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
+                if (transformerModule) {
+                    transformer = transformerModule.transformData ||
+                                transformerModule.restoreData;
+                }
             }
-        }
-        transformer = deploy_helpers.toDataTransformerSafe(transformer);
+            transformer = deploy_helpers.toDataTransformerSafe(transformer);
 
-        // data transformer
-        // for the whole JSON message
-        let jsonTransformer: deploy_contracts.DataTransformer;
-        if (target.messageTransformer) {
-            let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(target.messageTransformer);
-            if (jsonTransformerModule) {
-                jsonTransformer = jsonTransformerModule.transformData ||
-                                  jsonTransformerModule.restoreData;
+            // data transformer
+            // for the whole JSON message
+            let jsonTransformer: deploy_contracts.DataTransformer;
+            if (target.messageTransformer) {
+                let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(target.messageTransformer);
+                if (jsonTransformerModule) {
+                    jsonTransformer = jsonTransformerModule.transformData ||
+                                    jsonTransformerModule.restoreData;
+                }
             }
-        }
-        jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
+            jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
 
-        try {
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
-
-            while (0 == relativePath.indexOf('/')) {
-                relativePath = relativePath.substr(1);
-            }
-
-            if (!relativePath) {
-                completed(new Error(i18.t('relativePaths.isEmpty', file)));
-                return;
-            }
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: relativePath,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
                 }
 
-                let remoteFile: RemoteFile = {
-                    isFirst: 1 == ctx.counter,
-                    isLast: ctx.counter == ctx.totalCount,
-                    name: <string>relativePath,
-                    nr: ctx.counter,
-                    session: ctx.session,
-                    tag: target.tag,
-                    totalCount: ctx.totalCount,
-                };
+                while (0 == relativePath.indexOf('/')) {
+                    relativePath = relativePath.substr(1);
+                }
 
-                let transformCtx: FileDataTransformerContext = {
-                    file: file,
-                    globals: me.context.globals(),
-                    remoteFile: remoteFile,
-                };
+                if (!relativePath) {
+                    completed(new Error(i18.t('relativePaths.isEmpty', file)));
+                    return;
+                }
 
-                transformer({
-                    context: transformCtx,
-                    data: data,
-                    mode: deploy_contracts.DataTransformerMode.Transform,
-                    options: target.transformerOptions,
-                }).then((transformedFileData) => {
-                    ZLib.gzip(transformedFileData, (err, compressedData) => {
-                        if (err) {
-                            completed(err);
-                            return;
-                        }
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: relativePath,
+                        file: file,
+                        target: target,
+                    });
+                }
 
-                        if (deploy_helpers.isNullOrUndefined(transformCtx.compress)) {
-                            // auto compression
-                            remoteFile.isCompressed = compressedData.length < transformedFileData.length;
-                        }
-                        else {
-                            remoteFile.isCompressed = deploy_helpers.toBooleanSafe(transformCtx.compress);
-                        }
+                FS.readFile(file, (err, data) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
 
-                        let dataToSend = remoteFile.isCompressed ? compressedData : transformedFileData;
+                    let remoteFile: RemoteFile = {
+                        isFirst: 1 == ctx.counter,
+                        isLast: ctx.counter == ctx.totalCount,
+                        name: <string>relativePath,
+                        nr: ctx.counter,
+                        session: ctx.session,
+                        tag: target.tag,
+                        totalCount: ctx.totalCount,
+                    };
 
-                        try {
-                            remoteFile.data = dataToSend.toString('base64');
-                        }
-                        catch (e) {
-                            completed(e);
-                            return;
-                        }
+                    let transformCtx: FileDataTransformerContext = {
+                        file: file,
+                        globals: me.context.globals(),
+                        remoteFile: remoteFile,
+                    };
 
-                        let json: Buffer;
-                        try {
-                            json = new Buffer(JSON.stringify(remoteFile), 'utf8');
-                        }
-                        catch (e) {
-                            completed(e);
-                            return;
-                        }
+                    transformer({
+                        context: transformCtx,
+                        data: data,
+                        mode: deploy_contracts.DataTransformerMode.Transform,
+                        options: target.transformerOptions,
+                    }).then((transformedFileData) => {
+                        ZLib.gzip(transformedFileData, (err, compressedData) => {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
 
-                        let jsonTransformerCtx: MessageTransformerContext = {
-                            file: file,
-                            globals: me.context.globals(),
-                            remoteFile: remoteFile,
-                        };
+                            if (deploy_helpers.isNullOrUndefined(transformCtx.compress)) {
+                                // auto compression
+                                remoteFile.isCompressed = compressedData.length < transformedFileData.length;
+                            }
+                            else {
+                                remoteFile.isCompressed = deploy_helpers.toBooleanSafe(transformCtx.compress);
+                            }
 
-                        jsonTransformer({
-                            context: jsonTransformerCtx,
-                            data: json,
-                            mode: deploy_contracts.DataTransformerMode.Transform,
-                            options: target.messageTransformerOptions,
-                        }).then((transformedJsonData) => {
-                            let hostsTodo = ctx.hosts.map(x => x);
-                            let deployNext: () => void;
-                            deployNext = () => {
-                                if (hostsTodo.length < 1) {
-                                    completed();
-                                    return;
-                                }
+                            let dataToSend = remoteFile.isCompressed ? compressedData : transformedFileData;
 
-                                let h = hostsTodo.pop();
-                                if (!h) {
-                                    completed();
-                                    return;
-                                }
+                            try {
+                                remoteFile.data = dataToSend.toString('base64');
+                            }
+                            catch (e) {
+                                completed(e);
+                                return;
+                            }
 
-                                let hostCompleted = (err?: any) => {
-                                    if (err) {
-                                        allErrors.push(err);
-                                    }
+                            let json: Buffer;
+                            try {
+                                json = new Buffer(JSON.stringify(remoteFile), 'utf8');
+                            }
+                            catch (e) {
+                                completed(e);
+                                return;
+                            }
 
-                                    deployNext();
-                                };
-
-                                try {
-                                    let addr = h;
-                                    let port = deploy_contracts.DEFAULT_PORT;
-                                    
-                                    let separator = h.indexOf(':');
-                                    if (separator > -1) {
-                                        addr = deploy_helpers.toStringSafe(h.substr(0, separator).toLowerCase().trim(),
-                                                                        deploy_contracts.DEFAULT_HOST);
-
-                                        port = parseInt(deploy_helpers.toStringSafe(h.substr(separator + 1).trim(),
-                                                                                    '' + deploy_contracts.DEFAULT_PORT));
-                                    }
-
-                                    let client = new Net.Socket();
-
-                                    client.on('error', (err) => {
-                                        hostCompleted(err);
-                                    });
-
-                                    client.connect(port, addr, (err) => {
-                                        if (err) {
-                                            hostCompleted(err);
-                                            return;
-                                        }
-
-                                        try {
-                                            let dataLength = Buffer.alloc(4);
-                                            dataLength.writeUInt32LE(transformedJsonData.length, 0);
-
-                                            client.write(dataLength);
-                                            client.write(transformedJsonData);
-
-                                            try {
-                                                client.destroy();
-                                            }
-                                            catch (e) {
-                                                me.context.log(i18.t('errors.withCategory',
-                                                                     'RemotePlugin.deployFile().client.connect()', e));
-                                            }
-
-                                            hostCompleted();
-                                        }
-                                        catch (e) {
-                                            hostCompleted(e);
-                                        }
-                                    });
-                                }
-                                catch (e) {
-                                    hostCompleted(e);
-                                }
+                            let jsonTransformerCtx: MessageTransformerContext = {
+                                file: file,
+                                globals: me.context.globals(),
+                                remoteFile: remoteFile,
                             };
 
-                            deployNext();
-                        }).catch((err) => {
-                            completed(err);  // JSON data transformation failed
+                            jsonTransformer({
+                                context: jsonTransformerCtx,
+                                data: json,
+                                mode: deploy_contracts.DataTransformerMode.Transform,
+                                options: target.messageTransformerOptions,
+                            }).then((transformedJsonData) => {
+                                let hostsTodo = ctx.hosts.map(x => x);
+                                let deployNext: () => void;
+                                deployNext = () => {
+                                    if (hostsTodo.length < 1) {
+                                        completed();
+                                        return;
+                                    }
+
+                                    let h = hostsTodo.pop();
+                                    if (!h) {
+                                        completed();
+                                        return;
+                                    }
+
+                                    let hostCompleted = (err?: any) => {
+                                        if (err) {
+                                            allErrors.push(err);
+                                        }
+
+                                        deployNext();
+                                    };
+
+                                    try {
+                                        let addr = h;
+                                        let port = deploy_contracts.DEFAULT_PORT;
+                                        
+                                        let separator = h.indexOf(':');
+                                        if (separator > -1) {
+                                            addr = deploy_helpers.toStringSafe(h.substr(0, separator).toLowerCase().trim(),
+                                                                            deploy_contracts.DEFAULT_HOST);
+
+                                            port = parseInt(deploy_helpers.toStringSafe(h.substr(separator + 1).trim(),
+                                                                                        '' + deploy_contracts.DEFAULT_PORT));
+                                        }
+
+                                        let client = new Net.Socket();
+
+                                        client.on('error', (err) => {
+                                            hostCompleted(err);
+                                        });
+
+                                        client.connect(port, addr, (err) => {
+                                            if (err) {
+                                                hostCompleted(err);
+                                                return;
+                                            }
+
+                                            try {
+                                                let dataLength = Buffer.alloc(4);
+                                                dataLength.writeUInt32LE(transformedJsonData.length, 0);
+
+                                                client.write(dataLength);
+                                                client.write(transformedJsonData);
+
+                                                try {
+                                                    client.destroy();
+                                                }
+                                                catch (e) {
+                                                    me.context.log(i18.t('errors.withCategory',
+                                                                        'RemotePlugin.deployFile().client.connect()', e));
+                                                }
+
+                                                hostCompleted();
+                                            }
+                                            catch (e) {
+                                                hostCompleted(e);
+                                            }
+                                        });
+                                    }
+                                    catch (e) {
+                                        hostCompleted(e);
+                                    }
+                                };
+
+                                deployNext();
+                            }).catch((err) => {
+                                completed(err);  // JSON data transformation failed
+                            });
                         });
+                    }).catch((err) => {
+                        completed(err);  // file data transformation failed
                     });
-                }).catch((err) => {
-                    completed(err);  // file data transformation failed
                 });
-            });
-        }
-        catch (e) {
-            completed(e);
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

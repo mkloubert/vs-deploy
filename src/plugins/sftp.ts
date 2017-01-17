@@ -198,10 +198,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                     file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -209,74 +210,76 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativeFilePath) {
-            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-            return;
-        }
-
-        let dir = getDirFromTarget(target);
-
-        let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
-        let targetDirectory = toSFTPPath(Path.dirname(targetFile));
-
-        // upload the file
-        let uploadFile = (initDirCache?: boolean) => {
-            if (me.context.isCancelling()) {
-                completed(null, true);  // cancellation requested
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
             }
 
-            if (deploy_helpers.toBooleanSafe(initDirCache)) {
-                ctx.cachedRemoteDirectories[targetDirectory] = [];
-            }
+            let dir = getDirFromTarget(target);
 
-            try {
-                ctx.connection.put(file, targetFile).then(() => {
-                    completed();
-                }).catch((err) => {
-                    completed(err);
-                });
-            }
-            catch (e) {
-                completed(e);
-            }
-        };
+            let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
+            let targetDirectory = toSFTPPath(Path.dirname(targetFile));
 
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: targetDirectory,
-                file: file,
-                target: target,
-            });
-        }
-
-        if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
-            // first check if target directory exists
-            ctx.connection.list(targetDirectory).then(() => {
-                uploadFile(true);
-            }).catch((err) => {
-                // no => try to create
-
-                if (me.context.isCancelling()) {
-                    completed(null, true);  // cancellation requested
+            // upload the file
+            let uploadFile = (initDirCache?: boolean) => {
+                if (hasCanceled) {
+                    completed();  // cancellation requested
                     return;
                 }
 
-                ctx.connection.mkdir(targetDirectory, true).then(() => {
+                if (deploy_helpers.toBooleanSafe(initDirCache)) {
+                    ctx.cachedRemoteDirectories[targetDirectory] = [];
+                }
+
+                try {
+                    ctx.connection.put(file, targetFile).then(() => {
+                        completed();
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            };
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
+                // first check if target directory exists
+                ctx.connection.list(targetDirectory).then(() => {
                     uploadFile(true);
                 }).catch((err) => {
-                    completed(err);
+                    // no => try to create
+
+                    if (hasCanceled) {
+                        completed();  // cancellation requested
+                        return;
+                    }
+
+                    ctx.connection.mkdir(targetDirectory, true).then(() => {
+                        uploadFile(true);
+                    }).catch((err) => {
+                        completed(err);
+                    });
                 });
-            });
-        }
-        else {
-            uploadFile();
+            }
+            else {
+                uploadFile();
+            }
         }
     }
 

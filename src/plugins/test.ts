@@ -41,10 +41,11 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -52,37 +53,39 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        try {
-            if (me.context.isCancelling()) {
-                completed(null, true);  // cancellation requested
-                return;
-            }
+        me.onCancelling(() => hasCanceled = true);
 
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: relativePath,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            FS.readFile(file, (err) => {
-                if (err) {
-                    completed(err);
+        if (hasCanceled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
                 }
 
-                completed();
-            });
-        }
-        catch (e) {
-            completed(e);
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: relativePath,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                FS.readFile(file, (err) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
+
+                    completed();
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

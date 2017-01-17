@@ -344,10 +344,11 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                     file: string, target: DeployTargetDropbox, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
         
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -355,113 +356,115 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativeFilePath) {
-            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-            return;
-        }
-
-        let targetFile = toDropboxPath(Path.join(ctx.dir, relativeFilePath));
-        let targetDirectory = toDropboxPath(Path.dirname(targetFile));
-
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: targetDirectory,
-                file: file,
-                target: target,
-            });
-        }
-
-        try {
-            let uploadFile = (data: Buffer) => {
-                try {
-                    let headersToSubmit = {
-                        'Authorization': `Bearer ${ctx.token}`,
-                        'Content-Type': 'application/octet-stream',
-                        'Dropbox-API-Arg': JSON.stringify({
-                            "path": targetFile,
-                            "mode": "overwrite",
-                            "autorename": false,
-                            "mute": false,
-                        }),
-                    };
-
-                    // start the request
-                    let req = HTTPs.request({
-                        headers: headersToSubmit,
-                        host: 'content.dropboxapi.com',
-                        method: 'POST',
-                        path: '/2/files/upload',
-                        port: 443,
-                        protocol: 'https:',
-                    }, (resp) => {
-                        let err: Error;
-
-                        switch (resp.statusCode) {
-                            case 200:
-                                // OK
-                                break;
-
-                            default:
-                                err = new Error(i18.t('plugins.dropbox.unknownResponse',
-                                                      resp.statusCode, 2, resp.statusMessage));
-                                break;
-                        }
-
-                        completed(err);
-                    });
-
-                    req.once('error', (err) => {
-                        if (err) {
-                            completed(err);
-                        }
-                    });
-
-                    // send file content
-                    req.write(data);
-
-                    req.end();
-                }
-                catch (e) {
-                    completed(e);
-                }
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
             }
 
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
-                    return;
+            let targetFile = toDropboxPath(Path.join(ctx.dir, relativeFilePath));
+            let targetDirectory = toDropboxPath(Path.dirname(targetFile));
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            try {
+                let uploadFile = (data: Buffer) => {
+                    try {
+                        let headersToSubmit = {
+                            'Authorization': `Bearer ${ctx.token}`,
+                            'Content-Type': 'application/octet-stream',
+                            'Dropbox-API-Arg': JSON.stringify({
+                                "path": targetFile,
+                                "mode": "overwrite",
+                                "autorename": false,
+                                "mute": false,
+                            }),
+                        };
+
+                        // start the request
+                        let req = HTTPs.request({
+                            headers: headersToSubmit,
+                            host: 'content.dropboxapi.com',
+                            method: 'POST',
+                            path: '/2/files/upload',
+                            port: 443,
+                            protocol: 'https:',
+                        }, (resp) => {
+                            let err: Error;
+
+                            switch (resp.statusCode) {
+                                case 200:
+                                    // OK
+                                    break;
+
+                                default:
+                                    err = new Error(i18.t('plugins.dropbox.unknownResponse',
+                                                        resp.statusCode, 2, resp.statusMessage));
+                                    break;
+                            }
+
+                            completed(err);
+                        });
+
+                        req.once('error', (err) => {
+                            if (err) {
+                                completed(err);
+                            }
+                        });
+
+                        // send file content
+                        req.write(data);
+
+                        req.end();
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
                 }
 
-                try {
-                    let transformerCtx: TransformerContext = {
-                        file: file,
-                        globals: me.context.globals(),
-                    };
-
-                    ctx.transformer({
-                        context: transformerCtx,
-                        data: data,
-                        mode: deploy_contracts.DataTransformerMode.Transform,
-                        options: target.transformerOptions,
-                    }).then((transformedData) => {
-                        uploadFile(transformedData);
-                    }).catch((err) => {
+                FS.readFile(file, (err, data) => {
+                    if (err) {
                         completed(err);
-                    });
-                }
-                catch (e) {
-                    completed(e);
-                }
-            });
-        }
-        catch (e) {
-            completed(e);
+                        return;
+                    }
+
+                    try {
+                        let transformerCtx: TransformerContext = {
+                            file: file,
+                            globals: me.context.globals(),
+                        };
+
+                        ctx.transformer({
+                            context: transformerCtx,
+                            data: data,
+                            mode: deploy_contracts.DataTransformerMode.Transform,
+                            options: target.transformerOptions,
+                        }).then((transformedData) => {
+                            uploadFile(transformedData);
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

@@ -81,10 +81,11 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -92,224 +93,226 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-
-        let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativePath) {
-            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-            return;
-        }
-
-        let url = deploy_helpers.toStringSafe(target.url).trim();
-        if (!url) {
-            url = 'http://localhost';
-        }
-
-        let method = deploy_helpers.toStringSafe(target.method).toUpperCase().trim();
-        if (!method) {
-            method = 'PUT';
-        }
-
-        let headers = target.headers;
-        if (!headers) {
-            headers = {};
-        }
-
-        let user = deploy_helpers.toStringSafe(target.user);
-        if (user) {
-            let pwd = deploy_helpers.toStringSafe(target.password);
-
-            headers['Authorization'] = 'Basic ' + 
-                                       (new Buffer(`${user}:${pwd}`)).toString('base64');
-        }
-
-        let submitFileHeader = deploy_helpers.toBooleanSafe(target.submitFileHeader, false);
-        if (submitFileHeader) {
-            headers['X-vsdeploy-file'] = relativePath;
-        }
-
-        let contentType = deploy_helpers.detectMimeByFilename(file);
-
-        // data transformer
-        let dataTransformer: deploy_contracts.DataTransformer;
-        if (target.transformer) {
-            let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
-            if (transformerModule) {
-                dataTransformer = transformerModule.transformData ||
-                                  transformerModule.restoreData;
-            }
-        }
-        dataTransformer = deploy_helpers.toDataTransformerSafe(dataTransformer);
-
-        try {
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: url,
-                    file: file,
-                    target: target,
-                });
+        else {
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
             }
 
-            // get file info
-            FS.lstat(file, (err, stats) => {
-                if (err) {
-                    completed(err);
-                    return;
+            let url = deploy_helpers.toStringSafe(target.url).trim();
+            if (!url) {
+                url = 'http://localhost';
+            }
+
+            let method = deploy_helpers.toStringSafe(target.method).toUpperCase().trim();
+            if (!method) {
+                method = 'PUT';
+            }
+
+            let headers = target.headers;
+            if (!headers) {
+                headers = {};
+            }
+
+            let user = deploy_helpers.toStringSafe(target.user);
+            if (user) {
+                let pwd = deploy_helpers.toStringSafe(target.password);
+
+                headers['Authorization'] = 'Basic ' + 
+                                        (new Buffer(`${user}:${pwd}`)).toString('base64');
+            }
+
+            let submitFileHeader = deploy_helpers.toBooleanSafe(target.submitFileHeader, false);
+            if (submitFileHeader) {
+                headers['X-vsdeploy-file'] = relativePath;
+            }
+
+            let contentType = deploy_helpers.detectMimeByFilename(file);
+
+            // data transformer
+            let dataTransformer: deploy_contracts.DataTransformer;
+            if (target.transformer) {
+                let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
+                if (transformerModule) {
+                    dataTransformer = transformerModule.transformData ||
+                                    transformerModule.restoreData;
+                }
+            }
+            dataTransformer = deploy_helpers.toDataTransformerSafe(dataTransformer);
+
+            try {
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: url,
+                        file: file,
+                        target: target,
+                    });
                 }
 
-                let creationTime = Moment(stats.birthtime).utc();
-                let lastWriteTime = Moment(stats.mtime).utc();
-            
-                // read file
-                FS.readFile(file, (err, untransformedData) => {
+                // get file info
+                FS.lstat(file, (err, stats) => {
                     if (err) {
                         completed(err);
                         return;
                     }
 
-                    try {
-                        let dataTransformerCtx: DataTransformerContext = {
-                            globals: me.context.globals(),
-                            file: file,
-                            url: url,
-                        };
+                    let creationTime = Moment(stats.birthtime).utc();
+                    let lastWriteTime = Moment(stats.mtime).utc();
+                
+                    // read file
+                    FS.readFile(file, (err, untransformedData) => {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
 
-                        dataTransformer({
-                            context: dataTransformerCtx,
-                            data: untransformedData,
-                            mode: deploy_contracts.DataTransformerMode.Transform,
-                            options: target.transformerOptions,
-                        }).then((dataToSend) => {
-                            let parsePlaceHolders = (str: string, transformer?: (val: any) => string): string => {
-                                if (!transformer) {
-                                    transformer = (s) => deploy_helpers.toStringSafe(s);
-                                }
-
-                                str = deploy_helpers.toStringSafe(str);
-
-                                str = str.replace(/(\$)(\{)(vsdeploy\-date)(\})/i, transformer(now.format(DATE_RFC2822_UTC)));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file)(\})/i, transformer(<string>relativePath));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file\-mime)(\})/i, transformer(contentType));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file\-name)(\})/i, transformer(Path.basename(file)));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file\-size)(\})/i, transformer(dataToSend.length));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-changed)(\})/i, transformer(lastWriteTime.format(DATE_RFC2822_UTC)));
-                                str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-created)(\})/i, transformer(creationTime.format(DATE_RFC2822_UTC)));
-
-                                return deploy_helpers.toStringSafe(str);
+                        try {
+                            let dataTransformerCtx: DataTransformerContext = {
+                                globals: me.context.globals(),
+                                file: file,
+                                url: url,
                             };
 
-                            let targetUrl = URL.parse(parsePlaceHolders(url, (str) => {
-                                return encodeURIComponent(str);
-                            }));
+                            dataTransformer({
+                                context: dataTransformerCtx,
+                                data: untransformedData,
+                                mode: deploy_contracts.DataTransformerMode.Transform,
+                                options: target.transformerOptions,
+                            }).then((dataToSend) => {
+                                let parsePlaceHolders = (str: string, transformer?: (val: any) => string): string => {
+                                    if (!transformer) {
+                                        transformer = (s) => deploy_helpers.toStringSafe(s);
+                                    }
 
-                            let submitContentLength = deploy_helpers.toBooleanSafe(target.submitContentLength, true);
-                            if (submitContentLength) {
-                                headers['Content-length'] = deploy_helpers.toStringSafe(dataToSend.length, '0');
-                            }
+                                    str = deploy_helpers.toStringSafe(str);
 
-                            let submitContentType = deploy_helpers.toBooleanSafe(target.submitContentType, true);
-                            if (submitContentType) {
-                                headers['Content-type'] = contentType;
-                            }
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-date)(\})/i, transformer(now.format(DATE_RFC2822_UTC)));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file)(\})/i, transformer(<string>relativePath));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file\-mime)(\})/i, transformer(contentType));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file\-name)(\})/i, transformer(Path.basename(file)));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file\-size)(\})/i, transformer(dataToSend.length));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-changed)(\})/i, transformer(lastWriteTime.format(DATE_RFC2822_UTC)));
+                                    str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-created)(\})/i, transformer(creationTime.format(DATE_RFC2822_UTC)));
 
-                            let submitDate = deploy_helpers.toBooleanSafe(target.submitDate, true);
-                            if (submitDate) {
-                                headers['Date'] = now.format(DATE_RFC2822_UTC);  // RFC 2822
-                            }
+                                    return deploy_helpers.toStringSafe(str);
+                                };
 
-                            let headersToSubmit = {};
-                            for (let p in headers) {
-                                headersToSubmit[p] = parsePlaceHolders(headers[p]);
-                            }
+                                let targetUrl = URL.parse(parsePlaceHolders(url, (str) => {
+                                    return encodeURIComponent(str);
+                                }));
 
-                            let protocol = deploy_helpers.toStringSafe(targetUrl.protocol).toLowerCase().trim();
-                            if (!protocol) {
-                                protocol = 'http:';
-                            }
+                                let submitContentLength = deploy_helpers.toBooleanSafe(target.submitContentLength, true);
+                                if (submitContentLength) {
+                                    headers['Content-length'] = deploy_helpers.toStringSafe(dataToSend.length, '0');
+                                }
 
-                            let httpModule: any;
-                            switch (protocol) {
-                                case 'http:':
-                                    httpModule = HTTP;
-                                    break;
+                                let submitContentType = deploy_helpers.toBooleanSafe(target.submitContentType, true);
+                                if (submitContentType) {
+                                    headers['Content-type'] = contentType;
+                                }
 
-                                case 'https:':
-                                    httpModule = HTTPs;
-                                    break;
-                            }
+                                let submitDate = deploy_helpers.toBooleanSafe(target.submitDate, true);
+                                if (submitDate) {
+                                    headers['Date'] = now.format(DATE_RFC2822_UTC);  // RFC 2822
+                                }
 
-                            if (!httpModule) {
-                                completed(new Error(i18.t('plugins.http.protocolNotSupported', protocol)));
-                                return;
-                            }
+                                let headersToSubmit = {};
+                                for (let p in headers) {
+                                    headersToSubmit[p] = parsePlaceHolders(headers[p]);
+                                }
 
-                            let hostName = deploy_helpers.toStringSafe(targetUrl.hostname).toLowerCase().trim();
-                            if (!hostName) {
-                                hostName = 'localhost';
-                            }
+                                let protocol = deploy_helpers.toStringSafe(targetUrl.protocol).toLowerCase().trim();
+                                if (!protocol) {
+                                    protocol = 'http:';
+                                }
 
-                            let port = deploy_helpers.toStringSafe(targetUrl.port).trim();
-                            if (!port) {
-                                port = 'http:' == protocol ? '80' : '443';
-                            }
+                                let httpModule: any;
+                                switch (protocol) {
+                                    case 'http:':
+                                        httpModule = HTTP;
+                                        break;
 
-                            // start the request
-                            let req = httpModule.request({
-                                headers: headersToSubmit,
-                                host: hostName,
-                                method: method,
-                                path: targetUrl.path,
-                                port: parseInt(port),
-                                protocol: protocol,
-                            }, (resp) => {
-                                if (!(resp.statusCode > 199 && resp.statusCode < 300)) {
-                                    completed(new Error(`No success: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                    case 'https:':
+                                        httpModule = HTTPs;
+                                        break;
+                                }
+
+                                if (!httpModule) {
+                                    completed(new Error(i18.t('plugins.http.protocolNotSupported', protocol)));
                                     return;
                                 }
 
-                                if (resp.statusCode > 399 && resp.statusCode < 500) {
-                                    completed(new Error(`Client error: [${resp.statusCode}] '${resp.statusMessage}'`));
-                                    return;
+                                let hostName = deploy_helpers.toStringSafe(targetUrl.hostname).toLowerCase().trim();
+                                if (!hostName) {
+                                    hostName = 'localhost';
                                 }
 
-                                if (resp.statusCode > 499 && resp.statusCode < 600) {
-                                    completed(new Error(`Server error: [${resp.statusCode}] '${resp.statusMessage}'`));
-                                    return;
+                                let port = deploy_helpers.toStringSafe(targetUrl.port).trim();
+                                if (!port) {
+                                    port = 'http:' == protocol ? '80' : '443';
                                 }
 
-                                if (resp.statusCode > 599) {
-                                    completed(new Error(`Error: [${resp.statusCode}] '${resp.statusMessage}'`));
-                                    return;
-                                }
+                                // start the request
+                                let req = httpModule.request({
+                                    headers: headersToSubmit,
+                                    host: hostName,
+                                    method: method,
+                                    path: targetUrl.path,
+                                    port: parseInt(port),
+                                    protocol: protocol,
+                                }, (resp) => {
+                                    if (!(resp.statusCode > 199 && resp.statusCode < 300)) {
+                                        completed(new Error(`No success: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                        return;
+                                    }
 
-                                completed();
+                                    if (resp.statusCode > 399 && resp.statusCode < 500) {
+                                        completed(new Error(`Client error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                        return;
+                                    }
+
+                                    if (resp.statusCode > 499 && resp.statusCode < 600) {
+                                        completed(new Error(`Server error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                        return;
+                                    }
+
+                                    if (resp.statusCode > 599) {
+                                        completed(new Error(`Error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                        return;
+                                    }
+
+                                    completed();
+                                });
+
+                                req.once('error', (err) => {
+                                    if (err) {
+                                        completed(err);
+                                    }
+                                });
+
+                                // send file content
+                                req.write(dataToSend);
+
+                                req.end();
+                            }).catch((err) => {
+                                completed(err);
                             });
-
-                            req.once('error', (err) => {
-                                if (err) {
-                                    completed(err);
-                                }
-                            });
-
-                            // send file content
-                            req.write(dataToSend);
-
-                            req.end();
-                        }).catch((err) => {
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    });
                 });
-            });
-        }
-        catch (e) {
-            completed(e);
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

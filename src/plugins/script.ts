@@ -145,10 +145,11 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -156,46 +157,49 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
+        else {
+            try {
+                let scriptFile = getScriptFile(target);
 
-        try {
-            let scriptFile = getScriptFile(target);
-
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
-            if (false === relativeScriptPath) {
-                relativeScriptPath = scriptFile;
-            }
-
-            let scriptModule = loadScriptModule(scriptFile);
-            if (!scriptModule.deployFile) {
-                throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
-            }
-
-            let args: DeployFileArguments = {
-                context: me.context,
-                deployOptions: opts,
-                file: file,
-                sender: me,
-                target: target,
-                targetOptions: target.options,
-            };
-
-            scriptModule.deployFile(args).then((a) => {
-                completed(null, (a || args).canceled);
-            }).catch((err) => {
-                if (!err) {
-                    // define generic error message
-                    err = new Error(i18.t('plugins.script.deployFileFailed', file, relativeScriptPath));
+                let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
+                if (false === relativeScriptPath) {
+                    relativeScriptPath = scriptFile;
                 }
 
-                completed(err);
-            });
-        }
-        catch (e) {
-            completed(e);
+                let scriptModule = loadScriptModule(scriptFile);
+                if (!scriptModule.deployFile) {
+                    throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
+                }
+
+                let args: DeployFileArguments = {
+                    context: me.context,
+                    deployOptions: opts,
+                    file: file,
+                    sender: me,
+                    target: target,
+                    targetOptions: target.options,
+                };
+
+                scriptModule.deployFile(args).then((a) => {
+                    hasCanceled = (a || args).canceled;
+                    completed();
+                }).catch((err) => {
+                    if (!err) {
+                        // define generic error message
+                        err = new Error(i18.t('plugins.script.deployFileFailed', file, relativeScriptPath));
+                    }
+
+                    completed(err);
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 
@@ -206,60 +210,64 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
-        
-        try {
-            let scriptFile = getScriptFile(target);
+        else {
+            try {
+                let scriptFile = getScriptFile(target);
 
-            let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
-            if (false === relativeScriptPath) {
-                relativeScriptPath = scriptFile;
+                let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
+                if (false === relativeScriptPath) {
+                    relativeScriptPath = scriptFile;
+                }
+
+                let scriptModule = loadScriptModule(scriptFile);
+                if (scriptModule.deployWorkspace) {
+                    // custom function
+
+                    let args: DeployWorkspaceArguments = {
+                        context: me.context,
+                        deployOptions: opts,
+                        files: files,
+                        sender: me,
+                        target: target,
+                        targetOptions: target.options,
+                    };
+
+                    scriptModule.deployWorkspace(args).then((a) => {
+                        hasCanceled = (a || args).canceled;
+                        completed(null);
+                    }).catch((err) => {
+                        if (!err) {
+                            // define generic error message
+                            err = new Error(i18.t('plugins.script.deployWorkspaceFailed', relativeScriptPath));
+                        }
+
+                        completed(err);
+                    });
+                }
+                else {
+                    // use default
+                    super.deployWorkspace(files, target, opts);
+                }
             }
-
-            let scriptModule = loadScriptModule(scriptFile);
-            if (scriptModule.deployWorkspace) {
-                // custom function
-
-                let args: DeployWorkspaceArguments = {
-                    context: me.context,
-                    deployOptions: opts,
-                    files: files,
-                    sender: me,
-                    target: target,
-                    targetOptions: target.options,
-                };
-
-                scriptModule.deployWorkspace(args).then((a) => {
-                    completed(null, (a || args).canceled);
-                }).catch((err) => {
-                    if (!err) {
-                        // define generic error message
-                        err = new Error(i18.t('plugins.script.deployWorkspaceFailed', relativeScriptPath));
-                    }
-
-                    completed(err);
-                });
+            catch (e) {
+                completed(e);
             }
-            else {
-                // use default
-                super.deployWorkspace(files, target, opts);
-            }
-        }
-        catch (e) {
-            completed(e);
         }
     }
 

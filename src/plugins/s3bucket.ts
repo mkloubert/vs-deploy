@@ -141,10 +141,11 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                                     file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -152,70 +153,77 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
         };
 
-        try {
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
+        me.onCancelling(() => hasCanceled = true);
 
-            // remove leading '/' chars
-            let bucketKey = relativePath;
-            while (0 == bucketKey.indexOf('/')) {
-                bucketKey = bucketKey.substr(1);
-            }
-            bucketKey = ctx.dir + bucketKey;
-            while (0 == bucketKey.indexOf('/')) {
-                bucketKey = bucketKey.substr(1);
-            }
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: bucketKey,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
+        if (hasCanceled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
                 }
 
-                if (me.context.isCancelling()) {
-                    completed(null, true);
-                    return;
+                // remove leading '/' chars
+                let bucketKey = relativePath;
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
+                }
+                bucketKey = ctx.dir + bucketKey;
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
                 }
 
-                ctx.connection.createBucket(() => {
-                    if (me.context.isCancelling()) {
-                        completed(null, true);
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: bucketKey,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                FS.readFile(file, (err, data) => {
+                    if (err) {
+                        completed(err);
                         return;
                     }
 
-                    let params: any = {
-                        Key: bucketKey,
-                        Body: data,
-                    };
-
-                    if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {
-                        params['ContentType'] = deploy_helpers.detectMimeByFilename(file);
+                    if (hasCanceled) {
+                        completed();
+                        return;
                     }
 
-                    ctx.connection.putObject(params, (err, data) => {
-                        if (err) {
-                            completed(err);
+                    ctx.connection.createBucket(() => {
+                        if (hasCanceled) {
+                            completed();
                             return;
                         }
 
-                        completed();
+                        let params: any = {
+                            Key: bucketKey,
+                            Body: data,
+                        };
+
+                        if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {
+                            params['ContentType'] = deploy_helpers.detectMimeByFilename(file);
+                        }
+
+                        ctx.connection.putObject(params, (err, data) => {
+                            if (err) {
+                                completed(err);
+                                return;
+                            }
+
+                            completed();
+                        });
                     });
                 });
-            });
-        }
-        catch (e) {
-            completed(e);
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

@@ -86,10 +86,11 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                     file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -97,70 +98,77 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             }
         };
 
-        try {
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
+        me.onCancelling(() => hasCanceled = true);
 
-            // remove leading '/' chars
-            let blob = relativePath;
-            while (0 == blob.indexOf('/')) {
-                blob = blob.substr(1);
-            }
-            blob = ctx.dir + blob;
-            while (0 == blob.indexOf('/')) {
-                blob = blob.substr(1);
-            }
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: blob,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
+        if (hasCanceled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
                 }
 
-                if (me.context.isCancelling()) {
-                    completed(null, true);
-                    return;
+                // remove leading '/' chars
+                let blob = relativePath;
+                while (0 == blob.indexOf('/')) {
+                    blob = blob.substr(1);
+                }
+                blob = ctx.dir + blob;
+                while (0 == blob.indexOf('/')) {
+                    blob = blob.substr(1);
                 }
 
-                let accessLevel = deploy_helpers.toStringSafe(target.publicAccessLevel);
-                if (deploy_helpers.isEmptyString(accessLevel)) {
-                    accessLevel = 'blob';
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: blob,
+                        file: file,
+                        target: target,
+                    });
                 }
 
-                let opts: AzureStorage.BlobService.CreateContainerOptions = {
-                    publicAccessLevel: accessLevel
-                };
-
-                ctx.service.createContainerIfNotExists(ctx.container, opts, (err) => {
+                FS.readFile(file, (err, data) => {
                     if (err) {
                         completed(err);
                         return;
                     }
 
-                    if (me.context.isCancelling()) {
-                        completed(null, true);
+                    if (hasCanceled) {
+                        completed();
                         return;
                     }
 
-                    ctx.service.createBlockBlobFromText(ctx.container, blob, data, (err) => {
-                        completed(err);
+                    let accessLevel = deploy_helpers.toStringSafe(target.publicAccessLevel);
+                    if (deploy_helpers.isEmptyString(accessLevel)) {
+                        accessLevel = 'blob';
+                    }
+
+                    let opts: AzureStorage.BlobService.CreateContainerOptions = {
+                        publicAccessLevel: accessLevel
+                    };
+
+                    ctx.service.createContainerIfNotExists(ctx.container, opts, (err) => {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
+
+                        if (hasCanceled) {
+                            completed();
+                            return;
+                        }
+
+                        ctx.service.createBlockBlobFromText(ctx.container, blob, data, (err) => {
+                            completed(err);
+                        });
                     });
                 });
-            });
-        }
-        catch (e) {
-            completed(e);
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

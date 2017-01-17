@@ -61,10 +61,11 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let dir = getFullDirPathFromTarget(target);
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     file: file,
                     target: target,
@@ -72,65 +73,67 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
+        me.onCancelling(() => hasCanceled = true);
+
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
+        else {
+            let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeTargetFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
 
-        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-        if (false === relativeTargetFilePath) {
-            completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-            return;
-        }
+            let targetFile = Path.join(dir, <string>relativeTargetFilePath);
+            let targetDirectory = Path.dirname(targetFile);
 
-        let targetFile = Path.join(dir, <string>relativeTargetFilePath);
-        let targetDirectory = Path.dirname(targetFile);
+            let deployFile = () => {
+                try {
+                    if (opts.onBeforeDeploy) {
+                        opts.onBeforeDeploy(me, {
+                            destination: targetDirectory,
+                            file: file,
+                            target: target,
+                        });
+                    }
 
-        let deployFile = () => {
-            try {
-                if (opts.onBeforeDeploy) {
-                    opts.onBeforeDeploy(me, {
-                        destination: targetDirectory,
-                        file: file,
-                        target: target,
+                    // copy file...
+                    FSExtra.copy(file, targetFile, {
+                        clobber: true,
+                        preserveTimestamps: true,
+                    }, function (err) {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
+
+                        completed();
                     });
                 }
+                catch (e) {
+                    completed(e);
+                }
+            };
 
-                // copy file...
-                FSExtra.copy(file, targetFile, {
-                    clobber: true,
-                    preserveTimestamps: true,
-                }, function (err) {
-                    if (err) {
-                        completed(err);
-                        return;
-                    }
-
-                    completed();
-                });
-            }
-            catch (e) {
-                completed(e);
-            }
-        };
-
-        // check if target directory exists
-        FS.exists(targetDirectory, (exists) => {
-            if (exists) {
-                deployFile();
-            }
-            else {
-                // no, try to create...
-                FSExtra.mkdirs(targetDirectory, function (err) {
-                    if (err) {
-                        completed(err);
-                        return;
-                    }
-
+            // check if target directory exists
+            FS.exists(targetDirectory, (exists) => {
+                if (exists) {
                     deployFile();
-                });
-            }
-        });
+                }
+                else {
+                    // no, try to create...
+                    FSExtra.mkdirs(targetDirectory, function (err) {
+                        if (err) {
+                            completed(err);
+                            return;
+                        }
+
+                        deployFile();
+                    });
+                }
+            });
+        }
     }
 
     public deployWorkspace(files: string[], target: DeployTargetLocal, opts?: deploy_contracts.DeployWorkspaceOptions) {
@@ -141,43 +144,46 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
 
-        let completed = (err?: any, canceled?: boolean) => {
+        let hasCanceled = false;
+        let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: canceled,
+                    canceled: hasCanceled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        if (me.context.isCancelling()) {
-            completed(null, true);  // cancellation requested
-            return;
-        }
+        me.onCancelling(() => hasCanceled = true);
 
-        let startDeploying = () => {
-            super.deployWorkspace(files, target, opts);    
-        };
-
-        let doEmptyDir = deploy_helpers.toBooleanSafe(target.empty, false);
-        if (doEmptyDir) {
-            me.context.outputChannel().append(i18.t('plugins.local.emptyTargetDirectory', targetDir));
-
-            FSExtra.emptyDir(targetDir, (err) => {
-                if (err) {
-                    me.context.outputChannel().append(i18.t('failed', err));
-
-                    completed(err);
-                    return;
-                }
-
-                me.context.outputChannel().appendLine(i18.t('ok'));
-                startDeploying();
-            });
+        if (hasCanceled) {
+            completed();  // cancellation requested
         }
         else {
-            startDeploying();
+            let startDeploying = () => {
+                super.deployWorkspace(files, target, opts);    
+            };
+
+            let doEmptyDir = deploy_helpers.toBooleanSafe(target.empty, false);
+            if (doEmptyDir) {
+                me.context.outputChannel().append(i18.t('plugins.local.emptyTargetDirectory', targetDir));
+
+                FSExtra.emptyDir(targetDir, (err) => {
+                    if (err) {
+                        me.context.outputChannel().append(i18.t('failed', err));
+
+                        completed(err);
+                        return;
+                    }
+
+                    me.context.outputChannel().appendLine(i18.t('ok'));
+                    startDeploying();
+                });
+            }
+            else {
+                startDeploying();
+            }
         }
     }
 
