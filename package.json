@@ -591,6 +591,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -820,6 +857,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -1182,6 +1256,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -1411,6 +1522,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -1761,6 +1909,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -1990,6 +2175,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -2348,6 +2570,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -2577,6 +2836,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -2944,6 +3240,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -3173,6 +3506,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -3558,6 +3928,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -3787,6 +4194,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -4133,6 +4577,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -4362,6 +4843,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -4746,6 +5264,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -4975,6 +5530,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -5323,6 +5915,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -5552,6 +6181,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -5924,6 +6590,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -6153,6 +6856,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -6593,6 +7333,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -6822,6 +7599,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -7211,6 +8025,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -7440,6 +8291,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -7784,6 +8672,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -8013,6 +8938,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -8373,6 +9335,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -8602,6 +9601,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -8938,6 +9974,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -9167,6 +10240,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
@@ -9513,6 +10623,43 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -9742,6 +10889,43 @@
                                   "type": "string",
                                   "description": "The path to the script file.",
                                   "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "engine": {
+                                  "enum": [
+                                    "mysql"
+                                  ],
+                                  "type": "string",
+                                  "description": "The engine to use.",
+                                  "default": "mysql"
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
                                 }
                               }
                             },
