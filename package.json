@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -208,54 +208,57 @@
               "description": "A list of files to open on startup.",
               "oneOf": [
                 {
-                  "type": "object",
-                  "properties": {
-                    "closeOthers": {
-                      "type": "boolean",
-                      "description": "Close other opened files or not.",
-                      "default": false
-                    },
-                    "exclude": {
-                      "description": "A list of one or more glob patterns of files that should be execluded from opening.",
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "array",
-                          "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "closeOthers": {
+                        "type": "boolean",
+                        "description": "Close other opened files or not.",
+                        "default": false
+                      },
+                      "exclude": {
+                        "description": "A list of one or more glob patterns of files that should be execluded from opening.",
+                        "oneOf": [
+                          {
                             "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
-                        }
-                      ]
-                    },
-                    "files": {
-                      "description": "A list of one or more glob patterns of files that should be opened.",
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "array",
-                          "items": {
+                        ]
+                      },
+                      "files": {
+                        "description": "A list of one or more glob patterns of files that should be opened.",
+                        "oneOf": [
+                          {
                             "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
-                        }
-                      ]
-                    },
-                    "isFor": {
-                      "description": "A list of one or more (host)names that filter is for.",
-                      "oneOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "array",
-                          "items": {
+                        ]
+                      },
+                      "isFor": {
+                        "description": "A list of one or more (host)names that filter is for.",
+                        "oneOf": [
+                          {
                             "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
-                        }
-                      ]
+                        ]
+                      }
                     }
                   }
                 }
