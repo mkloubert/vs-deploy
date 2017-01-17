@@ -689,6 +689,20 @@ export interface DeployPluginModule {
 }
 
 /**
+ * Stores a deploy plugin with its deploy context.
+ */
+export interface DeployPluginWithContext {
+    /**
+     * The deploy context.
+     */
+    context: DeployContext;
+    /**
+     * The plugin.
+     */
+    plugin: DeployPlugin;
+}
+
+/**
  * A quick pick item.
  */
 export interface DeployQuickPickItem extends vscode.QuickPickItem {

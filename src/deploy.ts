@@ -80,7 +80,7 @@ export class Deployer extends Events.EventEmitter {
     /**
      * Loaded plugins.
      */
-    protected _plugins: deploy_contracts.DeployPlugin[];
+    protected _plugins: deploy_contracts.DeployPluginWithContext[];
     /**
      * The "quick deploy button".
      */
@@ -419,7 +419,7 @@ export class Deployer extends Events.EventEmitter {
 
                 let matchIngPlugins = me.plugins.filter(x => {
                     return !type ||
-                        (x.__type == type && x.deployFile);
+                           (x.__type == type && x.deployFile);
                 });
 
                 let relativePath = deploy_helpers.toRelativePath(file);
@@ -1893,7 +1893,8 @@ export class Deployer extends Events.EventEmitter {
      * Gets the list of plugins.
      */
     public get plugins(): deploy_contracts.DeployPlugin[] {
-        return this._plugins;
+        return this._plugins
+                   .map(x => x.plugin);
     }
 
     /**
@@ -2083,7 +2084,7 @@ export class Deployer extends Events.EventEmitter {
         let me = this;
 
         try {
-            let loadedPlugins: deploy_contracts.DeployPlugin[] = [];
+            let loadedPlugins: deploy_contracts.DeployPluginWithContext[] = [];
 
             let pluginDir = Path.join(__dirname, './plugins');
             if (FS.existsSync(pluginDir)) {
@@ -2198,7 +2199,8 @@ export class Deployer extends Events.EventEmitter {
                                     if (newPlugin) {
                                         let pluginIndex = ++nextPluginIndex;
                                         ctx.plugins = function() {
-                                            return loadedPlugins.filter(x => x.__index != pluginIndex);
+                                            return loadedPlugins.filter(x => x.plugin.__index != pluginIndex)
+                                                                .map(x => x.plugin);
                                         };
 
                                         newPlugin.__file = deploy_helpers.parseTargetType(Path.basename(x));
@@ -2206,7 +2208,10 @@ export class Deployer extends Events.EventEmitter {
                                         newPlugin.__index = pluginIndex;
                                         newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
 
-                                        loadedPlugins.push(newPlugin);
+                                        loadedPlugins.push({
+                                            context: ctx,
+                                            plugin: newPlugin,
+                                        });
                                     }
                                 }
                             }
@@ -2226,7 +2231,7 @@ export class Deployer extends Events.EventEmitter {
                 if (loadedPlugins.length > 0) {
                     loadedPlugins.forEach(x => {
                         try {
-                            me.outputChannel.append(`- ${x.__file}`);
+                            me.outputChannel.append(`- ${x.plugin.__file}`);
                         }
                         catch (e) {
                             me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins(3)', e));
