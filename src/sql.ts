@@ -29,7 +29,7 @@ const MYSQL = require('mysql');
 
 
 /**
- * MySQL connection options.
+ * MSSQL connection options.
  */
 export interface MSSqlOptions {
     /**
