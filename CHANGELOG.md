@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.3.0 (January 17th, 2017; SQL)
+
+* added support for [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) (MySQL)
+
+
 ## 5.2.1 (January 17th, 2017; cancel deployments)
 
 * fixed cancellation of deployments

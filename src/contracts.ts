@@ -69,6 +69,13 @@ export interface AfterDeployScriptOperation extends AfterDeployedOperation, Depl
 }
 
 /**
+ * An operation that executes SQL and is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeploySqlOperation extends AfterDeployedOperation, DeploySqlOperation {
+}
+
+/**
  * An operation that waits a number of milliseconds and is invoked AFTER
  * ALL files have been deployed.
  */
@@ -119,6 +126,13 @@ export interface BeforeDeployOpenOperation extends BeforeDeployOperation, Deploy
  * files will be deployed.
  */
 export interface BeforeDeployScriptOperation extends BeforeDeployOperation, DeployScriptOperation {
+}
+
+/**
+ * An operation that executes SQL and is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeploySqlOperation extends BeforeDeployOperation, DeploySqlOperation {
 }
 
 /**
@@ -794,6 +808,24 @@ export interface DeployScriptOperationModule {
      * Executes the logic of the script.
      */
     execute?: DeployScriptOperationExecutor;
+}
+
+/**
+ * An operation that executes SQL.
+ */
+export interface DeploySqlOperation extends DeployOperation {
+    /**
+     * The engine.
+     */
+    engine?: string;
+    /**
+     * The connection options.
+     */
+    options?: any;
+    /**
+     * The list of queries to execute.
+     */
+    queries: string | string[];
 }
 
 /**

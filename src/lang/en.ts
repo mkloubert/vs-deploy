@@ -84,6 +84,7 @@ export const translation: Translation = {
         operations: {
             noFunctionInScript: "The function {0:trim,surround} was not found in {1:trim,surround}!",
             open: 'Opening {0:trim,surround}... ',
+            unknownSqlEngine: 'Unknown SQL engine {0:trim,surround}!',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
         },
         workspace: {
@@ -205,6 +206,11 @@ export const translation: Translation = {
         },
         sftp: {
             description: 'Deploys to a SFTP server',
+        },
+        sql: {
+            description: 'Executes SQL scripts',
+            invalidFile: 'File is invalid!',
+            unknownEngine: 'Unknown engine {0:trim,surround}!',
         },
         test: {
             description: 'A mock deployer that only displays what files would be deployed',

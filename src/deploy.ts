@@ -27,6 +27,7 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_objects from './objects';
 import * as deploy_plugins from './plugins';
+import * as deploy_sql from './sql';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -1406,6 +1407,72 @@ export class Deployer extends Events.EventEmitter {
                                 completed(new Error(i18.t('deploy.operations.noFunctionInScript',
                                                           'execute', scriptOpts.script)));
                             };
+                        }
+                        break;
+
+                    case 'sql':
+                        {
+                            let sqlOp = <deploy_contracts.DeploySqlOperation>operation;
+
+                            let type: deploy_sql.SqlConnectionType;
+                            let args: any[];
+
+                            let engineName = deploy_helpers.normalizeString(sqlOp.engine);
+                            switch (engineName) {
+                                case '':
+                                case 'mysql':
+                                    type = deploy_sql.SqlConnectionType.MySql;
+                                    args = [
+                                        sqlOp.options,
+                                    ];
+                                    break;
+                            }
+
+                            if (deploy_helpers.isNullOrUndefined(type)) {
+                                // unknown SQL engine
+                                
+                                nextAction = () => {
+                                    completed(new Error(i18.t('deploy.operations.unknownSqlEngine',
+                                                              engineName)));
+                                };
+                            }
+                            else {
+                                nextAction = null;
+
+                                let queries = deploy_helpers.asArray(sqlOp.queries)
+                                                            .filter(x => x);
+
+                                deploy_sql.createSqlConnection(type, args).then((conn) => {
+                                    let queriesCompleted = (err?: any) => {
+                                        conn.close().then(() => {
+                                            completed(err);
+                                        }).then((err2) => {
+                                            //TODO: log
+
+                                            completed(err);
+                                        });
+                                    };
+
+                                    let invokeNextQuery: () => void;
+                                    invokeNextQuery = () => {
+                                        if (queries.length < 1) {
+                                            queriesCompleted();
+                                            return;
+                                        }
+
+                                        let q = queries.shift();
+                                        conn.query(q).then(() => {
+                                            invokeNextQuery();
+                                        }).catch((err) => {
+                                            queriesCompleted(err);
+                                        });
+                                    };
+
+                                    invokeNextQuery();
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
                         }
                         break;
 

@@ -19,6 +19,7 @@ The extension supports the following destination types:
 * [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
 * [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
 * [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+* [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql)
 * [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy)

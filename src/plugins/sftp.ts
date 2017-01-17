@@ -77,7 +77,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>> {
         let me = this;
 
-        return new Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>>(((resolve, reject) => {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>>((resolve, reject) => {
             let completed = (err: any, conn?: any) => {
                 if (err) {
                     reject(err);
@@ -199,7 +199,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             catch (e) {
                 completed(e);  // global error
             }
-        }));
+        });
     }
 
     protected deployFileWithContext(ctx: SFTPContext,

@@ -67,7 +67,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>> {
         let me = this;
 
-        return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>(((resolve, reject) => {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>((resolve, reject) => {
             let completed = (err: any, conn?: any) => {
                 if (err) {
                     reject(err);
@@ -147,7 +147,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             catch (e) {
                 completed(e);
             }
-        }));
+        });
     }
 
     protected deployFileWithContext(ctx: FTPContext,

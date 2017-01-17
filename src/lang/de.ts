@@ -84,6 +84,7 @@ export const translation: Translation = {
         operations: {
             noFunctionInScript: "Die Funktion {0:trim,surround} wurde nicht in {1:trim,surround} gefunden!",
             open: 'Öffne {0:trim,surround}... ',
+            unknownSqlEngine: 'Unbekannter SQL Typ {0:trim,surround}!',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         },
         workspace: {
@@ -204,6 +205,11 @@ export const translation: Translation = {
         },
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
+        },
+        sql: {
+            description: 'Führt SQL-Skripte aus',
+            invalidFile: 'Datei ist ungültig!',
+            unknownEngine: 'Unbekannter Typ {0:trim,surround}!',
         },
         test: {
             description: 'Ein Test-PlugIn, welches lediglich anzeigt, welche Dateien bereitgestellt würden',

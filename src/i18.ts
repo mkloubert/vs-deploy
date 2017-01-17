@@ -91,6 +91,7 @@ export interface Translation {
         operations?: {
             noFunctionInScript?: string;
             open?: string;
+            unknownSqlEngine?: string;
             unknownType?: string;
         },
         workspace?: {
@@ -213,6 +214,11 @@ export interface Translation {
         },
         sftp?: {
             description?: string;
+        },
+        sql?: {
+            description?: string;
+            invalidFile?: string;
+            unknownEngine?: string;
         },
         test?: {
             description?: string;
