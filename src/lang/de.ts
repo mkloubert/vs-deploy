@@ -49,6 +49,7 @@ export const translation: Translation = {
             failed: 'Fehler beim Ausführen der Aufgaben, die VOR dem Bereitstellen ausgeführt werden sollten: {0}',
         },
         button: {
+            cancelling: 'Breche ab...',
             prepareText: 'Bereite das Bereitstellen vor...',
             text: 'Bereitstellen läuft...',
             tooltip: 'Hier klicken, um den Vorgang abzubrechen...',

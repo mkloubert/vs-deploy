@@ -56,6 +56,7 @@ export interface Translation {
             failed?: string;
         },
         button?: {
+            cancelling?: string;
             prepareText?: string;
             text?: string;
             tooltip?: string;

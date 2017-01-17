@@ -2,6 +2,8 @@
 
 ## 5.0.0 (January 17th, 2017; )
 
+* improved cancellation of deployments
+
 
 ## 4.22.0 (January 16th, 2017; display loaded plugins and network info)
 

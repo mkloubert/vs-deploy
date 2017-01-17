@@ -407,9 +407,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
-                hasCancelled = true;
-            });
+            me.onCancelling(() =>  hasCancelled = true);
 
             try {
                 me.hideAfterDeploymentStatusBarItem();
@@ -450,11 +448,21 @@ export class Deployer extends Events.EventEmitter {
                             statusBarItem.text = i18.t('deploy.button.prepareText');
                             statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
-                            let showResult = (err?: any, canceled?: boolean) => {
+                            let hasCancelled = false;
+                            me.onCancelling(() => {
+                                if (hasCancelled) {
+                                    return;
+                                }
+
+                                hasCancelled = true;
+                                statusBarItem.text = i18.t('deploy.button.cancelling');
+                                statusBarItem.tooltip = i18.t('deploy.button.cancelling');
+                            });
+
+                            let showResult = (err?: any) => {
                                 let afterDeployButtonMsg = 'Deployment finished.';
                                 let afterDeployButtonColor: string;
 
-                                canceled = deploy_helpers.toBooleanSafe(canceled);
                                 try {
                                     deploy_helpers.tryDispose(statusBarItem);
 
@@ -462,7 +470,7 @@ export class Deployer extends Events.EventEmitter {
 
                                     let resultMsg;
                                     if (err) {
-                                        if (canceled) {
+                                        if (hasCancelled) {
                                             resultMsg = i18.t('deploy.canceledWithErrors');
                                         }
                                         else {
@@ -479,7 +487,7 @@ export class Deployer extends Events.EventEmitter {
                                             }
                                         }
 
-                                        if (canceled) {
+                                        if (hasCancelled) {
                                             resultMsg = i18.t('deploy.canceled');
                                         }
                                         else {
@@ -546,7 +554,8 @@ export class Deployer extends Events.EventEmitter {
                                             me.outputChannel.appendLine(i18.t('ok'));
                                         }
 
-                                        showResult(e.error, e.canceled);
+                                        hasCancelled = hasCancelled || e.canceled;
+                                        showResult(e.error);
                                     }
                                 });
                             }
@@ -812,9 +821,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
-                hasCancelled = true;
-            });
+            me.onCancelling(() =>  hasCancelled = true);
 
             let startDeployment = () => {
                 try {
@@ -851,13 +858,23 @@ export class Deployer extends Events.EventEmitter {
                                 statusBarItem.text = i18.t('deploy.button.prepareText');
                                 statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
+                                let hasCancelled = false;
+                                me.onCancelling(() => {
+                                    if (hasCancelled) {
+                                        return;
+                                    }
+
+                                    hasCancelled = true;
+                                    statusBarItem.text = i18.t('deploy.button.cancelling');
+                                    statusBarItem.tooltip = i18.t('deploy.button.cancelling');
+                                });
+
                                 let failed: string[] = [];
                                 let succeeded: string[] = [];
-                                let showResult = (err?: any, canceled?: boolean) => {
+                                let showResult = (err?: any) => {
                                     let afterDeployButtonMsg = 'Deployment finished.';
                                     let afterDeployButtonColor: string;
 
-                                    canceled = deploy_helpers.toBooleanSafe(canceled);
                                     try {
                                         deploy_helpers.tryDispose(statusBarItem);
 
@@ -920,7 +937,7 @@ export class Deployer extends Events.EventEmitter {
                                         afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
                                                                                                     succeeded.length, failed.length);
                                         if (err || failed.length > 0) {
-                                            if (canceled) {
+                                            if (hasCancelled) {
                                                 resultMsg = i18.t('deploy.canceledWithErrors');
                                             }
                                             else {
@@ -928,7 +945,7 @@ export class Deployer extends Events.EventEmitter {
                                             }
                                         }
                                         else {
-                                            if (canceled) {
+                                            if (hasCancelled) {
                                                 resultMsg = i18.t('deploy.canceled');
                                             }
                                             else {
@@ -979,7 +996,8 @@ export class Deployer extends Events.EventEmitter {
                                     },
 
                                     onCompleted: (sender, e) => {
-                                        showResult(e.error, e.canceled);
+                                        hasCancelled = hasCancelled || e.canceled;
+                                        showResult(e.error);
                                     },
 
                                     onFileCompleted: (sender, e) => {
@@ -1593,6 +1611,21 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
+     * Registers for a callback for a 'cancel' event that is called once.
+     * 
+     * @param {deploy_contracts.EventHandler} callback The callback to register.
+     */
+    public onCancelling(callback: deploy_contracts.EventHandler) {
+        try {
+            this.once(deploy_contracts.EVENT_CANCEL_DEPLOY,
+                      callback);
+        }
+        catch (e) {
+            this.log(i18.t('errors.withCategory', 'Deployer.onCancelling()', e));
+        }
+    }
+
+    /**
      * The 'on deactivate' event.
      */
     public onDeactivate() {
@@ -1952,9 +1985,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
-                hasCancelled = true;
-            });
+            me.onCancelling(() =>  hasCancelled = true);
 
             if (packagesToDeploy.length < 1) {
                 vscode.window.showWarningMessage(i18.t('packages.nothingToDeploy'));
