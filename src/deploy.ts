@@ -36,6 +36,8 @@ import * as OS from 'os';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
+let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
+let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
 /**
  * Deployer class.
@@ -243,25 +245,6 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
-     * Cancels the current deployment operation(s).
-     */
-    public cancelDeployment() {
-        this.outputChannel.appendLine('');
-        this.outputChannel.appendLine(i18.t('deploy.cancelling'));
-
-        try {
-            let eventArgs: deploy_contracts.EventArguments = {
-            };
-
-            this.emit(deploy_contracts.EVENT_CANCEL_DEPLOY,
-                      this, eventArgs);
-        }
-        catch (e) {
-            this.log(i18.t('errors.withCategory', 'Deployer.cancelDeployment()', e));
-        }
-    }
-
-    /**
      * Clears the output on startup depending on the current configuration.
      */
     public clearOutputOrNot() {
@@ -414,9 +397,9 @@ export class Deployer extends Events.EventEmitter {
 
                 let type = deploy_helpers.parseTargetType(target.type);
 
-                let matchIngPlugins = me.plugins.filter(x => {
+                let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                     return !type ||
-                           (x.__type == type && x.deployFile);
+                           (x.plugin.__type == type && x.plugin.deployFile);
                 });
 
                 let relativePath = deploy_helpers.toRelativePath(file);
@@ -437,33 +420,47 @@ export class Deployer extends Events.EventEmitter {
                             return;
                         }
 
-                        let currentPlugin = matchIngPlugins.shift();
+                        let cancelCommand: vscode.Disposable;
+                        let currentPluginWithContext = matchIngPlugins.shift();
+                        let currentPlugin = currentPluginWithContext.plugin;
                         let statusBarItem: vscode.StatusBarItem;
                         try {
                             statusBarItem = vscode.window.createStatusBarItem(
                                 vscode.StatusBarAlignment.Left,
                             );
                             statusBarItem.color = '#ffffff';
-                            statusBarItem.command = "extension.deploy.cancel";
                             statusBarItem.text = i18.t('deploy.button.prepareText');
                             statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
-                            let hasCancelled = false;
-                            me.onCancelling(() => {
+                            let cancelCommandName = 'extension.deploy.cancelFile' + (nextCancelDeployFileCommandId--);
+                            cancelCommand = vscode.commands.registerCommand(cancelCommandName, () => {
                                 if (hasCancelled) {
                                     return;
                                 }
 
+                                Number.MAX_SAFE_INTEGER;
+
                                 hasCancelled = true;
+
+                                try {
+                                    currentPluginWithContext.context
+                                                            .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+                                }
+                                catch (e) {
+                                    //TODO
+                                }
+
                                 statusBarItem.text = i18.t('deploy.button.cancelling');
                                 statusBarItem.tooltip = i18.t('deploy.button.cancelling');
                             });
+                            statusBarItem.command = cancelCommandName;
 
                             let showResult = (err?: any) => {
                                 let afterDeployButtonMsg = 'Deployment finished.';
                                 let afterDeployButtonColor: string;
 
                                 try {
+                                    deploy_helpers.tryDispose(cancelCommand);
                                     deploy_helpers.tryDispose(statusBarItem);
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -564,6 +561,7 @@ export class Deployer extends Events.EventEmitter {
                             }
                         }
                         catch (e) {
+                            deploy_helpers.tryDispose(cancelCommand);
                             deploy_helpers.tryDispose(statusBarItem);
 
                             completed(e);
@@ -829,9 +827,10 @@ export class Deployer extends Events.EventEmitter {
 
                     let type = deploy_helpers.parseTargetType(target.type);
 
-                    let matchIngPlugins = me.plugins.filter(x => {
+                    // kloubi
+                    let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                         return !type ||
-                            (x.__type == type && x.deployWorkspace);
+                               (x.plugin.__type == type && x.plugin.deployWorkspace);
                     });
 
                     if (matchIngPlugins.length > 0) {
@@ -847,27 +846,38 @@ export class Deployer extends Events.EventEmitter {
                                 return;
                             }
 
-                            let currentPlugin = matchIngPlugins.shift();
+                            let cancelCommand: vscode.Disposable;
+                            let currentPluginWithContext = matchIngPlugins.shift();
+                            let currentPlugin = currentPluginWithContext.plugin;
                             let statusBarItem: vscode.StatusBarItem;
                             try {
                                 statusBarItem = vscode.window.createStatusBarItem(
                                     vscode.StatusBarAlignment.Left,
                                 );
                                 statusBarItem.color = '#ffffff';
-                                statusBarItem.command = 'extension.deploy.cancel';
                                 statusBarItem.text = i18.t('deploy.button.prepareText');
                                 statusBarItem.tooltip = i18.t('deploy.button.tooltip');
 
-                                let hasCancelled = false;
-                                me.onCancelling(() => {
+                                let cancelCommandName = 'extension.deploy.cancelWorkspace' + (nextCancelDeployWorkspaceCommandId--);
+                                cancelCommand = vscode.commands.registerCommand(cancelCommandName, () => {
                                     if (hasCancelled) {
                                         return;
                                     }
 
                                     hasCancelled = true;
+
+                                    try {
+                                        currentPluginWithContext.context
+                                                                .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+                                    }
+                                    catch (e) {
+                                        //TODO
+                                    }
+
                                     statusBarItem.text = i18.t('deploy.button.cancelling');
                                     statusBarItem.tooltip = i18.t('deploy.button.cancelling');
                                 });
+                                statusBarItem.command = cancelCommandName;
 
                                 let failed: string[] = [];
                                 let succeeded: string[] = [];
@@ -876,6 +886,7 @@ export class Deployer extends Events.EventEmitter {
                                     let afterDeployButtonColor: string;
 
                                     try {
+                                        deploy_helpers.tryDispose(cancelCommand);
                                         deploy_helpers.tryDispose(statusBarItem);
 
                                         let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -1015,6 +1026,7 @@ export class Deployer extends Events.EventEmitter {
                                 });
                             }
                             catch (e) {
+                                deploy_helpers.tryDispose(cancelCommand);
                                 deploy_helpers.tryDispose(statusBarItem);
                 
                                 vscode.window.showErrorMessage(i18.t('deploy.workspace.failed', e));
@@ -1926,8 +1938,15 @@ export class Deployer extends Events.EventEmitter {
      * Gets the list of plugins.
      */
     public get plugins(): deploy_contracts.DeployPlugin[] {
-        return this._plugins
+        return this.pluginsWithContextes
                    .map(x => x.plugin);
+    }
+
+    /**
+     * Gets the list of plugins withs its contextes.
+     */
+    public get pluginsWithContextes(): deploy_contracts.DeployPluginWithContext[] {
+        return this._plugins;
     }
 
     /**
@@ -2169,76 +2188,90 @@ export class Deployer extends Events.EventEmitter {
                         delete require.cache[x];
                     });
 
+                    let createPluginContext: () => deploy_contracts.DeployContext = () => {
+                        let eventEmitter = new Events.EventEmitter();
+
+                        let ctx: deploy_contracts.DeployContext = {
+                            config: () => me.config,
+                            emit: function() {
+                                return eventEmitter.emit
+                                                   .apply(eventEmitter, arguments);
+                            },
+                            error: function(msg) {
+                                if (msg) {
+                                    vscode.window.showErrorMessage('' + msg);
+                                }
+
+                                return this;
+                            },
+                            globals: () => me.getGlobals(),
+                            info: function(msg) {
+                                if (msg) {
+                                    vscode.window.showInformationMessage('' + msg);
+                                }
+
+                                return this;
+                            },
+                            log: function(msg) {
+                                me.log(msg);
+                                return this;
+                            },
+                            once: function(event, cb) {
+                                eventEmitter.once(event, function(sender, e) {
+                                    try {
+                                        if (cb) {
+                                            cb(sender, e);
+                                        }
+                                    }
+                                    catch (e) {
+                                        me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx', e));
+                                    }
+                                });
+
+                                return this;
+                            },
+                            outputChannel: () => me.outputChannel,
+                            packageFile: () => me.packageFile,
+                            packages: () => me.getPackages(),
+                            plugins: null,
+                            require: function(id) {
+                                return require(id);
+                            },
+                            targets: () => me.getTargets(),
+                            warn: function(msg) {
+                                if (msg) {
+                                    vscode.window.showWarningMessage('' + msg);
+                                }
+
+                                return this;
+                            },
+                            workspace: function() {
+                                return vscode.workspace.rootPath;
+                            },
+                            write: function(msg) {
+                                msg = deploy_helpers.toStringSafe(msg);
+                                this.outputChannel().append(msg);
+
+                                return this;
+                            },
+                            writeLine: function(msg) {
+                                msg = deploy_helpers.toStringSafe(msg);
+                                this.outputChannel().appendLine(msg);
+
+                                return this;
+                            },
+                        };
+
+                        return ctx;
+                    };
+
                     let nextPluginIndex = -1;
                     moduleFiles.forEach(x => {
                         try {
                             let pluginModule: deploy_contracts.DeployPluginModule = require(x);
                             if (pluginModule) {
                                 if (pluginModule.createPlugin) {
-                                    let ctx: deploy_contracts.DeployContext = {
-                                        config: () => me.config,
-                                        error: function(msg) {
-                                            if (msg) {
-                                                vscode.window.showErrorMessage('' + msg);
-                                            }
-
-                                            return this;
-                                        },
-                                        globals: () => me.getGlobals(),
-                                        info: function(msg) {
-                                            if (msg) {
-                                                vscode.window.showInformationMessage('' + msg);
-                                            }
-
-                                            return this;
-                                        },
-                                        log: function(msg) {
-                                            me.log(msg);
-                                            return this;
-                                        },
-                                        once: function(event, cb) {
-                                            me.once(event, function(sender, e) {
-                                                try {
-                                                    if (cb) {
-                                                        cb(sender, e);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx', e));
-                                                }
-                                            });
-                                        },
-                                        outputChannel: () => me.outputChannel,
-                                        packageFile: () => me.packageFile,
-                                        packages: () => me.getPackages(),
-                                        plugins: null,
-                                        require: function(id) {
-                                            return require(id);
-                                        },
-                                        targets: () => me.getTargets(),
-                                        warn: function(msg) {
-                                            if (msg) {
-                                                vscode.window.showWarningMessage('' + msg);
-                                            }
-
-                                            return this;
-                                        },
-                                        workspace: function() {
-                                            return vscode.workspace.rootPath;
-                                        },
-                                        write: function(msg) {
-                                            msg = deploy_helpers.toStringSafe(msg);
-                                            this.outputChannel().append(msg);
-
-                                            return this;
-                                        },
-                                        writeLine: function(msg) {
-                                            msg = deploy_helpers.toStringSafe(msg);
-                                            this.outputChannel().appendLine(msg);
-
-                                            return this;
-                                        },
-                                    };
+                                    let ctx = createPluginContext();
 
                                     let newPlugin = pluginModule.createPlugin(ctx);
                                     if (newPlugin) {

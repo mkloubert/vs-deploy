@@ -78,16 +78,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // cancel current deployment operation(s)
-    let cancelDeploy = vscode.commands.registerCommand('extension.deploy.cancel', () => {
-        try {
-            deployer.cancelDeployment();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY CANCEL ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
-    });
-
     // deploy open file or selected folder
     let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?: any) => {
         try {
@@ -135,7 +125,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(deploy, deployFileOrFolder,
                                listen,
-                               cancelDeploy, quickDeploy,
+                               quickDeploy,
                                openOutputAfterDeploment);
 
     // tell the "deployer" that anything has been activated

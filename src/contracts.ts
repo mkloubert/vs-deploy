@@ -359,6 +359,13 @@ export interface DeployContext {
      */
     config: () => DeployConfiguration;
     /**
+     * Emits an event.
+     * 
+     * @param {string | symbol} event The event.
+     * @param {any[]} args The arguments.
+     */
+    emit(event: string | symbol, ...args: any[]): boolean;
+    /**
      * Shows an error message.
      * 
      * @param {any} msg The message to show.
@@ -391,9 +398,11 @@ export interface DeployContext {
      * 
      * @param {string | symbol} event The event.
      * @param {() => void} callback The callback to register.
+     * 
+     * @chainable
      */
     once: (event: string | symbol,
-           handler: EventHandler) => void;
+           handler: EventHandler) => DeployContext;
     /**
      * Gets the global output channel.
      */
