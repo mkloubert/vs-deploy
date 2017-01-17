@@ -44,6 +44,7 @@ interface DeployTargetDropbox extends deploy_contracts.DeployTarget {
 
 interface DropboxContext {
     dir: string;
+    hasCancelled: boolean;
     transformer: deploy_contracts.DataTransformer;
     token: string;
 }
@@ -101,7 +102,9 @@ function toDropboxPath(path: string): string {
 
 class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxContext> {
     protected createContext(target: DeployTargetDropbox,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
+        let me = this;
         let dir = getDirFromTarget(target);
 
         // data transformer
@@ -130,9 +133,12 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             try {
                 let ctx: DropboxContext = {
                     dir: dir,
+                    hasCancelled: false,
                     transformer: transformer,
                     token: deploy_helpers.toStringSafe(target.token),
                 };
+
+                me.onCancelling(() => ctx.hasCancelled = true, opts);
 
                 let wrapper: deploy_objects.DeployPluginContextWrapper<DropboxContext> = {
                     context: ctx,
@@ -344,11 +350,10 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                     file: string, target: DeployTargetDropbox, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
         
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -356,9 +361,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {

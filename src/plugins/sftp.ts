@@ -48,6 +48,7 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
 interface SFTPContext {
     cachedRemoteDirectories: any;
     connection: any;
+    hasCancelled: boolean;
 }
 
 function getDirFromTarget(target: DeployTargetSFTP): string {
@@ -71,7 +72,11 @@ function toSFTPPath(path: string): string {
 
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext> {
-    protected createContext(target: DeployTargetSFTP): Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>> {
+    protected createContext(target: DeployTargetSFTP,
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>> {
+        let me = this;
+
         return new Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>>(((resolve, reject) => {
             let completed = (err: any, conn?: any) => {
                 if (err) {
@@ -81,7 +86,10 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     let ctx: SFTPContext = {
                         cachedRemoteDirectories: {},
                         connection: conn,
+                        hasCancelled: false,
                     };
+
+                    me.onCancelling(() => ctx.hasCancelled = true, opts);
 
                     let wrapper: deploy_objects.DeployPluginContextWrapper<SFTPContext> = {
                         context: ctx,
@@ -198,11 +206,10 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                     file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
 
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -210,9 +217,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -229,7 +234,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
             // upload the file
             let uploadFile = (initDirCache?: boolean) => {
-                if (hasCanceled) {
+                if (ctx.hasCancelled) {
                     completed();  // cancellation requested
                     return;
                 }
@@ -265,7 +270,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 }).catch((err) => {
                     // no => try to create
 
-                    if (hasCanceled) {
+                    if (ctx.hasCancelled) {
                         completed();  // cancellation requested
                         return;
                     }

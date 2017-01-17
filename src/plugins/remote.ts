@@ -87,6 +87,7 @@ export interface RemoteFile {
 
 interface RemoteContext {
     counter: number;
+    hasCancelled: boolean;
     hosts: string[];
     session: string;
     totalCount: number;
@@ -125,7 +126,10 @@ export interface TransformerContext {
 
 class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteContext> {
     protected createContext(target: DeployTargetRemote,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<RemoteContext>> {
+                            files: string[],
+                            opts): Promise<deploy_objects.DeployPluginContextWrapper<RemoteContext>> {
+        let me = this;
+
         return new Promise<deploy_objects.DeployPluginContextWrapper<RemoteContext>>((resolve, reject) => {
             try {
                 let now = Moment().utc();
@@ -139,10 +143,13 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
                 let ctx: RemoteContext = {
                     counter: 0,
+                    hasCancelled: false,
                     hosts: hosts,
                     session: `${now.format('YYYYMMDDHHmmss')}-${id}`,
                     totalCount: files.length,
                 };
+
+                me.onCancelling(() => ctx.hasCancelled = true, opts);
                 
                 let wrapper: deploy_objects.DeployPluginContextWrapper<RemoteContext> = {
                     context: ctx,
@@ -167,7 +174,6 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         ++ctx.counter;
 
         let allErrors: any[] = [];
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (err) {
                 allErrors.push(err);
@@ -183,7 +189,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -191,9 +197,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {

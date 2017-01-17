@@ -43,12 +43,16 @@ interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
 interface AzureBlobContext {
     container: string;
     dir: string;
+    hasCancelled: boolean;
     service: AzureStorage.BlobService;
 }
 
 class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBlobContext> {
     protected createContext(target: DeployTargetAzureBlob,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<AzureBlobContext>> {         
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<AzureBlobContext>> {         
+        let me = this;
+        
         let containerName = deploy_helpers.toStringSafe(target.container)
                                           .trim();
 
@@ -69,10 +73,13 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                 let wrapper: deploy_objects.DeployPluginContextWrapper<AzureBlobContext> = {
                     context: {
                         container: containerName,
-                        service: service,
                         dir: dir,
+                        hasCancelled: false,
+                        service: service,
                     },
                 };
+
+                me.onCancelling(() => wrapper.context.hasCancelled = true, opts);
 
                 resolve(wrapper);
             }
@@ -86,11 +93,10 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                     file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -98,9 +104,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -135,7 +139,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                         return;
                     }
 
-                    if (hasCanceled) {
+                    if (ctx.hasCancelled) {
                         completed();
                         return;
                     }
@@ -155,7 +159,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                             return;
                         }
 
-                        if (hasCanceled) {
+                        if (ctx.hasCancelled) {
                             completed();
                             return;
                         }

@@ -46,6 +46,7 @@ interface S3Context {
     bucket: string;
     connection: AWS.S3;
     dir: string;
+    hasCancelled: boolean;
 }
 
 const KNOWN_CREDENTIAL_CLASSES = {
@@ -62,7 +63,10 @@ const KNOWN_CREDENTIAL_CLASSES = {
 
 class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
     protected createContext(target: DeployTargetS3Bucket,
-                            files: string[]): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
+        let me = this;
+
         AWS.config.signatureVersion = "v4";
                             
         let bucketName = deploy_helpers.toStringSafe(target.bucket)
@@ -126,8 +130,11 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         bucket: bucketName,
                         connection: s3bucket,
                         dir: dir,
+                        hasCancelled: false,
                     },
                 };
+
+                me.onCancelling(() => wrapper.context.hasCancelled = true, opts);
 
                 completed(null, wrapper);
             }
@@ -141,11 +148,10 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                                     file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
         let me = this;
 
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -153,9 +159,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -190,13 +194,13 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         return;
                     }
 
-                    if (hasCanceled) {
+                    if (ctx.hasCancelled) {
                         completed();
                         return;
                     }
 
                     ctx.connection.createBucket(() => {
-                        if (hasCanceled) {
+                        if (ctx.hasCancelled) {
                             completed();
                             return;
                         }

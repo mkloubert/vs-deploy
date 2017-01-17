@@ -137,6 +137,7 @@ function loadScriptModule(scriptFile: string): PipelineModule {
 class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
     protected createContext(target: DeployTargetPipeline): PipeContext {
         return {
+            hasCancelled: false,
             targets: this.getTargetsWithPlugins(target, target.target),
         };
     }
@@ -147,20 +148,20 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
         }
 
         let me = this;
+        let ctx = this.createContext(target);
         
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     target: target,
                 });
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+        me.onCancelling(() => ctx.hasCancelled = true, opts);
 
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -188,7 +189,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                 };
 
                 scriptModule.pipe(args).then((a) => {
-                    if (hasCanceled) {
+                    if (ctx.hasCancelled) {
                         completed();
                         return;
                     }
@@ -214,7 +215,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                               },
                                               onCompleted: (sender, e) => {
                                                   let pipeCompleted = () => {
-                                                      hasCanceled = e.canceled;
+                                                      ctx.hasCancelled = e.canceled;
                                                       completed(e.error);
                                                   };
 

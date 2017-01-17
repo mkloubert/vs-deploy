@@ -145,11 +145,11 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -157,9 +157,9 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+        me.onCancelling(() => hasCancelled = true, opts);
 
-        if (hasCanceled) {
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -186,7 +186,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 };
 
                 scriptModule.deployFile(args).then((a) => {
-                    hasCanceled = (a || args).canceled;
+                    hasCancelled = (a || args).canceled;
                     completed();
                 }).catch((err) => {
                     if (!err) {
@@ -210,20 +210,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+        me.onCancelling(() => hasCancelled = true, opts);
 
-        if (hasCanceled) {
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -249,7 +249,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     };
 
                     scriptModule.deployWorkspace(args).then((a) => {
-                        hasCanceled = (a || args).canceled;
+                        hasCancelled = (a || args).canceled;
                         completed(null);
                     }).catch((err) => {
                         if (!err) {

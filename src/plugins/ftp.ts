@@ -45,6 +45,7 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
 interface FTPContext {
     cachedRemoteDirectories: any;
     connection: any;
+    hasCancelled: boolean;
 }
 
 function getDirFromTarget(target: DeployTargetFTP): string {
@@ -61,7 +62,11 @@ function toFTPPath(path: string): string {
 }
 
 class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
-    protected createContext(target: DeployTargetFTP): Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>> {
+    protected createContext(target: DeployTargetFTP,
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>> {
+        let me = this;
+
         return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>(((resolve, reject) => {
             let completed = (err: any, conn?: any) => {
                 if (err) {
@@ -71,7 +76,10 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     let ctx: FTPContext = {
                         cachedRemoteDirectories: {},
                         connection: conn,
+                        hasCancelled: false,
                     };
+
+                    me.onCancelling(() => ctx.hasCancelled = true, opts);
 
                     let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
                         context: ctx,
@@ -146,11 +154,10 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                                     file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
         
-        let hasCanceled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -158,9 +165,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        if (ctx.hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -176,7 +181,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
             let uploadFile = (initDirCache?: boolean) => {
-                if (hasCanceled) {
+                if (ctx.hasCancelled) {
                     completed();  // cancellation requested
                     return;
                 }
@@ -205,7 +210,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
 
             if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
                 ctx.connection.cwd(targetDirectory, (err) => {
-                    if (hasCanceled) {
+                    if (ctx.hasCancelled) {
                         completed();  // cancellation requested
                         return;
                     }

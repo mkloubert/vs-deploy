@@ -51,6 +51,10 @@ export interface DeployPluginContextWrapper<TContext> {
  */
 export interface MultiTargetContext {
     /**
+     * Stores if operation has been cancelled or not.
+     */
+    hasCancelled: boolean;
+    /**
      * The targets.
      */
     targets: deploy_contracts.DeployTargetWithPlugins[];
@@ -252,11 +256,13 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * 
      * @param {target: deploy_contracts.DeployTarget} target The target.
      * @param {string[]} files The files to deploy.
+     * @param {deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
      * 
      * @return {Promise<DeployPluginContextWrapper<TContext>>} The promise.
      */
     protected abstract createContext(target: deploy_contracts.DeployTarget,
-                                     files: string[]): Promise<DeployPluginContextWrapper<TContext>>;
+                                     files: string[],
+                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions): Promise<DeployPluginContextWrapper<TContext>>;
 
     /**
      * Deploys a file by using a context.
@@ -274,7 +280,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         if (!opts) {
             opts = {};
         }
-        
+
         let me = this;
         
         // report that whole operation has been completed
@@ -328,7 +334,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
             try {
                 // create context...
-                this.createContext(target, files).then((wrapper) => {
+                this.createContext(target, files, opts).then((wrapper) => {
                     try {
                         let deployNext: () => void;
 
@@ -530,113 +536,121 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 
         let ctx = this.createContext(target);
         
-        let hasCanceled = false;
         let targetsTodo = ctx.targets.map(x => x);
         let completed = (err?: any) => {
             targetsTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: ctx.hasCancelled,
                     target: target,
                 });
             }
         };
 
-        try {
-            let deployNextTarget: () => void;
-            deployNextTarget = () => {
-                if (targetsTodo.length < 1) {
-                    completed();
-                    return;
-                }
+        me.onCancelling(() => ctx.hasCancelled = true, opts);
 
-                if (hasCanceled) {
-                    completed();
-                    return;
-                }
-
-                let currentTarget = targetsTodo.shift();
-                let pluginsTodo = currentTarget.plugins.map(x => x);
-
-                let targetCompleted = (err?: any) => {
-                    pluginsTodo = [];
-
-                    deployNextTarget();
-                };
-
-                let deployNextPlugin: () => void;
-                deployNextPlugin = () => {
-                    if (pluginsTodo.length < 1) {
-                        targetCompleted();
-                        return;
-                    }
-
-                    if (hasCanceled) {
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let deployNextTarget: () => void;
+                deployNextTarget = () => {
+                    if (targetsTodo.length < 1) {
                         completed();
                         return;
                     }
 
-                    let pluginCompleted = (err?: any, canceled?: boolean) => {
-                        deployNextPlugin();
+                    if (ctx.hasCancelled) {
+                        completed();
+                        return;
+                    }
+
+                    let currentTarget = targetsTodo.shift();
+                    let pluginsTodo = currentTarget.plugins.map(x => x);
+
+                    let targetCompleted = (err?: any) => {
+                        pluginsTodo = [];
+
+                        deployNextTarget();
                     };
 
-                    let currentPlugin = pluginsTodo.shift();
-                    try {
-                        currentPlugin.deployWorkspace(files, currentTarget.target, {
-                            context: opts.context,
+                    let deployNextPlugin: () => void;
+                    deployNextPlugin = () => {
+                        if (pluginsTodo.length < 1) {
+                            targetCompleted();
+                            return;
+                        }
 
-                            onBeforeDeployFile: (sender, e) => {
-                                if (opts.onBeforeDeployFile) {
-                                    let destination = deploy_helpers.toStringSafe(currentTarget.target.name).trim();
-                                    if (!destination) {
-                                        destination = deploy_helpers.toStringSafe(currentPlugin.__type).trim();
-                                    }
-                                    if (!destination) {
-                                        deploy_helpers.toStringSafe(currentPlugin.__file).trim();
-                                    }
+                        if (ctx.hasCancelled) {
+                            completed();
+                            return;
+                        }
 
-                                    let originalDestination = deploy_helpers.toStringSafe(e.destination);
-                                    if (destination) {
-                                        destination = `[${destination}] ${originalDestination}`;
-                                    }
-                                    else {
-                                        destination = originalDestination;
-                                    }
+                        let pluginCompleted = (err?: any, canceled?: boolean) => {
+                            deployNextPlugin();
+                        };
 
-                                    opts.onBeforeDeployFile(me, {
-                                        destination: destination,
-                                        file: e.file,
-                                        target: e.target,
-                                    });
+                        let currentPlugin = pluginsTodo.shift();
+                        try {
+                            currentPlugin.deployWorkspace(files, currentTarget.target, {
+                                context: opts.context,
+
+                                onBeforeDeployFile: (sender, e) => {
+                                    if (opts.onBeforeDeployFile) {
+                                        let destination = deploy_helpers.toStringSafe(currentTarget.target.name).trim();
+                                        if (!destination) {
+                                            destination = deploy_helpers.toStringSafe(currentPlugin.__type).trim();
+                                        }
+                                        if (!destination) {
+                                            deploy_helpers.toStringSafe(currentPlugin.__file).trim();
+                                        }
+
+                                        let originalDestination = deploy_helpers.toStringSafe(e.destination);
+                                        if (destination) {
+                                            destination = `[${destination}] ${originalDestination}`;
+                                        }
+                                        else {
+                                            destination = originalDestination;
+                                        }
+
+                                        opts.onBeforeDeployFile(me, {
+                                            destination: destination,
+                                            file: e.file,
+                                            target: e.target,
+                                        });
+                                    }
+                                },
+                                onCompleted: (sender, e) => {
+                                    ctx.hasCancelled = ctx.hasCancelled || e.canceled;
+
+                                    pluginCompleted(e.error, e.canceled);
+                                },
+                                onFileCompleted: (sender, e) => {
+                                    if (opts.onFileCompleted) {
+                                        opts.onFileCompleted(me, {
+                                            canceled: e.canceled,
+                                            file: e.file,
+                                            target: e.target,
+                                        });
+                                    }
                                 }
-                            },
-                            onCompleted: (sender, e) => {
-                                pluginCompleted(e.error, e.canceled);
-                            },
-                            onFileCompleted: (sender, e) => {
-                                if (opts.onFileCompleted) {
-                                    opts.onFileCompleted(me, {
-                                        canceled: e.canceled,
-                                        file: e.file,
-                                        target: e.target,
-                                    });
-                                }
-                            }
-                        });
-                    }
-                    catch (e) {
-                        targetCompleted(e);
-                    }
+                            });
+                        }
+                        catch (e) {
+                            targetCompleted(e);
+                        }
+                    };
+
+                    deployNextPlugin();
                 };
 
-                deployNextPlugin();
-            };
-
-            deployNextTarget();
-        }
-        catch (e) {
-            completed(e);
+                deployNextTarget();
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 

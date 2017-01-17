@@ -40,6 +40,7 @@ interface DeployTargetBatch extends deploy_contracts.DeployTarget {
 class BatchPlugin extends deploy_objects.MultiTargetDeployPluginBase {
     protected createContext(target: DeployTargetBatch): BatchContext {
         return {
+            hasCancelled: false,
             targets: this.getTargetsWithPlugins(target, target.targets),
         };
     }
