@@ -24,8 +24,43 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_helpers from './helpers';
+const MSSQL = require('mssql');
 const MYSQL = require('mysql');
 
+
+/**
+ * MySQL connection options.
+ */
+export interface MSSqlOptions {
+    /**
+     * The database to connect to.
+     */
+    database?: string;
+    /**
+     * The driver to use.
+     */
+    driver?: string;
+    /**
+     * Encrypt the connection or not.
+     */
+    encrypt?: boolean;
+    /**
+     * The host.
+     */
+    host?: string;
+    /**
+     * The TCP port.
+     */
+    port?: number;
+    /**
+     * The password.
+     */
+    password?: string;
+    /**
+     * The username.
+     */
+    user?: string;
+}
 
 /**
  * MySQL connection options.
@@ -58,11 +93,25 @@ export interface MySqlOptions {
 }
 
 /**
+ * A MSSQL connection.
+ */
+export interface MSSqlConnection extends SqlConnection {
+    /** @inheritdoc */
+    query: (sql: string, ...args: any[]) => Promise<MSSqlResult>;
+}
+
+/**
  * A MySQL connection.
  */
 export interface MySqlConnection extends SqlConnection {
     /** @inheritdoc */
     query: (sql: string, ...args: any[]) => Promise<MySqlResult>;
+}
+
+/**
+ * A MSSQL result.
+ */
+export interface MSSqlResult extends SqlResult {
 }
 
 /**
@@ -112,12 +161,137 @@ export enum SqlConnectionType {
      * MySQL
      */
     MySql = 0,
+    /**
+     * Microsoft SQL
+     */
+    MSSql = 1,
 }
 
 /**
  * A SQL result.
  */
 export interface SqlResult {
+}
+
+
+/**
+ * Creates a new MSSQL connection.
+ * 
+ * @param {MSSqlOptions} [opts] The options for the connection.
+ * 
+ * @returns {Promise<MSSqlConnection>} The promise.
+ */
+export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnection> {
+    if (!opts) {
+        opts = {};
+    }
+
+    return new Promise<MSSqlConnection>((resolve, reject) => {
+        let completed = (err?: any, conn?: MSSqlConnection) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(conn);
+            }
+        };
+        
+        try {
+            let driver = deploy_helpers.toStringSafe(opts.driver).toLowerCase().trim();
+            if (!driver) {
+                driver = 'tedious';
+            }
+
+            let host = deploy_helpers.toStringSafe(opts.host).toLowerCase().trim();
+            if (!host) {
+                host = '127.0.0.1';
+            }
+
+            let port = deploy_helpers.toStringSafe(opts.port).trim();
+            if (!port) {
+                port = '1433';
+            }
+
+            let user = deploy_helpers.toStringSafe(opts.user).trim();
+            if (!user) {
+                user = 'sa';
+            }
+
+            let pwd = deploy_helpers.toStringSafe(opts.password);
+            if (!pwd) {
+                pwd = undefined;
+            }
+
+            let db = deploy_helpers.toStringSafe(opts.database).trim();
+            if (!db) {
+                db = undefined;
+            }
+
+            let connOpts = {
+                database: db,
+                driver: driver,
+                server: host,
+                port: parseInt(port),
+                user: user,
+                password: pwd,
+
+                options: {
+                    encrypt: deploy_helpers.toBooleanSafe(opts.encrypt),
+                },
+            };
+
+            let connection = new MSSQL.Connection(connOpts);
+
+            connection.connect().then(function(mssqlConn) {
+                let conn: MSSqlConnection = {
+                    close: () => {
+                        return new Promise<any>((resolve2, reject2) => {
+                            try {
+                                mssqlConn.close();
+
+                                resolve2();
+                            }
+                            catch (e) {
+                                reject2(e);
+                            }
+                        });
+                    },
+                    connection: mssqlConn,
+                    name: `mssql://${host}:${port}/${deploy_helpers.toStringSafe(db)}`,
+                    query: (sql, args) => {
+                        return new Promise<MSSqlResult>((resolve2, reject2) => {
+                            try {
+                                mssqlConn.query(sql).then(() => {
+                                    try {
+                                        let result: MSSqlResult = {
+                                        };
+
+                                        resolve2(result);
+                                    }
+                                    catch (e) {
+                                        reject2(e);
+                                    }
+                                }).catch((err) => {
+                                    reject2(err);
+                                });
+                            }
+                            catch (e) {
+                                reject2(e);
+                            }
+                        });
+                    },
+                    type: SqlConnectionType.MSSql,
+                };
+
+                completed(null, conn);
+            }).catch((err) => {
+                completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**
@@ -263,7 +437,13 @@ export function createSqlConnection(type: SqlConnectionType, args?: any[]): Prom
     return new Promise<SqlConnection>((resolve, reject) => {
         let func: Function;
         switch (type) {
+            case SqlConnectionType.MSSql:
+                // Microsoft SQL
+                func = createMSSqlConnection;
+                break;
+
             case SqlConnectionType.MySql:
+                // MySQL
                 func = createMySqlConnection;
                 break;
         }

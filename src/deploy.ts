@@ -1421,7 +1421,16 @@ export class Deployer extends Events.EventEmitter {
                             switch (engineName) {
                                 case '':
                                 case 'mysql':
+                                    // MySQL
                                     type = deploy_sql.SqlConnectionType.MySql;
+                                    args = [
+                                        sqlOp.options,
+                                    ];
+                                    break;
+
+                                case 'sql':
+                                    // Microsoft SQL
+                                    type = deploy_sql.SqlConnectionType.MSSql;
                                     args = [
                                         sqlOp.options,
                                     ];

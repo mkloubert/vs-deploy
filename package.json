@@ -598,7 +598,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -872,7 +873,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -1263,7 +1265,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -1537,7 +1540,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -1916,7 +1920,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -2190,7 +2195,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -2577,7 +2583,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -2851,7 +2858,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -3247,7 +3255,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -3521,7 +3530,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -3935,7 +3945,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -4209,7 +4220,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -4584,7 +4596,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -4858,7 +4871,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -5271,7 +5285,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -5545,7 +5560,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -5922,7 +5938,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -6196,7 +6213,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -6597,7 +6615,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -6871,7 +6890,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -7340,7 +7360,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -7614,7 +7635,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -8032,7 +8054,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -8306,7 +8329,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -8679,7 +8703,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -8953,7 +8978,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -9185,7 +9211,8 @@
                       },
                       "engine": {
                         "enum": [
-                          "mysql"
+                          "mysql",
+                          "sql"
                         ],
                         "type": "string",
                         "description": "The engine to use.",
@@ -9342,7 +9369,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -9616,7 +9644,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -9981,7 +10010,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -10255,7 +10285,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -10630,7 +10661,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",
@@ -10904,7 +10936,8 @@
                                 },
                                 "engine": {
                                   "enum": [
-                                    "mysql"
+                                    "mysql",
+                                    "sql"
                                   ],
                                   "type": "string",
                                   "description": "The engine to use.",

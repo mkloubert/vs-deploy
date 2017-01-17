@@ -75,7 +75,16 @@ class SqlPlugin extends deploy_objects.DeployPluginWithContextBase<SqlContext> {
                 switch (engineName) {
                     case '':
                     case 'mysql':
+                        // MySQL
                         type = deploy_sql.SqlConnectionType.MySql;
+                        args = [
+                            target.options,
+                        ];
+                        break;
+
+                    case 'sql':
+                        // Microsoft SQL
+                        type = deploy_sql.SqlConnectionType.MSSql;
                         args = [
                             target.options,
                         ];
