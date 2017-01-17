@@ -1918,6 +1918,136 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
+     * Opens the files that are defined in the config.
+     */
+    protected openFiles() {
+        let me = this;
+
+        try {
+            let cfg = me.config;
+            if (cfg.open) {
+                // cleanup filter list
+                let filters = deploy_helpers.asArray(cfg.open)
+                                            .filter(x => {
+                                                        return x &&
+                                                               deploy_helpers.asArray(x.files)
+                                                                             .map(y => deploy_helpers.toStringSafe(y))
+                                                                             .filter(y => y)
+                                                                             .length > 0;
+                                                    });
+
+                let closeOtherEditors = false;
+                let filesToOpen: string[] = [];
+                let completed = () => {
+                    // cleanup list of files to open
+                    filesToOpen = filesToOpen.map(x => Path.resolve(x));
+                    filesToOpen = deploy_helpers.distinctArray(filesToOpen);
+
+                    if (closeOtherEditors) {
+                        // close other editors
+                        vscode.window.visibleTextEditors.forEach(x => {
+                            try {
+                                x.hide();
+                            }
+                            catch (e) {
+                                me.log(i18.t('errors.withCategory',
+                                             'Deployer.openFiles(2)', e));
+                            }
+                        });
+                    }
+
+                    filesToOpen.forEach(x => {
+                        // try open...
+                        vscode.workspace.openTextDocument(x).then((doc) => {
+                            // try show...
+                            vscode.window.showTextDocument(doc).then(() => {
+                                //TODO
+                            }, (err) => {
+                                // could not SHOW text document
+                                me.log(i18.t('errors.withCategory',
+                                             'Deployer.openFiles(4)', err));
+                            });
+                        }, (err) => {
+                            // could not OPEN text document
+                            me.log(i18.t('errors.withCategory',
+                                         'Deployer.openFiles(3)', err));
+                        });
+                    });
+                };
+
+                let nextFilter: () => void;
+                nextFilter = () => {
+                    if (filters.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    let dir = vscode.workspace.rootPath;
+                    let f = filters.shift();
+
+                    // hostname / machine filter(s)
+                    
+                    let isFor = deploy_helpers.asArray(f.isFor)
+                                              .map(x => deploy_helpers.normalizeString(x))
+                                              .filter(x => x);
+
+                    if (isFor.length > 0) {
+                        let myName = deploy_helpers.normalizeString(me.name);
+
+                        if (isFor.indexOf(myName) < 0) {
+                            nextFilter();  // not for that machine
+                            return;
+                        }
+                    }
+
+                    closeOtherEditors = closeOtherEditors || 
+                                        deploy_helpers.toBooleanSafe(f.closeOthers);
+
+                    // patterns to search for
+                    let filesToSearchFor = deploy_helpers.asArray(f.files)
+                                                         .filter(x => x);
+                    filesToSearchFor = deploy_helpers.distinctArray(filesToSearchFor);
+
+                    if (filesToSearchFor.length > 0) {
+                        // files to exclude
+                        let filesToExclude = deploy_helpers.asArray(f.exclude)
+                                                           .filter(x => x);
+                        filesToExclude = deploy_helpers.distinctArray(filesToExclude);
+
+                        filesToSearchFor.forEach(x => {
+                            try {
+                                let foundFiles: string[] = Glob.sync(x, {
+                                    absolute: true,
+                                    cwd: dir,
+                                    dot: true,
+                                    ignore: filesToExclude,
+                                    nodir: true,
+                                    root: dir,
+                                });
+
+                                filesToOpen = filesToOpen.concat(foundFiles);
+                            }
+                            catch (e) {
+                                // error while collecting files to open
+                                me.log(i18.t('errors.withCategory',
+                                            'Deployer.openFiles(5)', e));
+                            }
+                        });
+                    }
+
+                    nextFilter();  // next
+                };
+
+                nextFilter();  // start
+            }
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.openFiles(1)', e));
+        }
+    }
+
+    /**
      * Action to open the output after an deployment.
      */
     public openOutputAfterDeploment() {
@@ -2098,6 +2228,8 @@ export class Deployer extends Events.EventEmitter {
             me.displayNetworkInfo();
 
             me.clearOutputOrNot();
+
+            me.openFiles();
 
             me.showExtensionInfoPopups();
         };

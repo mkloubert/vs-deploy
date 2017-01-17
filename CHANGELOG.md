@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.1.0 (January 17th, 2017; open files on startup)
+
+* added [open](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting property
+
+
 ## 5.0.0 (January 17th, 2017; cancel deployments)
 
 * improved cancellation of deployments

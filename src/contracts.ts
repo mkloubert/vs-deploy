@@ -318,6 +318,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     modules?: string | string[];
     /**
+     * A list files to open on startup.
+     */
+    open?: OpenFileFilter | OpenFileFilter[];
+    /**
      * Open the output window before deploying starts or not.
      */
     openOutputOnDeploy?: boolean;
@@ -1035,6 +1039,20 @@ export interface PackageFile {
      * The version string.
      */
     version: string;
+}
+
+/**
+ * Files to open at startup.
+ */
+export interface OpenFileFilter extends FileFilter {
+    /**
+     * Close other opened files or not.
+     */
+    closeOthers?: boolean;
+    /**
+     * A list of one or more (host)names that filter is for.
+     */
+    isFor?: string | string[];
 }
 
 /**
