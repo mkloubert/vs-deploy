@@ -424,6 +424,12 @@ export class Deployer extends Events.EventEmitter {
                         let currentPluginWithContext = matchIngPlugins.shift();
                         let currentPlugin = currentPluginWithContext.plugin;
                         let statusBarItem: vscode.StatusBarItem;
+
+                        let disposeStatusBarItem = () => {
+                            deploy_helpers.tryDispose(cancelCommand);
+                            deploy_helpers.tryDispose(statusBarItem);
+                        };
+
                         try {
                             statusBarItem = vscode.window.createStatusBarItem(
                                 vscode.StatusBarAlignment.Left,
@@ -458,8 +464,7 @@ export class Deployer extends Events.EventEmitter {
                                 let afterDeployButtonColor: string;
 
                                 try {
-                                    deploy_helpers.tryDispose(cancelCommand);
-                                    deploy_helpers.tryDispose(statusBarItem);
+                                    disposeStatusBarItem();
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -559,8 +564,7 @@ export class Deployer extends Events.EventEmitter {
                             }
                         }
                         catch (e) {
-                            deploy_helpers.tryDispose(cancelCommand);
-                            deploy_helpers.tryDispose(statusBarItem);
+                            disposeStatusBarItem();
 
                             completed(e);
                         }
@@ -848,6 +852,12 @@ export class Deployer extends Events.EventEmitter {
                             let currentPluginWithContext = matchIngPlugins.shift();
                             let currentPlugin = currentPluginWithContext.plugin;
                             let statusBarItem: vscode.StatusBarItem;
+
+                            let disposeStatusBarItem = () => {
+                                deploy_helpers.tryDispose(cancelCommand);
+                                deploy_helpers.tryDispose(statusBarItem);
+                            };
+
                             try {
                                 statusBarItem = vscode.window.createStatusBarItem(
                                     vscode.StatusBarAlignment.Left,
@@ -884,8 +894,7 @@ export class Deployer extends Events.EventEmitter {
                                     let afterDeployButtonColor: string;
 
                                     try {
-                                        deploy_helpers.tryDispose(cancelCommand);
-                                        deploy_helpers.tryDispose(statusBarItem);
+                                        disposeStatusBarItem();
 
                                         let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -1024,8 +1033,7 @@ export class Deployer extends Events.EventEmitter {
                                 });
                             }
                             catch (e) {
-                                deploy_helpers.tryDispose(cancelCommand);
-                                deploy_helpers.tryDispose(statusBarItem);
+                                disposeStatusBarItem();
                 
                                 vscode.window.showErrorMessage(i18.t('deploy.workspace.failed', e));
                             }
