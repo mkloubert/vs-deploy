@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.2.1 (January 17th, 2017; cancel deployments)
+
+* fixed cancellation of deployments
+
+
 ## 5.2.0 (January 17th, 2017; cancel deployments)
 
 * improved cancellation of deployments

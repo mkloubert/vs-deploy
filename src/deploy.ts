@@ -423,6 +423,7 @@ export class Deployer extends Events.EventEmitter {
 
                         let cancelCommand: vscode.Disposable;
                         let currentPluginWithContext = matchIngPlugins.shift();
+                        let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
                         let currentPlugin = currentPluginWithContext.plugin;
                         let statusBarItem: vscode.StatusBarItem;
 
@@ -448,8 +449,7 @@ export class Deployer extends Events.EventEmitter {
                                 hasCancelled = true;
 
                                 try {
-                                    currentPluginWithContext.context
-                                                            .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+                                    contextToUse.emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
                                 }
                                 catch (e) {
                                     me.log(i18.t('errors.withCategory', 'Deployer.deployFileTo().cancel', e));
@@ -521,7 +521,7 @@ export class Deployer extends Events.EventEmitter {
                                 statusBarItem.show();
 
                                 currentPlugin.deployFile(file, target, {
-                                    context: deploy_plugins.createPluginContext(currentPluginWithContext.context),
+                                    context: contextToUse,
 
                                     onBeforeDeploy: (sender, e) => {
                                         let destination = deploy_helpers.toStringSafe(e.destination); 
@@ -853,6 +853,7 @@ export class Deployer extends Events.EventEmitter {
 
                             let cancelCommand: vscode.Disposable;
                             let currentPluginWithContext = matchIngPlugins.shift();
+                            let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
                             let currentPlugin = currentPluginWithContext.plugin;
                             let statusBarItem: vscode.StatusBarItem;
 
@@ -878,8 +879,7 @@ export class Deployer extends Events.EventEmitter {
                                     hasCancelled = true;
 
                                     try {
-                                        currentPluginWithContext.context
-                                                                .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+                                        contextToUse.emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
                                     }
                                     catch (e) {
                                         me.log(i18.t('errors.withCategory', 'Deployer.deployWorkspaceTo().cancel', e));
@@ -994,7 +994,7 @@ export class Deployer extends Events.EventEmitter {
                                 statusBarItem.show();
 
                                 currentPlugin.deployWorkspace(files, target, {
-                                    context: deploy_plugins.createPluginContext(currentPluginWithContext.context),
+                                    context: contextToUse,
 
                                     onBeforeDeployFile: (sender, e) => {
                                         let relativePath = deploy_helpers.toRelativePath(e.file);
