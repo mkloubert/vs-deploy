@@ -66,10 +66,6 @@ export class Deployer extends Events.EventEmitter {
      */
     protected _host: DeployHost;
     /**
-     * Stores if cancellation has been requested or not.
-     */
-    protected _isCancelling: boolean;
-    /**
      * Stores the global output channel.
      */
     protected readonly _OUTPUT_CHANNEL: vscode.OutputChannel;
@@ -250,10 +246,6 @@ export class Deployer extends Events.EventEmitter {
      * Cancels the current deployment operation(s).
      */
     public cancelDeployment() {
-        if (this.isCancelling) {
-            return;
-        }
-
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine(i18.t('deploy.cancelling'));
 
@@ -267,8 +259,6 @@ export class Deployer extends Events.EventEmitter {
         catch (e) {
             this.log(i18.t('errors.withCategory', 'Deployer.cancelDeployment()', e));
         }
-
-        this._isCancelling = true;
     }
 
     /**
@@ -407,14 +397,19 @@ export class Deployer extends Events.EventEmitter {
         let me = this;
 
         return new Promise<boolean>((resolve, reject) => {
-            let completed = (err?: any, canceled?: boolean) => {
+            let hasCancelled = false;
+            let completed = (err?: any) => {
                 if (err) {
                     reject(err);
                 }
                 else {
-                    resolve(canceled);
+                    resolve(hasCancelled);
                 }
             };
+
+            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
+                hasCancelled = true;
+            });
 
             try {
                 me.hideAfterDeploymentStatusBarItem();
@@ -439,8 +434,8 @@ export class Deployer extends Events.EventEmitter {
                             return;
                         }
 
-                        if (me.isCancelling) {
-                            completed(null, true);
+                        if (hasCancelled) {
+                            completed();
                             return;
                         }
 
@@ -461,8 +456,6 @@ export class Deployer extends Events.EventEmitter {
 
                                 canceled = deploy_helpers.toBooleanSafe(canceled);
                                 try {
-                                    me.resetIsCancelling();
-
                                     deploy_helpers.tryDispose(statusBarItem);
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -511,7 +504,7 @@ export class Deployer extends Events.EventEmitter {
                                     me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
                                                                         afterDeployButtonColor);
 
-                                    completed(err, canceled);
+                                    completed(err);
                                 }
                             };
 
@@ -807,16 +800,21 @@ export class Deployer extends Events.EventEmitter {
         let nameOfTarget = deploy_helpers.normalizeString(target.name);
 
         return new Promise<any>((resolve, reject) => {
-            let completed = (err?: any, canceled?: boolean) => {
+            let hasCancelled = false;
+            let completed = (err?: any) => {
                 delete me._DEPLOY_WORKSPACE_IN_PROGRESS[nameOfTarget];
 
                 if (err) {
                     reject(err);
                 }
                 else {
-                    resolve(canceled);
+                    resolve(hasCancelled);
                 }
             };
+
+            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
+                hasCancelled = true;
+            });
 
             let startDeployment = () => {
                 try {
@@ -837,8 +835,8 @@ export class Deployer extends Events.EventEmitter {
                                 return;
                             }
 
-                            if (me.isCancelling) {
-                                completed(null, true);
+                            if (hasCancelled) {
+                                completed();
                                 return;
                             }
 
@@ -861,8 +859,6 @@ export class Deployer extends Events.EventEmitter {
 
                                     canceled = deploy_helpers.toBooleanSafe(canceled);
                                     try {
-                                        me.resetIsCancelling();
-
                                         deploy_helpers.tryDispose(statusBarItem);
 
                                         let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
@@ -953,7 +949,7 @@ export class Deployer extends Events.EventEmitter {
                                     finally {
                                         me.showStatusBarItemAfterDeployment(afterDeployButtonMsg, afterDeployButtonColor);
 
-                                        completed(err, canceled);
+                                        completed(err);
                                     }
                                 };
 
@@ -1473,13 +1469,6 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
-     * Gets if a cancellation is requested or not.
-     */
-    public get isCancelling(): boolean {
-        return this._isCancelling;
-    }
-
-    /**
      * Starts listening for files.
      */
     public listen() {
@@ -1599,8 +1588,6 @@ export class Deployer extends Events.EventEmitter {
      */
     public onActivated() {
         this.reloadConfiguration();
-
-        this.resetIsCancelling();
 
         this.setupFileSystemWatcher();
     }
@@ -1950,7 +1937,8 @@ export class Deployer extends Events.EventEmitter {
                 });
             }
 
-            let completed = (err?: any, canceled?: boolean) => {
+            let hasCancelled = false;
+            let completed = (err?: any) => {
                 let cfg = me.config;
 
                 if (cfg.button) {
@@ -1963,6 +1951,10 @@ export class Deployer extends Events.EventEmitter {
                     vscode.window.showErrorMessage(i18.t('quickDeploy.failed', err));
                 }
             };
+
+            me.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
+                hasCancelled = true;
+            });
 
             if (packagesToDeploy.length < 1) {
                 vscode.window.showWarningMessage(i18.t('packages.nothingToDeploy'));
@@ -1981,8 +1973,8 @@ export class Deployer extends Events.EventEmitter {
                         return;
                     }
 
-                    if (me.isCancelling) {
-                        completed(null, true);
+                    if (hasCancelled) {
+                        completed();
                         return;
                     }
 
@@ -1998,8 +1990,8 @@ export class Deployer extends Events.EventEmitter {
                                 return;
                             }
 
-                            if (me.isCancelling) {
-                                completed(null, true);
+                            if (hasCancelled) {
+                                completed();
                                 return;
                             }
 
@@ -2280,15 +2272,6 @@ export class Deployer extends Events.EventEmitter {
         catch (e) {
             vscode.window.showErrorMessage(i18.t('__plugins.reload.failed', e));
         }
-    }
-
-    /**
-     * Resets the state if the 'isCancelling' property.
-     * 
-     * @param {boolean} newValue The custom value to set.
-     */
-    protected resetIsCancelling(newValue: boolean = false) {
-        this._isCancelling = newValue;
     }
 
     /**
