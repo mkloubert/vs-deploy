@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_objects from './objects';
+import * as deploy_plugins from './plugins';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -2327,78 +2328,18 @@ export class Deployer extends Events.EventEmitter {
                     });
 
                     let createPluginContext: () => deploy_contracts.DeployContext = () => {
-                        let eventEmitter = new Events.EventEmitter();
+                        let ctx = deploy_plugins.createPluginContext();
 
-                        let ctx: deploy_contracts.DeployContext = {
-                            config: () => me.config,
-                            emit: function() {
-                                return eventEmitter.emit
-                                                   .apply(eventEmitter, arguments);
-                            },
-                            error: function(msg) {
-                                if (msg) {
-                                    vscode.window.showErrorMessage('' + msg);
-                                }
-
-                                return this;
-                            },
-                            globals: () => me.getGlobals(),
-                            info: function(msg) {
-                                if (msg) {
-                                    vscode.window.showInformationMessage('' + msg);
-                                }
-
-                                return this;
-                            },
-                            log: function(msg) {
-                                me.log(msg);
-                                return this;
-                            },
-                            once: function(event, cb) {
-                                eventEmitter.once(event, function(sender, e) {
-                                    try {
-                                        if (cb) {
-                                            cb(sender, e);
-                                        }
-                                    }
-                                    catch (e) {
-                                        me.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx', e));
-                                    }
-                                });
-
-                                return this;
-                            },
-                            outputChannel: () => me.outputChannel,
-                            packageFile: () => me.packageFile,
-                            packages: () => me.getPackages(),
-                            plugins: null,
-                            require: function(id) {
-                                return require(id);
-                            },
-                            targets: () => me.getTargets(),
-                            warn: function(msg) {
-                                if (msg) {
-                                    vscode.window.showWarningMessage('' + msg);
-                                }
-
-                                return this;
-                            },
-                            workspace: function() {
-                                return vscode.workspace.rootPath;
-                            },
-                            write: function(msg) {
-                                msg = deploy_helpers.toStringSafe(msg);
-                                this.outputChannel().append(msg);
-
-                                return this;
-                            },
-                            writeLine: function(msg) {
-                                msg = deploy_helpers.toStringSafe(msg);
-                                this.outputChannel().appendLine(msg);
-
-                                return this;
-                            },
+                        ctx.config = () => me.config;
+                        ctx.globals = () => me.getGlobals();
+                        ctx.log = function(msg) {
+                            me.log(msg);
+                            return this;
                         };
+                        ctx.outputChannel = () => me.outputChannel;
+                        ctx.packageFile = () => me.packageFile;
+                        ctx.packages = () => me.getPackages();
+                        ctx.targets = () => me.getTargets();
 
                         return ctx;
                     };

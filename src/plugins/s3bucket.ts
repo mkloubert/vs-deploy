@@ -153,7 +153,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested

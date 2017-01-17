@@ -73,7 +73,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested
@@ -155,7 +155,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested

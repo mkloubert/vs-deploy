@@ -368,7 +368,7 @@ export interface DeployContext {
      * @param {string | symbol} event The event.
      * @param {any[]} args The arguments.
      */
-    emit(event: string | symbol, ...args: any[]): boolean;
+    emit: (event: string | symbol, ...args: any[]) => boolean;
     /**
      * Shows an error message.
      * 
@@ -503,6 +503,11 @@ export interface DeployFileOptions {
      * The custom root directory to use.
      */
     baseDirectory?: string;
+    // kloubi
+    /**
+     * The custom deploy context.
+     */
+    context?: DeployContext;
     /**
      * The "before deploy" callback.
      */
@@ -946,6 +951,11 @@ export interface DeployWorkspaceOptions {
      * The custom root directory to use.
      */
     baseDirectory?: string;
+    // kloubi
+    /**
+     * The custom deploy context.
+     */
+    context?: DeployContext;
     /**
      * The "before deploy" file callback.
      */

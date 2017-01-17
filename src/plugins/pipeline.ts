@@ -158,7 +158,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested

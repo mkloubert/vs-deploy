@@ -107,7 +107,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested
@@ -181,11 +181,20 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
      * Registers for a callback for a 'cancel' event that is called once.
      * 
      * @param {deploy_contracts.EventHandler} callback The callback to register.
+     * @param {deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions} [opts] The underlying options.
      */
-    protected onCancelling(callback: deploy_contracts.EventHandler) {
-        this.context
-            .once(deploy_contracts.EVENT_CANCEL_DEPLOY,
-                  callback);
+    protected onCancelling(callback: deploy_contracts.EventHandler,
+                           opts?: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions) {
+        let ctx: deploy_contracts.DeployContext;
+        if (opts) {
+            ctx = opts.context;
+        }
+        ctx = ctx || this.context;
+        
+        if (ctx) {
+            ctx.once(deploy_contracts.EVENT_CANCEL_DEPLOY,
+                     callback);
+        }
     }
 }
 
@@ -280,7 +289,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested
@@ -435,7 +444,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested

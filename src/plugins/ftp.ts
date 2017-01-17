@@ -158,7 +158,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested

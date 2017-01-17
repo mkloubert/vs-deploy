@@ -191,7 +191,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
         };
 
-        me.onCancelling(() => hasCanceled = true);
+        me.onCancelling(() => hasCanceled = true, opts);
 
         if (hasCanceled) {
             completed();  // cancellation requested
