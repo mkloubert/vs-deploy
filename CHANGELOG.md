@@ -2,7 +2,7 @@
 
 ## 5.3.0 (January 17th, 2017; SQL)
 
-* added support for [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) (MySQL)
+* added support for SQL [targets](https://github.com/mkloubert/vs-deploy/wiki/target_sql) and [operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#sql-) (Microsoft SQL, MySQL)
 
 
 ## 5.2.1 (January 17th, 2017; cancel deployments)
