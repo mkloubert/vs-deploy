@@ -1,5 +1,8 @@
 # Change Log (vs-deploy)
 
+## 5.0.0 (January 17th, 2017; )
+
+
 ## 4.22.0 (January 16th, 2017; display loaded plugins and network info)
 
 * added `displayLoadedPlugins` and `displayNetworkInfo` [settings](https://github.com/mkloubert/vs-deploy/wiki#settings--)
