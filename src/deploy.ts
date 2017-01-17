@@ -445,7 +445,7 @@ export class Deployer extends Events.EventEmitter {
                                                             .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
                                 }
                                 catch (e) {
-                                    //TODO
+                                    me.log(i18.t('errors.withCategory', 'Deployer.deployFileTo().cancel', e));
                                 }
 
                                 statusBarItem.text = i18.t('deploy.button.cancelling');
@@ -869,7 +869,7 @@ export class Deployer extends Events.EventEmitter {
                                                                 .emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
                                     }
                                     catch (e) {
-                                        //TODO
+                                        me.log(i18.t('errors.withCategory', 'Deployer.deployWorkspaceTo().cancel', e));
                                     }
 
                                     statusBarItem.text = i18.t('deploy.button.cancelling');
