@@ -199,53 +199,54 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                                     .filter(x => !deploy_helpers.isEmptyString(x));
 
                     super.deployWorkspace(newFileList,
-                                        target,
-                                        {
-                                            baseDirectory: a.baseDirectory,
-                                            onBeforeDeployFile: (sender, e) => {
-                                                if (opts.onBeforeDeployFile) {
-                                                    opts.onBeforeDeployFile(sender, {
-                                                        destination: e.destination,
-                                                        file: e.file,
-                                                        target: e.target,
-                                                    });
-                                                }
-                                            },
-                                            onCompleted: (sender, e) => {
-                                                let pipeCompleted = () => {
-                                                    hasCanceled = e.canceled;
-                                                    completed(e.error);
-                                                };
+                                          target,
+                                          {
+                                              baseDirectory: a.baseDirectory,
+                                              context: opts.context,
+                                              onBeforeDeployFile: (sender, e) => {
+                                                  if (opts.onBeforeDeployFile) {
+                                                      opts.onBeforeDeployFile(sender, {
+                                                          destination: e.destination,
+                                                          file: e.file,
+                                                          target: e.target,
+                                                      });
+                                                  }
+                                              },
+                                              onCompleted: (sender, e) => {
+                                                  let pipeCompleted = () => {
+                                                      hasCanceled = e.canceled;
+                                                      completed(e.error);
+                                                  };
 
-                                                try {
-                                                    if (scriptModule.onPipeCompleted) {
-                                                        scriptModule.onPipeCompleted(a, e.error).then(() => {
-                                                            pipeCompleted();
-                                                        }).catch((err) => {
-                                                            me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));
-
-                                                            pipeCompleted();
-                                                        });
-                                                    }
-                                                    else {
-                                                        pipeCompleted();
-                                                    }
-                                                }
-                                                catch (ex) {
-                                                    me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
-
-                                                    pipeCompleted();
-                                                }
-                                            },
-                                            onFileCompleted: (sender, e) => {
-                                                if (opts.onFileCompleted) {
-                                                    opts.onFileCompleted(sender, {
-                                                        file: e.file,
-                                                        target: e.target,
-                                                    });
-                                                }
-                                            }
-                                        })
+                                                  try {
+                                                      if (scriptModule.onPipeCompleted) {
+                                                          scriptModule.onPipeCompleted(a, e.error).then(() => {
+                                                              pipeCompleted();
+                                                          }).catch((err) => {
+                                                              me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));
+ 
+                                                              pipeCompleted();
+                                                          });
+                                                      }
+                                                      else {
+                                                          pipeCompleted();
+                                                      }
+                                                  }
+                                                  catch (ex) {
+                                                      me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(1)', ex));
+ 
+                                                      pipeCompleted();
+                                                  }
+                                              },
+                                              onFileCompleted: (sender, e) => {
+                                                  if (opts.onFileCompleted) {
+                                                      opts.onFileCompleted(sender, {
+                                                          file: e.file,
+                                                          target: e.target,
+                                                      });
+                                                  }
+                                              }
+                                          });
                 }).catch((err) => {
                     completed(err);
                 });

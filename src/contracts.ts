@@ -503,7 +503,6 @@ export interface DeployFileOptions {
      * The custom root directory to use.
      */
     baseDirectory?: string;
-    // kloubi
     /**
      * The custom deploy context.
      */
@@ -951,7 +950,6 @@ export interface DeployWorkspaceOptions {
      * The custom root directory to use.
      */
     baseDirectory?: string;
-    // kloubi
     /**
      * The custom deploy context.
      */

@@ -150,6 +150,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                     
                     try {
                         me.deployFile(f, target, {
+                            context: opts.context,
                             onBeforeDeploy: (sender, e) => {
                                 if (opts.onBeforeDeployFile) {
                                     opts.onBeforeDeployFile(sender, e);
@@ -212,6 +213,8 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
         let me = this;
 
         this.deployWorkspace([ file ], target, {
+            context: opts.context,
+
             onBeforeDeployFile: (sender, e) => {
                 if (opts.onBeforeDeploy) {
                     opts.onBeforeDeploy(sender, {
@@ -359,21 +362,23 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                             let currentFile = filesTodo.shift();
                             try {
                                 me.deployFileWithContext(wrapper.context,
-                                                        currentFile, target, {
-                                                            onBeforeDeploy: (sender, e) => {
-                                                                if (opts.onBeforeDeployFile) {
-                                                                    opts.onBeforeDeployFile(sender, {
-                                                                        destination: e.destination,
-                                                                        file: e.file,
-                                                                        target: e.target,
-                                                                    });
-                                                                }
-                                                            },
+                                                         currentFile, target, {
+                                                             context: opts.context,
 
-                                                            onCompleted: (sender, e) => {
-                                                                fileCompleted(e.file, e.error, e.canceled);
-                                                            }
-                                                        });
+                                                             onBeforeDeploy: (sender, e) => {
+                                                                 if (opts.onBeforeDeployFile) {
+                                                                     opts.onBeforeDeployFile(sender, {
+                                                                         destination: e.destination,
+                                                                         file: e.file,
+                                                                         target: e.target,
+                                                                     });
+                                                                 }
+                                                             },
+
+                                                             onCompleted: (sender, e) => {
+                                                                 fileCompleted(e.file, e.error, e.canceled);
+                                                             }
+                                                         });
                             }
                             catch (e) {
                                 fileCompleted(currentFile, e); // deploy error
@@ -579,6 +584,8 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
                     let currentPlugin = pluginsTodo.shift();
                     try {
                         currentPlugin.deployWorkspace(files, currentTarget.target, {
+                            context: opts.context,
+
                             onBeforeDeployFile: (sender, e) => {
                                 if (opts.onBeforeDeployFile) {
                                     let destination = deploy_helpers.toStringSafe(currentTarget.target.name).trim();

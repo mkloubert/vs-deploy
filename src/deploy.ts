@@ -521,6 +521,8 @@ export class Deployer extends Events.EventEmitter {
                                 statusBarItem.show();
 
                                 currentPlugin.deployFile(file, target, {
+                                    context: deploy_plugins.createPluginContext(currentPluginWithContext.context),
+
                                     onBeforeDeploy: (sender, e) => {
                                         let destination = deploy_helpers.toStringSafe(e.destination); 
                                         let targetName = deploy_helpers.toStringSafe(e.target.name);
@@ -992,6 +994,8 @@ export class Deployer extends Events.EventEmitter {
                                 statusBarItem.show();
 
                                 currentPlugin.deployWorkspace(files, target, {
+                                    context: deploy_plugins.createPluginContext(currentPluginWithContext.context),
+
                                     onBeforeDeployFile: (sender, e) => {
                                         let relativePath = deploy_helpers.toRelativePath(e.file);
                                         if (false === relativePath) {
