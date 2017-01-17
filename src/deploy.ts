@@ -438,8 +438,6 @@ export class Deployer extends Events.EventEmitter {
                                     return;
                                 }
 
-                                Number.MAX_SAFE_INTEGER;
-
                                 hasCancelled = true;
 
                                 try {
