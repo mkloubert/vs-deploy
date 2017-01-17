@@ -42,6 +42,10 @@ export const DEFAULT_MAX_MESSAGE_SIZE = 16777215;
  * Default TCP port of a host.
  */
 export const DEFAULT_PORT = 23979;
+/**
+ * Name of the event to cancel a deployment.
+ */
+export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 
 /**
  * An operation that is invoked AFTER

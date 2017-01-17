@@ -27,6 +27,7 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_objects from './objects';
 import { DeployHost } from './host';
+import * as Events from 'events';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as i18 from './i18';
@@ -39,7 +40,7 @@ import * as vscode from 'vscode';
 /**
  * Deployer class.
  */
-export class Deployer {
+export class Deployer extends Events.EventEmitter {
     /**
      * Information button that is shown after a deployment has been finished.
      */
@@ -99,6 +100,8 @@ export class Deployer {
     constructor(context: vscode.ExtensionContext,
                 outputChannel: vscode.OutputChannel,
                 pkgFile: deploy_contracts.PackageFile) {
+        super();
+
         this._CONTEXT = context;
         this._OUTPUT_CHANNEL = outputChannel;
         this._PACKAGE_FILE = pkgFile;
@@ -253,6 +256,13 @@ export class Deployer {
 
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine(i18.t('deploy.cancelling'));
+
+        try {
+            this.emit(deploy_contracts.EVENT_CANCEL_DEPLOY);
+        }
+        catch (e) {
+            this.log(i18.t('errors.withCategory', 'Deployer.cancelDeployment()', e));
+        }
 
         this._isCancelling = true;
     }
