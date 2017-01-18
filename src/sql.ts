@@ -284,7 +284,7 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
                             try {
                                 let req = new MSSQL.Request(mssqlConn);
 
-                                req.query(sql).then(function(recordset) {
+                                req.query(sql).then((recordset) => {
                                     let result: MSSqlResult = {
                                     };
 
