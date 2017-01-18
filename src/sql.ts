@@ -282,16 +282,13 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
                     query: (sql, args) => {
                         return new Promise<MSSqlResult>((resolve2, reject2) => {
                             try {
-                                mssqlConn.query(sql).then(() => {
-                                    try {
-                                        let result: MSSqlResult = {
-                                        };
+                                let req = new MSSQL.Request(mssqlConn);
 
-                                        resolve2(result);
-                                    }
-                                    catch (e) {
-                                        reject2(e);
-                                    }
+                                req.query(sql).then(function(recordset) {
+                                    let result: MSSqlResult = {
+                                    };
+
+                                    resolve2(result);
                                 }).catch((err) => {
                                     reject2(err);
                                 });
