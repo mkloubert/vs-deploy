@@ -24,8 +24,24 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_helpers from './helpers';
-const MSSQL = require('mssql');
-const MYSQL = require('mysql');
+let MSSQL: any;
+let MYSQL: any;
+
+// try load Microsoft SQL module
+try {
+    MSSQL = require('mssql');
+}
+catch (e) {
+    deploy_helpers.log(`Could not load MS-SQL module: ${deploy_helpers.toStringSafe(e)}`);
+}
+
+// try load MySQL
+try {
+    MYSQL = require('mysql');
+}
+catch (e) {
+    deploy_helpers.log(`Could not load MySQL module: ${deploy_helpers.toStringSafe(e)}`);
+}
 
 
 /**
@@ -195,6 +211,11 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
                 resolve(conn);
             }
         };
+
+        if (!MSSQL) {
+            completed(new Error(`Microsoft SQL is currently not available!`));
+            return;
+        }
         
         try {
             let driver = deploy_helpers.toStringSafe(opts.driver).toLowerCase().trim();
@@ -315,6 +336,11 @@ export function createMySqlConnection(opts?: MySqlOptions): Promise<MySqlConnect
                 resolve(conn);
             }
         };
+
+        if (!MYSQL) {
+            completed(new Error(`MySQL is currently not available!`));
+            return;
+        }
         
         try {
             let host = deploy_helpers.toStringSafe(opts.host).toLowerCase().trim();
