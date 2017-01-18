@@ -597,13 +597,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -872,13 +882,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -1264,13 +1284,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -1539,13 +1569,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -1919,13 +1959,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -2194,13 +2244,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -2582,13 +2642,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -2857,13 +2927,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -3254,13 +3334,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -3529,13 +3619,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -3944,13 +4044,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -4219,13 +4329,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -4595,13 +4715,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -4870,13 +5000,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -5284,13 +5424,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -5559,13 +5709,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -5937,13 +6097,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -6212,13 +6382,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -6614,13 +6794,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -6889,13 +7079,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -7359,13 +7559,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -7634,13 +7844,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -8053,13 +8273,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -8328,13 +8558,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -8702,13 +8942,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -8977,13 +9227,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -9210,13 +9470,23 @@
                         "default": "utf8"
                       },
                       "engine": {
-                        "enum": [
-                          "mysql",
-                          "sql"
-                        ],
-                        "type": "string",
-                        "description": "The engine to use.",
-                        "default": "mysql"
+                        "default": "mysql",
+                        "oneOf": [
+                          {
+                            "enum": [
+                              "mysql"
+                            ],
+                            "type": "string",
+                            "description": "MySQL"
+                          },
+                          {
+                            "enum": [
+                              "sql"
+                            ],
+                            "type": "string",
+                            "description": "Microsoft SQL"
+                          }
+                        ]
                       },
                       "options": {
                         "description": "The options for the connection."
@@ -9368,13 +9638,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -9643,13 +9923,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -10009,13 +10299,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -10284,13 +10584,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -10660,13 +10970,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
@@ -10935,13 +11255,23 @@
                                   "description": "Executes SQL scripts."
                                 },
                                 "engine": {
-                                  "enum": [
-                                    "mysql",
-                                    "sql"
-                                  ],
-                                  "type": "string",
-                                  "description": "The engine to use.",
-                                  "default": "mysql"
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
                                 },
                                 "options": {
                                   "description": "The options for the connection."
