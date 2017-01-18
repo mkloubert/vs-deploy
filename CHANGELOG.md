@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.3.2 (January 17th, 2017; fixed fatal bug)
+
+* fixed bug that crashes extension, because of [none existing SQL libraries in package.json](https://github.com/mkloubert/vs-deploy/issues/28#issuecomment-273445589)
+
+
 ## 5.3.0 (January 17th, 2017; SQL)
 
 * added support for SQL [targets](https://github.com/mkloubert/vs-deploy/wiki/target_sql) and [operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#sql-) (Microsoft SQL, MySQL)
