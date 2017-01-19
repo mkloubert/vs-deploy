@@ -41,6 +41,11 @@ import * as vscode from 'vscode';
 let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
+interface ScriptCommandWrapper {
+    button?: vscode.StatusBarItem;
+    command: vscode.Disposable,
+}
+
 /**
  * Deployer class.
  */
@@ -56,7 +61,7 @@ export class Deployer extends Events.EventEmitter {
     /**
      * List of custom commands.
      */
-    protected readonly _COMMANDS: vscode.Disposable[] = [];
+    protected readonly _COMMANDS: ScriptCommandWrapper[] = [];
     /**
      * Stores the current configuration.
      */
@@ -2397,7 +2402,8 @@ export class Deployer extends Events.EventEmitter {
             while (this._COMMANDS.length > 0) {
                 let oldCmd = this._COMMANDS.shift();
 
-                deploy_helpers.tryDispose(oldCmd);
+                deploy_helpers.tryDispose(oldCmd.command);
+                deploy_helpers.tryDispose(oldCmd.button);
             }
 
             if (cfg.commands) {
@@ -2408,13 +2414,15 @@ export class Deployer extends Events.EventEmitter {
                            .forEach(x => {
                                let cmdName = deploy_helpers.toStringSafe(x.command).trim();
 
+                               let btn: vscode.StatusBarItem;
+                               let cmd: vscode.Disposable;
                                try {
                                    let cmdModule = deploy_helpers.loadScriptCommandModule(x.script);
                                    if (!cmdModule.execute) {
-                                       return;
+                                       return;  // no execute() function found
                                    }
 
-                                   let cmd = vscode.commands.registerCommand(cmdName, function() {
+                                   cmd = vscode.commands.registerCommand(cmdName, function() {
                                        let completed = (err?: any) => {
                                            if (err) {
                                                vscode.window.showErrorMessage(i18.t('commands.executionFailed',
@@ -2432,6 +2440,13 @@ export class Deployer extends Events.EventEmitter {
                                                }
                                            };
 
+                                           // args.button
+                                           Object.defineProperty(args, 'button', {
+                                               configurable: true,
+                                               enumerable: true,
+                                               get: () => { return btn }, 
+                                           });
+
                                            cmdModule.execute(args).then(() => {
                                                completed();
                                            }).catch((err) => {
@@ -2443,9 +2458,52 @@ export class Deployer extends Events.EventEmitter {
                                        }
                                    });
 
-                                   me._COMMANDS.push(cmd);
+                                   if (x.button) {
+                                       // status bar button
+
+                                       btn = vscode.window.createStatusBarItem();
+                                       btn.command = cmdName;
+                                        
+                                       // caption
+                                       if (deploy_helpers.isEmptyString(x.button.text)) {
+                                           btn.text = cmdName;
+                                       }
+                                       else {
+                                           btn.text = deploy_helpers.toStringSafe(x.button.text);
+                                       }
+
+                                       // tooltip
+                                       if (deploy_helpers.isEmptyString(x.button.tooltip)) {
+                                           btn.tooltip = cmdName;
+                                       }
+                                       else {
+                                           btn.tooltip = deploy_helpers.toStringSafe(x.button.tooltip);
+                                       }
+
+                                       // color
+                                       let color = deploy_helpers.toStringSafe(x.button.color).toLowerCase().trim();
+                                       if (color) {
+                                           btn.color = color;
+                                       }
+
+                                       if (!deploy_helpers.isNullOrUndefined(x.button.priority)) {
+                                           btn.priority = parseFloat(deploy_helpers.toStringSafe(x.button.priority).trim());
+                                       }
+
+                                       if (deploy_helpers.toBooleanSafe(x.button.show, true)) {
+                                           btn.show();
+                                       }
+                                   }
+
+                                   me._COMMANDS.push({
+                                       button: btn,
+                                       command: cmd,
+                                   });
                                }
                                catch (e) {
+                                   deploy_helpers.tryDispose(btn);
+                                   deploy_helpers.tryDispose(cmd);
+
                                    me.log(i18.t('errors.withCategory',
                                                 'Deployer.reloadCommands(2)', e));
                                }

@@ -124,6 +124,39 @@
                   "type": "object",
                   "description": "The command to register.",
                   "properties": {
+                    "button": {
+                      "type": "object",
+                      "properties": {
+                        "color": {
+                          "type": "string",
+                          "description": "The custom (text) color for the button.",
+                          "default": "#ffffff"
+                        },
+                        "isRight": {
+                          "type": "boolean",
+                          "description": "Set button on the right side or not.",
+                          "default": false
+                        },
+                        "priority": {
+                          "type": "number",
+                          "description": "The custom priority.",
+                          "default": 0
+                        },
+                        "show": {
+                          "type": "boolean",
+                          "description": "Show button on startup or not.",
+                          "default": true
+                        },
+                        "text": {
+                          "type": "string",
+                          "description": "The caption for the button."
+                        },
+                        "tooltip": {
+                          "type": "string",
+                          "description": "The tooltip for the button."
+                        }
+                      }
+                    },
                     "command": {
                       "type": "string",
                       "description": "The ID of the command."
@@ -145,6 +178,39 @@
                     "type": "object",
                     "description": "The command to register.",
                     "properties": {
+                      "button": {
+                        "type": "object",
+                        "properties": {
+                          "color": {
+                            "type": "string",
+                            "description": "The custom (text) color for the button.",
+                            "default": "#ffffff"
+                          },
+                          "isRight": {
+                            "type": "boolean",
+                            "description": "Set button on the right side or not.",
+                            "default": false
+                          },
+                          "priority": {
+                            "type": "number",
+                            "description": "The custom priority.",
+                            "default": 0
+                          },
+                          "show": {
+                            "type": "boolean",
+                            "description": "Show button on startup or not.",
+                            "default": true
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "The caption for the button."
+                          },
+                          "tooltip": {
+                            "type": "string",
+                            "description": "The tooltip for the button."
+                          }
+                        }
+                      },
                       "command": {
                         "type": "string",
                         "description": "The ID of the command."
