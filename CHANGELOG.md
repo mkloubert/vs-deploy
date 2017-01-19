@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.5.0 (January 19th, 2017; execute Visual Studio Code commands)
+
+* can execute any available VSCode command via [operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) now
+
+
 ## 5.3.2 (January 17th, 2017; fixed fatal bug)
 
 * fixed bug that crashes extension, because of [none existing SQL libraries in package.json](https://github.com/mkloubert/vs-deploy/issues/28#issuecomment-273445589)

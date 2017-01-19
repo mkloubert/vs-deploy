@@ -76,6 +76,13 @@ export interface AfterDeploySqlOperation extends AfterDeployedOperation, DeployS
 }
 
 /**
+ * An operation that executes a Visual Studio Code command and is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedVSCommandOperation extends AfterDeployedOperation, DeployVSCommandOperation {
+}
+
+/**
  * An operation that waits a number of milliseconds and is invoked AFTER
  * ALL files have been deployed.
  */
@@ -133,6 +140,13 @@ export interface BeforeDeployScriptOperation extends BeforeDeployOperation, Depl
  * files will be deployed.
  */
 export interface BeforeDeploySqlOperation extends BeforeDeployOperation, DeploySqlOperation {
+}
+
+/**
+ * An operation that executes a Visual Studio Code command and is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployVSCommandOperation extends BeforeDeployOperation, DeployVSCommandOperation {
 }
 
 /**
@@ -910,6 +924,20 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
      * The target.
      */
     target: DeployTarget;
+}
+
+/**
+ * An operation that executes a Visual Studio Code command.
+ */
+export interface DeployVSCommandOperation extends DeployOperation {
+    /**
+     * The arguments for the command.
+     */
+    arguments?: any[];
+    /**
+     * The command to execute.
+     */
+    command: string;
 }
 
 /**

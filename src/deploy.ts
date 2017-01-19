@@ -392,7 +392,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.onCancelling(() =>  hasCancelled = true);
+            me.onCancelling(() => hasCancelled = true);
 
             try {
                 me.hideAfterDeploymentStatusBarItem();
@@ -825,7 +825,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.onCancelling(() =>  hasCancelled = true);
+            me.onCancelling(() => hasCancelled = true);
 
             let startDeployment = () => {
                 try {
@@ -1481,6 +1481,29 @@ export class Deployer extends Events.EventEmitter {
                                 }).catch((err) => {
                                     completed(err);
                                 });
+                            }
+                        }
+                        break;
+
+                    case 'vscommand':
+                        {
+                            let vsCmdOp = <deploy_contracts.DeployVSCommandOperation>operation;
+
+                            let commandId = deploy_helpers.toStringSafe(vsCmdOp.command).trim();
+                            if (!deploy_helpers.isEmptyString(commandId)) {
+                                let args = vsCmdOp.arguments;
+                                if (!args) {
+                                    args = [];
+                                }
+
+                                args = [ commandId ].concat(args);
+
+                                nextAction = null;
+                                vscode.commands.executeCommand.apply(null, args).then(() => {
+                                    completed();
+                                }, (err) => {
+                                    completed(err);
+                                });;
                             }
                         }
                         break;
@@ -2221,7 +2244,7 @@ export class Deployer extends Events.EventEmitter {
                 }
             };
 
-            me.onCancelling(() =>  hasCancelled = true);
+            me.onCancelling(() => hasCancelled = true);
 
             if (packagesToDeploy.length < 1) {
                 vscode.window.showWarningMessage(i18.t('packages.nothingToDeploy'));
