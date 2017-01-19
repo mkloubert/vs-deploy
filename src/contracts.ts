@@ -164,6 +164,16 @@ export interface BeforeDeployWebDeployOperation extends BeforeDeployOperation, D
 }
 
 /**
+ * A command.
+ */
+export interface Command {
+    /**
+     * The ID of the command.
+     */
+    command: string;
+}
+
+/**
  * Describes a function that transforms data into new format.
  * 
  * @param {DataTransformerContext} ctx The transformer context.
@@ -262,6 +272,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * Clear output on startup or not.
      */
     clearOutputOnStartup?: boolean;
+    /**
+     * A list of one or more script based commands to register.
+     */
+    commands?: ScriptCommand | ScriptCommand[];
     /**
      * Activates or deactivates "deploy on change" feature.
      */
@@ -1147,6 +1161,65 @@ export interface PopupButton extends vscode.MessageItem {
 export type PopupButtonAction = () => void;
 
 /**
+ * A startup command.
+ */
+export interface ScriptCommand extends Command {
+    /**
+     * Optional data for the execution.
+     */
+    options?: any;
+    /**
+     * The path to the script that is run when command is executed.
+     */
+    script: string;
+}
+
+/**
+ * Describes the function that execute a command.
+ * 
+ * @param {ScriptCommandExecutorArguments} args The arguments for the execution.
+ * 
+ * @returns {Promise<any>} The promise.
+ */
+export type ScriptCommandExecutor = (args: ScriptCommandExecutorArguments) => Promise<any>;
+
+/**
+ * Arguments for a command execution.
+ */
+export interface ScriptCommandExecutorArguments {
+    /**
+     * Arguments from the callback.
+     */
+    arguments: IArguments;
+    /**
+     * The global variables from the settings.
+     */
+    globals?: GlobalVariables;
+    /**
+     * Loads a module from the script context.
+     * 
+     * @param {string} id The ID / path to the module.
+     * 
+     * @return {any} The loaded module.
+     */
+    require: (id: string) => any;
+    /**
+     * The options.
+     */
+    options?: any;
+}
+
+/**
+ * A module of a script based command.
+ */
+export interface ScriptCommandModule {
+    /**
+     * Executes the command.
+     */
+    execute?: ScriptCommandExecutor;
+}
+
+/**
  * Describes an object that is sortable.
  */
 export interface Sortable {
@@ -1159,15 +1232,11 @@ export interface Sortable {
 /**
  * A startup command.
  */
-export interface StartupCommand {
+export interface StartupCommand extends Command {
     /**
      * Arguments for the execution.
      */
     arguments?: any[];
-    /**
-     * The ID of the command.
-     */
-    command: string;
 }
 
 /**

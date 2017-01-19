@@ -54,6 +54,10 @@ export class Deployer extends Events.EventEmitter {
      */
     protected readonly _DEPLOY_WORKSPACE_IN_PROGRESS: any = {};
     /**
+     * List of custom commands.
+     */
+    protected readonly _COMMANDS: vscode.Disposable[] = [];
+    /**
      * Stores the current configuration.
      */
     protected _config: deploy_contracts.DeployConfiguration;
@@ -2381,6 +2385,80 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
+     * Reloads the defined commands from the config.
+     */
+    protected reloadCommands() {
+        let me = this;
+
+        try {
+            let cfg = me.config;
+
+            // remove old commands
+            while (this._COMMANDS.length > 0) {
+                let oldCmd = this._COMMANDS.shift();
+
+                deploy_helpers.tryDispose(oldCmd);
+            }
+
+            if (cfg.commands) {
+                let newCommands = deploy_helpers.asArray(cfg.commands)
+                                                .filter(x => x);
+
+                newCommands.filter(x => !deploy_helpers.isEmptyString(x.command))
+                           .forEach(x => {
+                               let cmdName = deploy_helpers.toStringSafe(x.command).trim();
+
+                               try {
+                                   let cmdModule = deploy_helpers.loadScriptCommandModule(x.script);
+                                   if (!cmdModule.execute) {
+                                       return;
+                                   }
+
+                                   let cmd = vscode.commands.registerCommand(cmdName, function() {
+                                       let completed = (err?: any) => {
+                                           if (err) {
+                                               vscode.window.showErrorMessage(i18.t('commands.executionFailed',
+                                                                                    cmdName, err));
+                                           }
+                                       };
+                                       
+                                       try {
+                                           let args: deploy_contracts.ScriptCommandExecutorArguments = {
+                                               arguments: arguments,
+                                               globals: me.getGlobals(),
+                                               options: deploy_helpers.cloneObject(x.options),
+                                               require: function(id) {
+                                                   return require(id);
+                                               }
+                                           };
+
+                                           cmdModule.execute(args).then(() => {
+                                               completed();
+                                           }).catch((err) => {
+                                               completed(err);
+                                           });
+                                       }
+                                       catch (e) {
+                                           completed(e);
+                                       }
+                                   });
+
+                                   me._COMMANDS.push(cmd);
+                               }
+                               catch (e) {
+                                   me.log(i18.t('errors.withCategory',
+                                                'Deployer.reloadCommands(2)', e));
+                               }
+                           });
+            }
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.reloadCommands(1)', e));
+        }
+    }
+
+    /**
      * Reloads configuration.
      */
     public reloadConfiguration() {
@@ -2396,6 +2474,7 @@ export class Deployer extends Events.EventEmitter {
 
             me.showExtensionInfoPopups();
 
+            me.reloadCommands();
             me.executeStartupCommands();
         };
 

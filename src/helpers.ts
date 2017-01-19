@@ -526,7 +526,7 @@ export function isNullOrUndefined(val: any): boolean {
  * @return {deploy_contracts.DataTransformModule} The loaded module.
  */
 export function loadDataTransformerModule(file: string, useCache: boolean = false): deploy_contracts.DataTransformModule {
-    return loadModule(file, useCache);
+    return loadModule<deploy_contracts.DataTransformModule>(file, useCache);
 }
 
 /**
@@ -538,7 +538,7 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
  * @return {deploy_contracts.DeployScriptOperationModule} The loaded module.
  */
 export function loadDeployScriptOperationModule(file: string, useCache: boolean = false): deploy_contracts.DeployScriptOperationModule {
-    return loadModule(file, useCache);
+    return loadModule<deploy_contracts.DeployScriptOperationModule>(file, useCache);
 }
 
 /**
@@ -568,6 +568,18 @@ export function loadModule<TModule>(file: string, useCache: boolean = false): TM
 }
 
 /**
+ * Loads a script based command module.
+ * 
+ * @param {string} file The path of the module's file.
+ * @param {boolean} useCache Use cache or not.
+ * 
+ * @return {deploy_contracts.ScriptCommandModule} The loaded module.
+ */
+export function loadScriptCommandModule(file: string, useCache: boolean = false): deploy_contracts.ScriptCommandModule {
+    return loadModule<deploy_contracts.ScriptCommandModule>(file, useCache);
+}
+
+/**
  * Loads a "validator" module.
  * 
  * @param {string} file The path of the module's file.
@@ -576,7 +588,7 @@ export function loadModule<TModule>(file: string, useCache: boolean = false): TM
  * @return {deploy_contracts.ValidatorModule<T>} The loaded module.
  */
 export function loadValidatorModule<T>(file: string, useCache: boolean = false): deploy_contracts.ValidatorModule<T> {
-    return loadModule(file, useCache);
+    return loadModule<deploy_contracts.ValidatorModule<T>>(file, useCache);
 }
 
 /**

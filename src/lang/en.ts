@@ -37,6 +37,9 @@ export const translation: Translation = {
             }
         }
     },
+    commands: {
+        executionFailed: "Execution of command {0:trim,surround} failed: {1}",
+    },
     deploy: {
         after: {
             button: {

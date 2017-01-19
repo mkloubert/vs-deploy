@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.6.1",
+  "version": "5.7.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -116,6 +116,51 @@
               "type": "boolean",
               "description": "Clear output on startup or not.",
               "default": false
+            },
+            "commands": {
+              "description": "A list of one or more script based commands to register.",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "The command to register.",
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "The ID of the command."
+                    },
+                    "options": {
+                      "description": "Optional data for the execution."
+                    },
+                    "script": {
+                      "type": "string",
+                      "description": "The path to the script that is run when command is executed.",
+                      "default": "./my-command.js"
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "description": "The list of commands to register.",
+                  "items": {
+                    "type": "object",
+                    "description": "The command to register.",
+                    "properties": {
+                      "command": {
+                        "type": "string",
+                        "description": "The ID of the command."
+                      },
+                      "options": {
+                        "description": "Optional data for the execution."
+                      },
+                      "script": {
+                        "type": "string",
+                        "description": "The path to the script that is run when command is executed.",
+                        "default": "./my-command.js"
+                      }
+                    }
+                  }
+                }
+              ]
             },
             "deployOnChange": {
               "type": "boolean",

@@ -44,6 +44,9 @@ export interface Translation {
             }
         }
     },
+    commands?: {
+        executionFailed?: string;
+    },
     deploy?: {
         after?: {
             button?: {

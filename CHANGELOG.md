@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.7.0 (January 19th, 2017; addtional, custom commands for Visual Studio Code)
+
+* added [commands](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define additional script based commands for Visual Studio Code 
+
+
 ## 5.6.0 (January 19th, 2017; startup commands)
 
 * added [startupCommands](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define Visual Studio Code commands that should be run on startup 
