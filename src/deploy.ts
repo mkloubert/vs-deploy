@@ -2490,6 +2490,14 @@ export class Deployer extends Events.EventEmitter {
                                            btn.priority = parseFloat(deploy_helpers.toStringSafe(x.button.priority).trim());
                                        }
 
+                                       // right alignment?
+                                       if (deploy_helpers.toBooleanSafe(x.button.isRight)) {
+                                           btn.alignment = vscode.StatusBarAlignment.Right;
+                                       }
+                                       else {
+                                           btn.alignment = vscode.StatusBarAlignment.Left;  // no, left
+                                       }
+
                                        if (deploy_helpers.toBooleanSafe(x.button.show, true)) {
                                            btn.show();
                                        }
