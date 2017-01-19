@@ -1,8 +1,15 @@
 # Change Log (vs-deploy)
 
+https://github.com/mkloubert/vs-deploy/wiki#settings--
+
+## 5.6.0 (January 19th, 2017; startup commands)
+
+* added [startupCommands](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define Visual Studio Code commands that should be run on startup 
+
+
 ## 5.5.0 (January 19th, 2017; execute Visual Studio Code commands)
 
-* can execute any available VSCode command via [operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations) now
+* can execute any available VSCode command via [operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#vscommand-) now
 
 
 ## 5.3.2 (January 17th, 2017; fixed fatal bug)

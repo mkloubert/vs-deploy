@@ -370,6 +370,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     showPopupOnSuccess?: boolean;
     /**
+     * A list of one or more Visual Studio Code commands that should be run on startup.
+     */
+    startupCommands?: (string | StartupCommand)[] | StartupCommand | string;
+    /**
      * List of targets.
      */
     targets?: DeployTarget[];
@@ -1150,6 +1154,20 @@ export interface Sortable {
      * The sort order.
      */
     sortOrder?: number | Object;
+}
+
+/**
+ * A startup command.
+ */
+export interface StartupCommand {
+    /**
+     * Arguments for the execution.
+     */
+    arguments?: any[];
+    /**
+     * The ID of the command.
+     */
+    command: string;
 }
 
 /**

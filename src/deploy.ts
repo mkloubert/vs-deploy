@@ -1150,6 +1150,65 @@ export class Deployer extends Events.EventEmitter {
     }
 
     /**
+     * Executes the startup commands, defined in the config.
+     */
+    protected executeStartupCommands() {
+        let me = this;
+
+        let cfg = me.config;
+
+        try {
+            if (cfg.startupCommands) {
+                let cmds = deploy_helpers.asArray(<any[]>cfg.startupCommands)
+                                         .map((x: string | deploy_contracts.StartupCommand) => {
+                                                  if ('object' !== typeof x) {
+                                                      x = {
+                                                          command: deploy_helpers.toStringSafe(x).trim(),
+                                                      };
+
+                                                      if (deploy_helpers.isEmptyString(x.command)) {
+                                                          x = <deploy_contracts.StartupCommand>null;
+                                                      }
+                                                  }
+
+                                                  return x;
+                                              })
+                                        .filter(x => x);
+
+                let nextCommand: () => void;
+                nextCommand = () => {
+                    if (cmds.length < 1) {
+                        return;
+                    }
+
+                    let c = cmds.shift();
+
+                    let args = c.arguments;
+                    if (!args) {
+                        args = [];
+                    }
+                    args = [ c.command ].concat(args);
+
+                    vscode.commands.executeCommand.apply(null, args).then(() => {
+                        nextCommand();
+                    }, (err) => {
+                        me.log(i18.t('errors.withCategory',
+                                     'Deployer.executeStartupCommands(2)', err));
+
+                        nextCommand();
+                    });
+                };
+
+                nextCommand();
+            }
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.executeStartupCommands(1)', e));
+        }
+    }
+
+    /**
      * Filters the list of targets by a package.
      * 
      * @param {deploy_contracts.DeployPackage} pkg The package.
@@ -2336,6 +2395,8 @@ export class Deployer extends Events.EventEmitter {
             me.openFiles();
 
             me.showExtensionInfoPopups();
+
+            me.executeStartupCommands();
         };
 
         this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
