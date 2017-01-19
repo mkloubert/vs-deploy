@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -639,6 +639,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -916,6 +936,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -1326,6 +1366,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -1603,6 +1663,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -2001,6 +2081,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -2278,6 +2378,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -2684,6 +2804,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -2961,6 +3101,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -3376,6 +3536,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -3653,6 +3833,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -4086,6 +4286,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -4363,6 +4583,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -4757,6 +4997,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -5034,6 +5294,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -5466,6 +5746,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -5743,6 +6043,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -6139,6 +6459,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -6416,6 +6756,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -6836,6 +7196,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -7113,6 +7493,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -7601,6 +8001,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -7878,6 +8298,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -8315,6 +8755,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -8592,6 +9052,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -8984,6 +9464,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -9261,6 +9761,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -9680,6 +10200,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -9957,6 +10497,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -10341,6 +10901,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -10618,6 +11198,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
@@ -11012,6 +11612,26 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "wait"
                                   ],
                                   "type": "string",
@@ -11289,6 +11909,26 @@
                                       }
                                     }
                                   ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
                                 }
                               }
                             },
