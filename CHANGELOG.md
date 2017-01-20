@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.8.0 (January 20th, 2017; convert CR+LF to LF when deploying to SFTP)
+
+* added `unix` setting for [SFTP targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) that can control if Windows text files should be converted to UNIX format, e.g.
+
+
 ## 5.7.0 (January 19th, 2017; addtional, custom commands for Visual Studio Code)
 
 * added [commands](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define additional script based commands for Visual Studio Code 

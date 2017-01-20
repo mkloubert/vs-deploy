@@ -43,11 +43,17 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     port?: number;
     user?: string;
     password?: string;
+    unix?: {
+        convertCRLF?: boolean;
+        encoding?: string;
+    }
 }
 
 interface SFTPContext {
     cachedRemoteDirectories: any;
     connection: any;
+    dataTransformer: deploy_contracts.DataTransformer;
+    dataTransformerOptions?: any;
     hasCancelled: boolean;
 }
 
@@ -83,9 +89,45 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     reject(err);
                 }
                 else {
+                    let dataTransformer: deploy_contracts.DataTransformer;
+                    if (target.unix) {
+                        if (deploy_helpers.toBooleanSafe(target.unix.convertCRLF)) {
+                            let textEnc = deploy_helpers.toStringSafe(target.unix.encoding).toLowerCase().trim();
+                            if (!textEnc) {
+                                textEnc = 'ascii';
+                            }
+
+                            dataTransformer = (ctx) => {
+                                return new Promise<Buffer>((resolve2, reject2) => {
+                                    let completed2 = deploy_helpers.createSimplePromiseCompletedAction<Buffer>(resolve2, reject2);
+
+                                    deploy_helpers.isBinaryContent(ctx.data).then((isBinary) => {
+                                        try {
+                                            let newData = ctx.data;
+                                            if (!isBinary) {
+                                                // seems to be a text file
+                                                newData = new Buffer(deploy_helpers.replaceAllStrings(newData.toString(textEnc),
+                                                                                                      "\r\n", "\n"),
+                                                                     textEnc);
+                                            }
+
+                                            completed2(null, newData);
+                                        }
+                                        catch (e) {
+                                            completed2(e);
+                                        }
+                                    }).catch((err2) => {
+                                        completed2(err2);
+                                    });
+                                });
+                            };
+                        }
+                    }
+
                     let ctx: SFTPContext = {
                         cachedRemoteDirectories: {},
                         connection: conn,
+                        dataTransformer: deploy_helpers.toDataTransformerSafe(dataTransformer),
                         hasCancelled: false,
                     };
 
@@ -243,16 +285,29 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     ctx.cachedRemoteDirectories[targetDirectory] = [];
                 }
 
-                try {
-                    ctx.connection.put(file, targetFile).then(() => {
-                        completed();
+                FS.readFile(file, (err, data) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
+
+                    ctx.dataTransformer({
+                        context: {
+                            sftp: ctx,
+                        },
+                        data: data,
+                        mode: deploy_contracts.DataTransformerMode.Transform,
+                        options: ctx.dataTransformerOptions,
+                    }).then((dataToUpload) => {
+                        ctx.connection.put(dataToUpload, targetFile).then(() => {
+                            completed();
+                        }).catch((e) => {
+                            completed(e);
+                        });
                     }).catch((err) => {
                         completed(err);
                     });
-                }
-                catch (e) {
-                    completed(e);
-                }
+                });
             };
 
             if (opts.onBeforeDeploy) {

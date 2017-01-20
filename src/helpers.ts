@@ -29,6 +29,7 @@ import * as FS from 'fs';
 const Glob = require('glob');
 import * as HTTP from 'http';
 import * as i18 from './i18';
+const IsBinaryFile = require("isbinaryfile");
 const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Net from 'net';
@@ -53,6 +54,14 @@ export interface OpenOptions {
      */
     wait?: boolean;
 }
+
+/**
+ * Describes a simple 'completed' action.
+ * 
+ * @param {any} [err] The occurred error.
+ * @param {TResult} [result] The result.
+ */
+export type SimpleCompletedAction<TResult> = (err?: any, result?: TResult) => void;
 
 /**
  * Returns a value as array.
@@ -144,6 +153,29 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
         description: description,
         label: name,
         package: pkg,
+    };
+}
+
+/**
+ * Creates a simple 'completed' callback for a promise.
+ * 
+ * @param {Function} resolve The 'succeeded' callback.
+ * @param {Function} reject The 'error' callback.
+ * 
+ * @return {SimpleCompletedAction<TResult>} The created action.
+ */
+export function createSimplePromiseCompletedAction<TResult>(resolve: Function, reject?: Function): SimpleCompletedAction<TResult> {
+    return (err?, result?) => {
+        if (err) {
+            if (reject) {
+                reject(err);
+            }
+        }
+        else {
+            if (resolve) {
+                resolve(result);
+            }
+        }
     };
 }
 
@@ -491,6 +523,37 @@ export function getStatusBarItemColor(err: any,
     }
 
     return color;
+}
+
+/**
+ * Checks if data is binary or text content.
+ * 
+ * @param {Buffer} data The data to check.
+ * 
+ * @returns {Promise<boolean>} The promise.
+ */
+export function isBinaryContent(data: Buffer): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        let completed = createSimplePromiseCompletedAction<boolean>(resolve, reject);
+        if (!data) {
+            completed(null);
+            return;
+        }
+
+        try {
+            IsBinaryFile(data, data.length, (err, result) => {
+                if (err) {
+                    completed(err);
+                    return;
+                }
+
+                completed(null, toBooleanSafe(result));
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**

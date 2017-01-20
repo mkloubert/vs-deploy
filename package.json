@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.7.3",
+  "version": "5.8.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -8726,6 +8726,22 @@
                         "description": "The username.",
                         "default": "anonymous"
                       },
+                      "unix": {
+                        "type": "object",
+                        "description": "Settings for Linux/UNIX based targets.",
+                        "properties": {
+                          "convertCRLF": {
+                            "type": "boolean",
+                            "description": "Convert CR+LF to LF in text files or not.",
+                            "default": false
+                          },
+                          "encoding": {
+                            "type": "string",
+                            "description": "The encoding (like 'ascii' or 'utf8') for the conversion to use.",
+                            "default": "ascii"
+                          }
+                        }
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
@@ -12318,6 +12334,7 @@
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
     "i18next": "^4.1.4",
+    "isbinaryfile": "^3.0.2",
     "mime": "^1.3.4",
     "moment": "^2.17.1",
     "mssql": "^3.3.0",
