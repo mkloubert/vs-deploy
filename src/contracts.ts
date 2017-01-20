@@ -1231,9 +1231,23 @@ export interface ScriptCommandExecutorArguments {
      */
     button?: vscode.StatusBarItem;
     /**
+     * The ID of the underlying command.
+     */
+    command: string;
+    /**
+     * Defines data that should be keeped while the current session.
+     * and is available for ONLY for current command.
+     */
+    commandState?: any;
+    /**
      * The global variables from the settings.
      */
     globals?: GlobalVariables;
+    /**
+     * Defines data that should be keeped while the current session
+     * and is available for ALL commands defined by that extension.
+     */
+    globalState?: any;
     /**
      * Loads a module from the script context.
      * 

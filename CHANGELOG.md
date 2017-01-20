@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.10.0 (January 20th, 2017; state data for additional commands)
+
+* added `commandState` and `globalState` properties to [ScriptCommandExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptcommandexecutorarguments.html) interface, which can be used to store/share data beetween all additional defined [script based commands](https://github.com/mkloubert/vs-deploy/wiki/commands)
+
+
 ## 5.9.0 (January 20th, 2017; isCancelling() method readded)
 
 * re-added `isCancelling()` to [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html) interface
