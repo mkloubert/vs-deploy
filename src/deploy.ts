@@ -2417,11 +2417,6 @@ export class Deployer extends Events.EventEmitter {
                                let btn: vscode.StatusBarItem;
                                let cmd: vscode.Disposable;
                                try {
-                                   let cmdModule = deploy_helpers.loadScriptCommandModule(x.script);
-                                   if (!cmdModule.execute) {
-                                       return;  // no execute() function found
-                                   }
-
                                    cmd = vscode.commands.registerCommand(cmdName, function() {
                                        let completed = (err?: any) => {
                                            if (err) {
@@ -2431,6 +2426,12 @@ export class Deployer extends Events.EventEmitter {
                                        };
                                        
                                        try {
+                                           let cmdModule = deploy_helpers.loadScriptCommandModule(x.script);
+                                            if (!cmdModule.execute) {
+                                                completed();
+                                                return;  // no execute() function found
+                                            }
+
                                            let args: deploy_contracts.ScriptCommandExecutorArguments = {
                                                arguments: arguments,
                                                globals: me.getGlobals(),
