@@ -436,6 +436,12 @@ export interface DeployContext {
      */
     info: (msg: any) => DeployContext;
     /**
+     * Returns if cancellation has been requested or not.
+     * 
+     * @return {boolean} Cancellation has been requested or not.
+     */
+    isCancelling: () => boolean;
+    /**
      * Logs a message.
      * 
      * @param {any} msg The message to log.

@@ -40,6 +40,8 @@ import * as vscode from 'vscode';
 export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): deploy_contracts.DeployContext {
     let eventEmitter = new Events.EventEmitter();
 
+    let hasCancelled = false;
+
     let ctx: deploy_contracts.DeployContext = {
         config: null,
         emit: function() {
@@ -61,6 +63,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
             return this;
         },
+        isCancelling: () => hasCancelled,
         log: null,
         once: function(event, cb) {
             eventEmitter.once(event, function(sender, e) {
@@ -107,6 +110,10 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
             return this;
         },
     };
+
+    ctx.once(deploy_contracts.EVENT_CANCEL_DEPLOY, () => {
+        hasCancelled = true;
+    });
     
     if (baseCtx) {
         ctx.config = () => baseCtx.config();

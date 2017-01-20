@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.9.0 (January 20th, 2017; isCancelling() method readded)
+
+* re-added `isCancelling()` to [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html) interface
+
+
 ## 5.8.0 (January 20th, 2017; convert CR+LF to LF when deploying to SFTP)
 
 * added `unix` setting for [SFTP targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) that can control if Windows text files should be converted to UNIX format, e.g.
