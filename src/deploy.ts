@@ -2462,7 +2462,13 @@ export class Deployer extends Events.EventEmitter {
                                    if (x.button) {
                                        // status bar button
 
-                                       btn = vscode.window.createStatusBarItem();
+                                       // right alignment?
+                                       let alignment = vscode.StatusBarAlignment.Left;
+                                       if (deploy_helpers.toBooleanSafe(x.button.isRight)) {
+                                           alignment = vscode.StatusBarAlignment.Right;
+                                       }
+
+                                       btn = vscode.window.createStatusBarItem(alignment);
                                        btn.command = cmdName;
                                         
                                        // caption
@@ -2489,14 +2495,6 @@ export class Deployer extends Events.EventEmitter {
 
                                        if (!deploy_helpers.isNullOrUndefined(x.button.priority)) {
                                            btn.priority = parseFloat(deploy_helpers.toStringSafe(x.button.priority).trim());
-                                       }
-
-                                       // right alignment?
-                                       if (deploy_helpers.toBooleanSafe(x.button.isRight)) {
-                                           btn.alignment = vscode.StatusBarAlignment.Right;
-                                       }
-                                       else {
-                                           btn.alignment = vscode.StatusBarAlignment.Left;  // no, left
                                        }
 
                                        if (deploy_helpers.toBooleanSafe(x.button.show, true)) {
