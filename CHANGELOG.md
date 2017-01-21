@@ -1,6 +1,11 @@
 # Change Log (vs-deploy)
 
-## 5.11.0 (January 21th, 2017; Visual Studio Code command deploy operations)
+## 5.12.0 (January 21st, 2017; compiler operations, like LESS or SASS)
+
+* added [compile](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) deploy operation type, that is currently able to compile `.less` and `.sass` files
+
+
+## 5.11.0 (January 21st, 2017; Visual Studio Code command deploy operations)
 
 * added `submitContext`, that defines if a context object should be submitted as first argument to a [vscommand](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#vscommand-) deploy operation or not
 

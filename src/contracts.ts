@@ -48,6 +48,13 @@ export const DEFAULT_PORT = 23979;
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 
 /**
+ * A deploy operation for compiling files that is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedCompileOperation extends AfterDeployedOperation, DeployCompileOperation {
+}
+
+/**
  * An operation that is invoked AFTER
  * ALL files have been deployed.
  */
@@ -125,6 +132,13 @@ export interface BeforeDeployFileEventArguments extends DeployFileEventArguments
  * files will be deployed.
  */
 export interface BeforeDeployOperation extends DeployOperation {
+}
+
+/**
+ * A deploy operation for compiling files that is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployCompileOperation extends BeforeDeployOperation, DeployCompileOperation {
 }
 
 /**
@@ -257,6 +271,21 @@ export interface DeployActionQuickPick extends DeployQuickPickItem {
      * @return {any} The result.
      */
     action?: (sender: any) => any;
+}
+
+
+/**
+ * A deploy operation for compiling files.
+ */
+export interface DeployCompileOperation extends DeployOperation {
+    /**
+     * The compiler to use.
+     */
+    compiler: string;
+    /**
+     * The options for the compiler.
+     */
+    options?: any;
 }
 
 /**

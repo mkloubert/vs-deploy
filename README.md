@@ -148,7 +148,17 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "/my_package_files",
                 "host": "localhost", "port": 21,
                 "user": "anonymous", "password": "",
+
                 "deployed": [
+                    {
+                        "type": "sql",
+                        "engine": "mysql",
+
+                        "queries": [
+                            "TRUNCATE TABLE `debug`",
+                            "TRUNCATE TABLE `logs`"
+                        ]
+                    },
                     {
                         "target": "https://github.com/mkloubert"
                     }

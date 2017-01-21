@@ -94,6 +94,7 @@ export interface Translation {
         operations?: {
             noFunctionInScript?: string;
             open?: string;
+            unknownCompiler?: string;
             unknownSqlEngine?: string;
             unknownType?: string;
         },

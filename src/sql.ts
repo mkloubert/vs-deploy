@@ -445,7 +445,7 @@ export function createMySqlConnection(opts?: MySqlOptions): Promise<MySqlConnect
 /**
  * Creates a new SQL connection.
  * 
- * @param {SqlConnectionType} [type] The type of the connection.
+ * @param {SqlConnectionType} type The type of the connection.
  * @param {any[]} [args] One or more arguments for the connection.
  * 
  * @returns {Promise<SqlConnection>} The promise.

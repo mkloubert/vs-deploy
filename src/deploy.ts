@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_objects from './objects';
@@ -1449,6 +1450,38 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         }).catch((err) => {
                             completed(err);
                         });
+                        break;
+
+                    case 'compile':
+                        {
+                            let compileOp = <deploy_contracts.DeployCompileOperation>operation;
+
+                            let compilerName = deploy_helpers.toStringSafe(compileOp.compiler).toLowerCase().trim();
+
+                            let compiler: deploy_compilers.Compiler;
+                            let compilerArgs: any[];
+                            switch (compilerName) {
+                                case 'less':
+                                    compiler = deploy_compilers.Compiler.Less;
+                                    compilerArgs = [ compileOp.options ];
+                                    break;
+                            }
+
+                            if (deploy_helpers.isNullOrUndefined(compiler)) {
+                                // unknown compiler
+                                completed(new Error(i18.t('deploy.operations.unknownCompiler', compilerName)));
+                            }
+                            else {
+                                nextAction = null;
+                                deploy_compilers.compile(compiler, compilerArgs).then((result) => {
+                                    if (result != null) {  //TODO
+
+                                    }
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
+                        }
                         break;
 
                     case 'script':

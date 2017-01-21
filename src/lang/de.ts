@@ -87,6 +87,7 @@ export const translation: Translation = {
         operations: {
             noFunctionInScript: "Die Funktion {0:trim,surround} wurde nicht in {1:trim,surround} gefunden!",
             open: 'Öffne {0:trim,surround}... ',
+            unknownCompiler: 'Der Compiler {0:trim,surround} existiert nicht!',
             unknownSqlEngine: 'Unbekannter SQL Typ {0:trim,surround}!',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         },
