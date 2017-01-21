@@ -42,7 +42,8 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
     let hasCancelled = false;
 
-    let ctx: deploy_contracts.DeployContext = {
+    let ctx: deploy_contracts.DeployContext;
+    ctx = {
         config: null,
         dispose: () => {
             try {
@@ -50,6 +51,13 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
             }
             catch (e) {
                 deploy_helpers.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx.dispose', e));
+            }
+            finally {
+                eventEmitter = null;
+                hasCancelled = null;
+
+                ctx = null;
+                baseCtx = null;
             }
         },
         emit: function() {
