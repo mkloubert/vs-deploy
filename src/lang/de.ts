@@ -85,8 +85,10 @@ export const translation: Translation = {
             failedTarget: 'Konnte {0:trim,surround} nach dem Speichern nicht in das Ziel ${1:trim} bereitstellen: {2}',
         },
         operations: {
+            noFileCompiled: "Keine der {0:trim} Datei(en) konnte kompiliert werden!",
             noFunctionInScript: "Die Funktion {0:trim,surround} wurde nicht in {1:trim,surround} gefunden!",
             open: 'Öffne {0:trim,surround}... ',
+            someFilesNotCompiled: "{0:trim} der {1:trim} Datei(en) konnte(n) nicht kompiliert werden!",
             unknownCompiler: 'Der Compiler {0:trim,surround} existiert nicht!',
             unknownSqlEngine: 'Unbekannter SQL Typ {0:trim,surround}!',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',

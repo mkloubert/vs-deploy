@@ -85,8 +85,10 @@ export const translation: Translation = {
             failedTarget: 'Could not deploy {0:trim,surround} to ${1:trim} on save: {2}',
         },
         operations: {
+            noFileCompiled: "No of the {0:trim} file(s) could be compiled!",
             noFunctionInScript: "The function {0:trim,surround} was not found in {1:trim,surround}!",
             open: 'Opening {0:trim,surround}... ',
+            someFilesNotCompiled: "{0:trim} of {1:trim} file(s) could not be compiled!",
             unknownCompiler: 'Compiler {0:trim,surround} is unknown!',
             unknownSqlEngine: 'Unknown SQL engine {0:trim,surround}!',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',

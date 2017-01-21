@@ -28,8 +28,8 @@ const Glob = require('glob');
 import * as i18 from './i18';
 let LESS: any;
 import * as Path from 'path';
+let TypeScript: any;
 import * as vscode from 'vscode';
-
 
 // try load Less module
 try {
@@ -39,6 +39,13 @@ catch (e) {
     deploy_helpers.log(`Could not load LESS module: ${deploy_helpers.toStringSafe(e)}`);
 }
 
+// try load TypeScript module
+try {
+    TypeScript = require('typescript');
+}
+catch (e) {
+    deploy_helpers.log(`Could not load TypeScript module: ${deploy_helpers.toStringSafe(e)}`);
+}
 
 /**
  * List of known compilers.
@@ -48,6 +55,10 @@ export enum Compiler {
      * Less
      */
     Less = 0,
+    /**
+     * TypeScript
+     */
+    TypeScript = 1,
 }
 
 /**
@@ -132,6 +143,30 @@ export interface TextCompilerOptions extends CompilerOptions {
      * The encoding to use.
      */
     encoding?: string;
+}
+
+/**
+ * A TypeScript compiler error entry.
+ */
+export interface TypeScriptCompilerError extends CompilerError {
+    /**
+     * The underlying Diagnostic object from the compiler result.
+     */
+    diagnostic: any;
+}
+
+/**
+ * TypeScript compiler options.
+ */
+export interface TypeScriptCompilerOptions extends TextCompilerOptions {
+}
+
+/**
+ * A TypeScript compiler result.
+ */
+export interface TypeScriptCompilerResult extends CompilerResult {
+    /** @inheritdoc */
+    errors: TypeScriptCompilerError[];
 }
 
 
@@ -246,6 +281,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
             case Compiler.Less:
                 // LESS
                 func = compileLess;
+                break;
+
+            case Compiler.TypeScript:
+                // TypeScript
+                func = compileTypeScript;
                 break;
         }
 
@@ -437,3 +477,64 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
         }
     });
 }
+
+/**
+ * Compiles LESS files.
+ * 
+ * @param {TypeScriptCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<TypeScriptCompilerResult> The promise.
+ */
+export function compileTypeScript(opts?: TypeScriptCompilerOptions): Promise<TypeScriptCompilerResult> {
+    if (!opts) {
+        opts = {};
+    }
+
+    return new Promise<TypeScriptCompilerResult>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<TypeScriptCompilerResult>(resolve, reject);
+        
+        if (!TypeScript) {
+            completed(new Error('No TypeScript compiler found!'));
+            return;
+        }
+
+        try {
+            collectCompilerFiles({
+                files: "/**/*.ts",
+            }, opts).then((filesToCompile) => {
+                try {
+                    // create compiler
+                    let program = TypeScript.createProgram(filesToCompile, opts);
+
+                    // execute
+                    let result = program.emit();
+                    result.errors = [];
+                    result.files = filesToCompile;
+
+                    // collect errors
+                    let allDiagnostics = TypeScript.getPreEmitDiagnostics(program).concat(result.diagnostics);
+                    allDiagnostics.forEach(x => {
+                        if (x.category != TypeScript.DiagnosticCategory.Error) {
+                            return;
+                        }
+
+                        result.errors
+                              .push({
+                                  diagnostic: x,
+                                  error: new Error(`[TS${x.code}] Offset ${x.start} :: ${x.messageText}`),
+                                  file: x.file.fileName,
+                              });
+                    });
+
+                    completed(null, result);
+                }
+                catch (e) {
+                    completed(e);
+                }
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+};

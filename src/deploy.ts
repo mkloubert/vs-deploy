@@ -39,6 +39,7 @@ import * as OS from 'os';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
+
 let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
@@ -1465,6 +1466,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     compiler = deploy_compilers.Compiler.Less;
                                     compilerArgs = [ compileOp.options ];
                                     break;
+
+                                case 'typescript':
+                                    compiler = deploy_compilers.Compiler.TypeScript;
+                                    compilerArgs = [ compileOp.options ];
+                                    break;
                             }
 
                             if (deploy_helpers.isNullOrUndefined(compiler)) {
@@ -1474,9 +1480,51 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             else {
                                 nextAction = null;
                                 deploy_compilers.compile(compiler, compilerArgs).then((result) => {
-                                    if (result != null) {  //TODO
-
+                                    let sourceFiles: string[] = [];
+                                    if (result.files) {
+                                        sourceFiles = result.files
+                                                            .filter(x => !deploy_helpers.isEmptyString(x))
+                                                            .map(x => Path.resolve(x));
                                     }
+                                    sourceFiles = deploy_helpers.distinctArray(sourceFiles);
+
+                                    let compilerErrors: deploy_compilers.CompilerError[] = [];
+                                    if (result.errors) {
+                                        compilerErrors = result.errors
+                                                               .filter(x => x);
+                                    }
+
+                                    if (compilerErrors.length < 1) {
+                                        return;
+                                    }
+
+                                    me.outputChannel.appendLine('');    
+                                    result.errors.forEach(x => {
+                                        me.outputChannel.appendLine(`[${x.file}] ${x.error}`);
+                                    });
+
+                                    let failedFiles = compilerErrors.map(x => x.file)
+                                                                    .filter(x => !deploy_helpers.isEmptyString(x))
+                                                                    .map(x => Path.resolve(x));
+                                    failedFiles = deploy_helpers.distinctArray(failedFiles);
+
+                                    let err: Error;
+                                    if (failedFiles.length > 0) {
+                                        let errMsg: string;
+                                        if (failedFiles.length >= sourceFiles.length) {
+                                            // all failed
+                                            errMsg = i18.t("deploy.operations.noFileCompiled", sourceFiles.length);
+                                        }
+                                        else {
+                                            // some failed
+                                            errMsg = i18.t("deploy.operations.someFilesNotCompiled",
+                                                           failedFiles.length, sourceFiles.length);
+                                        }
+
+                                        err = new Error(errMsg);
+                                    }
+
+                                    completed(err);
                                 }).catch((err) => {
                                     completed(err);
                                 });

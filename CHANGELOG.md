@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.13.0 (January 21st, 2017; TypeScript compiler support)
+
+* added [TypeScript](https://www.typescriptlang.org/) support for [compile operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-)
+
+
 ## 5.12.0 (January 21st, 2017; compiler operations, like LESS)
 
 * added [compile](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) deploy operation type, that is currently able to compile `.less` files

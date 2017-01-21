@@ -92,8 +92,10 @@ export interface Translation {
             failedTarget?: string;
         },
         operations?: {
+            noFileCompiled?: string;
             noFunctionInScript?: string;
             open?: string;
+            someFilesNotCompiled?: string;
             unknownCompiler?: string;
             unknownSqlEngine?: string;
             unknownType?: string;

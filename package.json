@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.12.0",
+  "version": "5.13.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -712,6 +712,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -1055,6 +1062,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -1515,6 +1529,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -1858,6 +1879,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -2306,6 +2334,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -2649,6 +2684,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -3105,6 +3147,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -3448,6 +3497,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -3913,6 +3969,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -4256,6 +4319,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -4739,6 +4809,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -5082,6 +5159,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -5526,6 +5610,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -5869,6 +5960,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -6351,6 +6449,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -6694,6 +6799,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -7140,6 +7252,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -7483,6 +7602,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -7953,6 +8079,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -8296,6 +8429,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -8834,6 +8974,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -9177,6 +9324,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -9680,6 +9834,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -10023,6 +10184,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -10465,6 +10633,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -10808,6 +10983,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -11277,6 +11459,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -11620,6 +11809,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -12054,6 +12250,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -12397,6 +12600,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -12841,6 +13051,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
@@ -13184,6 +13401,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
                                     }
                                   ]
                                 },
