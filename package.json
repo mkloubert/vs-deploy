@@ -724,11 +724,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -1074,11 +1074,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -1541,11 +1541,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -1891,11 +1891,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -2346,11 +2346,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -2696,11 +2696,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -3159,11 +3159,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -3509,11 +3509,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -3981,11 +3981,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -4331,11 +4331,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -4821,11 +4821,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -5171,11 +5171,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -5622,11 +5622,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -5972,11 +5972,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -6461,11 +6461,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -6811,11 +6811,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -7264,11 +7264,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -7614,11 +7614,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -8091,11 +8091,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -8441,11 +8441,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -8986,11 +8986,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -9336,11 +9336,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -9846,11 +9846,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -10196,11 +10196,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -10645,11 +10645,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -10995,11 +10995,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -11471,11 +11471,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -11821,11 +11821,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -12262,11 +12262,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -12612,11 +12612,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -13063,11 +13063,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -13413,11 +13413,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
-                                },
-                                "required": [
-                                  "compiler"
-                                ]
-                              }
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
                             },
                             {
                               "type": "object",
@@ -13783,6 +13783,7 @@
     "node-uuid": "^1.4.7",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",
-    "ssh2-sftp-client": "^1.0.5"
+    "ssh2-sftp-client": "^1.0.5",
+    "typescript": "^2.1.5"
   }
 }
