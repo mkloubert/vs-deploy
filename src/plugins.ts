@@ -44,6 +44,14 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
     let ctx: deploy_contracts.DeployContext = {
         config: null,
+        dispose: () => {
+            try {
+                eventEmitter.removeAllListeners(deploy_contracts.EVENT_CANCEL_DEPLOY);
+            }
+            catch (e) {
+                deploy_helpers.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx.dispose', e));
+            }
+        },
         emit: function() {
             return eventEmitter.emit
                                .apply(eventEmitter, arguments);
@@ -73,7 +81,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
                     }
                 }
                 catch (e) {
-                    deploy_helpers.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx', e));
+                    deploy_helpers.log(i18.t('errors.withCategory', 'Deployer.reloadPlugins().ctx.once', e));
                 }
             });
 

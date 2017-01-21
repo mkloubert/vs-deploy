@@ -401,7 +401,7 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
 /**
  * A deploy context.
  */
-export interface DeployContext {
+export interface DeployContext extends vscode.Disposable {
     /**
      * Returns the current config.
      * 
@@ -729,6 +729,10 @@ export interface DeployPlugin {
      * @param {DeployWorkspaceOptions} [opts] Additional options.
      */
     deployWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
+    /**
+     * Disposes / cleanup the plugin.
+     */
+    dispose?: () => void;
     /**
      * Return information of the plugin.
      * 

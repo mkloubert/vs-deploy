@@ -49,7 +49,7 @@ interface ScriptCommandWrapper {
 /**
  * Deployer class.
  */
-export class Deployer extends Events.EventEmitter {
+export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     /**
      * Information button that is shown after a deployment has been finished.
      */
@@ -437,9 +437,10 @@ export class Deployer extends Events.EventEmitter {
                         let currentPlugin = currentPluginWithContext.plugin;
                         let statusBarItem: vscode.StatusBarItem;
 
-                        let disposeStatusBarItem = () => {
+                        let cleanUps = () => {
                             deploy_helpers.tryDispose(cancelCommand);
                             deploy_helpers.tryDispose(statusBarItem);
+                            deploy_helpers.tryDispose(contextToUse);
                         };
 
                         try {
@@ -475,7 +476,7 @@ export class Deployer extends Events.EventEmitter {
                                 let afterDeployButtonColor: string;
 
                                 try {
-                                    disposeStatusBarItem();
+                                    cleanUps();
 
                                     let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -577,7 +578,7 @@ export class Deployer extends Events.EventEmitter {
                             }
                         }
                         catch (e) {
-                            disposeStatusBarItem();
+                            cleanUps();
 
                             completed(e);
                         }
@@ -867,9 +868,10 @@ export class Deployer extends Events.EventEmitter {
                             let currentPlugin = currentPluginWithContext.plugin;
                             let statusBarItem: vscode.StatusBarItem;
 
-                            let disposeStatusBarItem = () => {
+                            let cleanUps = () => {
                                 deploy_helpers.tryDispose(cancelCommand);
                                 deploy_helpers.tryDispose(statusBarItem);
+                                deploy_helpers.tryDispose(contextToUse);
                             };
 
                             try {
@@ -907,7 +909,7 @@ export class Deployer extends Events.EventEmitter {
                                     let afterDeployButtonColor: string;
 
                                     try {
-                                        disposeStatusBarItem();
+                                        cleanUps();
 
                                         let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
 
@@ -1048,7 +1050,7 @@ export class Deployer extends Events.EventEmitter {
                                 });
                             }
                             catch (e) {
-                                disposeStatusBarItem();
+                                cleanUps();
                 
                                 vscode.window.showErrorMessage(i18.t('deploy.workspace.failed', e));
                             }
@@ -1155,6 +1157,17 @@ export class Deployer extends Events.EventEmitter {
         }
         catch (e) {
             this.log(i18.t('network.interfaces.failed', e));
+        }
+    }
+
+    /** @inheritdoc */
+    public dispose() {
+        try {
+            this.removeAllListeners();
+        }
+        catch (e) {
+            this.log(i18.t('errors.withCategory',
+                           'Deployer.dispose(1)', e));
         }
     }
 
@@ -2602,6 +2615,7 @@ export class Deployer extends Events.EventEmitter {
     public reloadPlugins(forceDisplay = false) {
         let me = this;
 
+        let oldPlugins = me._plugins;
         try {
             let loadedPlugins: deploy_contracts.DeployPluginWithContext[] = [];
 
@@ -2647,7 +2661,16 @@ export class Deployer extends Events.EventEmitter {
 
                     moduleFiles = deploy_helpers.distinctArray(moduleFiles.map(x => Path.resolve(x)));
                     
-                    // remove existing plugins from cache
+                    // remove existing plugins
+                    if (oldPlugins) {
+                        oldPlugins.filter(x => x).forEach(x => {
+                            if (x.plugin.dispose) {
+                                deploy_helpers.tryDispose(<any>x.plugin);
+                            }
+
+                            deploy_helpers.tryDispose(x.context);
+                        });
+                    }
                     moduleFiles.forEach(x => {
                         delete require.cache[x];
                     });
@@ -2739,6 +2762,9 @@ export class Deployer extends Events.EventEmitter {
         }
         catch (e) {
             vscode.window.showErrorMessage(i18.t('__plugins.reload.failed', e));
+        }
+        finally {
+            oldPlugins = null;
         }
     }
 
