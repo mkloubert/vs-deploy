@@ -1235,7 +1235,7 @@ export interface ScriptCommandExecutorArguments {
      */
     command: string;
     /**
-     * Defines data that should be keeped while the current session.
+     * Defines data that should be keeped while the current session
      * and is available for ONLY for current command.
      */
     commandState?: any;

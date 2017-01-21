@@ -2421,10 +2421,16 @@ export class Deployer extends Events.EventEmitter {
                                let commandState: any = {};
                                try {
                                    cmd = vscode.commands.registerCommand(cmdName, function() {
+                                       let args: deploy_contracts.ScriptCommandExecutorArguments;
                                        let completed = (err?: any) => {
                                            if (err) {
                                                vscode.window.showErrorMessage(i18.t('commands.executionFailed',
                                                                                     cmdName, err));
+                                           }
+
+                                           if (args) {
+                                               commandState = args.commandState;
+                                               globalState = args.globalState;
                                            }
                                        };
                                        
@@ -2435,44 +2441,35 @@ export class Deployer extends Events.EventEmitter {
                                                 return;  // no execute() function found
                                             }
 
-                                            let args: deploy_contracts.ScriptCommandExecutorArguments;
-                                            try {
-                                                args = {
-                                                    arguments: arguments,
-                                                    command: cmdName,
-                                                    commandState: commandState,
-                                                    globals: me.getGlobals(),
-                                                    options: deploy_helpers.cloneObject(x.options),
-                                                    require: function(id) {
-                                                        return require(id);
-                                                    },
-                                                };
+                                            args = {
+                                                arguments: arguments,
+                                                command: cmdName,
+                                                commandState: commandState,
+                                                globals: me.getGlobals(),
+                                                options: deploy_helpers.cloneObject(x.options),
+                                                require: function(id) {
+                                                    return require(id);
+                                                },
+                                            };
 
-                                                // args.globalState
-                                                Object.defineProperty(args, 'globalState', {
-                                                    enumerable: true,
-                                                    get: () => { return globalState; }, 
-                                                });
+                                            // args.globalState
+                                            Object.defineProperty(args, 'globalState', {
+                                                enumerable: true,
+                                                get: () => { return globalState; }, 
+                                            });
 
-                                                // args.button
-                                                Object.defineProperty(args, 'button', {
-                                                    configurable: true,
-                                                    enumerable: true,
-                                                    get: () => { return btn; }, 
-                                                });
+                                            // args.button
+                                            Object.defineProperty(args, 'button', {
+                                                configurable: true,
+                                                enumerable: true,
+                                                get: () => { return btn; }, 
+                                            });
 
-                                                cmdModule.execute(args).then(() => {
-                                                    completed();
-                                                }).catch((err) => {
-                                                    completed(err);
-                                                });
-                                            }
-                                            finally {
-                                                if (args) {
-                                                    commandState = args.commandState;
-                                                    globalState = args.globalState;
-                                                }
-                                            }
+                                            cmdModule.execute(args).then(() => {
+                                                completed();
+                                            }).catch((err) => {
+                                                completed(err);
+                                            });
                                        }
                                        catch (e) {
                                            completed(e);
