@@ -1,8 +1,8 @@
 # Change Log (vs-deploy)
 
-## 5.12.0 (January 21st, 2017; compiler operations, like LESS or SASS)
+## 5.12.0 (January 21st, 2017; compiler operations, like LESS)
 
-* added [compile](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) deploy operation type, that is currently able to compile `.less` and `.sass` files
+* added [compile](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) deploy operation type, that is currently able to compile `.less` files
 
 
 ## 5.11.0 (January 21st, 2017; Visual Studio Code command deploy operations)

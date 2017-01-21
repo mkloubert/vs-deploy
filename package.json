@@ -13556,7 +13556,6 @@
     "moment": "^2.17.1",
     "mssql": "^3.3.0",
     "mysql": "^2.12.0",
-    "node-sass": "^4.3.0",
     "node-uuid": "^1.4.7",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",

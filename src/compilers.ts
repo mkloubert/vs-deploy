@@ -28,7 +28,6 @@ const Glob = require('glob');
 import * as i18 from './i18';
 let LESS: any;
 import * as Path from 'path';
-let SASS: any;
 import * as vscode from 'vscode';
 
 
@@ -37,16 +36,9 @@ try {
     LESS = require('less');
 }
 catch (e) {
-    deploy_helpers.log(`Could not load MS-SQL module: ${deploy_helpers.toStringSafe(e)}`);
+    deploy_helpers.log(`Could not load LESS module: ${deploy_helpers.toStringSafe(e)}`);
 }
 
-// try load Sass module
-try {
-    SASS = require('node-sass');
-}
-catch (e) {
-    deploy_helpers.log(`Could not load MySQL module: ${deploy_helpers.toStringSafe(e)}`);
-}
 
 /**
  * List of known compilers.
@@ -56,10 +48,6 @@ export enum Compiler {
      * Less
      */
     Less = 0,
-    /**
-     * Sass
-     */
-    Sass = 1,
 }
 
 /**
@@ -98,6 +86,10 @@ export interface CompilerResult {
      * The list of errors.
      */
     errors: CompilerError[];
+    /**
+     * The files for the compilation.
+     */
+    files: string[];
 }
 
 /**
@@ -130,30 +122,6 @@ export interface LessCompilerOptions extends TextCompilerOptions {
 export interface LessCompilerResult extends CompilerResult {
     /** @inheritdoc */
     errors: LessCompilerError[];
-    /**
-     * The files for the compilation.
-     */
-    files: string[];
-}
-
-/**
- * A SASS compiler error entry.
- */
-export interface SassCompilerError extends CompilerError {
-}
-
-/**
- * SASS compiler options.
- */
-export interface SassCompilerOptions extends TextCompilerOptions {
-}
-
-/**
- * A SASS compiler result.
- */
-export interface SassCompilerResult extends CompilerResult {
-    /** @inheritdoc */
-    errors: SassCompilerError[];
 }
 
 /**
