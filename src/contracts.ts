@@ -83,6 +83,12 @@ export interface AfterDeployedVSCommandOperation extends AfterDeployedOperation,
 }
 
 /**
+ * An execution context for a Visual Studio Code command (after deployed).
+ */
+export interface AfterDeployedVSCommandOperationContext extends DeployVSCommandOperationContext {
+}
+
+/**
  * An operation that waits a number of milliseconds and is invoked AFTER
  * ALL files have been deployed.
  */
@@ -147,6 +153,12 @@ export interface BeforeDeploySqlOperation extends BeforeDeployOperation, DeployS
  * files will be deployed.
  */
 export interface BeforeDeployVSCommandOperation extends BeforeDeployOperation, DeployVSCommandOperation {
+}
+
+/**
+ * An execution context for a Visual Studio Code command (before deploy).
+ */
+export interface BeforeDeployVSCommandOperationContext extends DeployVSCommandOperationContext {
 }
 
 /**
@@ -966,6 +978,48 @@ export interface DeployVSCommandOperation extends DeployOperation {
      * The command to execute.
      */
     command: string;
+    /**
+     * Options for the operation context object (@see DeployVSCommandOperationContext).
+     */
+    contextOptions?: any;
+    /**
+     * Submit an operation context object (@see DeployVSCommandOperationContext) as first argument or not.
+     */
+    submitContext?: boolean;
+}
+
+/**
+ * An execution context for a Visual Studio Code command.
+ */
+export interface DeployVSCommandOperationContext {
+    /**
+     * The ID of the command.
+     */
+    command: string;
+    /**
+     * The globals defined in the settings.
+     */
+    globals: GlobalVariables;
+    /**
+     * The files to deploy.
+     */
+    files: string[];
+    /**
+     * The kind of operation.
+     */
+    kind: DeployOperationKind;
+    /**
+     * The operation 
+     */
+    operation: DeployVSCommandOperation;
+    /**
+     * Options for the execution (@see DeployVSCommandOperation.contextOptions).
+     */
+    options?: any;
+    /**
+     * Loads a module from the script context.
+     */
+    require: (id: string) => any;
 }
 
 /**

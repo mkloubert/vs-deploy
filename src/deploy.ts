@@ -1577,6 +1577,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     args = [];
                                 }
 
+                                if (deploy_helpers.toBooleanSafe(vsCmdOp.submitContext)) {
+                                    // submit DeployVSCommandOperationContext object
+                                    // as first argument
+
+                                    let cmdCtx: deploy_contracts.DeployVSCommandOperationContext = {
+                                        command: commandId,
+                                        globals: me.getGlobals(),
+                                        files: files,
+                                        kind: kind,
+                                        operation: vsCmdOp,
+                                        options: vsCmdOp.contextOptions,
+                                        require: (id) => {
+                                            return require(id);
+                                        }
+                                    };
+
+                                    args = [ cmdCtx ].concat(args);
+                                }
+
                                 args = [ commandId ].concat(args);
 
                                 nextAction = null;

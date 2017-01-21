@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.10.3",
+  "version": "5.11.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -806,6 +806,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -1111,6 +1119,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -1533,6 +1549,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -1838,6 +1862,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -2248,6 +2280,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -2553,6 +2593,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -2971,6 +3019,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -3276,6 +3332,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -3703,6 +3767,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -4008,6 +4080,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -4453,6 +4533,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -4758,6 +4846,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -5164,6 +5260,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -5469,6 +5573,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -5913,6 +6025,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -6218,6 +6338,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -6626,6 +6754,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -6931,6 +7067,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -7363,6 +7507,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -7668,6 +7820,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -8168,6 +8328,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -8473,6 +8641,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -8938,6 +9114,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -9243,6 +9427,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -9647,6 +9839,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -9952,6 +10152,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -10383,6 +10591,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -10688,6 +10904,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -11084,6 +11308,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -11389,6 +11621,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -11795,6 +12035,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },
@@ -12100,6 +12348,14 @@
                                 "arguments": {
                                   "type": "array",
                                   "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
                                 }
                               }
                             },

@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.11.0 (January 21th, 2017; Visual Studio Code command deploy operations)
+
+* added `submitContext`, that defines if a context object should be submitted as first argument to a [vscommand](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#vscommand-) deploy operation or not
+
+
 ## 5.10.0 (January 20th, 2017; state data for additional commands)
 
 * added `commandState` and `globalState` properties to [ScriptCommandExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptcommandexecutorarguments.html) interface, which can be used to store/share data beetween all additional defined [script based commands](https://github.com/mkloubert/vs-deploy/wiki/commands)
