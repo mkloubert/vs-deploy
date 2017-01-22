@@ -1467,6 +1467,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     compilerArgs = [ compileOp.options ];
                                     break;
 
+                                case 'script':
+                                    compiler = deploy_compilers.Compiler.Script;
+                                    compilerArgs = [ me.config, compileOp.options ];
+                                    break;
+
                                 case 'typescript':
                                     compiler = deploy_compilers.Compiler.TypeScript;
                                     compilerArgs = [ compileOp.options ];

@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.14.0 (January 22nd, 2017; Generic / script based compiler support)
+
+* added generic script based support for [compile operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-)
+
+
 ## 5.13.0 (January 21st, 2017; TypeScript compiler support)
 
 * added [TypeScript](https://www.typescriptlang.org/) support for [compile operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-)

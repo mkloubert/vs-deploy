@@ -22,6 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 
+import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const Glob = require('glob');
@@ -59,6 +60,10 @@ export enum Compiler {
      * TypeScript
      */
     TypeScript = 1,
+    /**
+     * Script based compiler
+     */
+    Script = 2,
 }
 
 /**
@@ -133,6 +138,79 @@ export interface LessCompilerOptions extends TextCompilerOptions {
 export interface LessCompilerResult extends CompilerResult {
     /** @inheritdoc */
     errors: LessCompilerError[];
+}
+
+/**
+ * A compiler.
+ * 
+ * @param {ScriptCompilerArguments} args Arguments for the compilation.
+ * 
+ * @returns {Promise<ScriptCompilerResult>} The result.
+ */
+export type ScriptCompiler = (args: ScriptCompilerArguments) => Promise<ScriptCompilerResult>;
+
+/**
+ * Arguments for the compilation.
+ */
+export interface ScriptCompilerArguments {
+    /**
+     * The list of files to compile.
+     */
+    files: string[];
+    /**
+     * The globals from the settings.
+     */
+    globals: deploy_contracts.GlobalVariables;
+    /**
+     * The compiler options.
+     */
+    options: ScriptCompilerOptions;
+    /**
+     * Loads a module from the script context.
+     */
+    require: (id: string) => any;
+    /**
+     * A preconfigured result object.
+     */
+    result: ScriptCompilerResult;
+}
+
+/**
+ * A script compiler error entry.
+ */
+export interface ScriptCompilerError extends CompilerError {
+}
+
+/**
+ * A module to compile files.
+ */
+export interface ScriptCompilerModule {
+    /**
+     * Compiles files.
+     */
+    compile: ScriptCompiler;
+}
+
+/**
+ * Script compiler options.
+ */
+export interface ScriptCompilerOptions extends TextCompilerOptions {
+    /**
+     * Additional data for the compilation.
+     */
+    data?: any;
+    /**
+     * Path to the script.
+     */
+    script?: string;
+}
+
+/**
+ * A script compiler result.
+ */
+export interface ScriptCompilerResult extends CompilerResult {
+    /** @inheritdoc */
+    errors: ScriptCompilerError[];
 }
 
 /**
@@ -281,6 +359,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
             case Compiler.Less:
                 // LESS
                 func = compileLess;
+                break;
+
+            case Compiler.Script:
+                // script based compiler
+                func = compileScript;
                 break;
 
             case Compiler.TypeScript:
@@ -479,7 +562,68 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
 }
 
 /**
- * Compiles LESS files.
+ * Compiles files via a script.
+ * 
+ * @param {ScriptCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<TypeScriptCompilerResult> The promise.
+ */
+export function compileScript(cfg: deploy_contracts.DeployConfiguration,
+                              opts?: ScriptCompilerOptions): Promise<ScriptCompilerResult> {
+    if (!opts) {
+        opts = {
+            script: './compile.js',
+        };
+    }
+
+    return new Promise<ScriptCompilerResult>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<ScriptCompilerResult>(resolve, reject);
+
+        try {
+            let compilerModule = deploy_helpers.loadModule<ScriptCompilerModule>(opts.script);
+            if (compilerModule) {
+                if (compilerModule.compile) {
+                    collectCompilerFiles({
+                        files: '**',    
+                    }, opts).then((filesToCompile) => {
+                        let args: ScriptCompilerArguments = {
+                            files: filesToCompile,
+                            globals: deploy_helpers.cloneObject(cfg.globals),
+                            options: opts,
+                            require: function(id) {
+                                return require(id);
+                            },
+                            result: {
+                                errors: [],
+                                files: filesToCompile.map(x => x),
+                            },
+                        };
+
+                        compilerModule.compile(args).then((result) => {
+                            completed(null, result || args.result);
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                }
+                else {
+                    completed(new Error('No compile() function found!'));
+                }
+            }
+            else {
+                completed(new Error('No compiler module found!'));
+            }
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
+ * Compiles TypeScript files.
  * 
  * @param {TypeScriptCompilerOptions} [opts] The options.
  * 

@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.13.2",
+  "version": "5.14.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -727,6 +727,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -1073,6 +1080,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -1544,6 +1558,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -1890,6 +1911,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -2349,6 +2377,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -2695,6 +2730,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -3162,6 +3204,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -3508,6 +3557,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -3984,6 +4040,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -4330,6 +4393,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -4824,6 +4894,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -5170,6 +5247,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -5625,6 +5709,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -5971,6 +6062,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -6464,6 +6562,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -6810,6 +6915,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -7267,6 +7379,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -7613,6 +7732,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -8094,6 +8220,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -8440,6 +8573,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -8989,6 +9129,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -9335,6 +9482,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -9849,6 +10003,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -10195,6 +10356,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -10648,6 +10816,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -10994,6 +11169,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -11474,6 +11656,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -11820,6 +12009,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -12265,6 +12461,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -12611,6 +12814,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
@@ -13066,6 +13276,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "typescript"
                                       ],
                                       "description": "TypeScript compiler"
@@ -13412,6 +13629,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
                                     },
                                     {
                                       "type": "string",
