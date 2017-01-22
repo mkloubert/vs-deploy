@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.13.1",
+  "version": "5.13.2",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -126,6 +126,7 @@
                   "properties": {
                     "button": {
                       "type": "object",
+                      "description": "Settings for optional button in the status bar.",
                       "properties": {
                         "color": {
                           "type": "string",
@@ -169,7 +170,11 @@
                       "description": "The path to the script that is run when command is executed.",
                       "default": "./my-command.js"
                     }
-                  }
+                  },
+                  "required": [
+                    "command",
+                    "script"
+                  ]
                 },
                 {
                   "type": "array",
@@ -539,7 +544,10 @@
                       "type": "string",
                       "description": "The ID of the command."
                     }
-                  }
+                  },
+                  "required": [
+                    "command"
+                  ]
                 },
                 {
                   "type": "array",
@@ -559,7 +567,10 @@
                             "type": "string",
                             "description": "The ID of the command."
                           }
-                        }
+                        },
+                        "required": [
+                          "command"
+                        ]
                       }
                     ]
                   }
