@@ -35,6 +35,7 @@ import * as vscode from 'vscode';
 
 
 interface DeployTargetZIP extends deploy_contracts.DeployTarget {
+    fileName?: string;
     open?: boolean;
     target?: string;
 }
@@ -96,6 +97,17 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                     }
                 };
 
+                let deleteFile = (zipFile: string) => {
+                    FS.unlink(zipFile, (err) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            deploy(zipFile);
+                        }
+                    });
+                };
+
                 // check if target directory is
                 // really a directory
                 let checkIfDirectory = () => {
@@ -107,7 +119,18 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             }
 
                             if (stats.isDirectory()) {
-                                let zipFileName = `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`;
+                                let deleteIfExists = false;
+                                let zipFileName: string;
+                                if (deploy_helpers.isEmptyString(target.fileName)) {
+                                    zipFileName = `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`;
+                                }
+                                else {
+                                    // custom filename
+                                    // that is deleted if it exists
+
+                                    deleteIfExists = true;
+                                    zipFileName = deploy_helpers.toStringSafe(target.fileName);
+                                }
 
                                 let zipFile = Path.join(targetDir, zipFileName);
 
@@ -118,12 +141,18 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
                                 FS.exists(zipFile, (exists) => {
                                     if (exists) {
-                                        // we do not overwrite existing files
-                                        completed(new Error(i18.t('plugins.zip.fileAlreadyExists', zipRelativePath)));
-                                        return;
+                                        if (deleteIfExists) {
+                                            deleteFile(zipFile);
+                                        }
+                                        else {
+                                            // we do not overwrite existing files
+                                            // with auto generated names
+                                            completed(new Error(i18.t('plugins.zip.fileAlreadyExists', zipRelativePath)));
+                                        }
                                     }
-
-                                    deploy(zipFile);
+                                    else {
+                                        deploy(zipFile);
+                                    }
                                 });
                             }
                             else {

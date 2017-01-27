@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.15.0 (January 27th, 2017; custom filename for ZIP files)
+
+* added `fileName` option for [zip targets](https://github.com/mkloubert/vs-deploy/wiki/target_zip), that can be used to define a custom output filename
+
+
 ## 5.14.0 (January 22nd, 2017; Generic / script based compiler support)
 
 * added generic script based support for [compile operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-)
