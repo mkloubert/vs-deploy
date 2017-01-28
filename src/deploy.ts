@@ -26,6 +26,7 @@
 import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_plugins from './plugins';
 import * as deploy_sql from './sql';
@@ -80,6 +81,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores the current host.
      */
     protected _host: DeployHost;
+    /**
+     * Stores if 'deploy on change' feature is enabled or not.
+     */
+    protected _isDeployOnChangeEnabled = true;
+    /**
+     * Stores if 'deploy on save' feature is enabled or not.
+     */
+    protected _isDeployOnSaveEnabled = true;
     /**
      * Stores the global output channel.
      */
@@ -1174,6 +1183,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Emits a global event.
+     * 
+     * @param {string | symbol} event The event.
+     * @param {any[]} args The arguments.
+     */
+    public emitGlobal(event: string | symbol, ...args: any[]): boolean {
+        return deploy_globals.EVENTS
+                             .emit
+                             .apply(deploy_globals.EVENTS, arguments);
+    }
+
+    /**
      * Executes the startup commands, defined in the config.
      */
     protected executeStartupCommands() {
@@ -1551,6 +1572,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         nextAction = null;
                         if (scriptExecutor) {
                             let scriptArgs: deploy_contracts.DeployScriptOperationArguments = {
+                                emitGlobal: function() {
+                                    return me.emitGlobal
+                                             .apply(me, arguments);
+                                },
                                 files: files,
                                 globals: me.getGlobals(),
                                 kind: kind,
@@ -1913,6 +1938,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The 'on activated' event.
      */
     public onActivated() {
+        this.registerGlobalEvents();
+
         this.reloadConfiguration();
 
         this.setupFileSystemWatcher();
@@ -2133,7 +2160,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true)) {
+        if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true) &&
+            this._isDeployOnSaveEnabled) {
+                
             // only if activated
             this.onDidSaveFile(doc.fileName);
         }
@@ -2146,12 +2175,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {string} type The type of change.
      */
     protected onFileChange(e: vscode.Uri, type: string) {
-        if (!deploy_helpers.toBooleanSafe(this.config.deployOnChange, true)) {
+        let me = this;
+
+        if (!(deploy_helpers.toBooleanSafe(me.config.deployOnChange, true) &&
+              me._isDeployOnChangeEnabled)) {
             // deactivated
             return;
         }
-
-        let me = this;
 
         try {
             let filePath = Path.resolve(e.fsPath);
@@ -2508,6 +2538,29 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Registers the global events.
+     */
+    protected registerGlobalEvents() {
+        let me = this;
+
+        // deploy.deployOnChange.*
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONCHANGE_DISABLE, function() {
+            me._isDeployOnChangeEnabled = false;
+        });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONCHANGE_ENABLE, function() {
+            me._isDeployOnChangeEnabled = true;
+        });
+
+        // deploy.deployOnSave.*
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_DISABLE, function() {
+            me._isDeployOnSaveEnabled = false;
+        });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_ENABLE, function() {
+            me._isDeployOnSaveEnabled = true;
+        });
+    }
+
+    /**
      * Reloads the defined commands from the config.
      */
     protected reloadCommands() {
@@ -2563,6 +2616,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 arguments: arguments,
                                                 command: cmdName,
                                                 commandState: commandState,
+                                                emitGlobal: function() {
+                                                    return me.emitGlobal
+                                                             .apply(me, arguments);
+                                                },
                                                 globals: me.getGlobals(),
                                                 options: deploy_helpers.cloneObject(x.options),
                                                 require: function(id) {
@@ -2784,6 +2841,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         let ctx = deploy_plugins.createPluginContext();
 
                         ctx.config = () => me.config;
+                        ctx.emitGlobal = function() {
+                            return me.emitGlobal
+                                     .apply(me, arguments);
+                        };
                         ctx.globals = () => me.getGlobals();
                         ctx.log = function(msg) {
                             me.log(msg);

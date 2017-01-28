@@ -34,7 +34,7 @@ import * as vscode from 'vscode';
 /**
  * Common "deploy" arguments.
  */
-export interface DeployArguments {
+export interface DeployArguments extends deploy_contracts.ScriptArguments {
     /**
      * Indicates if operation has been canceled or not.
      */
@@ -179,7 +179,16 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 let args: DeployFileArguments = {
                     context: me.context,
                     deployOptions: opts,
+                    emitGlobal: function() {
+                        return me.context
+                                 .emitGlobal
+                                 .apply(me.context, arguments);
+                    },
                     file: file,
+                    globals: me.context.globals(),
+                    require: function(id) {
+                        return me.context.require(id);
+                    },
                     sender: me,
                     target: target,
                     targetOptions: target.options,
@@ -242,7 +251,16 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     let args: DeployWorkspaceArguments = {
                         context: me.context,
                         deployOptions: opts,
+                        emitGlobal: function() {
+                            return me.context
+                                     .emitGlobal
+                                     .apply(me.context, arguments);
+                        },
                         files: files,
+                        globals: me.context.globals(),
+                        require: function(id) {
+                            return me.context.require(id);
+                        },
                         sender: me,
                         target: target,
                         targetOptions: target.options,

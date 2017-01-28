@@ -182,8 +182,17 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             dataTransformer({
                                 context: dataTransformerCtx,
                                 data: untransformedData,
+                                emitGlobal: function() {
+                                    return me.context
+                                             .emitGlobal
+                                             .apply(me.context, arguments);
+                                },
+                                globals: me.context.globals(),
                                 mode: deploy_contracts.DataTransformerMode.Transform,
                                 options: target.transformerOptions,
+                                require: function(id) {
+                                    return me.context.require(id);
+                                },
                             }).then((dataToSend) => {
                                 let parsePlaceHolders = (str: string, transformer?: (val: any) => string): string => {
                                     if (!transformer) {

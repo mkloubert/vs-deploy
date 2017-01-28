@@ -273,8 +273,17 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                     transformer({
                         context: transformCtx,
                         data: data,
+                        emitGlobal: function() {
+                            return me.context
+                                     .emitGlobal
+                                     .apply(me.context, arguments);
+                        },
+                        globals: me.context.globals(),
                         mode: deploy_contracts.DataTransformerMode.Transform,
                         options: target.transformerOptions,
+                        require: function(id) {
+                            return me.context.require(id);
+                        },
                     }).then((transformedFileData) => {
                         ZLib.gzip(transformedFileData, (err, compressedData) => {
                             if (err) {
@@ -318,8 +327,17 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                             jsonTransformer({
                                 context: jsonTransformerCtx,
                                 data: json,
+                                emitGlobal: function() {
+                                    return me.context
+                                             .emitGlobal
+                                             .apply(me.context, arguments);
+                                },
+                                globals: me.context.globals(),
                                 mode: deploy_contracts.DataTransformerMode.Transform,
                                 options: target.messageTransformerOptions,
+                                require: function(id) {
+                                    return me.context.require(id);
+                                },
                             }).then((transformedJsonData) => {
                                 let hostsTodo = ctx.hosts.map(x => x);
                                 let deployNext: () => void;

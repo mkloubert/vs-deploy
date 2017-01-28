@@ -64,6 +64,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
             return eventEmitter.emit
                                .apply(eventEmitter, arguments);
         },
+        emitGlobal: null,
         error: function(msg) {
             if (msg) {
                 vscode.window.showErrorMessage('' + msg);
@@ -133,6 +134,10 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
     
     if (baseCtx) {
         ctx.config = () => baseCtx.config();
+        ctx.emitGlobal = function() {
+            return baseCtx.emitGlobal
+                          .apply(baseCtx, arguments);
+        };
         ctx.globals = () => baseCtx.globals();
         ctx.log = function(msg) {
             baseCtx.log(msg);

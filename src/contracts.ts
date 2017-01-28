@@ -42,10 +42,31 @@ export const DEFAULT_MAX_MESSAGE_SIZE = 16777215;
  * Default TCP port of a host.
  */
 export const DEFAULT_PORT = 23979;
+
 /**
  * Name of the event to cancel a deployment.
  */
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
+/**
+ * Name of the event that is raised when 'deploy on change'
+ * feature should be disabled.
+ */
+export const EVENT_DEPLOYONCHANGE_DISABLE = 'deploy.deployOnChange.disable';
+/**
+ * Name of the event that is raised when 'deploy on change'
+ * feature should be enabled.
+ */
+export const EVENT_DEPLOYONCHANGE_ENABLE = 'deploy.deployOnChange.enable';
+/**
+ * Name of the event that is raised when 'deploy on save'
+ * feature should be disabled.
+ */
+export const EVENT_DEPLOYONSAVE_DISABLE = 'deploy.deployOnSave.disable';
+/**
+ * Name of the event that is raised when 'deploy on save'
+ * feature should be enabled.
+ */
+export const EVENT_DEPLOYONSAVE_ENABLE = 'deploy.deployOnSave.enable';
 
 /**
  * A deploy operation for compiling files that is invoked AFTER
@@ -211,7 +232,7 @@ export type DataTransformer = (ctx: DataTransformerContext) => Promise<Buffer>;
 /**
  * The context of data transformer.
  */
-export interface DataTransformerContext {
+export interface DataTransformerContext extends ScriptArguments {
     /**
      * An optional context / object value defined by the "sender".
      */
@@ -450,12 +471,19 @@ export interface DeployContext extends vscode.Disposable {
      */
     config: () => DeployConfiguration;
     /**
-     * Emits an event.
+     * Emits an event of the context.
      * 
      * @param {string | symbol} event The event.
      * @param {any[]} args The arguments.
      */
     emit: (event: string | symbol, ...args: any[]) => boolean;
+    /**
+     * Emits a global event.
+     * 
+     * @param {string | symbol} event The event.
+     * @param {any[]} args The arguments.
+     */
+    emitGlobal: (event: string | symbol, ...args: any[]) => boolean;
     /**
      * Shows an error message.
      * 
@@ -843,7 +871,7 @@ export interface DeployScriptOperation extends DeployOperation {
 /**
  * The arguments for a script of a deploy operation.
  */
-export interface DeployScriptOperationArguments {
+export interface DeployScriptOperationArguments extends ScriptArguments {
     /**
      * The files that should be deployed.
      */
@@ -853,21 +881,9 @@ export interface DeployScriptOperationArguments {
      */
     kind: DeployOperationKind;
     /**
-     * Gets the list of global vars.
-     */
-    globals: GlobalVariables;
-    /**
      * The addtional options.
      */
     options?: any;
-    /**
-     * Loads a module from the script context.
-     * 
-     * @param {string} id The ID / path to the module.
-     * 
-     * @return {any} The loaded module.
-     */
-    require: (id: string) => any;
     /**
      * The underlying target configuration.
      */
@@ -1254,6 +1270,31 @@ export interface PopupButton extends vscode.MessageItem {
 export type PopupButtonAction = () => void;
 
 /**
+ * Arguments that be used script or something like that.
+ */
+export interface ScriptArguments {
+    /**
+     * Emits a global event.
+     * 
+     * @param {string | symbol} event The event.
+     * @param {any[]} args The arguments.
+     */
+    emitGlobal: (event: string | symbol, ...args: any[]) => boolean;
+    /**
+     * The global variables from the settings.
+     */
+    globals: GlobalVariables;
+    /**
+     * Loads a module from the script context.
+     * 
+     * @param {string} id The ID / path to the module.
+     * 
+     * @return {any} The loaded module.
+     */
+    require: (id: string) => any;
+}
+
+/**
  * A startup command.
  */
 export interface ScriptCommand extends Command {
@@ -1308,7 +1349,7 @@ export type ScriptCommandExecutor = (args: ScriptCommandExecutorArguments) => Pr
 /**
  * Arguments for a command execution.
  */
-export interface ScriptCommandExecutorArguments {
+export interface ScriptCommandExecutorArguments extends ScriptArguments {
     /**
      * Arguments from the callback.
      */
@@ -1327,22 +1368,10 @@ export interface ScriptCommandExecutorArguments {
      */
     commandState?: any;
     /**
-     * The global variables from the settings.
-     */
-    globals?: GlobalVariables;
-    /**
      * Defines data that should be keeped while the current session
      * and is available for ALL commands defined by that extension.
      */
     globalState?: any;
-    /**
-     * Loads a module from the script context.
-     * 
-     * @param {string} id The ID / path to the module.
-     * 
-     * @return {any} The loaded module.
-     */
-    require: (id: string) => any;
     /**
      * The options.
      */
@@ -1391,7 +1420,7 @@ export type Validator<T> = (args: ValidatorArguments<T>) => Promise<boolean>;
 /**
  * Arguments for a "validator" function.
  */
-export interface ValidatorArguments<T> {
+export interface ValidatorArguments<T> extends ScriptArguments {
     /**
      * Additional context data, defined by "caller".
      */

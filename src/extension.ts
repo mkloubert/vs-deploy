@@ -31,6 +31,7 @@ import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as vs_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as vs_deploy from './deploy';
 
 
@@ -137,4 +138,6 @@ export function deactivate() {
     if (deployer) {
         deployer.onDeactivate();
     }
+
+    deploy_globals.EVENTS.removeAllListeners();
 }

@@ -452,8 +452,17 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                         ctx.transformer({
                             context: transformerCtx,
                             data: data,
+                            emitGlobal: function() {
+                                return me.context
+                                         .emitGlobal
+                                         .apply(me.context, arguments);
+                            },
+                            globals: me.context.globals(),
                             mode: deploy_contracts.DataTransformerMode.Transform,
                             options: target.transformerOptions,
+                            require: function(id) {
+                                return me.context.require(id);
+                            },
                         }).then((transformedData) => {
                             uploadFile(transformedData);
                         }).catch((err) => {

@@ -296,8 +296,17 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             sftp: ctx,
                         },
                         data: data,
+                        emitGlobal: function() {
+                            return me.context
+                                     .emitGlobal
+                                     .apply(me.context, arguments);
+                        },
+                        globals: me.context.globals(),
                         mode: deploy_contracts.DataTransformerMode.Transform,
                         options: ctx.dataTransformerOptions,
+                        require: function(id) {
+                            return me.context.require(id);
+                        },
                     }).then((dataToUpload) => {
                         ctx.connection.put(dataToUpload, targetFile).then(() => {
                             completed();

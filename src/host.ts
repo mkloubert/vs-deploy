@@ -375,8 +375,17 @@ export class DeployHost {
                                 jsonTransformer({
                                     context: jsonTransformerCtx,
                                     data: msgBuff,
-                                    options: jsonTransformerOpts,
+                                    emitGlobal: function() {
+                                        return me.deployer
+                                                 .emit
+                                                 .apply(me.deployer, arguments);
+                                    },
+                                    globals: me.deployer.getGlobals(),
                                     mode: deploy_contracts.DataTransformerMode.Restore,
+                                    options: jsonTransformerOpts,
+                                    require: function(id) {
+                                        return require(id);
+                                    },
                                 }).then((untransformedMsgBuff) => {
                                     try {
                                         let json = untransformedMsgBuff.toString('utf8');
@@ -554,7 +563,16 @@ export class DeployHost {
 
                                                         let validatorArgs: deploy_contracts.ValidatorArguments<RemoteFile> = {
                                                             context: validatorCtx,
+                                                            emitGlobal: function() {
+                                                                return me.deployer
+                                                                         .emit
+                                                                         .apply(me.deployer, arguments);
+                                                            },
+                                                            globals: me.deployer.getGlobals(),
                                                             options: validatorOpts,
+                                                            require: function(id) {
+                                                                return require(id);
+                                                            },
                                                             value: file,
                                                         };
 
@@ -613,8 +631,17 @@ export class DeployHost {
                                                             transformer({
                                                                 context: transformerCtx,
                                                                 data: file.data,
-                                                                options: transformerOpts,
+                                                                emitGlobal: function() {
+                                                                    return me.deployer
+                                                                             .emit
+                                                                             .apply(me.deployer, arguments);
+                                                                },
+                                                                globals: me.deployer.getGlobals(),
+                                                                require: function(id) {
+                                                                    return require(id);
+                                                                },
                                                                 mode: deploy_contracts.DataTransformerMode.Restore,
+                                                                options: transformerOpts,
                                                             }).then((untransformedData) => {
                                                                 file.data = untransformedData;
 

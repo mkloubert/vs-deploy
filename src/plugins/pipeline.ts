@@ -52,7 +52,7 @@ export interface DeployTargetPipeline extends deploy_contracts.DeployTarget {
 /**
  * Arguments for the 'pipe()' function of a "pipeline" module.
  */
-export interface PipeArguments {
+export interface PipeArguments extends deploy_contracts.ScriptArguments {
     /**
      * The (new) root directory to use.
      */
@@ -182,7 +182,16 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                     baseDirectory: opts.baseDirectory,
                     context: me.context,
                     deployOptions: opts,
+                    emitGlobal: function() {
+                        return me.context
+                                 .emitGlobal
+                                 .apply(me.context, arguments);
+                    },
                     files: files,
+                    globals: me.context.globals(),
+                    require: function(id) {
+                        return me.context.require(id);
+                    },
                     sender: me,
                     target: target,
                     targetOptions: target.options,

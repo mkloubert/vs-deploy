@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const Glob = require('glob');
@@ -152,23 +153,15 @@ export type ScriptCompiler = (args: ScriptCompilerArguments) => Promise<ScriptCo
 /**
  * Arguments for the compilation.
  */
-export interface ScriptCompilerArguments {
+export interface ScriptCompilerArguments extends deploy_contracts.ScriptArguments {
     /**
      * The list of files to compile.
      */
     files: string[];
     /**
-     * The globals from the settings.
-     */
-    globals: deploy_contracts.GlobalVariables;
-    /**
      * The compiler options.
      */
     options: ScriptCompilerOptions;
-    /**
-     * Loads a module from the script context.
-     */
-    require: (id: string) => any;
     /**
      * A preconfigured result object.
      */
@@ -587,6 +580,11 @@ export function compileScript(cfg: deploy_contracts.DeployConfiguration,
                         files: '**',    
                     }, opts).then((filesToCompile) => {
                         let args: ScriptCompilerArguments = {
+                            emitGlobal: function() {
+                                return deploy_globals.EVENTS
+                                                     .emit
+                                                     .apply(deploy_globals.EVENTS, arguments);
+                            },
                             files: filesToCompile,
                             globals: deploy_helpers.cloneObject(cfg.globals),
                             options: opts,
