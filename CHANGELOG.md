@@ -3,6 +3,7 @@
 ## 5.16.0 (January 29th, 2017; global events)
 
 * added [ScriptArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptarguments.html) which extends all script based arguments and contextes with features like emitting global events
+* added [emitGlobal](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html#emitglobal) to [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html)
 * added global events `deploy.deployOnChange.disable` and `deploy.deployOnChange.enable`
 * added global events `deploy.deployOnSave.disable` and `deploy.deployOnSave.enable`
 
