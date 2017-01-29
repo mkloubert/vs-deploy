@@ -2550,6 +2550,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONCHANGE_ENABLE, function() {
             me._isDeployOnChangeEnabled = true;
         });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONCHANGE_TOGGLE, function() {
+            me._isDeployOnChangeEnabled = !me._isDeployOnChangeEnabled;
+        });
 
         // deploy.deployOnSave.*
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_DISABLE, function() {
@@ -2557,6 +2560,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         });
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_ENABLE, function() {
             me._isDeployOnSaveEnabled = true;
+        });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_TOGGLE, function() {
+            me._isDeployOnSaveEnabled = !me._isDeployOnSaveEnabled;
         });
     }
 

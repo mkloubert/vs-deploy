@@ -1,5 +1,11 @@
 # Change Log (vs-deploy)
 
+## 5.17.0 (January 29th, 2017; global events)
+
+* added global event `deploy.deployOnChange.toggle`
+* added global event `deploy.deployOnSave.toggle`
+
+
 ## 5.16.0 (January 29th, 2017; global events)
 
 * added [ScriptArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptarguments.html) which extends all script based arguments and contextes with features like emitting global events

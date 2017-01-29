@@ -58,6 +58,11 @@ export const EVENT_DEPLOYONCHANGE_DISABLE = 'deploy.deployOnChange.disable';
  */
 export const EVENT_DEPLOYONCHANGE_ENABLE = 'deploy.deployOnChange.enable';
 /**
+ * Name of the event that is raised when 'deploy on change'
+ * feature should be toggled.
+ */
+export const EVENT_DEPLOYONCHANGE_TOGGLE = 'deploy.deployOnChange.toggle';
+/**
  * Name of the event that is raised when 'deploy on save'
  * feature should be disabled.
  */
@@ -67,6 +72,11 @@ export const EVENT_DEPLOYONSAVE_DISABLE = 'deploy.deployOnSave.disable';
  * feature should be enabled.
  */
 export const EVENT_DEPLOYONSAVE_ENABLE = 'deploy.deployOnSave.enable';
+/**
+ * Name of the event that is raised when 'deploy on save'
+ * feature should be toggled.
+ */
+export const EVENT_DEPLOYONSAVE_TOGGLE = 'deploy.deployOnSave.toggle';
 
 /**
  * A deploy operation for compiling files that is invoked AFTER
