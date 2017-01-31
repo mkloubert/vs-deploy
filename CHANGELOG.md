@@ -6,7 +6,7 @@
 * added global event `deploy.deployFiles.complete`
 * added global event `deploy.deployFiles.error`
 * added global event `deploy.deployFiles.success`
-* added `deployFiles()` that can be used in scripts to deploy files
+* added [deployFiles()](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.filedeployer.html#deployfiles) that can be used in scripts to deploy files
 
 
 ## 5.17.0 (January 29th, 2017; global events)
