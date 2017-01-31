@@ -2639,7 +2639,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     return deploy_helpers.toStringSafe(x);
                 }).filter(x => !deploy_helpers.isEmptyString(x))
                   .map(x => {
-                           if (Path.isAbsolute(x)) {
+                           if (!Path.isAbsolute(x)) {
                                x = Path.join(vscode.workspace.rootPath, x);
                            }
 
