@@ -48,6 +48,25 @@ export const DEFAULT_PORT = 23979;
  */
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 /**
+ * Name of the event that deploys files.
+ */
+export const EVENT_DEPLOYFILES = 'deploy.deployFiles';
+/**
+ * Name of the event for the 'complete' for the
+ * event that deploys files.
+ */
+export const EVENT_DEPLOYFILES_COMPLETE = 'deploy.deployFiles.complete';
+/**
+ * Name of the event for the 'error' for the
+ * event that deploys files.
+ */
+export const EVENT_DEPLOYFILES_ERROR = 'deploy.deployFiles.error';
+/**
+ * Name of the event for the 'success' for the
+ * event that deploys files.
+ */
+export const EVENT_DEPLOYFILES_SUCCESS = 'deploy.deployFiles.success';
+/**
  * Name of the event that is raised when 'deploy on change'
  * feature should be disabled.
  */
@@ -303,7 +322,6 @@ export interface DeployActionQuickPick extends DeployQuickPickItem {
      */
     action?: (sender: any) => any;
 }
-
 
 /**
  * A deploy operation for compiling files.
@@ -659,6 +677,29 @@ export interface DeployFileQuickPickItem extends DeployTargetQuickPickItem {
 }
 
 /**
+ * Arguments for a 'deploy files' event result.
+ */
+export interface DeployFilesEventArguments {
+    /**
+     * The error (if occurred).
+     */
+    error?: any;
+    /**
+     * The files that have been (try to be) deployed.
+     */
+    files?: string[];
+    /**
+     * The targets.
+     */
+    targets?: DeployTarget[];
+    /**
+     * The symbol that indentifies the operation.
+     */
+    symbol?: symbol;
+}
+
+
+/**
  * 'Deploy on change' file filter.
  */
 export interface DeployOnChangeFileFilter extends FileFilter {
@@ -881,7 +922,7 @@ export interface DeployScriptOperation extends DeployOperation {
 /**
  * The arguments for a script of a deploy operation.
  */
-export interface DeployScriptOperationArguments extends ScriptArguments {
+export interface DeployScriptOperationArguments extends ScriptArguments, FileDeployer {
     /**
      * The files that should be deployed.
      */
@@ -982,6 +1023,11 @@ export interface DeployTarget extends Sortable {
      */
     type?: string;
 }
+
+/**
+ * A list of targets.
+ */
+export type DeployTargetList = string | string[] | DeployTarget | DeployTarget[];
 
 /**
  * A wrapper for a deploy target and matching plugins.
@@ -1210,6 +1256,19 @@ export interface FileDeployCompletedEventArguments extends DeployEventArguments 
 export type FileDeployCompletedEventHandler = (sender: any, e: FileDeployCompletedEventArguments) => void;
 
 /**
+ * An object that can deploy files.
+ */
+export interface FileDeployer {
+    /**
+     * Deploys files.
+     * 
+     * @param {string | string[]} files The files to deploy.
+     * @param {DeployTargetList} targets The targets to deploy to.
+     */
+    deployFiles(files: string | string[], targets: DeployTargetList): Promise<DeployFilesEventArguments>;
+}
+
+/**
  * A file filter.
  */
 export interface FileFilter {
@@ -1359,7 +1418,7 @@ export type ScriptCommandExecutor = (args: ScriptCommandExecutorArguments) => Pr
 /**
  * Arguments for a command execution.
  */
-export interface ScriptCommandExecutorArguments extends ScriptArguments {
+export interface ScriptCommandExecutorArguments extends ScriptArguments, FileDeployer {
     /**
      * Arguments from the callback.
      */

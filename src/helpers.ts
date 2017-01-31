@@ -25,6 +25,7 @@
 
 import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as HTTP from 'http';
@@ -200,6 +201,63 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
         label: name,
         target: target,
     };
+}
+
+/**
+ * Deploys files.
+ * 
+ * @param {string | string[]} files The files to deploy.
+ * @param {deploy_contracts.DeployTargetList} targets The targets to deploy to.
+ * @param {symbol} [sym] The custom symbol to use for the identification.
+ * 
+ * @return {Promise<deploy_contracts.DeployFilesEventArguments>} The promise.
+ */
+export function deployFiles(files: string | string[], targets: deploy_contracts.DeployTargetList,
+                            sym?: symbol): Promise<deploy_contracts.DeployFilesEventArguments> {
+    return new Promise<deploy_contracts.DeployFilesEventArguments>((resolve, reject) => {
+        let completed = (err?: any, args?: deploy_contracts.DeployFilesEventArguments) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(args);
+            }
+        };
+
+        try {
+            let alreadyInvoked = false;
+
+            let listener: Function;
+            listener = function(args: deploy_contracts.DeployFilesEventArguments) {
+                if (alreadyInvoked) {
+                    return;
+                }
+                
+                if (!isNullOrUndefined(sym) && (sym !== args.symbol)) {
+                    return;
+                }
+
+                alreadyInvoked = true;
+                try {
+                    deploy_globals.EVENTS.removeListener(deploy_contracts.EVENT_DEPLOYFILES_COMPLETE, listener);
+                }
+                catch (e) {
+                    log(i18.t('errors.withCategory',
+                              'helpers.deployFiles()', e));
+                }
+
+                completed();
+            };
+
+            deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYFILES_COMPLETE, listener);
+
+            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_DEPLOYFILES,
+                                       files, targets, sym);
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**

@@ -1,5 +1,14 @@
 # Change Log (vs-deploy)
 
+## 5.18.0 (January 31th, 2017; deploy via event)
+
+* added global event `deploy.deployFiles`
+* added global event `deploy.deployFiles.complete`
+* added global event `deploy.deployFiles.error`
+* added global event `deploy.deployFiles.success`
+* added `deployFiles()` that can be used in scripts to deploy files
+
+
 ## 5.17.0 (January 29th, 2017; global events)
 
 * added global event `deploy.deployOnChange.toggle`

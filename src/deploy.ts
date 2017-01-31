@@ -1571,7 +1571,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                         nextAction = null;
                         if (scriptExecutor) {
+                            let sym = Symbol("deploy.deploy.Deployer.handleCommonDeployOperation");
+
                             let scriptArgs: deploy_contracts.DeployScriptOperationArguments = {
+                                deployFiles: (files, targets) => {
+                                    return deploy_helpers.deployFiles(files, targets, sym);
+                                },
                                 emitGlobal: function() {
                                     return me.emitGlobal
                                              .apply(me, arguments);
@@ -2564,6 +2569,106 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONSAVE_TOGGLE, function() {
             me._isDeployOnSaveEnabled = !me._isDeployOnSaveEnabled;
         });
+
+        // deploy.deployFiles
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYFILES, function(files: string | string[],
+                                                                              targets: deploy_contracts.DeployTargetList,
+                                                                              sym?: symbol) {
+            let filesToDeploy: string[];
+            let targetObjects: deploy_contracts.DeployTarget[];
+            let completed = (err?: any) => {
+                try {
+                    let args: deploy_contracts.DeployFilesEventArguments = {
+                        error: err,
+                        files: filesToDeploy,
+                        targets: targetObjects,
+                        symbol: sym,
+                    };
+
+                    if (args.error) {
+                        deploy_globals.EVENTS.emit(deploy_contracts.EVENT_DEPLOYFILES_ERROR,
+                                                   args);
+                    }
+                    else {
+                        deploy_globals.EVENTS.emit(deploy_contracts.EVENT_DEPLOYFILES_SUCCESS,
+                                                   args);
+                    }
+
+                    deploy_globals.EVENTS.emit(deploy_contracts.EVENT_DEPLOYFILES_COMPLETE,
+                                               args);
+                }
+                catch (e) {
+                    me.log(i18.t('errors.withCategory', 'Deployer.registerGlobalEvents()', e));
+                }
+            };
+            
+            try {
+                let allKnownTargets = me.getTargets();
+
+                // convert to 'DeployTarget' objects
+                targetObjects = deploy_helpers.asArray<string | deploy_contracts.DeployTarget>(targets).map(x => {
+                    let t: deploy_contracts.DeployTarget;
+                    
+                    if (x) {
+                        if ('object' === typeof x) {
+                            t = x;
+                        }
+                        else {
+                            let targetName = deploy_helpers.normalizeString(x);
+                            if (!deploy_helpers.isEmptyString(targetName)) {
+                                t = {
+                                    name: targetName,
+                                };  // default "dummy"
+
+                                // try find known target
+                                for (let i = 0; i < allKnownTargets.length; i++) {
+                                    let kt = allKnownTargets[i];
+                                    if (deploy_helpers.normalizeString(kt.name) == targetName) {
+                                        t = kt;  // found
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    return t;
+                }).filter(x => x);
+
+                // collect file list
+                filesToDeploy = deploy_helpers.asArray(files).map(x => {
+                    return deploy_helpers.toStringSafe(x);
+                }).filter(x => !deploy_helpers.isEmptyString(x))
+                  .map(x => {
+                           if (Path.isAbsolute(x)) {
+                               x = Path.join(vscode.workspace.rootPath, x);
+                           }
+
+                           return Path.resolve(x);
+                       });
+                filesToDeploy = deploy_helpers.distinctArray(filesToDeploy);
+
+                if (targetObjects.length > 0 && filesToDeploy.length > 0) {
+                    let batchTarget: any = {
+                        type: 'batch',
+                        name: i18.t('deploy.workspace.virtualTargetName'),
+                        targets: targetObjects.map(x => x.name),
+                    };
+
+                    me.deployWorkspaceTo(filesToDeploy, batchTarget).then(() => {
+                        completed();
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                }
+                else {
+                    completed();
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
     }
 
     /**
@@ -2618,10 +2723,15 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 return;  // no execute() function found
                                             }
 
+                                            let sym = Symbol("deploy.compilers.Deployer.reloadCommands");
+
                                             args = {
                                                 arguments: arguments,
                                                 command: cmdName,
                                                 commandState: commandState,
+                                                deployFiles: (files, targets) => {
+                                                    return deploy_helpers.deployFiles(files, targets, sym);
+                                                },
                                                 emitGlobal: function() {
                                                     return me.emitGlobal
                                                              .apply(me, arguments);

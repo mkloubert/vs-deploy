@@ -153,7 +153,7 @@ export type ScriptCompiler = (args: ScriptCompilerArguments) => Promise<ScriptCo
 /**
  * Arguments for the compilation.
  */
-export interface ScriptCompilerArguments extends deploy_contracts.ScriptArguments {
+export interface ScriptCompilerArguments extends deploy_contracts.ScriptArguments, deploy_contracts.FileDeployer {
     /**
      * The list of files to compile.
      */
@@ -579,7 +579,12 @@ export function compileScript(cfg: deploy_contracts.DeployConfiguration,
                     collectCompilerFiles({
                         files: '**',    
                     }, opts).then((filesToCompile) => {
+                        let sym = Symbol("deploy.compilers.compileScript");
+
                         let args: ScriptCompilerArguments = {
+                            deployFiles: (files, targets) => {
+                                return deploy_helpers.deployFiles(files, targets, sym);
+                            },
                             emitGlobal: function() {
                                 return deploy_globals.EVENTS
                                                      .emit
