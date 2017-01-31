@@ -2956,6 +2956,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         let ctx = deploy_plugins.createPluginContext();
 
                         ctx.config = () => me.config;
+                        ctx.deployFiles = (files, target) => {
+                            let sym = Symbol("deploy.deploy.Deployer.reloadPlugins.createPluginContext");
+
+                            return deploy_helpers.deployFiles(files, target, sym);
+                        };
                         ctx.emitGlobal = function() {
                             return me.emitGlobal
                                      .apply(me, arguments);

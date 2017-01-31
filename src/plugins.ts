@@ -45,6 +45,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
     let ctx: deploy_contracts.DeployContext;
     ctx = {
         config: null,
+        deployFiles: null,
         dispose: () => {
             try {
                 eventEmitter.removeAllListeners(deploy_contracts.EVENT_CANCEL_DEPLOY);
@@ -134,6 +135,10 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
     
     if (baseCtx) {
         ctx.config = () => baseCtx.config();
+        ctx.deployFiles = function() {
+            return baseCtx.deployFiles
+                          .apply(baseCtx, arguments);
+        };
         ctx.emitGlobal = function() {
             return baseCtx.emitGlobal
                           .apply(baseCtx, arguments);

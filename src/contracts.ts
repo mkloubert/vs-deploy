@@ -491,7 +491,7 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
 /**
  * A deploy context.
  */
-export interface DeployContext extends vscode.Disposable {
+export interface DeployContext extends vscode.Disposable, FileDeployer {
     /**
      * Returns the current config.
      * 

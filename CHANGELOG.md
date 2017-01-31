@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.19.0 (January 31th, 2017; deploy via context)
+
+* added `deployFiles()` to [DeployContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploycontext.html)
+
+
 ## 5.18.0 (January 31th, 2017; deploy via event)
 
 * added global event `deploy.deployFiles`
