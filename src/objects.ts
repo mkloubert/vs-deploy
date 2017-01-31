@@ -631,6 +631,7 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
                                     if (opts.onFileCompleted) {
                                         opts.onFileCompleted(me, {
                                             canceled: e.canceled,
+                                            error: e.error,
                                             file: e.file,
                                             target: e.target,
                                         });

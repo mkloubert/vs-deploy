@@ -854,7 +854,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     let type = deploy_helpers.parseTargetType(target.type);
 
-                    // kloubi
                     let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                         return !type ||
                                (x.plugin.__type == type && x.plugin.deployWorkspace);

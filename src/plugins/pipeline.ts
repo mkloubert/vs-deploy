@@ -251,6 +251,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                                               onFileCompleted: (sender, e) => {
                                                   if (opts.onFileCompleted) {
                                                       opts.onFileCompleted(sender, {
+                                                          error: e.error,
                                                           file: e.file,
                                                           target: e.target,
                                                       });
