@@ -429,9 +429,9 @@ jQuery(function() {
                                     .filter(x => x);
             parts.forEach((x, i) => {
                 let isLast = i >= (parts.length - 1);
-                currentDir += '/?p=' + encodeURIComponent(x);
+                currentDir += '/' + x;
 
-                addCrumbItem(currentDir, Entities.encode(x),
+                addCrumbItem('/?p=' + encodeURIComponent(currentDir), Entities.encode(x),
                              isLast);
             });
         }
