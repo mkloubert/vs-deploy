@@ -25,6 +25,7 @@
 import * as deploy_builders from '../builders';
 import * as deploy_helpers from '../helpers';
 import * as deploy_resources from '../resources/browser';
+const Entities = require('html-entities').AllHtmlEntities;
 import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as Path from 'path';
@@ -141,7 +142,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
         let me = this;
 
         try {
-            html.write(`<u>dir: ${dir}</u>`);
+            html.write(`@TODO: dir: ${dir}`);
 
             html.sendTo(resp);
         }
@@ -162,14 +163,54 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
                          req: HTTP.IncomingMessage, resp: HTTP.ServerResponse) {
         let me = this;
 
-        try {
-            html.write(`<u>file: ${file}</u>`);
+        FS.readFile(file, (err, data) => {
+            if (err) {
+                me.sendError(err, resp);
+                return;
+            }
 
-            html.sendTo(resp);
-        }
-        finally {
-            deploy_helpers.tryDispose(html);
-        }
+            let ext = Path.extname(file);
+            if (ext) {
+                ext = ext.substr(1).toLowerCase().trim();
+            }
+
+            deploy_helpers.isBinaryContent(data).then((isBinary) => {
+                if (isBinary) {
+                    html.write('@TODO: This is binary content!');
+
+                    html.sendTo(resp);
+                }
+                else {
+                    let str = data.toString('utf8');
+
+                    let content = `
+<div class="panel panel-default vsd-code-panel">
+  <div class="panel-heading">${Entities.encode(Path.basename(file))}</div>
+
+  <div class="panel-body">
+    <pre class="vsd-code-block"><code class="${ext}">${Entities.encode(str)}</code></pre>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+jQuery(function() {
+    jQuery('.vsd-code-block code').each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
+});
+
+</script>
+`;
+
+                    html.write(content);
+
+                    html.sendTo(resp);
+                }
+            }).catch((e) => {
+                me.sendError(e, resp);
+            });
+        });
     }
 
     /**
@@ -234,9 +275,6 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
             return;
         }
 
-        relativePath = deploy_helpers.replaceAllStrings(relativePath, Path.delimiter, '/');
-        relativePath = deploy_helpers.replaceAllStrings(relativePath, "\\", '/');
-
         let html = new deploy_builders.HtmlBuilder();
 
         html.header = `<!DOCTYPE html>
@@ -250,6 +288,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
     <link href="/?c=bootstrap.css" rel="stylesheet">
     <link href="/?c=font-awesome.css" rel="stylesheet">
+    <link href="/?c=highlight.darkula.css" rel="stylesheet">
 
     <style type="text/css">
 
@@ -282,6 +321,20 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
         height: 16px;
     }
 
+    .vsd-code-block {
+        padding: 0;
+        border: 0 none transparent;
+        background-color: transparent;
+    }
+
+    .vsd-code-block code {
+        padding: 0;
+    }
+
+    .vsd-code-panel .panel-body {
+        background-color: #2b2b2b;
+    }
+
     </style>
 
     <!--[if lt IE 9]>
@@ -291,6 +344,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
     <script src="/?j=jquery.min.js"></script>
     <script src="/?j=bootstrap.min.js"></script>
+    <script src="/?j=highlight.pack.js"></script>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -377,7 +431,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
                 let isLast = i >= (parts.length - 1);
                 currentDir += '/?p=' + encodeURIComponent(x);
 
-                addCrumbItem(currentDir, x,
+                addCrumbItem(currentDir, Entities.encode(x),
                              isLast);
             });
         }
@@ -394,9 +448,6 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
                     return;
                 }
 
-                dirRelativePath = deploy_helpers.replaceAllStrings(dirRelativePath, Path.delimiter, '/');
-                dirRelativePath = deploy_helpers.replaceAllStrings(dirRelativePath, "\\", '/');
-                
                 try {
                     FS.readdir(dir, (err, files) => {
                         let dirList = [];
@@ -414,7 +465,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
                             let content = '';
                             {
-                                if (path != workspaceRoot) {
+                                if (dir != workspaceRoot) {
                                     let dirName = '..';
 
                                     let dirPath = encodeURIComponent(dirRelativePath + '/..');
@@ -437,7 +488,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
                                     let dirPath = encodeURIComponent(dirRelativePath + '/' + dirName);
 
-                                    content += `<li class="list-group-item vsd-dir${cssClass}"><a href="/?p=${dirPath}">${dirName}</a></li>`;
+                                    content += `<li class="list-group-item vsd-dir${cssClass}"><a href="/?p=${dirPath}">${Entities.encode(dirName)}</a></li>`;
                                 });
 
                                 fileList.forEach((x) => {
@@ -455,7 +506,7 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
                                     let filePath = encodeURIComponent(dirRelativePath + '/' + fileName);
 
-                                    content += `<li class="list-group-item vsd-file${cssClass}"><a href="/?p=${filePath}">${fileName}</a></li>`;
+                                    content += `<li class="list-group-item vsd-file${cssClass}"><a href="/?p=${filePath}">${Entities.encode(fileName)}</a></li>`;
                                 });
 
                                 content += '</ul>';
@@ -524,7 +575,10 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
                 try {
                     if (stats.isFile()) {
-                        includeFilesAndDirectories(Path.dirname(path)).then(() => {
+                        let dir = Path.dirname(path);
+                        dir = Path.resolve(dir);
+
+                        includeFilesAndDirectories(dir).then(() => {
                             me.handleFile(path, html,
                                           req, resp);
                         }).catch((err) => {
