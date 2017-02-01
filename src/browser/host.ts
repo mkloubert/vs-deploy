@@ -24,7 +24,6 @@
 
 import * as deploy_builders from '../builders';
 import * as deploy_helpers from '../helpers';
-import * as deploy_resources from '../resources/browser';
 const Entities = require('html-entities').AllHtmlEntities;
 import * as FS from 'fs';
 import * as HTTP from 'http';
