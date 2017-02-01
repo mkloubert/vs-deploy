@@ -218,17 +218,24 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
         let workspaceRoot = Path.resolve(vscode.workspace.rootPath);
 
-        let p = me.getUrlParam(params, 'p');
-        if (deploy_helpers.isEmptyString(p)) {
-            p = '/';
+        let path = me.getUrlParam(params, 'p');
+        if (deploy_helpers.isEmptyString(path)) {
+            path = '/';
         }
-
-        let path = Path.join(vscode.workspace.rootPath, p);
+        else {
+            path = decodeURIComponent(path);
+        }
+        path = Path.join(workspaceRoot, path);
         path = Path.resolve(path);
-        if (0 != path.indexOf(workspaceRoot)) {
+
+        let relativePath = deploy_helpers.toRelativePath(path);
+        if (false === relativePath) {
             me.sendNotFound(resp);
             return;
         }
+
+        relativePath = deploy_helpers.replaceAllStrings(relativePath, Path.delimiter, '/');
+        relativePath = deploy_helpers.replaceAllStrings(relativePath, "\\", '/');
 
         let html = new deploy_builders.HtmlBuilder();
 
@@ -299,11 +306,20 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
     </nav>
 
     <div class="container">
+      <div class="row">{{ vsdeploy::breadcrumb }}</div>
+
       <div class="row">
-        <div class="col-xs-12 col-md-6">
+        <div class="col-xs-12 col-md-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Workspace</h3>
+            </div>
+            
+            <div class="panel-body">{{ vsdeploy::workspace }}</div>
+          </div>
         </div>
 
-        <div class="col-xs-12 col-md-6">
+        <div class="col-xs-12 col-md-8">
 `;
 
         html.footer = `
@@ -333,6 +349,167 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
   </body>
 </html>`;
 
+        let breadCrumb = '<ol class="breadcrumb">';
+        {
+            let currentDir = '';
+
+            let addCrumbItem = (path: string, content: string, isLast: boolean) => {
+                breadCrumb += `<li`;
+                if (isLast) {
+                    breadCrumb += ' class="active">';
+                }
+                else {
+                    breadCrumb += `><a href="${path}">`;
+                }
+                breadCrumb += content;
+                if (!isLast) {
+                    breadCrumb += '</a>';
+                }
+                breadCrumb += `</li>`;
+            };
+
+            addCrumbItem('/', '<i class="fa fa-home" aria-hidden="true"></i>',
+                         workspaceRoot == path);
+
+            let parts = relativePath.split('/')
+                                    .filter(x => x);
+            parts.forEach((x, i) => {
+                let isLast = i >= (parts.length - 1);
+                currentDir += '/?p=' + encodeURIComponent(x);
+
+                addCrumbItem(currentDir, x,
+                             isLast);
+            });
+        }
+        breadCrumb += '</ol>';
+        html.header = deploy_helpers.replaceAllStrings(html.header, '{{ vsdeploy::breadcrumb }}', breadCrumb);
+
+        let includeFilesAndDirectories = (dir: string): Promise<any> => {
+            return new Promise<any>((resolve, reject) => {
+                let completed = deploy_helpers.createSimplePromiseCompletedAction<any>(resolve, reject);
+
+                let dirRelativePath = deploy_helpers.toRelativePath(dir);
+                if (false === dirRelativePath) {
+                    completed(new Error());  //TODO
+                    return;
+                }
+
+                dirRelativePath = deploy_helpers.replaceAllStrings(dirRelativePath, Path.delimiter, '/');
+                dirRelativePath = deploy_helpers.replaceAllStrings(dirRelativePath, "\\", '/');
+                
+                try {
+                    FS.readdir(dir, (err, files) => {
+                        let dirList = [];
+                        let fileList = [];
+                        let includeList = () => {
+                            dirList.sort((x, y) => {
+                                return deploy_helpers.compareValues(deploy_helpers.normalizeString(x),
+                                                                    deploy_helpers.normalizeString(y));
+                            });
+
+                            fileList.sort((x, y) => {
+                                return deploy_helpers.compareValues(deploy_helpers.normalizeString(x),
+                                                                    deploy_helpers.normalizeString(y));
+                            });
+
+                            let content = '';
+                            {
+                                if (path != workspaceRoot) {
+                                    let dirName = '..';
+
+                                    let dirPath = encodeURIComponent(dirRelativePath + '/..');
+
+                                    content += `<li class="list-group-item vsd-parent-dir"><a href="/?p=${dirPath}">${dirName}</a></li>`;
+                                }
+
+                                dirList.forEach((x) => {
+                                    let dirName = Path.basename(x);
+
+                                    let ext = Path.extname(x);
+                                    if (ext) {
+                                        ext = ext.substr(1).toLowerCase().trim();
+                                    }
+
+                                    let cssClass = '';
+                                    if (ext) {
+                                        cssClass = `vsd-dir-${ext}`;
+                                    }
+
+                                    let dirPath = encodeURIComponent(dirRelativePath + '/' + dirName);
+
+                                    content += `<li class="list-group-item vsd-dir${cssClass}"><a href="/?p=${dirPath}">${dirName}</a></li>`;
+                                });
+
+                                fileList.forEach((x) => {
+                                    let fileName = Path.basename(x);
+
+                                    let ext = Path.extname(x);
+                                    if (ext) {
+                                        ext = ext.substr(1).toLowerCase().trim();
+                                    }
+
+                                    let cssClass = '';
+                                    if (ext) {
+                                        cssClass = `vsd-file-${ext}`;
+                                    }
+
+                                    let filePath = encodeURIComponent(dirRelativePath + '/' + fileName);
+
+                                    content += `<li class="list-group-item vsd-file${cssClass}"><a href="/?p=${filePath}">${fileName}</a></li>`;
+                                });
+
+                                content += '</ul>';
+                            }
+
+                            if (content) {
+                                content = '<ul class="list-group">' + 
+                                          content + 
+                                          '</ul>';
+                            }
+                            else {
+                                content ='Nothing found here.';
+                            }
+
+                            html.header = deploy_helpers.replaceAllStrings(html.header, '{{ vsdeploy::workspace }}',
+                                                                           content);
+
+                            completed();
+                        };
+                        
+                        let nextFile: () => void;
+                        nextFile = () => {
+                            if (files.length < 1) {
+                                includeList();
+                                return;
+                            }
+
+                            let f = Path.join(dir, files.shift());
+                            FS.lstat(f, (err, stats) => {
+                                if (err) {
+                                    completed(err);
+                                }
+                                else {
+                                    if (stats.isFile()) {
+                                        fileList.push(f);
+                                    }
+                                    else if (stats.isDirectory()) {
+                                        dirList.push(f);
+                                    }
+
+                                    nextFile();
+                                }
+                            });
+                        };
+
+                        nextFile();
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            });
+        };
+
         FS.exists(path, (exists) => {
             if (!exists) {
                 me.sendNotFound(resp);
@@ -347,12 +524,20 @@ export class WorkspaceBrowserHost implements vscode.Disposable {
 
                 try {
                     if (stats.isFile()) {
-                        me.handleFile(path, html,
-                                      req, resp);
+                        includeFilesAndDirectories(Path.dirname(path)).then(() => {
+                            me.handleFile(path, html,
+                                          req, resp);
+                        }).catch((err) => {
+                            me.sendError(err, resp);
+                        });
                     }
                     else if (stats.isDirectory()) {
-                        me.handleDirectory(path, html,
-                                           req, resp);
+                        includeFilesAndDirectories(path).then(() => {
+                            me.handleDirectory(path, html,
+                                               req, resp);
+                        }).catch((err) => {
+                            me.sendError(err, resp);
+                        });
                     }
                     else {
                         me.sendNotFound(resp);
