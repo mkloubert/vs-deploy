@@ -2224,7 +2224,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                           .filter(x => Path.resolve(x));
                         }
 
-                        if (matchingFiles.map(x => normalizePath(x)).indexOf(normalizePath(filePath)) > 0) {
+                        if (matchingFiles.map(x => normalizePath(x)).indexOf(normalizePath(filePath)) > -1) {
                             packagesToDeploy.push(pkg);
                         }
                     }
