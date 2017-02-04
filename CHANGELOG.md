@@ -1,5 +1,11 @@
 # Change Log (vs-deploy)
 
+## 5.20.0 (February 4th, 2017; deploy on save)
+
+* improved speed of `deploy on save`
+* added [showWarningsForNonExistingTargets](https://github.com/mkloubert/vs-deploy/wiki#settings--) setting, that defines if warn popups should be shown if a target does not exist
+
+
 ## 5.19.1 (February 3th, 2017; deploy on change)
 
 * bug fix in [deploy on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change)

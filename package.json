@@ -527,6 +527,11 @@
               "description": "Indicates if an info popup / notification should be displayed after a successful deployment or not.",
               "default": true
             },
+            "showWarningsForNonExistingTargets": {
+              "type": "boolean",
+              "description": "Indicates if a warning popup / notification should be displayed if targets do not exist.",
+              "default": false
+            },
             "startupCommands": {
               "description": "A list of one or more Visual Studio Commands that should be run on startup.",
               "oneOf": [
