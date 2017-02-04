@@ -2002,155 +2002,142 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
 
         try {
-            FS.exists(fileName, (exists) => {
-                try {
-                    let normalizeString = (str: string): string => {
-                        return deploy_helpers.toStringSafe(str)
-                                             .toLowerCase()
-                                             .trim();
-                    };
+            let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
+                let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
 
-                    let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
-                        let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
+                let checkForPackageSpecificTargetListSetting = true;
+                if (packagesToDeploy) {
+                    // we are in "deploy on change" context
 
-                        let checkForPackageSpecificTargetListSetting = true;
-                        if (packagesToDeploy) {
-                            // we are in "deploy on change" context
+                    if (pkg.deployOnChange) {
+                        if (true !== pkg.deployOnChange) {
+                            if (!deploy_helpers.isNullOrUndefined(pkg.deployOnChange.useTargetList)) {
+                                // use "deploy on change" specific setting
 
-                            if (pkg.deployOnChange) {
-                                if (true !== pkg.deployOnChange) {
-                                    if (!deploy_helpers.isNullOrUndefined(pkg.deployOnChange.useTargetList)) {
-                                        // use "deploy on change" specific setting
-
-                                        useTargetLists = deploy_helpers.toBooleanSafe(pkg.deployOnChange.useTargetList);
-                                        checkForPackageSpecificTargetListSetting = false;
-                                    }
-                                }
+                                useTargetLists = deploy_helpers.toBooleanSafe(pkg.deployOnChange.useTargetList);
+                                checkForPackageSpecificTargetListSetting = false;
                             }
                         }
-
-                        if (checkForPackageSpecificTargetListSetting) {
-                            if (!deploy_helpers.isNullOrUndefined(pkg.useTargetListForDeployOnSave)) {
-                                // use package specific setting
-                                useTargetLists = deploy_helpers.toBooleanSafe(pkg.useTargetListForDeployOnSave);
-                            }
-                        }
-
-                        let targetSource: string[] = [];
-                        if (pkg) {
-                            if (useTargetLists) {
-                                // use targets from the 'targets' property
-                                // of package
-
-                                if (true !== pkg.deployOnSave) {
-                                    targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
-                                }
-
-                                targetSource = targetSource.concat(deploy_helpers.asArray(pkg.targets));
-                            }
-                            else {
-                                // use targets from 'deployOnSave' property
-
-                                if (true === pkg.deployOnSave) {
-                                    targetSource = targetSource.concat(me.getTargets()
-                                                                         .map(x => x.name));
-                                }
-                                else {
-                                    targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
-                                }
-                            }
-                        }
-
-                        return deploy_helpers.asArray(targetSource)
-                                             .map(x => normalizeString(x))
-                                             .filter(x => x);
-                    };
-
-                    if (!packagesToDeploy) {
-                        // find packages that would deploy the file
-
-                        packagesToDeploy = me.getPackages();
-                        packagesToDeploy = packagesToDeploy.filter(x => {
-                            if (!x.deployOnSave) {
-                                return false;  // do NOT deploy on save
-                            }
-
-                            let packageFiles = deploy_helpers.getFilesOfPackage(x);
-                            return packageFiles.indexOf(docFile) > -1;
-                        });
                     }
-                    
-                    // check for non existing target names
-                    let targets = me.getTargets();
-                    packagesToDeploy.forEach(pkg => {
-                        let packageName = normalizeString(pkg.name);
+                }
 
-                        let targetsOfPackage = getTargetNamesByPackage(pkg);
-                        targetsOfPackage.forEach(tn => {
-                            let foundTarget = false;
-                            for (let i = 0; i < targets.length; i++) {
-                                let targetName = normalizeString(targets[i].name);
+                if (checkForPackageSpecificTargetListSetting) {
+                    if (!deploy_helpers.isNullOrUndefined(pkg.useTargetListForDeployOnSave)) {
+                        // use package specific setting
+                        useTargetLists = deploy_helpers.toBooleanSafe(pkg.useTargetListForDeployOnSave);
+                    }
+                }
 
-                                if (targetName == tn) {
-                                    foundTarget = true;
-                                    break;
-                                }
-                            }
+                let targetSource: string[] = [];
+                if (pkg) {
+                    if (useTargetLists) {
+                        // use targets from the 'targets' property
+                        // of package
 
-                            if (!foundTarget) {
-                                vscode.window.showWarningMessage(i18.t('deploy.onSave.couldNotFindTarget',
-                                                                       tn, packageName));
-                            }
-                        });
-                    });
-
-                    // find matching targets
-                    targets = targets.filter(t => {
-                        let targetName = normalizeString(t.name);
-
-                        for (let i = 0; i < packagesToDeploy.length; i++) {
-                            let pkg = packagesToDeploy[i];
-
-                            // extract targets that are defined in the package
-                            let targetsOfPackage = getTargetNamesByPackage(pkg);                            
-                            if (targetsOfPackage.indexOf(targetName) > -1) {
-                                return true;
-                            }
+                        if (true !== pkg.deployOnSave) {
+                            targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
                         }
 
-                        return false;
-                    });
+                        targetSource = targetSource.concat(deploy_helpers.asArray(pkg.targets));
+                    }
+                    else {
+                        // use targets from 'deployOnSave' property
 
-                    // deploy file to targets
-                    targets.forEach(t => {
-                        let targetName = deploy_helpers.toStringSafe(t.name).trim();
-
-                        let showError = (err: any) => {
-                            let errMsg = deploy_helpers.toStringSafe(err);
-
-                            let targetExpr = 'target';
-                            if (targetName) {
-                                targetExpr = `'${targetName}'`;
-                            }
-
-                            vscode.window.showWarningMessage(i18.t('deploy.onSave.failedTarget',
-                                                                   relativeDocFilePath, targetExpr, errMsg));
-                        };
-
-                        me.deployFileTo(docFile, t).then(() => {
-                            //TODO
-                        }).catch((err) => {
-                            showError(err);
-                        });
-                    });
+                        if (true === pkg.deployOnSave) {
+                            targetSource = targetSource.concat(me.getTargets()
+                                                                 .map(x => x.name));
+                        }
+                        else {
+                            targetSource = targetSource.concat(deploy_helpers.asArray(pkg.deployOnSave));
+                        }
+                    }
                 }
-                catch (e) {
-                    vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 2, e));
+
+                return deploy_helpers.asArray(targetSource)
+                                     .map(x => deploy_helpers.normalizeString(x))
+                                     .filter(x => x);
+            };
+
+            if (!packagesToDeploy) {
+                // find packages that would deploy the file
+
+                packagesToDeploy = me.getPackages();
+                packagesToDeploy = packagesToDeploy.filter(x => {
+                    if (!x.deployOnSave) {
+                        return false;  // do NOT deploy on save
+                    }
+
+                    let packageFiles = deploy_helpers.getFilesOfPackage(x);
+                    return packageFiles.indexOf(docFile) > -1;
+                });
+            }
+            
+            // check for non existing target names
+            let targets = me.getTargets();
+            packagesToDeploy.forEach(pkg => {
+                let packageName = deploy_helpers.normalizeString(pkg.name);
+
+                let targetsOfPackage = getTargetNamesByPackage(pkg);
+                targetsOfPackage.forEach(tn => {
+                    let foundTarget = false;
+                    for (let i = 0; i < targets.length; i++) {
+                        let targetName = deploy_helpers.normalizeString(targets[i].name);
+
+                        if (targetName == tn) {
+                            foundTarget = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundTarget) {
+                        vscode.window.showWarningMessage(i18.t('deploy.onSave.couldNotFindTarget',
+                                                               tn, packageName));
+                    }
+                });
+            });
+
+            // find matching targets
+            targets = targets.filter(t => {
+                let targetName = deploy_helpers.normalizeString(t.name);
+
+                for (let i = 0; i < packagesToDeploy.length; i++) {
+                    let pkg = packagesToDeploy[i];
+
+                    // extract targets that are defined in the package
+                    let targetsOfPackage = getTargetNamesByPackage(pkg);                            
+                    if (targetsOfPackage.indexOf(targetName) > -1) {
+                        return true;
+                    }
                 }
+
+                return false;
+            });
+
+            // deploy file to targets
+            targets.forEach(t => {
+                let targetName = deploy_helpers.toStringSafe(t.name).trim();
+
+                let showError = (err: any) => {
+                    let errMsg = deploy_helpers.toStringSafe(err);
+
+                    let targetExpr = 'target';
+                    if (targetName) {
+                        targetExpr = `'${targetName}'`;
+                    }
+
+                    vscode.window.showWarningMessage(i18.t('deploy.onSave.failedTarget',
+                                                           relativeDocFilePath, targetExpr, errMsg));
+                };
+
+                me.deployFileTo(docFile, t).then(() => {
+                    //TODO
+                }).catch((err) => {
+                    showError(err);
+                });
             });
         }
         catch (e) {
-            vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 1, e));
+            vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 2, e));
         }
     }
 
