@@ -482,6 +482,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     showPopupOnSuccess?: boolean;
     /**
+     * Indicates if a warning popup / notification should be displayed if targets do not exist.
+     */
+    showWarningsForNonExistingTargets?: boolean;
+    /**
      * A list of one or more Visual Studio Code commands that should be run on startup.
      */
     startupCommands?: (string | StartupCommand)[] | StartupCommand | string;
