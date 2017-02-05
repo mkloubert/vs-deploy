@@ -82,7 +82,7 @@ export const translation: Translation = {
         onSave: {
             couldNotFindTarget: 'Konnte das Ziel {0:trim,surround} nicht im Paket{1:trim,surround,leading_space} finden!',
             failed: 'Konnte {0:trim,surround} nach dem Speichern nicht bereitstellen ({1:trim}): {2}',
-            failedTarget: 'Konnte {0:trim,surround} nach dem Speichern nicht in das Ziel ${1:trim} bereitstellen: {2}',
+            failedTarget: 'Konnte {0:trim,surround} nach dem Speichern nicht in das Ziel {1:trim} bereitstellen: {2}',
         },
         operations: {
             failed: "[FEHLER: {0:trim,surround}]",
