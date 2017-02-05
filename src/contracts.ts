@@ -48,6 +48,11 @@ export const DEFAULT_PORT = 23979;
  */
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 /**
+ * Name of the event that is raised when
+ * configuration has been reloaded.
+ */
+export const EVENT_CONFIG_RELOADED = 'deploy.config.reloaded';
+/**
  * Name of the event that deploys files.
  */
 export const EVENT_DEPLOYFILES = 'deploy.deployFiles';
@@ -932,6 +937,11 @@ export interface DeployScriptOperationArguments extends ScriptArguments, FileDep
      */
     files: string[];
     /**
+     * A state value for the ALL scripts that exists while the
+     * current session.
+     */
+    globalState?: Object;
+    /**
      * The kind of operation.
      */
     kind: DeployOperationKind;
@@ -939,6 +949,11 @@ export interface DeployScriptOperationArguments extends ScriptArguments, FileDep
      * The addtional options.
      */
     options?: any;
+    /**
+     * A state value for the current script that exists while the
+     * current session.
+     */
+    state?: any;
     /**
      * The underlying target configuration.
      */

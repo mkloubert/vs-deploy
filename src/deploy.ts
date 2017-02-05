@@ -78,6 +78,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _fileSystemWatcher: vscode.FileSystemWatcher;
     /**
+     * The global state value for deploy operation scripts.
+     */
+    protected _globalScriptOperationState: Object = {};
+    /**
      * Stores the current host.
      */
     protected _host: DeployHost;
@@ -105,6 +109,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The "quick deploy button".
      */
     protected readonly _QUICK_DEPLOY_STATUS_ITEM: vscode.StatusBarItem;
+    /**
+     * The states values for deploy operation scripts.
+     */
+    protected _scriptOperationStates: Object = {};
     /**
      * The current status item of the running server.
      */
@@ -308,13 +316,31 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
                 if (item) {
-                    me.beforeDeploy([file], item.target).then((canceled) => {
-                        if (!canceled) {
-                            me.deployFileTo(file, item.target);
+                    let showError = (err: any, type: string) => {
+                        vscode.window.showErrorMessage(i18.t(`deploy.${type}.failed`, err));
+                    };
+
+                    me.beforeDeploy([ file ], item.target).then((canceled) => {
+                        if (canceled) {
+                            return;
                         }
+
+                        me.deployFileTo(file, item.target).then((canceled) => {
+                            if (canceled) {
+                                return;
+                            }
+
+                            me.afterDeployment([ file ], item.target).then(() => {
+                                //TODO
+                            }).catch((err) => {
+                                showError(err, 'after');
+                            });  // after deployed
+                        }).catch((err) => {
+                            showError(err, 'file');
+                        });  // deploy
                     }).catch((err) => {
-                        vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
-                    });
+                        showError(err, 'before');
+                    });  // beforeDeploy
                 }
             }
             catch (e) {
@@ -1561,7 +1587,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         let scriptExecutor: deploy_contracts.DeployScriptOperationExecutor;
 
                         let scriptOpts = <deploy_contracts.DeployScriptOperation>operation;
+
+                        let scriptFile = scriptOpts.script;
                         if (!deploy_helpers.isEmptyString(scriptOpts.script)) {
+                            if (!Path.isAbsolute(scriptFile)) {
+                                scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+                            }
+                            scriptFile = Path.resolve(scriptFile);
+
                             let scriptModule = deploy_helpers.loadDeployScriptOperationModule(scriptOpts.script);
                             if (scriptModule) {
                                 scriptExecutor = scriptModule.execute;
@@ -1571,6 +1604,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         nextAction = null;
                         if (scriptExecutor) {
                             let sym = Symbol("deploy.deploy.Deployer.handleCommonDeployOperation");
+
+                            let allStates = me._scriptOperationStates;
 
                             let scriptArgs: deploy_contracts.DeployScriptOperationArguments = {
                                 deployFiles: (files, targets) => {
@@ -1589,6 +1624,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 },
                                 target: target,
                             };
+
+                            // scriptArgs.globalState
+                            Object.defineProperty(scriptArgs, 'globalState', {
+                                enumerable: true,
+                                get: () => {
+                                    return me._globalScriptOperationState;
+                                },
+                            });
+
+                            // scriptArgs.state
+                            Object.defineProperty(scriptArgs, 'state', {
+                                enumerable: true,
+                                get: () => {
+                                    return allStates[scriptFile];
+                                },
+                                set: (v) => {
+                                    allStates[scriptFile] = v;
+                                },
+                            });
 
                             scriptExecutor(scriptArgs).then(() => {
                                 completed();
@@ -2113,16 +2167,36 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             // deploy file to targets
             targets.forEach(t => {
-                me.deployFileTo(docFile, t).then(() => {
-                    //TODO
-                }).catch((err) => {
+                let showError = (err: any) => {
                     let targetName = deploy_helpers.toStringSafe(t.name).trim();
 
                     vscode.window.showWarningMessage(i18.t('deploy.onSave.failedTarget',
                                                            relativeDocFilePath,
                                                            targetName ? `'${targetName}'` : 'target',
                                                            err));
-                });
+                };
+
+                me.beforeDeploy([ docFile ], t).then((canceled) => {
+                    if (canceled) {
+                        return;
+                    }
+
+                    me.deployFileTo(docFile, t).then((canceled) => {
+                        if (canceled) {
+                            return;
+                        }
+
+                        me.afterDeployment([ docFile ], t).then(() => {
+                            //TODO
+                        }).catch((err) => {
+                            showError(err);
+                        });  // after deployed
+                    }).catch((err) => {
+                        showError(err);
+                    });  // deploy
+                }).catch((err) => {
+                    showError(err);
+                });  // beforeDeploy
             });
         }
         catch (e) {
@@ -2811,6 +2885,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public reloadConfiguration() {
         let me = this;
+        
+        let cfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+        this._config = cfg;
+
+        me._globalScriptOperationState = {};
+        me._scriptOperationStates = {};
 
         let next = () => {
             me.reloadPlugins();
@@ -2824,9 +2904,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             me.reloadCommands();
             me.executeStartupCommands();
-        };
 
-        this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+            // deploy.config.reloaded
+            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
+        };
 
         this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
         this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';

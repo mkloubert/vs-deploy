@@ -24,6 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 import * as i18 from './i18';
@@ -77,6 +78,9 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
      */
     public constructor(ctx?: deploy_contracts.DeployContext) {
         this._context = ctx;
+
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_CONFIG_RELOADED,
+                                 this.onConfigReloaded);
     }
 
     /**
@@ -200,6 +204,14 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
             ctx.once(deploy_contracts.EVENT_CANCEL_DEPLOY,
                      callback);
         }
+    }
+
+    /**
+     * Is invoked after app config has been reloaded.
+     * 
+     * @param {deploy_contracts.DeployConfiguration} cfg The new config.
+     */
+    protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
     }
 }
 
