@@ -265,6 +265,10 @@ export interface UglifyJSCompilerError extends CompilerError {
  */
 export interface UglifyJSCompilerOptions extends TextCompilerOptions {
     /**
+     * Delete the source file(s) on success or not.
+     */
+    deleteSources?: boolean;
+    /**
      * The extension to use for the output files.
      */
     extension?: string;
@@ -753,6 +757,8 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
         outExt = 'min.js';
     }
 
+    let deleteOnSuccess = deploy_helpers.toBooleanSafe(opts.deleteSources);
+
     return new Promise<UglifyJSCompilerResult>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<UglifyJSCompilerResult>(resolve, reject);
 
@@ -772,6 +778,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                     };
 
                     let uglifyOpts = deploy_helpers.cloneObject(opts);
+                    delete uglifyOpts['deleteSources'];
                     delete uglifyOpts['files'];
                     delete uglifyOpts['exclude'];
                     delete uglifyOpts['encoding'];
@@ -805,12 +812,28 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                             
                             let ugliCode = deploy_helpers.toStringSafe(ur.code);
 
+                            let deleteSourceFile = () => {
+                                if (deleteOnSuccess) {
+                                    FS.unlink(f, (err) => {
+                                        if (err) {
+                                            addError(err);
+                                        }
+                                        else {
+                                            nextFile();
+                                        }
+                                    });
+                                }
+                                else {
+                                    nextFile();
+                                }
+                            };
+
                             FS.writeFile(outputFile, new Buffer(ugliCode, enc), (err) => {
                                 if (err) {
                                     addError(err);
                                 }
                                 else {
-                                    nextFile();
+                                    deleteSourceFile();
                                 }
                             });
                         }
