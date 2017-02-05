@@ -48,9 +48,19 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      */
     deployOptions: deploy_contracts.DeployFileOptions;
     /**
+     * A state value for the ALL scripts that exists while the
+     * current session.
+     */
+    globalState?: Object;
+    /**
      * The underlying "parent" object.
      */
     sender: any;
+    /**
+     * A state value for the current script that exists while the
+     * current session.
+     */
+    state?: any;
     /**
      * The target.
      */
@@ -138,6 +148,9 @@ function loadScriptModule(scriptFile: string): ScriptModule {
 }
 
 class ScriptPlugin extends deploy_objects.DeployPluginBase {
+    protected _globalState: Object = {};
+    protected _scriptStates: Object = {};
+
     public deployFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
@@ -176,6 +189,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
                 }
 
+                let allStates = me._scriptStates;
+
                 let args: DeployFileArguments = {
                     context: me.context,
                     deployOptions: opts,
@@ -193,6 +208,25 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     target: target,
                     targetOptions: target.options,
                 };
+
+                // args.globalState
+                Object.defineProperty(args, 'globalState', {
+                    enumerable: true,
+                    get: () => {
+                        return me._globalState;
+                    },
+                });
+
+                // args.state
+                Object.defineProperty(args, 'state', {
+                    enumerable: true,
+                    get: () => {
+                        return allStates[scriptFile];
+                    },
+                    set: (v) => {
+                        allStates[scriptFile] = v;
+                    },
+                });
 
                 scriptModule.deployFile(args).then((a) => {
                     hasCancelled = (a || args).canceled;
@@ -248,6 +282,8 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 if (scriptModule.deployWorkspace) {
                     // custom function
 
+                    let allStates = me._scriptStates;
+
                     let args: DeployWorkspaceArguments = {
                         context: me.context,
                         deployOptions: opts,
@@ -265,6 +301,25 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         target: target,
                         targetOptions: target.options,
                     };
+
+                    // args.globalState
+                    Object.defineProperty(args, 'globalState', {
+                        enumerable: true,
+                        get: () => {
+                            return me._globalState;
+                        },
+                    });
+
+                    // args.state
+                    Object.defineProperty(args, 'state', {
+                        enumerable: true,
+                        get: () => {
+                            return allStates[scriptFile];
+                        },
+                        set: (v) => {
+                            allStates[scriptFile] = v;
+                        },
+                    });
 
                     scriptModule.deployWorkspace(args).then((a) => {
                         hasCancelled = (a || args).canceled;
@@ -293,6 +348,11 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: i18.t('plugins.script.description'),
         };
+    }
+
+    protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
+        this._globalState = {};
+        this._scriptStates = {};
     }
 }
 

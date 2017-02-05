@@ -36,6 +36,11 @@ import * as vscode from 'vscode';
  */
 export interface DeployTargetPipeline extends deploy_contracts.DeployTarget {
     /**
+     * A state value for the ALL scripts that exists while the
+     * current session.
+     */
+    globalState?: Object;
+    /**
      * The optional data to use in execution of script functions.
      */
     options?: any;
@@ -43,6 +48,11 @@ export interface DeployTargetPipeline extends deploy_contracts.DeployTarget {
      * The script to execute.
      */
     script: string;
+    /**
+     * A state value for the current script that exists while the
+     * current session.
+     */
+    state?: any;
     /**
      * The target.
      */
@@ -135,6 +145,9 @@ function loadScriptModule(scriptFile: string): PipelineModule {
 }
 
 class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
+    protected _globalState: Object = {};
+    protected _scriptStates: Object = {};
+
     protected createContext(target: DeployTargetPipeline): PipeContext {
         return {
             hasCancelled: false,
@@ -178,6 +191,8 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                     throw new Error(i18.t('plugins.pipeline.noPipeFunction', relativeScriptPath));
                 }
 
+                let allStates = me._scriptStates;
+
                 let args: PipeArguments = {
                     baseDirectory: opts.baseDirectory,
                     context: me.context,
@@ -196,6 +211,25 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                     target: target,
                     targetOptions: target.options,
                 };
+
+                // args.globalState
+                Object.defineProperty(args, 'globalState', {
+                    enumerable: true,
+                    get: () => {
+                        return me._globalState;
+                    },
+                });
+
+                // args.state
+                Object.defineProperty(args, 'state', {
+                    enumerable: true,
+                    get: () => {
+                        return allStates[scriptFile];
+                    },
+                    set: (v) => {
+                        allStates[scriptFile] = v;
+                    },
+                });
 
                 scriptModule.pipe(args).then((a) => {
                     if (ctx.hasCancelled) {
@@ -272,6 +306,11 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
         return {
             description: i18.t('plugins.pipeline.description'),
         };
+    }
+
+    protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
+        this._globalState = {};
+        this._scriptStates = {};
     }
 }
 

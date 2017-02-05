@@ -85,6 +85,8 @@ export const translation: Translation = {
             failedTarget: 'Could not deploy {0:trim,surround} to ${1:trim} on save: {2}',
         },
         operations: {
+            failed: "[ERROR: {0:trim,surround}]",
+            finished: "[Done]",
             noFileCompiled: "No of the {0:trim} file(s) could be compiled!",
             noFunctionInScript: "The function {0:trim,surround} was not found in {1:trim,surround}!",
             open: 'Opening {0:trim,surround}... ',

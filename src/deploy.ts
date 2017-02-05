@@ -29,6 +29,7 @@ import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
+import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
 import * as deploy_sql from './sql';
 import { DeployHost } from './host';
@@ -79,6 +80,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _fileSystemWatcher: vscode.FileSystemWatcher;
     /**
+     * The global state value for deploy operation scripts.
+     */
+    protected _globalScriptOperationState: Object = {};
+    /**
      * Stores the current host.
      */
     protected _host: DeployHost;
@@ -106,6 +111,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The "quick deploy button".
      */
     protected readonly _QUICK_DEPLOY_STATUS_ITEM: vscode.StatusBarItem;
+    /**
+     * The states values for deploy operation scripts.
+     */
+    protected _scriptOperationStates: Object = {};
     /**
      * The current status item of the running server.
      */
@@ -177,18 +186,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     ++i;
 
                     try {
-                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+                        let operationName = deploy_operations.getOperationName(currentOperation);
+                        
+                        me.outputChannel.append(`[AFTER DEPLOYED #${i + 1}] '${operationName}' `);
 
                         me.handleCommonDeployOperation(currentOperation,
                                                        deploy_contracts.DeployOperationKind.After,
                                                        files,
                                                        target).then((handled) => {
-                            if (!handled) {
+                            if (handled) {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                            }
+                            else {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
                         }).catch((err) => {
+                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+
                             completed(err);
                         });
                     }
@@ -243,18 +259,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     ++i;
 
                     try {
-                        me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
+                        let operationName = deploy_operations.getOperationName(currentOperation);
+                        
+                        me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] '${operationName}' `);
 
                         me.handleCommonDeployOperation(currentOperation,
                                                        deploy_contracts.DeployOperationKind.Before,
                                                        files,
                                                        target).then((handled) => {
-                            if (!handled) {
+                            if (handled) {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                            }
+                            else {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
                         }).catch((err) => {
+                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+
                             completed(err);
                         });
                     }
@@ -313,13 +336,31 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
                 if (item) {
-                    me.beforeDeploy([file], item.target).then((canceled) => {
-                        if (!canceled) {
-                            me.deployFileTo(file, item.target);
+                    let showError = (err: any, type: string) => {
+                        vscode.window.showErrorMessage(i18.t(`deploy.${type}.failed`, err));
+                    };
+
+                    me.beforeDeploy([ file ], item.target).then((canceled) => {
+                        if (canceled) {
+                            return;
                         }
+
+                        me.deployFileTo(file, item.target).then((canceled) => {
+                            if (canceled) {
+                                return;
+                            }
+
+                            me.afterDeployment([ file ], item.target).then(() => {
+                                //TODO
+                            }).catch((err) => {
+                                showError(err, 'after');
+                            });  // after deployed
+                        }).catch((err) => {
+                            showError(err, 'file');
+                        });  // deploy
                     }).catch((err) => {
-                        vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
-                    });
+                        showError(err, 'before');
+                    });  // beforeDeploy
                 }
             }
             catch (e) {
@@ -1439,6 +1480,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
+            let executor: deploy_operations.OperationExecutor<deploy_contracts.DeployOperation>;
+
             try {
                 let nextAction = completed;
 
@@ -1479,94 +1522,21 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
 
                     case 'compile':
-                        {
-                            let compileOp = <deploy_contracts.DeployCompileOperation>operation;
-
-                            let compilerName = deploy_helpers.toStringSafe(compileOp.compiler).toLowerCase().trim();
-
-                            let compiler: deploy_compilers.Compiler;
-                            let compilerArgs: any[];
-                            switch (compilerName) {
-                                case 'less':
-                                    compiler = deploy_compilers.Compiler.Less;
-                                    compilerArgs = [ compileOp.options ];
-                                    break;
-
-                                case 'script':
-                                    compiler = deploy_compilers.Compiler.Script;
-                                    compilerArgs = [ me.config, compileOp.options ];
-                                    break;
-
-                                case 'typescript':
-                                    compiler = deploy_compilers.Compiler.TypeScript;
-                                    compilerArgs = [ compileOp.options ];
-                                    break;
-                            }
-
-                            if (deploy_helpers.isNullOrUndefined(compiler)) {
-                                // unknown compiler
-                                completed(new Error(i18.t('deploy.operations.unknownCompiler', compilerName)));
-                            }
-                            else {
-                                nextAction = null;
-                                deploy_compilers.compile(compiler, compilerArgs).then((result) => {
-                                    let sourceFiles: string[] = [];
-                                    if (result.files) {
-                                        sourceFiles = result.files
-                                                            .filter(x => !deploy_helpers.isEmptyString(x))
-                                                            .map(x => Path.resolve(x));
-                                    }
-                                    sourceFiles = deploy_helpers.distinctArray(sourceFiles);
-
-                                    let compilerErrors: deploy_compilers.CompilerError[] = [];
-                                    if (result.errors) {
-                                        compilerErrors = result.errors
-                                                               .filter(x => x);
-                                    }
-
-                                    if (compilerErrors.length < 1) {
-                                        return;
-                                    }
-
-                                    me.outputChannel.appendLine('');    
-                                    result.errors.forEach(x => {
-                                        me.outputChannel.appendLine(`[${x.file}] ${x.error}`);
-                                    });
-
-                                    let failedFiles = compilerErrors.map(x => x.file)
-                                                                    .filter(x => !deploy_helpers.isEmptyString(x))
-                                                                    .map(x => Path.resolve(x));
-                                    failedFiles = deploy_helpers.distinctArray(failedFiles);
-
-                                    let err: Error;
-                                    if (failedFiles.length > 0) {
-                                        let errMsg: string;
-                                        if (failedFiles.length >= sourceFiles.length) {
-                                            // all failed
-                                            errMsg = i18.t("deploy.operations.noFileCompiled", sourceFiles.length);
-                                        }
-                                        else {
-                                            // some failed
-                                            errMsg = i18.t("deploy.operations.someFilesNotCompiled",
-                                                           failedFiles.length, sourceFiles.length);
-                                        }
-
-                                        err = new Error(errMsg);
-                                    }
-
-                                    completed(err);
-                                }).catch((err) => {
-                                    completed(err);
-                                });
-                            }
-                        }
+                        executor = deploy_operations.compile;
                         break;
 
                     case 'script':
                         let scriptExecutor: deploy_contracts.DeployScriptOperationExecutor;
 
                         let scriptOpts = <deploy_contracts.DeployScriptOperation>operation;
+
+                        let scriptFile = scriptOpts.script;
                         if (!deploy_helpers.isEmptyString(scriptOpts.script)) {
+                            if (!Path.isAbsolute(scriptFile)) {
+                                scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+                            }
+                            scriptFile = Path.resolve(scriptFile);
+
                             let scriptModule = deploy_helpers.loadDeployScriptOperationModule(scriptOpts.script);
                             if (scriptModule) {
                                 scriptExecutor = scriptModule.execute;
@@ -1576,6 +1546,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         nextAction = null;
                         if (scriptExecutor) {
                             let sym = Symbol("deploy.deploy.Deployer.handleCommonDeployOperation");
+
+                            let allStates = me._scriptOperationStates;
 
                             let scriptArgs: deploy_contracts.DeployScriptOperationArguments = {
                                 deployFiles: (files, targets) => {
@@ -1594,6 +1566,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 },
                                 target: target,
                             };
+
+                            // scriptArgs.globalState
+                            Object.defineProperty(scriptArgs, 'globalState', {
+                                enumerable: true,
+                                get: () => {
+                                    return me._globalScriptOperationState;
+                                },
+                            });
+
+                            // scriptArgs.state
+                            Object.defineProperty(scriptArgs, 'state', {
+                                enumerable: true,
+                                get: () => {
+                                    return allStates[scriptFile];
+                                },
+                                set: (v) => {
+                                    allStates[scriptFile] = v;
+                                },
+                            });
 
                             scriptExecutor(scriptArgs).then(() => {
                                 completed();
@@ -1811,8 +1802,37 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
                 }
 
-                if (nextAction) {
-                    nextAction();
+                if (executor) {
+                    let ctx: deploy_operations.OperationContext<deploy_contracts.DeployOperation> = {
+                        config: me.config,
+                        handled: handled,
+                        kind: kind,
+                        operation: operation,
+                        outputChannel: me.outputChannel,
+                    };
+
+                    let execRes = executor(ctx);
+                    if ('object' === typeof execRes) {
+                        execRes.then((hasHandled) => {
+                            handled = deploy_helpers.toBooleanSafe(hasHandled,
+                                                                   deploy_helpers.toBooleanSafe(ctx.handled, true));
+
+                            completed();
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        handled = deploy_helpers.toBooleanSafe(deploy_helpers.toBooleanSafe(execRes),
+                                                               deploy_helpers.toBooleanSafe(ctx.handled, true));
+
+                        completed(ctx.error);
+                    }
+                }
+                else {
+                    if (nextAction) {
+                        nextAction();
+                    }
                 }
             }
             catch (e) {
@@ -2162,16 +2182,36 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             // deploy file to targets
             targets.forEach(t => {
-                me.deployFileTo(docFile, t).then(() => {
-                    //TODO
-                }).catch((err) => {
+                let showError = (err: any) => {
                     let targetName = deploy_helpers.toStringSafe(t.name).trim();
 
                     vscode.window.showWarningMessage(i18.t('deploy.onSave.failedTarget',
                                                            relativeDocFilePath,
                                                            targetName ? `'${targetName}'` : 'target',
                                                            err));
-                });
+                };
+
+                me.beforeDeploy([ docFile ], t).then((canceled) => {
+                    if (canceled) {
+                        return;
+                    }
+
+                    me.deployFileTo(docFile, t).then((canceled) => {
+                        if (canceled) {
+                            return;
+                        }
+
+                        me.afterDeployment([ docFile ], t).then(() => {
+                            //TODO
+                        }).catch((err) => {
+                            showError(err);
+                        });  // after deployed
+                    }).catch((err) => {
+                        showError(err);
+                    });  // deploy
+                }).catch((err) => {
+                    showError(err);
+                });  // beforeDeploy
             });
         }
         catch (e) {
@@ -2860,6 +2900,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public reloadConfiguration() {
         let me = this;
+        
+        let cfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+        this._config = cfg;
+
+        me._globalScriptOperationState = {};
+        me._scriptOperationStates = {};
 
         let next = () => {
             me.reloadPlugins();
@@ -2873,9 +2919,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             me.reloadCommands();
             me.executeStartupCommands();
-        };
 
-        this._config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+            // deploy.config.reloaded
+            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
+        };
 
         this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
         this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
