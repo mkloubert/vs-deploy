@@ -65,7 +65,7 @@ export interface MultiTargetContext {
  * A basic deploy plugin that is specially based on single
  * file operations (s. deployFile() method).
  */
-export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin {
+export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin, vscode.Disposable {
     /**
      * Stores the deploy context.
      */
@@ -184,6 +184,12 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin 
                 completed(e);
             }
         }
+    }
+
+    /** @inheritdoc */
+    public dispose() {
+        deploy_globals.EVENTS.removeListener(deploy_contracts.EVENT_CONFIG_RELOADED,
+                                             this.onConfigReloaded);
     }
 
     /**
