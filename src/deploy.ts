@@ -23,11 +23,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
+import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
 import * as deploy_sql from './sql';
 import { DeployHost } from './host';
@@ -180,18 +180,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     ++i;
 
                     try {
-                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] `);
+                        let operationName = deploy_operations.getOperationName(currentOperation);
+                        
+                        me.outputChannel.append(`[AFTER DEPLOYED #${i + 1}] '${operationName}' `);
 
                         me.handleCommonDeployOperation(currentOperation,
                                                        deploy_contracts.DeployOperationKind.After,
                                                        files,
                                                        target).then((handled) => {
-                            if (!handled) {
+                            if (handled) {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                            }
+                            else {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
                         }).catch((err) => {
+                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+
                             completed(err);
                         });
                     }
@@ -246,18 +253,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     ++i;
 
                     try {
-                        me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] `);
+                        let operationName = deploy_operations.getOperationName(currentOperation);
+                        
+                        me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] '${operationName}' `);
 
                         me.handleCommonDeployOperation(currentOperation,
                                                        deploy_contracts.DeployOperationKind.Before,
                                                        files,
                                                        target).then((handled) => {
-                            if (!handled) {
+                            if (handled) {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                            }
+                            else {
                                 me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
                             }
 
                             invokeNext();
                         }).catch((err) => {
+                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+
                             completed(err);
                         });
                     }
@@ -1460,6 +1474,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
+            let executor: deploy_operations.OperationExecutor<deploy_contracts.DeployOperation>;
+
             try {
                 let nextAction = completed;
 
@@ -1500,87 +1516,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
 
                     case 'compile':
-                        {
-                            let compileOp = <deploy_contracts.DeployCompileOperation>operation;
-
-                            let compilerName = deploy_helpers.toStringSafe(compileOp.compiler).toLowerCase().trim();
-
-                            let compiler: deploy_compilers.Compiler;
-                            let compilerArgs: any[];
-                            switch (compilerName) {
-                                case 'less':
-                                    compiler = deploy_compilers.Compiler.Less;
-                                    compilerArgs = [ compileOp.options ];
-                                    break;
-
-                                case 'script':
-                                    compiler = deploy_compilers.Compiler.Script;
-                                    compilerArgs = [ me.config, compileOp.options ];
-                                    break;
-
-                                case 'typescript':
-                                    compiler = deploy_compilers.Compiler.TypeScript;
-                                    compilerArgs = [ compileOp.options ];
-                                    break;
-                            }
-
-                            if (deploy_helpers.isNullOrUndefined(compiler)) {
-                                // unknown compiler
-                                completed(new Error(i18.t('deploy.operations.unknownCompiler', compilerName)));
-                            }
-                            else {
-                                nextAction = null;
-                                deploy_compilers.compile(compiler, compilerArgs).then((result) => {
-                                    let sourceFiles: string[] = [];
-                                    if (result.files) {
-                                        sourceFiles = result.files
-                                                            .filter(x => !deploy_helpers.isEmptyString(x))
-                                                            .map(x => Path.resolve(x));
-                                    }
-                                    sourceFiles = deploy_helpers.distinctArray(sourceFiles);
-
-                                    let compilerErrors: deploy_compilers.CompilerError[] = [];
-                                    if (result.errors) {
-                                        compilerErrors = result.errors
-                                                               .filter(x => x);
-                                    }
-
-                                    if (compilerErrors.length < 1) {
-                                        return;
-                                    }
-
-                                    me.outputChannel.appendLine('');    
-                                    result.errors.forEach(x => {
-                                        me.outputChannel.appendLine(`[${x.file}] ${x.error}`);
-                                    });
-
-                                    let failedFiles = compilerErrors.map(x => x.file)
-                                                                    .filter(x => !deploy_helpers.isEmptyString(x))
-                                                                    .map(x => Path.resolve(x));
-                                    failedFiles = deploy_helpers.distinctArray(failedFiles);
-
-                                    let err: Error;
-                                    if (failedFiles.length > 0) {
-                                        let errMsg: string;
-                                        if (failedFiles.length >= sourceFiles.length) {
-                                            // all failed
-                                            errMsg = i18.t("deploy.operations.noFileCompiled", sourceFiles.length);
-                                        }
-                                        else {
-                                            // some failed
-                                            errMsg = i18.t("deploy.operations.someFilesNotCompiled",
-                                                           failedFiles.length, sourceFiles.length);
-                                        }
-
-                                        err = new Error(errMsg);
-                                    }
-
-                                    completed(err);
-                                }).catch((err) => {
-                                    completed(err);
-                                });
-                            }
-                        }
+                        executor = deploy_operations.compile;
                         break;
 
                     case 'script':
@@ -1860,8 +1796,37 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
                 }
 
-                if (nextAction) {
-                    nextAction();
+                if (executor) {
+                    let ctx: deploy_operations.OperationContext<deploy_contracts.DeployOperation> = {
+                        config: me.config,
+                        handled: handled,
+                        kind: kind,
+                        operation: operation,
+                        outputChannel: me.outputChannel,
+                    };
+
+                    let execRes = executor(ctx);
+                    if ('object' === typeof execRes) {
+                        execRes.then((hasHandled) => {
+                            handled = deploy_helpers.toBooleanSafe(hasHandled,
+                                                                   deploy_helpers.toBooleanSafe(ctx.handled, true));
+
+                            completed();
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        handled = deploy_helpers.toBooleanSafe(deploy_helpers.toBooleanSafe(execRes),
+                                                               deploy_helpers.toBooleanSafe(ctx.handled, true));
+
+                        completed(ctx.error);
+                    }
+                }
+                else {
+                    if (nextAction) {
+                        nextAction();
+                    }
                 }
             }
             catch (e) {

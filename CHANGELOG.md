@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.22.0 (February 5th, 2017; UglifyJS)
+
+* added [UglifyJS](https://www.npmjs.com/package/uglify-js) compiler support, e.g. for [target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations).
+
+
 ## 5.21.0 (February 4th, 2017; sharing data between scripts)
 
 * added `globalState` and `state` to [DeployArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html), [DeployScriptOperationArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deployscriptoperationarguments.html) and [PipeArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_pipeline_.pipearguments.html), which can be used to share / store data between scripts and their executions

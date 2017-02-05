@@ -741,6 +741,14 @@ export interface DeployOpenOperation extends DeployOperation {
  */
 export interface DeployOperation {
     /**
+     * The description for the operation.
+     */
+    description?: string;
+    /**
+     * The name of the operation.
+     */
+    name?: string;
+    /**
      * The type.
      */
     type?: string;

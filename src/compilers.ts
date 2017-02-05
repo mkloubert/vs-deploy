@@ -31,7 +31,9 @@ import * as i18 from './i18';
 let LESS: any;
 import * as Path from 'path';
 let TypeScript: any;
+let UglifyJS: any;
 import * as vscode from 'vscode';
+
 
 // try load Less module
 try {
@@ -47,6 +49,14 @@ try {
 }
 catch (e) {
     deploy_helpers.log(`Could not load TypeScript module: ${deploy_helpers.toStringSafe(e)}`);
+}
+
+// try load TypeScript module
+try {
+    UglifyJS = require('uglify-js');
+}
+catch (e) {
+    deploy_helpers.log(`Could not load UglifyJS module: ${deploy_helpers.toStringSafe(e)}`);
 }
 
 /**
@@ -65,6 +75,10 @@ export enum Compiler {
      * Script based compiler
      */
     Script = 2,
+    /**
+     * UglifyJS
+     */
+    UglifyJS = 3,
 }
 
 /**
@@ -240,6 +254,30 @@ export interface TypeScriptCompilerResult extends CompilerResult {
     errors: TypeScriptCompilerError[];
 }
 
+/**
+ * A UglifyJS compiler error entry.
+ */
+export interface UglifyJSCompilerError extends CompilerError {
+}
+
+/**
+ * UglifyJS compiler options.
+ */
+export interface UglifyJSCompilerOptions extends TextCompilerOptions {
+    /**
+     * The extension to use for the output files.
+     */
+    extension?: string;
+}
+
+/**
+ * A UglifyJS compiler result.
+ */
+export interface UglifyJSCompilerResult extends CompilerResult {
+    /** @inheritdoc */
+    errors: UglifyJSCompilerError[];
+}
+
 
 /**
  * Collects files to compile.
@@ -363,6 +401,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
                 // TypeScript
                 func = compileTypeScript;
                 break;
+
+            case Compiler.UglifyJS:
+                // UglifyJS
+                func = compileUglifyJS;
+                break;
         }
 
         if (func) {
@@ -397,8 +440,10 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
 
     let compressOutput = deploy_helpers.toBooleanSafe(opts.compress);
 
-    let enc = deploy_helpers.toStringSafe(opts.encoding)
-                            .toLowerCase().trim();
+    let enc = deploy_helpers.normalizeString(opts.encoding);
+    if (!enc) {
+        enc = 'utf8';
+    }
 
     let searchPaths = deploy_helpers.asArray(opts.paths)
                             .map(x => deploy_helpers.toStringSafe(x))
@@ -685,3 +730,106 @@ export function compileTypeScript(opts?: TypeScriptCompilerOptions): Promise<Typ
         }
     });
 };
+
+/**
+ * Compiles JavaScript files with UglifyJS.
+ * 
+ * @param {UglifyJSCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<UglifyJSCompilerResult> The promise.
+ */
+export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJSCompilerResult> {
+    if (!opts) {
+        opts = {};
+    }
+
+    let enc = deploy_helpers.normalizeString(opts.encoding);
+    if (!enc) {
+        enc = 'utf8';
+    }
+
+    let outExt = deploy_helpers.toStringSafe(opts.extension);
+    if (deploy_helpers.isEmptyString(opts.extension)) {
+        outExt = 'min.js';
+    }
+
+    return new Promise<UglifyJSCompilerResult>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<UglifyJSCompilerResult>(resolve, reject);
+
+        if (!UglifyJS) {
+            completed(new Error('No UglifyJS compiler found!'));
+            return;
+        }
+
+        try {
+            collectCompilerFiles({
+                files: "/**/*.js",
+            }, opts).then((filesToCompile) => {
+                try {
+                    let result: UglifyJSCompilerResult = {
+                        errors: [],
+                        files: filesToCompile.map(x => x),  // create copy
+                    };
+
+                    let uglifyOpts = deploy_helpers.cloneObject(opts);
+                    delete uglifyOpts['files'];
+                    delete uglifyOpts['exclude'];
+                    delete uglifyOpts['encoding'];
+                    delete uglifyOpts['extension'];
+                    
+                    let nextFile: () => void;
+
+                    let addError = (err: any) => {
+                        result.errors.push(err);
+
+                        nextFile();
+                    };
+
+                    nextFile = () => {
+                        if (filesToCompile.length < 1) {
+                            completed(null, result);
+                            return;
+                        }
+
+                        let f = filesToCompile.shift();
+
+                        try {
+                            let outDir = Path.dirname(f);
+                            let ext = Path.extname(f);
+                            let fileName = Path.basename(f, ext);
+
+                            let outputFile = Path.join(outDir,
+                                                       fileName + '.' + outExt);
+
+                            let ur = UglifyJS.minify([ f ], uglifyOpts);
+                            
+                            let ugliCode = deploy_helpers.toStringSafe(ur.code);
+
+                            FS.writeFile(outputFile, new Buffer(ugliCode, enc), (err) => {
+                                if (err) {
+                                    addError(err);
+                                }
+                                else {
+                                    nextFile();
+                                }
+                            });
+                        }
+                        catch (e) {
+                            addError(e);
+                        }
+                    };
+
+                    nextFile();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }).catch((err) => {
+                completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}

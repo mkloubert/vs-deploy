@@ -92,6 +92,8 @@ export interface Translation {
             failedTarget?: string;
         },
         operations?: {
+            failed?: string;
+            finished?: string;
             noFileCompiled?: string;
             noFunctionInScript?: string;
             open?: string;
