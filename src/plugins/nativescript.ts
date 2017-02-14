@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_compilers from '../compilers';
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
@@ -38,9 +39,12 @@ interface DeployTargetNativeScript extends deploy_contracts.DeployTarget {
     deploy?: boolean;
     deployArgs?: string | string[];
     platform?: string;
+    release?: boolean;  //TODO
     run?: string;
     runArgs?: string | string[];
     tns?: string;
+    typescript?: boolean;  //TODO
+    uglify?: boolean | string | string[];  //TODO
 }
 
 
@@ -107,6 +111,54 @@ class NativeScriptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 }
             }
 
+            let filesToUglify = [];
+            if (!deploy_helpers.isNullOrUndefined(target.uglify)) {
+                if (false !== target.uglify) {
+                    if (true === target.uglify) {
+                        filesToUglify.push('app/**/*.js');
+                    }
+                    else {
+                        filesToUglify = deploy_helpers.asArray(target.uglify)
+                                                      .filter(x => !deploy_helpers.isEmptyString(x));
+                        filesToUglify = deploy_helpers.distinctArray(filesToUglify);
+                    }
+                }
+            }
+
+            let compileTypeScript = (next: () => void) => {
+                if (deploy_helpers.toBooleanSafe(target.typescript)) {
+                    deploy_compilers.compileTypeScript({
+                        exclude: [ "node_modules/**" ],
+                    }).then(() => {
+                        next();
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                }
+                else {
+                    next();
+                }
+            };
+
+            let uglifyFiles = (next: () => void) => {
+                compileTypeScript(() => {
+                    if (filesToUglify.length > 0) {
+                        deploy_compilers.compileUglifyJS({
+                            files: filesToUglify,
+                            exclude: [ "node_modules/**" ],
+                            extension: 'js',
+                        }).then(() => {
+                            next();
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        next();
+                    }
+                });
+            };
+
             // tns run
             let runApp = () => {
                 if (deploy_helpers.toBooleanSafe(target.run, true)) {
@@ -114,13 +166,15 @@ class NativeScriptPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                     let targetArg = runArgs.pop();
 
-                    deploy_helpers.open(targetArg, {
-                        app: runArgs,
-                        wait: false,
-                    }).then(() => {
-                        completed();
-                    }).catch((err) => {
-                        completed(err);
+                    uglifyFiles(() => {
+                        deploy_helpers.open(targetArg, {
+                            app: runArgs,
+                            wait: false,
+                        }).then(() => {
+                            completed();
+                        }).catch((err) => {
+                            completed(err);
+                        });
                     });
                 }
                 else {
@@ -151,12 +205,14 @@ class NativeScriptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 if (deploy_helpers.toBooleanSafe(target.build)) {
                     let buildArgs = normalizeArgs(target.buildArgs);
 
-                    deploy_helpers.executeCmd(`${cmd} build ${platform}${buildArgs.length > 0 ? (' ' + buildArgs.join(' ')) : ''}`, {
-                        wait: true,
-                    }).then(() => {
-                        deployToDevice();
-                    }).catch((err) => {
-                        completed(err);
+                    uglifyFiles(() => {
+                        deploy_helpers.executeCmd(`${cmd} build ${platform}${buildArgs.length > 0 ? (' ' + buildArgs.join(' ')) : ''}`, {
+                            wait: true,
+                        }).then(() => {
+                            deployToDevice();
+                        }).catch((err) => {
+                            completed(err);
+                        });
                     });
                 }
                 else {
