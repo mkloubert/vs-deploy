@@ -325,7 +325,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+        let quickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
+                                .map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
 
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
@@ -703,7 +704,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         // select the target
-        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
+                                    .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
                 placeHolder: i18.t('deploy.folder.selectTarget'),
@@ -731,7 +733,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
+                                        .map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
@@ -801,7 +804,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (targetsOfPackage.length < 1) {
                 // no explicit targets
 
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
+                                            .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {

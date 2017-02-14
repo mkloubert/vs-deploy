@@ -303,6 +303,121 @@ export function distinctArray<T>(arr: T[]): T[] {
     });
 }
 
+
+/**
+ * Opens a target.
+ * 
+ * @param {string} target The target to open.
+ * @param {OpenOptions} [opts] The custom options to set.
+ * 
+ * @param {Promise<ChildProcess.ChildProcess>} The promise.
+ */
+export function executeCmd(commandToExecute: string, opts?: OpenOptions): Promise<ChildProcess.ChildProcess> {
+    let me = this;
+
+    if (!opts) {
+        opts = {};
+    }
+
+    opts.wait = toBooleanSafe(opts.wait, true);
+    
+    return new Promise((resolve, reject) => {
+        let completed = (err?: any, cp?: ChildProcess.ChildProcess) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(cp);
+            }
+        };
+        
+        try {
+            let cmd: string;
+            let appArgs: string[] = [];
+            let args: string[] = [];
+            let cpOpts: ChildProcess.SpawnOptions = {
+                cwd: opts.cwd || vscode.workspace.rootPath,
+            };
+
+            if (Array.isArray(opts.app)) {
+                appArgs = opts.app.slice(1);
+                opts.app = opts.app[0];
+            }
+
+            if (process.platform === 'darwin') {
+                // Apple
+
+                cmd = 'open';
+
+                if (opts.wait) {
+                    args.push('-W');
+                }
+
+                args.push('-a', commandToExecute);
+            }
+            else if (process.platform === 'win32') {
+                // Microsoft
+
+                cmd = 'cmd';
+                args.push('/c', toStringSafe(commandToExecute));
+
+                if (opts.wait) {
+                    args.push('/wait');
+                }
+
+                if (appArgs.length > 0) {
+                    args = args.concat(appArgs);
+                }
+            }
+            else {
+                // Unix / Linux
+
+                cmd = commandToExecute;
+
+                if (appArgs.length > 0) {
+                    args = args.concat(appArgs);
+                }
+
+                if (!opts.wait) {
+                    // xdg-open will block the process unless
+                    // stdio is ignored even if it's unref'd
+                    cpOpts.stdio = 'ignore';
+                }
+            }
+
+            if (process.platform === 'darwin' && appArgs.length > 0) {
+                args.push('--args');
+                args = args.concat(appArgs);
+            }
+
+            let cp = ChildProcess.spawn(cmd, args, cpOpts);
+
+            if (opts.wait) {
+                cp.once('error', (err) => {
+                    completed(err);
+                });
+
+                cp.once('close', function (code) {
+                    if (code > 0) {
+                        completed(new Error('Exited with code ' + code));
+                        return;
+                    }
+
+                    completed(null, cp);
+                });
+            }
+            else {
+                cp.unref();
+
+                completed(null, cp);
+            }
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
 /**
  * Formats a string.
  * 
@@ -442,6 +557,17 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] 
  * @return {string[]} The list of files.
  */
 export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
+    pkg = cloneObject(pkg);
+    if (pkg) {
+        if (!pkg.exclude) {
+            pkg.exclude = [];
+        }
+
+        if (toBooleanSafe(pkg.noNode)) {
+            pkg.exclude.push('node_modules/**');
+        }
+    }
+
     return getFilesByFilter(pkg);
 }
 

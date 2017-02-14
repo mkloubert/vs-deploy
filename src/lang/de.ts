@@ -205,6 +205,9 @@ export const translation: Translation = {
             },
             description: 'Sendet Dateien als ZIP-Datei-Anhang an eine oder mehrere E-Mail-Adressen',
         },
+        nativescript: {
+            description: "Überträgt ein NativeScript-Projekt auf ein Gerät oder einen Emulator",
+        },
         pipeline: {
             description: 'Leitet eine Liste von Quelldateien über ein Skript an einen anderen Ort und übermittelt die neuen Dateien an eine Liste von Zielen',
             noPipeFunction: "{0:trim,surround} implementiert keine 'pipe()' Funktion!",

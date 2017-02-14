@@ -1,5 +1,11 @@
 # Change Log (vs-deploy)
 
+## 5.26.0 (February 14th, 2017; NativeScript support)
+
+* can deploy [NativeScript apps](https://github.com/mkloubert/vs-deploy/wiki/target_nativescript) now
+* added `isHidden` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) to hide them in GUI
+* added `noNode` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) to exclude `node_modules` folder by default
+
 ## 5.25.0 (February 14th, 2017; get targets command)
 
 * added (invisible) command `extension.deploy.getTargets` to get [targets](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploytarget.html) via this command

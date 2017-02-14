@@ -214,6 +214,9 @@ export interface Translation {
             };
             description?: string;
         },
+        nativescript?: {
+            description?: string;
+        },
         pipeline?: {
             description?: string;
             noPipeFunction?: string;

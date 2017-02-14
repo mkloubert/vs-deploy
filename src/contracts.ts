@@ -797,9 +797,17 @@ export interface DeployPackage extends Sortable {
      */
     isFor?: string | string[];
     /**
+     * Hide package in GUI or not.
+     */
+    isHidden?: boolean;
+    /**
      * The name.
      */
     name?: string;
+    /**
+     * Exclude 'node_modules' directory by default or not.
+     */
+    noNode?: boolean;
     /**
      * One or more explicit targets to deploy to.
      */
@@ -1032,6 +1040,10 @@ export interface DeployTarget extends Sortable {
      * A list of one or more (host)names that target is visible for.
      */
     isFor?: string | string[];
+    /**
+     * Hide target in GUI or not.
+     */
+    isHidden?: boolean;
     /**
      * One or more folder mapping.
      */

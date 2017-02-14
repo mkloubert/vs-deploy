@@ -17,6 +17,7 @@ The extension supports the following destination types:
 * [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http)
 * [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
 * [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
+* [NativeScript apps](https://github.com/mkloubert/vs-deploy/wiki/target_nativescript)
 * [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
 * [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
 * [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
