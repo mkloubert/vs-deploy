@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.23.0 (February 15th, 2017; REST API)
+
+* added support for [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
+
+
 ## 5.22.0 (February 5th, 2017; UglifyJS)
 
 * added [UglifyJS](https://www.npmjs.com/package/uglify-js) compiler support, e.g. for [target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations).

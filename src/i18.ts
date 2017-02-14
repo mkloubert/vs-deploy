@@ -172,6 +172,17 @@ export interface Translation {
         nothingToDeploy?: string;
     },
     plugins?: {
+        api?: {
+            clientErrors?: {
+                noPermissions?: string;
+                unauthorized?: string;
+                unknown?: string;
+            },
+            description?: string;
+            serverErrors?: {
+                unknown?: string;
+            },
+        },
         app?: {
             description?: string;
         },
