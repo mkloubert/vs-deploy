@@ -771,7 +771,7 @@ export enum DeployOperationKind {
 /**
  * A package.
  */
-export interface DeployPackage extends Sortable {
+export interface DeployPackage extends Hideable, Sortable {
     /**
      * Deploys files on change.
      */
@@ -800,6 +800,10 @@ export interface DeployPackage extends Sortable {
      * The name.
      */
     name?: string;
+    /**
+     * Exclude 'node_modules' directory by default or not.
+     */
+    noNodeModules?: boolean;
     /**
      * One or more explicit targets to deploy to.
      */
@@ -1008,7 +1012,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends Sortable {
+export interface DeployTarget extends Hideable, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -1313,6 +1317,16 @@ export interface FileFilter {
  * Global variables.
  */
 export type GlobalVariables = Object;
+
+/**
+ * Describes an object that can be hidden (in the GUI e.g.).
+ */
+export interface Hideable {
+    /**
+     * Is hidden or not.
+     */
+    isHidden?: boolean;
+}
 
 /**
  * Describes the structure of the package file of that extenstion.

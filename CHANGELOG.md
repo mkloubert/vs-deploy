@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.26.0 (February 14th, 2017; exclude 'node_modules' folder and hide packages and targets in GUI)
+
+* added `noNodeModules` property for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) to exclude `node_modules/**` by default
+* added `isHidden` property for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) for hiding those items in the GUI (but they are still available)
+
 ## 5.25.0 (February 14th, 2017; get targets command)
 
 * added (invisible) command `extension.deploy.getTargets` to get [targets](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deploytarget.html) via this command
