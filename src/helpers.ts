@@ -442,6 +442,17 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] 
  * @return {string[]} The list of files.
  */
 export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
+    pkg = cloneObject(pkg);
+    if (pkg) {
+        if (!pkg.exclude) {
+            pkg.exclude = [];
+        }
+
+        if (toBooleanSafe(pkg.noNodeModules)) {
+            pkg.exclude.push('node_modules/**');
+        }
+    }
+    
     return getFilesByFilter(pkg);
 }
 

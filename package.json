@@ -490,6 +490,11 @@
                     "type": "string",
                     "description": "The name of the package."
                   },
+                  "noNodeModules": {
+                    "type": "boolean",
+                    "description": "Exclude 'node_modules' directory by default or not.",
+                    "default": false
+                  },
                   "sortOrder": {
                     "description": "The sort order(s).",
                     "oneOf": [
@@ -515,6 +520,11 @@
                         }
                       }
                     ]
+                  },
+                  "isHidden": {
+                    "type": "boolean",
+                    "description": "Hide package in GUI or not.",
+                    "default": false
                   },
                   "targets": {
                     "description": "One or more explicit targets to deploy to.",
@@ -674,6 +684,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -1635,6 +1650,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -2592,6 +2612,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -3536,6 +3561,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -4489,6 +4519,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -5451,6 +5486,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -6432,6 +6472,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -7372,6 +7417,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -8352,6 +8402,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -9294,6 +9349,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -10261,6 +10321,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -11297,6 +11362,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -12297,6 +12367,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -13235,6 +13310,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -14202,6 +14282,11 @@
                           }
                         ]
                       },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
                         "type": "array",
@@ -15132,6 +15217,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
@@ -16077,6 +16167,11 @@
                             }
                           }
                         ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
                       },
                       "mappings": {
                         "description": "One or more folder mapping to add.",
