@@ -94,8 +94,10 @@ export function activate(context: vscode.ExtensionContext) {
     let deployFilesTo = vscode.commands.registerCommand('extension.deploy.filesTo', (files: string | string[],
                                                                                      targets: vs_contracts.DeployTargetList) => {
         try {
+            let sym = Symbol('extension.deploy.filesTo');
+
             deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
-                                       files, targets);
+                                       files, targets, sym);
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY FILES TO ERROR]: ${deploy_helpers.toStringSafe(e)}`);
