@@ -435,7 +435,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     /**
      * Deploys a file to a target.
      * 
-     * @param {DeployFileQuickPickItem} item The quick pick with the information.
+     * @param {string} file The file to deploy.
+     * @param {deploy_contracts.DeployTarget} target The target to deploy to.
      * 
      * @return {Promise<boolean>} The promise.
      */

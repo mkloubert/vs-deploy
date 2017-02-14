@@ -563,11 +563,11 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
             pkg.exclude = [];
         }
 
-        if (toBooleanSafe(pkg.noNode)) {
+        if (toBooleanSafe(pkg.noNodeModules)) {
             pkg.exclude.push('node_modules/**');
         }
     }
-
+    
     return getFilesByFilter(pkg);
 }
 

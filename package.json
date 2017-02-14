@@ -469,7 +469,7 @@
                     "type": "string",
                     "description": "The name of the package."
                   },
-                  "noNode": {
+                  "noNodeModules": {
                     "type": "boolean",
                     "description": "Exclude 'node_modules' directory by default or not.",
                     "default": false
