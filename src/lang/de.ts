@@ -163,6 +163,17 @@ export const translation: Translation = {
         nothingToDeploy: 'Kein Paket zum Bereitstellen gefunden!',
     },
     plugins: {
+        api: {
+            clientErrors: {
+                noPermissions: "Keine Schreibrechte!",
+                unauthorized: "Benutzer hat keinen Zugriff!",
+                unknown: "Unbekannter Clientfehler: {0:trim} {2:trim,surround}",
+            },
+            description: "Sendet Dateien an eine REST API, wie 'vs-rest-api'",
+            serverErrors: {
+                unknown: "Unbekannter Serverfehler: {0:trim} {2:trim,surround}",
+            },
+        },
         app: {
             description: 'Sendet Dateien an eine ausführbare Datei',
         },

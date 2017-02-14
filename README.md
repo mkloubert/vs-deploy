@@ -18,6 +18,7 @@ The extension supports the following destination types:
 * [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
 * [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
 * [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
+* [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
 * [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
 * [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql)
 * [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
@@ -248,6 +249,14 @@ Add the subsection `targets` and add one or more entry:
                 "description": "Deploy to my DropBox folder",
 
                 "token": "<ACCESS-TOKEN>"
+            },
+            {
+                "type": "api",
+                "name": "My REST API",
+                "description": "Deploys to a vs-rest-api",
+
+                "host": "vscode.example.com",
+                "user": "rgrimes", "password": "lori"
             }
         ]
     }

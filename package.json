@@ -613,6 +613,962 @@
                     "properties": {
                       "type": {
                         "enum": [
+                          "api"
+                        ],
+                        "type": "string",
+                        "description": "Deploys to a REST API that is compatible to 'vs-rest-api'."
+                      },
+                      "host": {
+                        "type": "string",
+                        "description": "The host to deploy to.",
+                        "default": "127.0.0.1"
+                      },
+                      "isSecure": {
+                        "type": "boolean",
+                        "description": "Use secure HTTP or not.",
+                        "default": false
+                      },
+                      "port": {
+                        "type": "number",
+                        "description": "The TCP of the API host.",
+                        "default": 1781,
+                        "minimum": 0,
+                        "maximum": 65535
+                      },
+                      "user": {
+                        "type": "string",
+                        "description": "The username for basic authentication."
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "The password for basic authentication."
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "isFor": {
+                        "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "sortOrder": {
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
+                        "default": 0
+                      },
+                      "deployed": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "compile"
+                                  ],
+                                  "type": "string",
+                                  "description": "A local command to be run after deploy."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "compiler": {
+                                  "description": "The compiler to use.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "less"
+                                      ],
+                                      "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "uglifyjs"
+                                      ],
+                                      "description": "UglifyJS compiler"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for compiler."
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "open"
+                                  ],
+                                  "type": "string",
+                                  "description": "One or more local command to be run before deploy action"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target command/executable"
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "A list of one or more optional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "script"
+                                  ],
+                                  "type": "string",
+                                  "description": "Runs a script from a file."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "options": {
+                                  "description": "Additional options for the script execution."
+                                },
+                                "script": {
+                                  "type": "string",
+                                  "description": "The path to the script file.",
+                                  "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "engine": {
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "wait"
+                                  ],
+                                  "type": "string",
+                                  "description": "Waits a number of milliseconds, before the next operation is executed."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "time": {
+                                  "type": "number",
+                                  "description": "The number of milliseconds to wait before next operation is invoked.",
+                                  "minimum": 0,
+                                  "default": 1000
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "webdeploy"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes Microsoft's Web Deploy tool (msdeploy)."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "allowUntrusted": {
+                                  "type": "boolean",
+                                  "description": "When specified, untrusted SSL connections are allowed; otherwise, untrusted SSL Connections are not allowed.",
+                                  "default": false
+                                },
+                                "appHostConfigDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the ApplicationHost.config file for the current instance of IIS Express."
+                                },
+                                "args": {
+                                  "type": "array",
+                                  "description": "One or more additional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "declareParam": {
+                                  "type": "string",
+                                  "description": "Creates a user-specified parameter for a package or archive. When the package or archive is later synchronized, the value of the declared parameter is specified by using 'setParam'."
+                                },
+                                "declareParamFile": {
+                                  "type": "string",
+                                  "description": "Specifies an XML file that contains declarations of parameters that will be used in an operation. The XML format of the declared parameters matches that of the parameters that are found in the archive or package."
+                                },
+                                "dest": {
+                                  "type": "string",
+                                  "description": "Specifies the destination (the target object) of the operation that the 'verb' argument specifies. The and its associated settings more narrowly define the destination object or how it will be processed."
+                                },
+                                "dir": {
+                                  "type": "string",
+                                  "description": "The custom working directory for the execution.",
+                                  "default": "./"
+                                },
+                                "disableAppStore": {
+                                  "type": "boolean",
+                                  "default": false
+                                },
+                                "disableLink": {
+                                  "type": "string",
+                                  "description": "Disables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'disableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "disableRule": {
+                                  "type": "string",
+                                  "description": "Disables the specified synchronization rule or rules during a synchronization operation. The rules are specified after 'disableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "disableSkipDirective": {
+                                  "type": "string",
+                                  "description": "Disables the specified skip directive."
+                                },
+                                "enableLink": {
+                                  "type": "string",
+                                  "description": "Enables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'enableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "enableRule": {
+                                  "type": "string",
+                                  "description": "Enables one or more synchronization rules during a synchronization operation. The rules are specified after 'enableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "exec": {
+                                  "type": "string",
+                                  "description": "The path of the executable.",
+                                  "default": "msdeploy.exe"
+                                },
+                                "postSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination after a synchronization completes."
+                                },
+                                "preSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination before a synchronization starts."
+                                },
+                                "removeParam": {
+                                  "type": "string",
+                                  "description": "Removes a parameter definition from the list of declared parameters."
+                                },
+                                "replace": {
+                                  "type": "string",
+                                  "description": "Specifies items to replace during a synchronization operation. More than one 'replace' argument can appear on the same command line."
+                                },
+                                "retryAttempts": {
+                                  "type": "number",
+                                  "description": "Specifies the number of times the provider will retry after a failure.",
+                                  "minimum": 0
+                                },
+                                "retryInterval": {
+                                  "type": "number",
+                                  "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
+                                  "minimum": 0
+                                },
+                                "setParam": {
+                                  "type": "string",
+                                  "description": "Specifies values during a sync operation for the parameters that you specify."
+                                },
+                                "setParamFile": {
+                                  "type": "string",
+                                  "description": "Applies parameter settings from an XML 'answer' file during a sync operation."
+                                },
+                                "showSecure": {
+                                  "type": "boolean",
+                                  "description": "When specified, displays encrypted configuration properties (such as passwords) in clear text when the output format is XML.",
+                                  "default": false
+                                },
+                                "skip": {
+                                  "type": "string",
+                                  "description": "Specifies an action or object to be excluded during a synchronization operation."
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "Specifies the source of the data for the operation that the 'verb' argument specifies."
+                                },
+                                "unicode": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the string values for the username and password provider settings will be encoded in UTF-8.",
+                                  "default": false
+                                },
+                                "useCheckSum": {
+                                  "type": "boolean",
+                                  "description": "Specifies that files will be compared by using their CRC (Cyclic Redundancy Check) checksum and ignoring their last write time.",
+                                  "default": false
+                                },
+                                "verb": {
+                                  "type": "string",
+                                  "description": "Specifies the action that the operation will perform."
+                                },
+                                "verbose": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the Informational verbosity level will be included in the output of the operation.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "webServerDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the program files for the current instance of IIS Express."
+                                },
+                                "whatif": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the command will be run without actually making any changes.",
+                                  "default": false
+                                },
+                                "xml": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the output should be returned in XML format.",
+                                  "default": false
+                                },
+                                "xpath": {
+                                  "type": "string",
+                                  "description": "Specifies an XPath expression to apply to XML output."
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": "One or more operations to be run after deploy."
+                      },
+                      "beforeDeploy": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "compile"
+                                  ],
+                                  "type": "string",
+                                  "description": "A local command to be run before deploy action."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "compiler": {
+                                  "description": "The compiler to use.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "less"
+                                      ],
+                                      "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "uglifyjs"
+                                      ],
+                                      "description": "UglifyJS compiler"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for compiler."
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "open"
+                                  ],
+                                  "type": "string",
+                                  "description": "One or more local command to be run before deploy action"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target command/executable"
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "A list of one or more optional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "script"
+                                  ],
+                                  "type": "string",
+                                  "description": "Runs a script from a file."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "options": {
+                                  "description": "Additional options for the script execution."
+                                },
+                                "script": {
+                                  "type": "string",
+                                  "description": "The path to the script file.",
+                                  "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "engine": {
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "wait"
+                                  ],
+                                  "type": "string",
+                                  "description": "Waits a number of milliseconds, before the next operation is executed."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "time": {
+                                  "type": "number",
+                                  "description": "The number of milliseconds to wait before next operation is invoked.",
+                                  "minimum": 0,
+                                  "default": 1000
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "webdeploy"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes Microsoft's Web Deploy tool (msdeploy)."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "allowUntrusted": {
+                                  "type": "boolean",
+                                  "description": "When specified, untrusted SSL connections are allowed; otherwise, untrusted SSL Connections are not allowed.",
+                                  "default": false
+                                },
+                                "appHostConfigDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the ApplicationHost.config file for the current instance of IIS Express."
+                                },
+                                "args": {
+                                  "type": "array",
+                                  "description": "One or more additional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "declareParam": {
+                                  "type": "string",
+                                  "description": "Creates a user-specified parameter for a package or archive. When the package or archive is later synchronized, the value of the declared parameter is specified by using 'setParam'."
+                                },
+                                "declareParamFile": {
+                                  "type": "string",
+                                  "description": "Specifies an XML file that contains declarations of parameters that will be used in an operation. The XML format of the declared parameters matches that of the parameters that are found in the archive or package."
+                                },
+                                "dest": {
+                                  "type": "string",
+                                  "description": "Specifies the destination (the target object) of the operation that the 'verb' argument specifies. The and its associated settings more narrowly define the destination object or how it will be processed."
+                                },
+                                "dir": {
+                                  "type": "string",
+                                  "description": "The custom working directory for the execution.",
+                                  "default": "./"
+                                },
+                                "disableAppStore": {
+                                  "type": "boolean",
+                                  "default": false
+                                },
+                                "disableLink": {
+                                  "type": "string",
+                                  "description": "Disables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'disableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "disableRule": {
+                                  "type": "string",
+                                  "description": "Disables the specified synchronization rule or rules during a synchronization operation. The rules are specified after 'disableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "disableSkipDirective": {
+                                  "type": "string",
+                                  "description": "Disables the specified skip directive."
+                                },
+                                "enableLink": {
+                                  "type": "string",
+                                  "description": "Enables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'enableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "enableRule": {
+                                  "type": "string",
+                                  "description": "Enables one or more synchronization rules during a synchronization operation. The rules are specified after 'enableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "exec": {
+                                  "type": "string",
+                                  "description": "The path of the executable.",
+                                  "default": "msdeploy.exe"
+                                },
+                                "postSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination after a synchronization completes."
+                                },
+                                "preSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination before a synchronization starts."
+                                },
+                                "removeParam": {
+                                  "type": "string",
+                                  "description": "Removes a parameter definition from the list of declared parameters."
+                                },
+                                "replace": {
+                                  "type": "string",
+                                  "description": "Specifies items to replace during a synchronization operation. More than one 'replace' argument can appear on the same command line."
+                                },
+                                "retryAttempts": {
+                                  "type": "number",
+                                  "description": "Specifies the number of times the provider will retry after a failure.",
+                                  "minimum": 0
+                                },
+                                "retryInterval": {
+                                  "type": "number",
+                                  "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
+                                  "minimum": 0
+                                },
+                                "setParam": {
+                                  "type": "string",
+                                  "description": "Specifies values during a sync operation for the parameters that you specify."
+                                },
+                                "setParamFile": {
+                                  "type": "string",
+                                  "description": "Applies parameter settings from an XML 'answer' file during a sync operation."
+                                },
+                                "showSecure": {
+                                  "type": "boolean",
+                                  "description": "When specified, displays encrypted configuration properties (such as passwords) in clear text when the output format is XML.",
+                                  "default": false
+                                },
+                                "skip": {
+                                  "type": "string",
+                                  "description": "Specifies an action or object to be excluded during a synchronization operation."
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "Specifies the source of the data for the operation that the 'verb' argument specifies."
+                                },
+                                "unicode": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the string values for the username and password provider settings will be encoded in UTF-8.",
+                                  "default": false
+                                },
+                                "useCheckSum": {
+                                  "type": "boolean",
+                                  "description": "Specifies that files will be compared by using their CRC (Cyclic Redundancy Check) checksum and ignoring their last write time.",
+                                  "default": false
+                                },
+                                "verb": {
+                                  "type": "string",
+                                  "description": "Specifies the action that the operation will perform."
+                                },
+                                "verbose": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the Informational verbosity level will be included in the output of the operation.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "webServerDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the program files for the current instance of IIS Express."
+                                },
+                                "whatif": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the command will be run without actually making any changes.",
+                                  "default": false
+                                },
+                                "xml": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the output should be returned in XML format.",
+                                  "default": false
+                                },
+                                "xpath": {
+                                  "type": "string",
+                                  "description": "Specifies an XPath expression to apply to XML output."
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": "One or more operations to be run before deploy action."
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "enum": [
                           "app"
                         ],
                         "type": "string",

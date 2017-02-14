@@ -90,6 +90,37 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // deploys files using global events
+    let deployFilesTo = vscode.commands.registerCommand('extension.deploy.filesTo', (files: string | string[],
+                                                                                     targets: vs_contracts.DeployTargetList) => {
+        try {
+            let sym = Symbol('extension.deploy.filesTo');
+
+            deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
+                                       files, targets, sym);
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY FILES TO ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    // returns deploy targets
+    let getTargets = vscode.commands.registerCommand('extension.deploy.getTargets', (cb: (err: any, targets?: vs_contracts.DeployTarget[]) => void) => {
+        try {
+            if (cb) {
+                try {
+                    cb(null, deployer.getTargets());
+                }
+                catch (e) {
+                    cb(e);
+                }
+            }
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY GET TARGETS ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // listen for files
     let listen = vscode.commands.registerCommand('extension.deploy.listen', () => {
         try {
@@ -126,7 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
     context.subscriptions.push(deployer,
-                               deploy, deployFileOrFolder,
+                               deploy, deployFileOrFolder, deployFilesTo, getTargets,
                                listen,
                                quickDeploy,
                                openOutputAfterDeploment);

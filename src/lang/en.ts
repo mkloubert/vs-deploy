@@ -164,6 +164,17 @@ export const translation: Translation = {
         nothingToDeploy: 'No package to deploy!',
     },
     plugins: {
+        api: {
+            clientErrors: {
+                noPermissions: "No permissions to write!",
+                unauthorized: "User is unauthorized!",
+                unknown: "Unknown client error: {0:trim} {2:trim,surround}",
+            },
+            description: "Deploys to a REST API, like 'vs-rest-api'",
+            serverErrors: {
+                unknown: "Unknown server error: {0:trim} {2:trim,surround}",
+            },
+        },
         app: {
             description: 'Deploys to an app, like a script or executable, on the local machine',
         },
