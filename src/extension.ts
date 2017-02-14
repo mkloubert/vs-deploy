@@ -90,6 +90,18 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // deploys files using global events
+    let deployFilesTo = vscode.commands.registerCommand('extension.deploy.filesTo', (files: string | string[],
+                                                                                     targets: vs_contracts.DeployTargetList) => {
+        try {
+            deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
+                                       files, targets);
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY FILES TO ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // listen for files
     let listen = vscode.commands.registerCommand('extension.deploy.listen', () => {
         try {
@@ -126,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
     context.subscriptions.push(deployer,
-                               deploy, deployFileOrFolder,
+                               deploy, deployFileOrFolder, deployFilesTo,
                                listen,
                                quickDeploy,
                                openOutputAfterDeploment);

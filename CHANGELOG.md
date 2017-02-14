@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.24.0 (February 15th, 2017; deploy command)
+
+* added (invisible) command `extension.deploy.filesTo` to deploy files via this command
+
+
 ## 5.23.0 (February 15th, 2017; REST API)
 
 * added support for [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
