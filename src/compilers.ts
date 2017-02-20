@@ -30,6 +30,7 @@ const Glob = require('glob');
 import * as i18 from './i18';
 let LESS: any;
 import * as Path from 'path';
+let Pug: any;
 let TypeScript: any;
 let UglifyJS: any;
 import * as vscode from 'vscode';
@@ -43,6 +44,14 @@ catch (e) {
     deploy_helpers.log(`Could not load LESS module: ${deploy_helpers.toStringSafe(e)}`);
 }
 
+// try load Pug module
+try {
+    Pug = require('pug');
+}
+catch (e) {
+    deploy_helpers.log(`Could not load Pug module: ${deploy_helpers.toStringSafe(e)}`);
+}
+
 // try load TypeScript module
 try {
     TypeScript = require('typescript');
@@ -51,7 +60,7 @@ catch (e) {
     deploy_helpers.log(`Could not load TypeScript module: ${deploy_helpers.toStringSafe(e)}`);
 }
 
-// try load TypeScript module
+// try load UglifyJS module
 try {
     UglifyJS = require('uglify-js');
 }
@@ -79,6 +88,10 @@ export enum Compiler {
      * UglifyJS
      */
     UglifyJS = 3,
+    /**
+     * Pug
+     */
+    Pug = 4,
 }
 
 /**
@@ -153,6 +166,36 @@ export interface LessCompilerOptions extends TextCompilerOptions {
 export interface LessCompilerResult extends CompilerResult {
     /** @inheritdoc */
     errors: LessCompilerError[];
+}
+
+/**
+ * A Pug compiler error entry.
+ */
+export interface PugCompilerError extends CompilerError {
+}
+
+/**
+ * Pug compiler options.
+ */
+export interface PugCompilerOptions extends TextCompilerOptions {
+    /**
+     * When (false) no debug instrumentation is compiled.
+     */
+    compileDebug?: boolean;
+    /**
+     * The extension to use for the output files.
+     */
+    extension?: string;
+    /**
+     * Add pretty-indentation whitespace to output.
+     */
+    pretty?: boolean;
+}
+
+/**
+ * A Pug compiler result.
+ */
+export interface PugCompilerResult extends CompilerResult {
 }
 
 /**
@@ -396,6 +439,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
                 func = compileLess;
                 break;
 
+            case Compiler.Pug:
+                // Pug
+                func = compliePug;
+                break;
+
             case Compiler.Script:
                 // script based compiler
                 func = compileScript;
@@ -595,6 +643,114 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
                 compileNext();  // start compiling
             }).catch((err) => {
                 completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
+ * Compiles Pug files.
+ * 
+ * @param {PugCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<PugCompilerResult> The promise.
+ */
+export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult> {
+    if (!opts) {
+        opts = {};
+    }
+
+    let enc = deploy_helpers.normalizeString(opts.encoding);
+    if (!enc) {
+        enc = 'utf8';
+    }
+
+    let outExt = deploy_helpers.toStringSafe(opts.extension);
+    if (deploy_helpers.isEmptyString(opts.extension)) {
+        outExt = 'html';
+    }
+
+    return new Promise<PugCompilerResult>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<PugCompilerResult>(resolve, reject);
+
+        if (!Pug) {
+            completed(new Error('No Pug compiler found!'));
+            return;
+        }
+
+        try {
+            collectCompilerFiles({
+                files: "/**/*.pug",
+            }, opts).then((filesToCompile) => {
+                try {
+                    let result: PugCompilerResult = {
+                        errors: [],
+                        files: filesToCompile.map(x => x),
+                    };
+
+                    let pugOpts = deploy_helpers.cloneObject(opts);
+                    delete pugOpts['files'];
+                    delete pugOpts['exclude'];
+                    delete pugOpts['encoding'];
+                    delete pugOpts['extension'];
+
+                    let nextFile: () => void;
+
+                    let addError = (err: any) => {
+                        result.errors.push(err);
+
+                        nextFile();
+                    };
+
+                    nextFile = () => {
+                        if (filesToCompile.length < 1) {
+                            completed(null, result);
+                            return;
+                        }
+
+                        let f = filesToCompile.shift();
+
+                        let dir = Path.dirname(f);
+                        let ext = Path.extname(f);
+                        let fn = Path.basename(f, ext);
+
+                        let outFile = Path.join(dir, fn + '.' + outExt);
+
+                        FS.readFile(f, (err, data) => {
+                            if (err) {
+                                addError(err);
+                            }
+                            else {
+                                try {
+                                    pugOpts['filename'] = f;
+
+                                    let pugSrc = data.toString(enc);
+                                    let html = Pug.render(pugSrc, pugOpts);
+
+                                    FS.writeFile(outFile, new Buffer(html, enc), (err) => {
+                                        if (err) {
+                                            addError(err);
+                                        }
+                                        else {
+                                            nextFile();
+                                        }
+                                    });
+                                }
+                                catch (e) {
+                                    addError(e);
+                                }
+                            }
+                        });
+                    };
+
+                    nextFile();
+                }
+                catch (e) {
+                    completed(e);
+                }
             });
         }
         catch (e) {

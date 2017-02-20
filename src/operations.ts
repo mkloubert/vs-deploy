@@ -102,6 +102,11 @@ export function compile(ctx: OperationContext<deploy_contracts.DeployCompileOper
                     compilerArgs = [ compileOp.options ];
                     break;
 
+                case 'pug':
+                    compiler = deploy_compilers.Compiler.Pug;
+                    compilerArgs = [ compileOp.options ];
+                    break;
+
                 case 'script':
                     compiler = deploy_compilers.Compiler.Script;
                     compilerArgs = [ ctx.config, compileOp.options ];
