@@ -772,6 +772,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -1188,6 +1195,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -1737,6 +1751,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -2153,6 +2174,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -2699,6 +2727,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -3115,6 +3150,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -3649,6 +3691,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -4065,6 +4114,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -4607,6 +4663,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -5023,6 +5086,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -5574,6 +5644,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -5990,6 +6067,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -6559,6 +6643,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -6975,6 +7066,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -7505,6 +7603,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -7921,6 +8026,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -8489,6 +8601,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -8905,6 +9024,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -9437,6 +9563,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -9853,6 +9986,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -10409,6 +10549,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -10825,6 +10972,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -11449,6 +11603,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -11865,6 +12026,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -12454,6 +12622,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -12870,6 +13045,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -13398,6 +13580,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -13814,6 +14003,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -14369,6 +14565,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -14785,6 +14988,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -15305,6 +15515,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -15721,6 +15938,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -16255,6 +16479,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "script"
                                       ],
                                       "description": "Script based compiler"
@@ -16671,6 +16902,13 @@
                                         "less"
                                       ],
                                       "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
                                     },
                                     {
                                       "type": "string",
@@ -17116,6 +17354,7 @@
     "node-uuid": "^1.4.7",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",
+    "pug": "^2.0.0-beta11",
     "ssh2-sftp-client": "^1.0.5",
     "typescript": "^2.1.5",
     "uglify-js": "^2.7.5"

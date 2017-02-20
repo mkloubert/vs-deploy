@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 5.27.0 (February 14th, 2017; Pug support)
+
+* added [Pug](https://pugjs.org/) support for [target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#pug-)
+
 ## 5.26.0 (February 14th, 2017; exclude 'node_modules' folder and hide packages and targets in GUI)
 
 * added `noNodeModules` property for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) to exclude `node_modules/**` by default
