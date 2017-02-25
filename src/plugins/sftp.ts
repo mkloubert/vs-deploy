@@ -49,6 +49,7 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     };
     agent?: string;
     agentForward?: boolean;
+    tryKeyboard?: boolean;
 }
 
 interface SFTPContext {
@@ -195,6 +196,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
             let agentForward = deploy_helpers.toBooleanSafe(target.agentForward);
 
+            let tryKeyboard = deploy_helpers.toBooleanSafe(target.tryKeyboard);
+
             try {
                 let privateKey: Buffer;
                 let openConnection = () => {
@@ -205,6 +208,19 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     }
 
                     let conn = new SFTP();
+
+                    if (tryKeyboard) {
+                        conn.client.on('keyboard-interactive', (name, instructions, instructionsLang, prompts, finish) => {
+                            try {
+                                finish([ pwd ]);
+                            }
+                            catch (e) {
+                                console.log(i18.t('errors.withCategory',
+                                                  'plugins.sftp.keyboard-interactive', e));
+                            }
+                        });
+                    }
+
                     conn.connect({
                         host: host,
                         port: port,
@@ -224,7 +240,10 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             return hashes.indexOf(hashedKey) > -1;
                         },
 
-                        agent, agentForward,
+                        agent: agent,
+                        agentForward: agentForward,
+
+                        tryKeyboard: tryKeyboard,
                     }).then(() => {
                         completed(null, conn);
                     }).catch((err) => {

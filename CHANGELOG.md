@@ -1,6 +1,11 @@
 # Change Log (vs-deploy)
 
-## 5.28.0 (February 14th, 2017; ssh agents)
+## 5.29.0 (February 25th, 2017; sftp targets)
+
+* added `tryKeyword` setting for [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+* fixed [sftp agent settings](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+
+## 5.28.0 (February 25th, 2017; ssh agents)
 
 * added support for [ssh agents](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
 
