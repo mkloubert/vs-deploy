@@ -12491,6 +12491,11 @@
                         "type": "string",
                         "description": "The passphrase for the key file, if needed."
                       },
+                      "tryKeyboard": {
+                        "type": "boolean",
+                        "description": "Try keyboard-interactive user authentication if primary user authentication method fails.",
+                        "default": false
+                      },
                       "user": {
                         "type": "string",
                         "description": "The username.",
