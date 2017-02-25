@@ -12434,6 +12434,15 @@
                         "type": "string",
                         "description": "Deploys to a SFTP server."
                       },
+                      "agent": {
+                        "type": "string",
+                        "description": "Name or path to ssh-agent for ssh-agent-based user authentication."
+                      },
+                      "agentForward": {
+                        "type": "boolean",
+                        "description": "Set to (true) to use OpenSSH agent forwarding (auth-agent@openssh.com) for the life of the connection. 'agent' property must also be set to use this feature.",
+                        "default": false
+                      },
                       "dir": {
                         "type": "string",
                         "description": "The remote directory on the server.",

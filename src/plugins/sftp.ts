@@ -46,7 +46,9 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     unix?: {
         convertCRLF?: boolean;
         encoding?: string;
-    }
+    };
+    agent?: string;
+    agentForward?: boolean;
 }
 
 interface SFTPContext {
@@ -186,6 +188,13 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 }
             }
 
+            let agent = deploy_helpers.toStringSafe(target.agent);
+            if ('' === agent.trim()) {
+                agent = undefined;
+            }
+
+            let agentForward = deploy_helpers.toBooleanSafe(target.agentForward);
+
             try {
                 let privateKey: Buffer;
                 let openConnection = () => {
@@ -213,7 +222,9 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             }
 
                             return hashes.indexOf(hashedKey) > -1;
-                        }
+                        },
+
+                        agent, agentForward,
                     }).then(() => {
                         completed(null, conn);
                     }).catch((err) => {
