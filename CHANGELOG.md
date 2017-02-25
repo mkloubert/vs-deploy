@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 5.28.0 (February 14th, 2017; ssh agents)
+
+* added support for [ssh agents](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+
 ## 5.27.0 (February 14th, 2017; Pug support)
 
 * added [Pug](https://pugjs.org/) support for [target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#pug-)
