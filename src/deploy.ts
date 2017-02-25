@@ -338,7 +338,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             try {
                 if (item) {
                     let showError = (err: any, type: string) => {
-                        vscode.window.showErrorMessage(i18.t(`deploy.${type}.failed`, err));
+                        vscode.window.showErrorMessage(i18.t(`deploy.${type}.failed`, file, err));
                     };
 
                     me.beforeDeploy([ file ], item.target).then((canceled) => {
