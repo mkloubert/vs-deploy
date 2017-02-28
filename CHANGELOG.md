@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.31.0 (March 1st, 2017; russian translation)
+
+* added russian translation (thanks to [sag3ll0](https://github.com/sag3ll0)!)
+* if you would like to submit another translation, have a look at [that issue](https://github.com/mkloubert/vs-deploy/issues/18)
+
 ## 5.30.0 (February 28th, 2017; french translation)
 
 * added french translation (thanks to [neiobaf](https://github.com/neiobaf)!)
