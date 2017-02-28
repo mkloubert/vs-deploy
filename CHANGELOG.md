@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 5.30.0 (February 28th, 2017; french translation)
+
+* added french translation (thanks to [neiobaf](https://github.com/neiobaf)!)
+* if you would like to submit another translation, have a look at [that issue](https://github.com/mkloubert/vs-deploy/issues/18)
+
 ## 5.29.0 (February 25th, 2017; sftp targets)
 
 * added `tryKeyword` setting for [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
