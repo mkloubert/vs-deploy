@@ -345,11 +345,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 return;
                             }
 
-                            me.afterDeployment([ file ], item.target).then(() => {
-                                //TODO
-                            }).catch((err) => {
-                                showError(err, 'after');
-                            });  // after deployed
+                            // DO NOT invoke me.afterDeployment()
+                            // this is done by me.deployFileTo()!
                         }).catch((err) => {
                             showError(err, 'file');
                         });  // deploy
@@ -2156,11 +2153,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             return;
                         }
 
-                        me.afterDeployment([ docFile ], t).then(() => {
-                            //TODO
-                        }).catch((err) => {
-                            showError(err);
-                        });  // after deployed
+                        // DO NOT invoke me.afterDeployment()
+                        // this is done by me.deployFileTo()!
                     }).catch((err) => {
                         showError(err);
                     });  // deploy
