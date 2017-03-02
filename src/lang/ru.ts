@@ -89,7 +89,7 @@ export const translation: Translation = {
             finished: "[Завершено]",
             noFileCompiled: "Ни один из {0:trim} файлов не был скомпилирован!",
             noFunctionInScript: "Функция {0:trim,surround} не была найдена в {1:trim,surround}!",
-            open: 'Открывание {0:trim,surround}... ',
+            open: 'Запуск {0:trim,surround}... ',
             someFilesNotCompiled: "{0:trim} из {1:trim} файл(ов) не может быть скомпилирован!",
             unknownCompiler: 'Компилятор {0:trim,surround} не известен!',
             unknownSqlEngine: 'Неизвестный SQL engine {0:trim,surround}!',
