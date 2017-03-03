@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Deploy: {0}",
+                text: "{2}Deploy: [{1}] {0}{3}",
                 tooltip: "Click here to show output...",
             },
             failed: "Could not invoke 'after deployed' operations: {0}",
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
         },
         finished: 'Finished.',
+        finished2: 'Finished',
         finishedWithErrors: 'Finished with errors!',
         folder: {
             failed: 'Could not deploy folder {0:trim,surround}: {1}',

@@ -396,6 +396,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     globals?: GlobalVariables;
     /**
+     * The time in seconds the result item in the status bar should disapear.
+     */
+    hideDeployResultInStatusBarAfter?: number;
+    /**
      * Deploy host settings.
      */
     host?: {

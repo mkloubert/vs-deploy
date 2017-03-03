@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Déploiement: {0}",
+                text: "{2}Déploiement: [{1}] {0}{3}",
                 tooltip: "Cliquez ici pour voir la sortie...",
             },
             failed: "Les opérations APRES le déploiement n'ont pas pu être exécutées: {0}",
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Impossible de déployer le fichie / dossier {0:trim,surround}: {1}',
         },
         finished: 'Terminé.',
+        finished2: 'Terminé',
         finishedWithErrors: 'Terminé avec erreurs!',
         folder: {
             failed: 'Impossible de déployer le dossier {0:trim,surround}: {1}',

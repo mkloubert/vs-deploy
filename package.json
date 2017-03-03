@@ -262,6 +262,10 @@
               "type": "object",
               "description": "A list of variables that can be accessed globally (from scripts, e.g.)."
             },
+            "hideDeployResultInStatusBarAfter": {
+              "type": "number",
+              "description": "The time in seconds the result item in the status bar should disapear."
+            },
             "host": {
               "type": "object",
               "description": "Options for 'host mode'.",

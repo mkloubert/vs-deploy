@@ -43,6 +43,26 @@ import * as Path from 'path';
 import * as vscode from 'vscode';
 
 
+const AFTER_DEPLOYMENT_BUTTON_COLORS = {
+    's': [
+        'ffffff',
+        'eeeeee',
+        'dddddd',
+    ],
+
+    'w': [
+        'ffff00',
+        'eeee00',
+        'dddd00',
+    ],
+
+    'e': [
+        '000000',
+        '111111',
+        '222222',
+    ],
+};
+
 let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
@@ -95,6 +115,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores if 'deploy on save' feature is enabled or not.
      */
     protected _isDeployOnSaveEnabled = true;
+    private readonly _NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS = {
+        's': 0,
+        'w': 0,
+        'e': 0,
+    };
+    /**
+     * The ID of the last timeout that autmatically disapears
+     * the deploy result button in the status bar.
+     */
+    protected _lastAfterDeploymentButtonDisapearTimeout: NodeJS.Timer;
     /**
      * Stores the global output channel.
      */
@@ -529,7 +559,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                             let showResult = (err?: any) => {
                                 let afterDeployButtonMsg = 'Deployment finished.';
-                                let afterDeployButtonColor: string;
 
                                 try {
                                     cleanUps();
@@ -559,16 +588,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                             resultMsg = i18.t('deploy.canceled');
                                         }
                                         else {
-                                            resultMsg = i18.t('deploy.finished');
+                                            resultMsg = i18.t('deploy.finished2');
 
                                             me.afterDeployment([ file ], target).catch((err) => {
                                                 vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
                                             });
                                         }
                                     }
-
-                                    afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
-                                                                                                0, err ? 1 : 0);
 
                                     if (resultMsg) {
                                         afterDeployButtonMsg = resultMsg;
@@ -578,7 +604,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 }
                                 finally {
                                     me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
-                                                                        afterDeployButtonColor);
+                                                                        [ file ],
+                                                                        err ? [] : [ file ],
+                                                                        err ? [ file ] : []);
 
                                     completed(err);
                                 }
@@ -964,7 +992,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 let succeeded: string[] = [];
                                 let showResult = (err?: any) => {
                                     let afterDeployButtonMsg = 'Deployment finished.';
-                                    let afterDeployButtonColor: string;
 
                                     try {
                                         cleanUps();
@@ -1025,8 +1052,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                         }
 
                                         let resultMsg: string;
-                                        afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
-                                                                                                    succeeded.length, failed.length);
                                         if (err || failed.length > 0) {
                                             if (hasCancelled) {
                                                 resultMsg = i18.t('deploy.canceledWithErrors');
@@ -1040,7 +1065,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 resultMsg = i18.t('deploy.canceled');
                                             }
                                             else {
-                                                resultMsg = i18.t('deploy.finished');
+                                                resultMsg = i18.t('deploy.finished2');
 
                                                 me.afterDeployment(files, target).catch((err) => {
                                                     vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
@@ -1055,7 +1080,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                         }
                                     }
                                     finally {
-                                        me.showStatusBarItemAfterDeployment(afterDeployButtonMsg, afterDeployButtonColor);
+                                        me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
+                                                                            files,
+                                                                            succeeded, failed);
 
                                         completed(err);
                                     }
@@ -1354,6 +1381,23 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
 
         return result;
+    }
+
+    /**
+     * Returns the next color for the deploy result in the status bar
+     * by category.
+     * 
+     * @param {string} category The category.
+     * 
+     * @return {string} The color.
+     */
+    protected getNextAfterDeploymentButtonColor(category: string) {
+        let index = this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category]++;
+        if (this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category] > 2) {
+            this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category] = 0;
+        }
+
+        return '#' + AFTER_DEPLOYMENT_BUTTON_COLORS[category][index];
     }
 
     /**
@@ -3240,23 +3284,93 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Shows the 'after deploy' status bar item based of the current settings.
      * 
      * @param {string} text The text for the item.
-     * @param {string} [color] The custom color to use.
+     * @param {string[]} files The list of all files.
+     * @param {string[]} succeeded The list of succeeded files.
+     * @param {string[]} failed The list of failed files.
      */
-    protected showStatusBarItemAfterDeployment(text: string, color?: string) {
-        if (deploy_helpers.isEmptyString(color)) {
-            color = '#ffffff';
-        }
+    protected showStatusBarItemAfterDeployment(text: string,
+                                               files: string[],
+                                               succeeded: string[], failed: string[]) {
+        let me = this;
+        
+        try {
+            let now = Moment().format('HH:mm:ss');
+            let icon = '';
+            let color = '#ffffff';
+            let suffix = '';
 
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.color = color;
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.text = i18.t('deploy.after.button.text', text);
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = i18.t('deploy.after.button.tooltip');
+            let fileCount = files.length;
+            let failedCount = failed.length;
+            let succeededCount = succeeded.length;
 
-        let cfg = this.config;
-        if (deploy_helpers.toBooleanSafe(cfg.showDeployResultInStatusBar)) {
-            this._AFTER_DEPLOYMENT_STATUS_ITEM.show();
+            if (succeededCount < 1) {
+                if (failedCount < 1) {
+                    failedCount = fileCount;
+                }
+            }
+
+            if (files.length > 0) {
+                if (1 === files.length) {
+                    suffix = ` (${Path.basename(files[0])})`;
+                }
+                else {
+                    if (failedCount > 0) {
+                        suffix = ` (${failedCount} / {fileCount})`;
+                    }
+                    else {
+                        suffix = ` (${fileCount})`;
+                    }
+                }
+            }
+
+            if (failedCount >= succeededCount) {
+                // all failed
+                icon = '$(flame) ';
+                color = me.getNextAfterDeploymentButtonColor('e');
+            }
+            else {
+                if (failedCount < 1) {
+                    icon = '$(rocket) ';
+                    color = me.getNextAfterDeploymentButtonColor('s');
+                }
+                else {
+                    // at least one failed
+
+                    icon = '$(alert) ';
+                    color = me.getNextAfterDeploymentButtonColor('w');
+                }
+            }
+
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.color = color;
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.text = i18.t('deploy.after.button.text',
+                                                          text, now, icon, suffix);
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = i18.t('deploy.after.button.tooltip');
+
+            let cfg = me.config;
+            if (deploy_helpers.toBooleanSafe(cfg.showDeployResultInStatusBar)) {
+                me._AFTER_DEPLOYMENT_STATUS_ITEM.show();
+
+                let hideAfter = parseFloat(deploy_helpers.toStringSafe(cfg.hideDeployResultInStatusBarAfter).trim());
+                if (!isNaN(hideAfter)) {
+                    hideAfter = Math.round(hideAfter);
+                    if (hideAfter >= 0) {
+                        let thisTimer: NodeJS.Timer;
+
+                        me._lastAfterDeploymentButtonDisapearTimeout = thisTimer = setTimeout(() => {
+                            if (thisTimer === me._lastAfterDeploymentButtonDisapearTimeout) {
+                                me._AFTER_DEPLOYMENT_STATUS_ITEM.hide();
+                            }
+                        }, hideAfter * 1000);
+                    }
+                }
+            }
+            else {
+                me.hideAfterDeploymentStatusBarItem();
+            }
         }
-        else {
-            this.hideAfterDeploymentStatusBarItem();
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.showStatusBarItemAfterDeployment()', e));
         }
     }
 }
