@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.31.2",
+  "version": "5.32.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -12469,6 +12469,12 @@
                       "privateKeyPassphrase": {
                         "type": "string",
                         "description": "The passphrase for the key file, if needed."
+                      },
+                      "readyTimeout": {
+                        "type": "integer",
+                        "description": "How long (in milliseconds) to wait for the SSH handshake to complete.",
+                        "minimum": 0,
+                        "default": 20000
                       },
                       "tryKeyboard": {
                         "type": "boolean",
