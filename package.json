@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.32.0",
+  "version": "5.33.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -261,6 +261,10 @@
             "globals": {
               "type": "object",
               "description": "A list of variables that can be accessed globally (from scripts, e.g.)."
+            },
+            "hideDeployResultInStatusBarAfter": {
+              "type": "number",
+              "description": "The time in seconds the result item in the status bar should disapear."
             },
             "host": {
               "type": "object",

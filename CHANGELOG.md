@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 5.33.0 (March 4th, 2017; result button in status bar)
+
+* added more information for result button in status bar (s. [issue #42](https://github.com/mkloubert/vs-deploy/issues/42))
+
 ## 5.32.0 (March 3rd, 2017; readyTimeout setting for sftp targets)
 
 * added `readyTimeout` property for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, as described in [that issue](https://github.com/mkloubert/vs-deploy/issues/33#issuecomment-283950361) (thanks to [lvbeck](https://github.com/lvbeck)!)

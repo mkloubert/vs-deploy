@@ -78,6 +78,7 @@ export interface Translation {
             failed?: string;
         },
         finished?: string;
+        finished2?: string;
         finishedWithErrors?: string;
         folder?: {
             failed?: string;

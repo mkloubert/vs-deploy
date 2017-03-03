@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Bereitstellen: {0}",
+                text: "{2}Bereitstellen: [{1}] {0}{3}",
                 tooltip: "Hier klicken, um die Ausgabe zu öffnen...",
             },
             failed: 'Fehler beim Ausführen der Aufgaben, die NACH dem Bereitstellen ausgeführt werden sollen: {0}',
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
         finished: 'Fertig.',
+        finished2: 'Fertig',
         finishedWithErrors: 'Beendet mit Fehlern!',
         folder: {
             failed: 'Das Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
