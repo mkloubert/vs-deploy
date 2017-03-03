@@ -50,6 +50,7 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     agent?: string;
     agentForward?: boolean;
     tryKeyboard?: boolean;
+    readyTimeout?: number;
 }
 
 interface SFTPContext {
@@ -198,6 +199,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
             let tryKeyboard = deploy_helpers.toBooleanSafe(target.tryKeyboard);
 
+            let readyTimeout = parseInt(deploy_helpers.toStringSafe(target.readyTimeout).trim());
+            if (isNaN(readyTimeout)) {
+                readyTimeout = undefined;
+            }
+
             try {
                 let privateKey: Buffer;
                 let openConnection = () => {
@@ -244,6 +250,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         agentForward: agentForward,
 
                         tryKeyboard: tryKeyboard,
+
+                        readyTimeout: readyTimeout,
                     }).then(() => {
                         completed(null, conn);
                     }).catch((err) => {

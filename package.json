@@ -12491,6 +12491,12 @@
                         "type": "string",
                         "description": "The passphrase for the key file, if needed."
                       },
+                      "readyTimeout": {
+                        "type": "integer",
+                        "description": "How long (in milliseconds) to wait for the SSH handshake to complete.",
+                        "minimum": 0,
+                        "default": 20000
+                      },
                       "tryKeyboard": {
                         "type": "boolean",
                         "description": "Try keyboard-interactive user authentication if primary user authentication method fails.",
