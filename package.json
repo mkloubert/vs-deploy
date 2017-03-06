@@ -270,22 +270,6 @@
               "type": "object",
               "description": "Options for 'host mode'.",
               "properties": {
-                "browser": {
-                  "oneOf": [
-                    {
-                      "type": "integer",
-                      "description": "Starts the (file) browser on that port.",
-                      "minimum": 0,
-                      "maximum": 65535,
-                      "default": 1781
-                    },
-                    {
-                      "type": "boolean",
-                      "description": "Starts the (file) browser on the default port or not.",
-                      "default": false
-                    }
-                  ]
-                },
                 "dir": {
                   "type": "string",
                   "description": "The directory where incoming files should be stored.",
@@ -304,11 +288,6 @@
                 },
                 "messageTransformerOptions": {
                   "description": "The data for the 'message data transformation', if needed."
-                },
-                "noFileListener": {
-                  "type": "boolean",
-                  "description": "Defines if remote host should be disabled or not.",
-                  "default": false
                 },
                 "port": {
                   "type": "integer",
@@ -17367,7 +17346,6 @@
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
-    "html-entities": "^1.2.0",
     "i18next": "^4.1.4",
     "isbinaryfile": "^3.0.2",
     "less": "^2.7.2",

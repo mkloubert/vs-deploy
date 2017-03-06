@@ -404,10 +404,6 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     host?: {
         /**
-         * Starts the file browser or not.
-         */
-        browser?: number | boolean;
-        /**
          * The root directory where files should be stored.
          */
         dir?: string;
@@ -425,10 +421,6 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * The optional options for the "message data" transformer script.
          */
         messageTransformerOptions?: any;
-        /**
-         * Defines if remote host should be disabled or not.
-         */
-        noFileListener?: boolean;
         /**
          * The TCP port on that the host should listen.
          */

@@ -23,8 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-import * as deploy_browser from './browser/host';
-import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
@@ -80,6 +78,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected readonly _AFTER_DEPLOYMENT_STATUS_ITEM: vscode.StatusBarItem;
     /**
+     * Stores the packages that are currently deploy.
+     */
+    protected readonly _DEPLOY_WORKSPACE_IN_PROGRESS: any = {};
+    /**
      * List of custom commands.
      */
     protected readonly _COMMANDS: ScriptCommandWrapper[] = [];
@@ -91,10 +93,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores the underlying extension context.
      */
     protected readonly _CONTEXT: vscode.ExtensionContext;
-    /**
-     * Stores the packages that are currently deploy.
-     */
-    protected readonly _DEPLOY_WORKSPACE_IN_PROGRESS: any = {};
     /**
      * The global file system watcher.
      */
@@ -149,10 +147,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The current status item of the running server.
      */
     protected _serverStatusItem: vscode.StatusBarItem;
-    /**
-     * The current workspace browser.
-     */
-    protected _workspaceBrowser: deploy_browser.WorkspaceBrowserHost;
 
     /**
      * Initializes a new instance of that class.
@@ -1905,25 +1899,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let dir: string;
         let port = deploy_contracts.DEFAULT_PORT;
         let showPopup = true;
-        let browserPort: number;
-        let startRemoteHost = true;
         if (cfg.host) {
             dir = cfg.host.dir;
 
-            startRemoteHost = !deploy_helpers.toBooleanSafe(cfg.host.noFileListener);
             port = parseInt(deploy_helpers.toStringSafe(cfg.host.port,
                                                         '' + deploy_contracts.DEFAULT_PORT));
 
             showPopup = deploy_helpers.toBooleanSafe(cfg.host.showPopupOnSuccess, true);
-
-            browserPort = parseInt(deploy_helpers.toStringSafe(cfg.host.browser).trim());
-            if (isNaN(browserPort)) {
-                browserPort = undefined;  // seems to be a boolean
-
-                if (deploy_helpers.toBooleanSafe(cfg.host.browser)) {
-                    browserPort = deploy_browser.DEFAULT_WORKSPACE_BROWSER_PORT;
-                }
-            }
         }
 
         dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
@@ -1968,63 +1950,31 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
         else {
             // start
-            if (startRemoteHost) {
-                host = new DeployHost(me);
 
-                host.start().then(() => {
-                    me._host = host;
+            host = new DeployHost(me);
 
-                    let successMsg = i18.t('host.started', port, dir);
+            host.start().then(() => {
+                me._host = host;
 
-                    me.outputChannel.appendLine(successMsg);
-                    
-                    if (showPopup) {
-                        vscode.window.showInformationMessage(successMsg);
-                    }
+                let successMsg = i18.t('host.started', port, dir);
 
-                    statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-                    statusItem.tooltip = '';
-                    statusItem.command = 'extension.deploy.listen';
-                    statusItem.text = i18.t('host.button.text');
-                    statusItem.tooltip = i18.t('host.button.tooltip');
-                    statusItem.show();
+                me.outputChannel.appendLine(successMsg);
+                
+                if (showPopup) {
+                    vscode.window.showInformationMessage(successMsg);
+                }
 
-                    me._serverStatusItem = statusItem;
-                }).catch((err) => {
-                    let errMsg = i18.t('host.errors.cannotListen', err);
+                statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+                statusItem.tooltip = '';
+                statusItem.command = 'extension.deploy.listen';
+                statusItem.text = i18.t('host.button.text');
+                statusItem.tooltip = i18.t('host.button.tooltip');
+                statusItem.show();
 
-                    vscode.window.showErrorMessage(errMsg);
-                    me.outputChannel.appendLine(errMsg);
-                });
-            }
-        }
-
-        // file browser
-        let wsBrowser = me._workspaceBrowser;
-        if (wsBrowser) {
-            wsBrowser.stop().then(() => {
-                me._workspaceBrowser = null;
+                me._serverStatusItem = statusItem;
             }).catch((err) => {
-                //TODO
-                let errMsg = i18.t('host.errors.couldNotStop', err);
-
-                vscode.window.showErrorMessage(errMsg);
-                me.outputChannel.appendLine(errMsg);
+                vscode.window.showErrorMessage(i18.t('host.errors.cannotListen', err));
             });
-        }
-        else {
-            if (!deploy_helpers.isNullOrUndefined(browserPort)) {
-                let newBrowser = new deploy_browser.WorkspaceBrowserHost(me);
-                newBrowser.start(browserPort).then(() => {
-                    me._workspaceBrowser = newBrowser;
-                }).catch((err) => {
-                    //TODO
-                    let errMsg = i18.t('host.errors.cannotListen', err);
-
-                    vscode.window.showErrorMessage(errMsg);
-                    me.outputChannel.appendLine(errMsg);
-                });
-            }
         }
     }
 
