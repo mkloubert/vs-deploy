@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "5.33.0",
+  "version": "5.34.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -784,6 +784,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -1211,6 +1216,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -1763,6 +1773,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -2190,6 +2205,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -2739,6 +2759,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -3166,6 +3191,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -3703,6 +3733,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -4130,6 +4165,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -4675,6 +4715,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -5102,6 +5147,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -5656,6 +5706,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -6083,6 +6138,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -6655,6 +6715,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -7082,6 +7147,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -7615,6 +7685,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -8042,6 +8117,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -8613,6 +8693,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -9040,6 +9125,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -9575,6 +9665,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -10002,6 +10097,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -10561,6 +10661,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -10988,6 +11093,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -11615,6 +11725,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -12042,6 +12157,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -12654,6 +12774,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -13081,6 +13206,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -13612,6 +13742,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -14039,6 +14174,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -14597,6 +14737,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -15024,6 +15169,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -15547,6 +15697,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -15974,6 +16129,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -16511,6 +16671,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [
@@ -16938,6 +17103,11 @@
                                 },
                                 "options": {
                                   "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               },
                               "required": [

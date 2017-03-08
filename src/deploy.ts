@@ -1845,6 +1845,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 if (executor) {
                     let ctx: deploy_operations.OperationContext<deploy_contracts.DeployOperation> = {
                         config: me.config,
+                        files: files,
                         handled: handled,
                         kind: kind,
                         operation: operation,

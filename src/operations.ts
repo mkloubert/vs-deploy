@@ -44,6 +44,10 @@ export interface OperationContext<T extends deploy_contracts.DeployOperation> {
      */
     error?: any;
     /**
+     * The files to deploy / the deployed files.
+     */
+    files: string[];
+    /**
      * Operation has been handled or not.
      */
     handled?: boolean;
@@ -90,7 +94,22 @@ export function compile(ctx: OperationContext<deploy_contracts.DeployCompileOper
         };
 
         try {
-            let compileOp = ctx.operation;
+            let compileOp = deploy_helpers.cloneObject(ctx.operation);
+
+            let updateFilesProperty = (property = "files") => {
+                if (!deploy_helpers.toBooleanSafe(compileOp.useFilesOfDeployment)) {
+                    return;  // do not use files of deployment
+                }
+
+                if (deploy_helpers.isNullOrUndefined(compileOp.options)) {
+                    compileOp.options = {};  // initialize
+                }
+
+                if (deploy_helpers.isNullOrUndefined(compileOp.options[property])) {
+                    // only if not explicit defined
+                    compileOp.options[property] = ctx.files.map(x => x);  // create copy
+                }
+            };
 
             let compilerName = deploy_helpers.normalizeString(compileOp.compiler);
 
@@ -98,26 +117,36 @@ export function compile(ctx: OperationContext<deploy_contracts.DeployCompileOper
             let compilerArgs: any[];
             switch (compilerName) {
                 case 'less':
+                    updateFilesProperty();
+
                     compiler = deploy_compilers.Compiler.Less;
                     compilerArgs = [ compileOp.options ];
                     break;
 
                 case 'pug':
+                    updateFilesProperty();
+
                     compiler = deploy_compilers.Compiler.Pug;
                     compilerArgs = [ compileOp.options ];
                     break;
 
                 case 'script':
+                    updateFilesProperty();
+
                     compiler = deploy_compilers.Compiler.Script;
                     compilerArgs = [ ctx.config, compileOp.options ];
                     break;
 
                 case 'typescript':
+                    updateFilesProperty();
+
                     compiler = deploy_compilers.Compiler.TypeScript;
                     compilerArgs = [ compileOp.options ];
                     break;
 
                 case 'uglifyjs':
+                    updateFilesProperty();
+
                     compiler = deploy_compilers.Compiler.UglifyJS;
                     compilerArgs = [ compileOp.options ];
                     break;
