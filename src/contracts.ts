@@ -340,6 +340,10 @@ export interface DeployCompileOperation extends DeployOperation {
      * The options for the compiler.
      */
     options?: any;
+    /**
+     * Use files that will be deployed / have been deployed as source or not.
+     */
+    useFilesOfDeployment?: boolean;
 }
 
 /**
