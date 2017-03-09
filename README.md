@@ -4,6 +4,8 @@
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/mkloubert.vs-deploy.svg)](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-deploy)
 [![Rating](https://vsmarketplacebadge.apphb.com/rating-short/mkloubert.vs-deploy.svg)](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-deploy#review-details)
 
+[![Gitter](https://badges.gitter.im/mkloubert/vs-deploy.svg)](https://gitter.im/mkloubert/vs-deploy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 [Visual Studio Code](https://code.visualstudio.com/) (VS Code) extension that provides commands to deploy files of a workspace to a destination.
 
 The extension supports the following destination types:
