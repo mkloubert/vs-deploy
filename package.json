@@ -28,17 +28,29 @@
         {
           "command": "extension.deploy.file",
           "group": "deploy"
+        },
+        {
+          "command": "extension.deploy.pullFile",
+          "group": "deploy"
         }
       ],
       "editor/context": [
         {
           "command": "extension.deploy.file",
           "group": "deploy"
+        },
+        {
+          "command": "extension.deploy.pullFile",
+          "group": "deploy"
         }
       ],
       "explorer/context": [
         {
           "command": "extension.deploy.file",
+          "group": "deploy"
+        },
+        {
+          "command": "extension.deploy.pullFile",
           "group": "deploy"
         }
       ]
@@ -58,6 +70,16 @@
         "command": "extension.deploy.listen",
         "title": "Start/stop listening for remote files",
         "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.pullFile",
+        "title": "Pull current file / folder",
+        "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.pullWorkspace",
+        "title": "Pull workspace",
+        "category": "Deploy"
       }
     ],
     "keybindings": [
@@ -75,6 +97,16 @@
         "command": "extension.deploy.listen",
         "key": "ctrl+alt+l",
         "mac": "cmd+alt+l"
+      },
+      {
+        "command": "extension.deploy.pullFile",
+        "key": "ctrl+alt+p f",
+        "mac": "cmd+alt+p f"
+      },
+      {
+        "command": "extension.deploy.pullWorkspace",
+        "key": "ctrl+alt+p w",
+        "mac": "cmd+alt+p w"
       }
     ],
     "configuration": {

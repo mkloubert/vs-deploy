@@ -151,6 +151,26 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // pull workspace
+    let pull = vscode.commands.registerCommand('extension.deploy.pullWorkspace', () => {
+        try {
+            deployer.pullWorkspace();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[PULL WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    // pull open file or selected folder
+    let pullFileOrFolder = vscode.commands.registerCommand('extension.deploy.pullFile', (u?: any) => {
+        try {
+            deployer.pullFileOrFolder(u);
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[PULL FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
@@ -158,6 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(deployer,
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,
+                               pull, pullFileOrFolder,
                                listen,
                                quickDeploy,
                                openOutputAfterDeploment);

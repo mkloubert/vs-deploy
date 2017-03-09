@@ -2469,6 +2469,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Pulls a file or folder.
+     * 
+     * @param {any} [uri] The URI of the file / folder to deploy. 
+     */
+    public pullFileOrFolder(uri?: any) {
+        vscode.window.showInformationMessage('@TODO: pullFileOrFolder');
+    }
+
+    /**
+     * Pulls files to the workspace.
+     */
+    public pullWorkspace() {
+        vscode.window.showInformationMessage('@TODO: pullWorkspace');
+    }
+
+    /**
      * Does a "quick deploy".
      */
     public quickDeploy() {
