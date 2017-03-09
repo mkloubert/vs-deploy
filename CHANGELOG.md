@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 5.34.1 (March 9th, 2017; Gitter)
+
+* created [room](https://gitter.im/mkloubert/vs-deploy) at [Gitter](https://gitter.im/mkloubert)
+
 ## 5.34.0 (March 9th, 2017; use files of deployment for compilers)
 
 * added `useFilesOfDeployment` property for [compiler operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-), which indicates if files for deployment will be used as source, when not defined explicit
