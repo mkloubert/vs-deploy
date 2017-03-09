@@ -863,6 +863,10 @@ export interface DeployPlugin {
     __type?: string;
 
     /**
+     * Indicates if plugin can pull files or not.
+     */
+    canPull?: boolean;
+    /**
      * Deploys a file.
      * 
      * @param {string} file The path of the local file.
@@ -888,6 +892,22 @@ export interface DeployPlugin {
      * @return {DeployPluginInfo} The plugin info.
      */
     info?: () => DeployPluginInfo;
+    /**
+     * Pulls a file.
+     * 
+     * @param {string} file The path of the local file.
+     * @param {DeployTarget} target The target that contains the file to pull.
+     * @param {DeployFileOptions} [opts] Additional options.
+     */
+    pullFile?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => void;
+    /**
+     * Pulls files of to the workspace.
+     * 
+     * @param {string[]} files The files to pull.
+     * @param {DeployTarget} target The target that contains the files to pull.
+     * @param {DeployWorkspaceOptions} [opts] Additional options.
+     */
+    pullWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
 }
 
 /**

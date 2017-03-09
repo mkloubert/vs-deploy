@@ -83,6 +83,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                                  this.onConfigReloaded);
     }
 
+    /** @inheritdoc */
+    public get canPull(): boolean {
+        return false;
+    }
+
     /**
      * Gets the underlying deploy context.
      */
@@ -101,23 +106,22 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
             opts = {};
         }
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let filesTodo = files.map(x => x);
         let completed = (err?: any) => {
             filesTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -130,8 +134,8 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                             opts.onFileCompleted(sender, e);
                         }
 
-                        hasCanceled = hasCanceled || deploy_helpers.toBooleanSafe(e.canceled);
-                        if (hasCanceled) {
+                        hasCancelled = hasCancelled || deploy_helpers.toBooleanSafe(e.canceled);
+                        if (hasCancelled) {
                             completed();  // cancellation requested
                         }
                         else {
@@ -140,7 +144,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                     }
                     catch (err) {
                         me.context.log(i18.t('errors.withCategory',
-                                            'DeployPluginBase.deployWorkspace(1)', err));
+                                             'DeployPluginBase.deployWorkspace(1)', err));
                     }
                 };
 
@@ -219,6 +223,124 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
      */
     protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
     }
+
+    /** @inheritdoc */
+    public pullFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+        
+        if (opts.onBeforeDeploy) {
+            opts.onBeforeDeploy(me, {
+                destination: null,
+                file: file,
+                target: target,
+            });
+        }
+
+        if (opts) {
+            opts.onCompleted(me, {
+                canceled: me.context.isCancelling(),
+                error: new Error("Not implemented!"),
+                file: file,
+                target: target,
+            });
+        }
+    }
+
+    /** @inheritdoc */
+    public pullWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        let me = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+
+        let hasCancelled = false;
+        let filesTodo = files.map(x => x);
+        let completed = (err?: any) => {
+            filesTodo = [];
+
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    target: target,
+                });
+            }
+        };
+
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let pullNextFile: () => void;
+
+                let fileCompleted = function(sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) {
+                    try {
+                        if (opts.onFileCompleted) {
+                            opts.onFileCompleted(sender, e);
+                        }
+
+                        hasCancelled = hasCancelled || deploy_helpers.toBooleanSafe(e.canceled);
+                        if (hasCancelled) {
+                            completed();  // cancellation requested
+                        }
+                        else {
+                            pullNextFile();
+                        }
+                    }
+                    catch (err) {
+                        me.context.log(i18.t('errors.withCategory',
+                                             'DeployPluginBase.pullWorkspace(1)', err));
+                    }
+                };
+
+                pullNextFile = () => {
+                    if (filesTodo.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    let f = filesTodo.shift();
+                    if (!f) {
+                        completed();
+                        return;
+                    }
+                    
+                    try {
+                        me.pullFile(f, target, {
+                            context: opts.context,
+                            onBeforeDeploy: (sender, e) => {
+                                if (opts.onBeforeDeployFile) {
+                                    opts.onBeforeDeployFile(sender, e);
+                                }
+                            },
+                            onCompleted: (sender, e) => {
+                                fileCompleted(sender, e);
+                            }
+                        });
+                    }
+                    catch (e) {
+                        fileCompleted(me, {
+                            error: e,
+                            file: f,
+                            target: target,
+                        });
+                    }
+                };
+
+                pullNextFile();
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
+    }
 }
 
 /**
@@ -262,6 +384,80 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
 
     /** @inheritdoc */
     public abstract deployWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions);
+
+    /** @inheritdoc */
+    public pullFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
+        this.pullWorkspace([ file ], target, {
+            context: opts.context,
+
+            onBeforeDeployFile: (sender, e) => {
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(sender, {
+                        destination: e.destination,
+                        file: e.file,
+                        target: e.target,
+                    });
+                }
+            },
+
+            onCompleted: (sender, e) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(sender, {
+                        canceled: e.canceled,
+                        error: e.error,
+                        file: file,
+                        target: e.target,
+                    });
+                }
+            }
+        });
+    }
+
+    /** @inheritdoc */
+    public pullWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        let me = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+
+        let hasCancelled = false;
+
+        files.forEach(x => {
+            hasCancelled = hasCancelled || me.context.isCancelling();
+
+            if (opts.onBeforeDeployFile) {
+                opts.onBeforeDeployFile(me, {
+                    destination: null,
+                    file: x,
+                    target: target,
+                });
+            }
+
+            if (opts.onFileCompleted) {
+                opts.onFileCompleted(me, {
+                    canceled: hasCancelled,
+                    error: new Error("Not implemented!"),
+                    file: x,
+                    target: target,
+                });
+            }
+        });
+
+        hasCancelled = hasCancelled || me.context.isCancelling();
+
+        if (opts.onCompleted) {
+            opts.onCompleted(me, {
+                canceled: hasCancelled,
+                error: new Error("Not implemented!"),
+                target: target,
+            });
+        }
+    }
 }
 
 /**
@@ -303,22 +499,21 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         
         // report that whole operation has been completed
         let filesTodo = files.map(x => x);  // create "TODO"" list
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             filesTodo = [];
 
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -333,7 +528,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                             completed(completedErr);
                         }).catch((e) => {
                             me.context.log(i18.t('errors.withCategory',
-                                                'DeployPluginWithContextBase.deployWorkspace(2)', e));
+                                                 'DeployPluginWithContextBase.deployWorkspace(2)', e));
 
                             completed(completedErr);
                         });
@@ -344,7 +539,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 }
                 catch (e) {
                     me.context.log(i18.t('errors.withCategory',
-                                        'DeployPluginWithContextBase.deployWorkspace(1)', e));
+                                         'DeployPluginWithContextBase.deployWorkspace(1)', e));
 
                     completed(completedErr);
                 }
@@ -368,8 +563,8 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                                 });
                             }
 
-                            hasCanceled = hasCanceled || deploy_helpers.toBooleanSafe(canceled);
-                            if (hasCanceled) {
+                            hasCancelled = hasCancelled || deploy_helpers.toBooleanSafe(canceled);
+                            if (hasCancelled) {
                                 destroyContext(wrapper, null);
                             }
                             else {
@@ -423,6 +618,172 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
             }
         }
     }
+
+    /**
+     * Pulls a file by using a context.
+     * 
+     * @param {TContext} ctx The context to use.
+     * @param {string} file The path of the local file.
+     * @param {DeployTarget} target The target.
+     * @param {DeployFileOptions} [opts] Additional options.
+     */
+    protected pullFileWithContext(ctx: TContext,
+                                  file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions) {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        let hasCancelled = me.context.isCancelling();
+
+        if (opts.onBeforeDeploy) {
+            opts.onBeforeDeploy(me, {
+                destination: null,
+                file: file,
+                target: target,
+            });
+        }
+
+        if (opts.onCompleted) {
+            opts.onCompleted(me, {
+                canceled: hasCancelled,
+                error: new Error("Not implemented!"),
+                file: file,
+                target: target,
+            });
+        }
+    }
+
+    /** @inheritdoc */
+    public pullWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+        
+        // report that whole operation has been completed
+        let filesTodo = files.map(x => x);  // create "TODO"" list
+        let hasCancelled = false;
+        let completed = (err?: any) => {
+            filesTodo = [];
+
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    target: target,
+                });
+            }
+        };
+
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            // destroy context before raise
+            // "completed" event
+            let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>, completedErr?: any) => {
+                try {
+                    if (wrapper.destroy) {
+                        // destroy context
+
+                        wrapper.destroy().then(() => {
+                            completed(completedErr);
+                        }).catch((e) => {
+                            me.context.log(i18.t('errors.withCategory',
+                                                 'DeployPluginWithContextBase.pullWorkspace(2)', e));
+
+                            completed(completedErr);
+                        });
+                    }
+                    else {
+                        completed(completedErr);
+                    }
+                }
+                catch (e) {
+                    me.context.log(i18.t('errors.withCategory',
+                                         'DeployPluginWithContextBase.pullWorkspace(1)', e));
+
+                    completed(completedErr);
+                }
+            };
+
+            try {
+                // create context...
+                this.createContext(target, files, opts).then((wrapper) => {
+                    try {
+                        let pullNext: () => void;
+
+                        // report that single file
+                        // pull has been completed
+                        let fileCompleted = function(file: string, err?: any, canceled?: boolean) {
+                            if (opts.onFileCompleted) {
+                                opts.onFileCompleted(me, {
+                                    canceled: canceled,
+                                    error: err,
+                                    file: file,
+                                    target: target,
+                                });
+                            }
+
+                            hasCancelled = hasCancelled || deploy_helpers.toBooleanSafe(canceled);
+                            if (hasCancelled) {
+                                destroyContext(wrapper, null);
+                            }
+                            else {
+                                pullNext();  // pull next
+                            }
+                        };
+
+                        pullNext = () => {
+                            if (filesTodo.length < 1) {
+                                destroyContext(wrapper);
+                                return;
+                            }
+
+                            let currentFile = filesTodo.shift();
+                            try {
+                                me.pullFileWithContext(wrapper.context,
+                                                       currentFile, target, {
+                                                           context: opts.context,
+
+                                                           onBeforeDeploy: (sender, e) => {
+                                                               if (opts.onBeforeDeployFile) {
+                                                                   opts.onBeforeDeployFile(sender, {
+                                                                       destination: e.destination,
+                                                                       file: e.file,
+                                                                       target: e.target,
+                                                                   });
+                                                               }
+                                                           },
+
+                                                           onCompleted: (sender, e) => {
+                                                               fileCompleted(e.file, e.error, e.canceled);
+                                                           }
+                                                       });
+                            }
+                            catch (e) {
+                                fileCompleted(currentFile, e);  // pull error
+                            }
+                        };
+
+                        pullNext();  // start with first file
+                    }
+                    catch (e) {
+                        destroyContext(wrapper, e);  // global deploy error
+                    }
+                }).catch((err) => {
+                    completed(err);  // could not create context
+                });
+            }
+            catch (e) {
+                completed(e);  // global error
+            }
+        }
+    }
 }
 
 /**
@@ -461,11 +822,11 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
 
         let me = this;
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -473,9 +834,8 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
-
-        if (hasCanceled) {
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -744,6 +1104,134 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
         });
 
         return batchTargets;
+    }
+
+    /** @inheritdoc */
+    public pullWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        if (!opts) {
+            opts = {};
+        }
+        
+        let me = this;
+
+        let ctx = this.createContext(target);
+        
+        let targetsTodo = ctx.targets.map(x => x);
+        let completed = (err?: any) => {
+            targetsTodo = [];
+
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    target: target,
+                });
+            }
+        };
+
+        ctx.hasCancelled = me.context.isCancelling();
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let pullNextTarget: () => void;
+                pullNextTarget = () => {
+                    if (targetsTodo.length < 1) {
+                        completed();
+                        return;
+                    }
+
+                    if (ctx.hasCancelled) {
+                        completed();
+                        return;
+                    }
+
+                    let currentTarget = targetsTodo.shift();
+                    let pluginsTodo = currentTarget.plugins.map(x => x);
+
+                    let targetCompleted = (err?: any) => {
+                        pluginsTodo = [];
+
+                        pullNextTarget();
+                    };
+
+                    let pullNextPlugin: () => void;
+                    pullNextPlugin = () => {
+                        if (pluginsTodo.length < 1) {
+                            targetCompleted();
+                            return;
+                        }
+
+                        if (ctx.hasCancelled) {
+                            completed();
+                            return;
+                        }
+
+                        let pluginCompleted = (err?: any, canceled?: boolean) => {
+                            pullNextPlugin();
+                        };
+
+                        let currentPlugin = pluginsTodo.shift();
+                        try {
+                            currentPlugin.pullWorkspace(files, currentTarget.target, {
+                                context: opts.context,
+
+                                onBeforeDeployFile: (sender, e) => {
+                                    if (opts.onBeforeDeployFile) {
+                                        let destination = deploy_helpers.toStringSafe(currentTarget.target.name).trim();
+                                        if (!destination) {
+                                            destination = deploy_helpers.toStringSafe(currentPlugin.__type).trim();
+                                        }
+                                        if (!destination) {
+                                            deploy_helpers.toStringSafe(currentPlugin.__file).trim();
+                                        }
+
+                                        let originalDestination = deploy_helpers.toStringSafe(e.destination);
+                                        if (destination) {
+                                            destination = `[${destination}] ${originalDestination}`;
+                                        }
+                                        else {
+                                            destination = originalDestination;
+                                        }
+
+                                        opts.onBeforeDeployFile(me, {
+                                            destination: destination,
+                                            file: e.file,
+                                            target: e.target,
+                                        });
+                                    }
+                                },
+                                onCompleted: (sender, e) => {
+                                    ctx.hasCancelled = ctx.hasCancelled || e.canceled;
+
+                                    pluginCompleted(e.error, e.canceled);
+                                },
+                                onFileCompleted: (sender, e) => {
+                                    if (opts.onFileCompleted) {
+                                        opts.onFileCompleted(me, {
+                                            canceled: e.canceled,
+                                            error: e.error,
+                                            file: e.file,
+                                            target: e.target,
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        catch (e) {
+                            targetCompleted(e);
+                        }
+                    };
+
+                    pullNextPlugin();
+                };
+
+                pullNextTarget();
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
     }
 }
 
