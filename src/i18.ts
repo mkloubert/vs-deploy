@@ -278,11 +278,25 @@ export interface Translation {
         noPlugins?: string;
         noPluginsForType?: string;
         workspace?: {
+            allFailed?: string;
+            allFailedWithTarget?: string;
+            allSucceeded?: string;
+            allSucceededWithTarget?: string;
+            alreadyStarted?: string;
+            clickToCancel?: string;
+            failed?: string;
             failedWithCategory?: string;
+            failedWithTarget?: string;
+            nothingPulled?: string;
+            nothingPulledWithTarget?: string;
             pulling?: string;
             pullingWithTarget?: string;
             selectPackage?: string;
             selectSource?: string;
+            someFailed?: string;
+            someFailedWithTarget?: string;
+            status?: string;
+            statusWithDestination?: string;
             virtualTargetName?: string;
             virtualTargetNameWithPackage?: string;
         }

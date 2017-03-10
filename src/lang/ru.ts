@@ -257,6 +257,7 @@ export const translation: Translation = {
         noPlugins: 'Модули не найдены!',
         noPluginsForType: 'Не найдено модулей соответствующих {0:trim,surround}!',
         workspace: {
+            clickToCancel: 'щелкнте здесь для отмены',
             selectPackage: 'Выберите пакет...',
             virtualTargetName: 'Виртуальное пакетное назначение для текущего пакета',
             virtualTargetNameWithPackage: 'Виртуальное пакетное назначение для пакета {0:trim,surround}',

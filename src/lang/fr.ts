@@ -257,6 +257,7 @@ export const translation: Translation = {
         noPlugins: 'Aucun plugin trouvé!',
         noPluginsForType: 'Aucun plugin correspondant pour {0:trim,surround}!',
         workspace: {
+            clickToCancel: 'cliquez ici pour annuler',
             selectPackage: 'Sélectionnez un paquetage...',
             virtualTargetName: 'Cible du lot virtuel pour le paquetage courant',
             virtualTargetNameWithPackage: 'Cible du lot virtuel pour le paquetage {0:trim,surround}',
