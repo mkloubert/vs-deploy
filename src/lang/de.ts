@@ -187,6 +187,7 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Lädt Dateien in ein DropBox-Verzeichnis.',
+            notFound: 'Datei nicht gefunden!',
             unknownResponse: 'Unerwartete Antwort {0:trim} ({1:trim}): {2:trim,surround}',
         },
         ftp: {

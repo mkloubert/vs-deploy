@@ -196,6 +196,7 @@ export interface Translation {
         },
         dropbox?: {
             description?: string;
+            notFound?: string;
             unknownResponse?: string;
         },
         ftp?: {

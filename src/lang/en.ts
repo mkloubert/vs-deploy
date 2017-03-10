@@ -189,6 +189,7 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Deploys to a DropBox folder.',
+            notFound: 'File not found!',
             unknownResponse: 'Unexpected response {0:trim} ({1:trim}): {2:trim,surround}',
         },
         ftp: {
