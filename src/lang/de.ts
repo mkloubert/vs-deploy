@@ -239,6 +239,8 @@ export const translation: Translation = {
         zip: {
             description: 'Speichert Dateien in eine ZIP-Datei',
             fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
+            fileNotFound: 'Datei nicht gefunden!',
+            noFileFound: "Keine ZIP-Datei gefunden!",
         }
     },
     popups: {

@@ -468,15 +468,17 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
     /**
      * Creates a new context for a target.
      * 
-     * @param {target: deploy_contracts.DeployTarget} target The target.
+     * @param {deploy_contracts.DeployTarget} target The target.
      * @param {string[]} files The files to deploy.
-     * @param {deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
+     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
+     * @param {deploy_contracts.DeployDirection} direction The direction.
      * 
      * @return {Promise<DeployPluginContextWrapper<TContext>>} The promise.
      */
     protected abstract createContext(target: deploy_contracts.DeployTarget,
                                      files: string[],
-                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions): Promise<DeployPluginContextWrapper<TContext>>;
+                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
+                                     direction: deploy_contracts.DeployDirection): Promise<DeployPluginContextWrapper<TContext>>;
 
     /**
      * Deploys a file by using a context.
@@ -547,7 +549,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
             try {
                 // create context...
-                this.createContext(target, files, opts).then((wrapper) => {
+                this.createContext(target, files, opts, deploy_contracts.DeployDirection.Deploy).then((wrapper) => {
                     try {
                         let deployNext: () => void;
 
@@ -713,7 +715,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
             try {
                 // create context...
-                this.createContext(target, files, opts).then((wrapper) => {
+                this.createContext(target, files, opts, deploy_contracts.DeployDirection.Pull).then((wrapper) => {
                     try {
                         let pullNext: () => void;
 
@@ -793,19 +795,47 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
     /** @inheritdoc */
     protected createContext(target: deploy_contracts.DeployTarget): Promise<DeployPluginContextWrapper<any>> {
         let me = this;
+
+        let funcArgs = arguments;
         
         return new Promise<DeployPluginContextWrapper<any>>((resolve, reject) => {
             try {
-                let zipFile = new Zip();
+                me.createZipFile.apply(me, funcArgs).then((zipFile) => {
+                    let wrapper: DeployPluginContextWrapper<any> = {
+                        context: zipFile,
+                        destroy: (): Promise<any> => {
+                            return me.deployZipFile(zipFile, target);
+                        },
+                    };
 
-                let wrapper: DeployPluginContextWrapper<any> = {
-                    context: zipFile,
-                    destroy: (): Promise<any> => {
-                        return me.deployZipFile(zipFile, target);
-                    },
-                };
+                    resolve(wrapper);
+                }, (err) => {
+                    reject(err);
+                });
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
 
-                resolve(wrapper);
+    /**
+     * Creates or loads a ZIP file instance.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target.
+     * @param {string[]} files The files to deploy.
+     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
+     * @param {deploy_contracts.DeployDirection} direction The direction.
+     * 
+     * @return {Promise<any>} The promise.
+     */
+    protected createZipFile(target: deploy_contracts.DeployTarget,
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
+                            direction: deploy_contracts.DeployDirection): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            try {
+                resolve(new Zip());
             }
             catch (e) {
                 reject(e);
@@ -861,7 +891,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
 
                     try {
                         let zipEntry = (<string>relativePath).trim();
-                        while (0 == zipEntry.indexOf('/')) {
+                        while (0 === zipEntry.indexOf('/')) {
                             zipEntry = zipEntry.substr(1);
                         }
 
@@ -889,6 +919,75 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
      * @return {Promise<any>} The promise.
      */
     protected abstract deployZipFile(zipFile: any, target: deploy_contracts.DeployTarget): Promise<any>;
+
+    /** @inheritdoc */
+    protected pullFileWithContext(zipFile: any,
+                                  file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        let hasCancelled = false;
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        hasCancelled = me.context.isCancelling();
+        if (hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativePath) {
+                relativePath = file;
+            }
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: `zip://${relativePath}`,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            try {
+                let zipEntry = (<string>relativePath).trim();
+                while (0 === zipEntry.indexOf('/')) {
+                    zipEntry = zipEntry.substr(1);
+                }
+
+                if (zipFile.files && zipFile.files[zipEntry]) {
+                    let f = zipFile.files[zipEntry];
+                    if (f) {
+                        let buff: Buffer = f.asNodeBuffer();
+                        if (buff) {
+                            FS.writeFile(file, buff, (err) => {
+                                completed(err);
+                            });
+                        }
+                        else {
+                            completed(new Error('No data!'));  //TODO
+                        }
+                    }
+                }
+                else {
+                    completed(i18.t('plugins.zip.fileNotFound'));
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
+    }
 }
 
 /**

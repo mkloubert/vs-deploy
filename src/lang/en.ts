@@ -241,6 +241,8 @@ export const translation: Translation = {
         zip: {
             description: 'Deploys to a ZIP file',
             fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
+            fileNotFound: 'File not found!',
+            noFileFound: "No ZIP files found!",
         }
     },
     popups: {

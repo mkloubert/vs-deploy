@@ -32,6 +32,7 @@ import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
+const Zip = require('node-zip');
 
 
 interface DeployTargetZIP extends deploy_contracts.DeployTarget {
@@ -41,6 +42,95 @@ interface DeployTargetZIP extends deploy_contracts.DeployTarget {
 }
 
 class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
+    public get canPull(): boolean {
+        return true;
+    }
+
+    protected createZipFile(target: DeployTargetZIP,
+                            files: string[],
+                            opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
+                            direction: deploy_contracts.DeployDirection): Promise<any> {
+        let me = this;
+        
+        if (direction == deploy_contracts.DeployDirection.Deploy) {
+            return super.createZipFile.apply(me, arguments);
+        }
+        
+        return new Promise<any>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<any>(resolve, reject);
+
+            try {
+                let targetDir = deploy_helpers.toStringSafe(target.target);
+                if (!targetDir) {
+                    targetDir = './';
+                }
+                if (!Path.isAbsolute(targetDir)) {
+                    targetDir = Path.join(vscode.workspace.rootPath, targetDir);
+                }
+
+                let notFound = () => {
+                    completed(i18.t('plugins.zip.noFileFound'));
+                };
+
+                let loadZIP = (zipFileName: string) => {
+                    if (deploy_helpers.isEmptyString(zipFileName)) {
+                        notFound();
+                    }
+                    else {
+                        zipFileName = Path.join(targetDir,
+                                                deploy_helpers.toStringSafe(zipFileName));
+
+                        FS.readFile(zipFileName, (err, data) => {
+                            if (err) {
+                                completed(err);
+                            }
+                            else {
+                                try {
+                                    let zip = Zip(data, { base64: false });
+
+                                    completed(null, zip);
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
+                            }
+                        });
+                    }
+                };
+
+                if (deploy_helpers.isEmptyString(target.fileName)) {
+                    FS.readdir(targetDir, (err, files) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            const REGEX = /^(workspace_)(\d{8})(_)((\d{6}))(\.)(zip)$/i;
+
+                            files = files.filter(x => REGEX.test(x)).sort((x, y) => {
+                                return deploy_helpers.compareValues(deploy_helpers.normalizeString(y),
+                                                                    deploy_helpers.normalizeString(x));
+                            });
+
+                            let zipFileName: string;
+                            if (files.length > 0) {
+                                zipFileName = files[0];
+                            }
+
+                            loadZIP(zipFileName);
+                        }
+                    });
+                }
+                else {
+                    // custom filename
+                    loadZIP(target.fileName);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
     protected deployZipFile(zip: any, target: DeployTargetZIP): Promise<any> {
         let now = Moment();
         let me = this;
@@ -50,7 +140,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
             targetDir = './';
         }
         if (!Path.isAbsolute(targetDir)) {
-            targetDir = Path.join(vscode.workspace.rootPath);
+            targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
 
         let openAfterCreated = deploy_helpers.toBooleanSafe(target.open, true);

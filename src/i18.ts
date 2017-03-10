@@ -248,6 +248,8 @@ export interface Translation {
         zip?: {
             description?: string;
             fileAlreadyExists?: string;
+            fileNotFound?: string;
+            noFileFound?: string;
         }
     },
     popups?: {

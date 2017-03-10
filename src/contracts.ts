@@ -645,6 +645,21 @@ export interface DeployContext extends vscode.Disposable, FileDeployer {
     targets: () => DeployTarget[];
 }
 
+
+/**
+ * List of deploy directions.
+ */
+export enum DeployDirection {
+    /**
+     * Deploy (from workspace to target)
+     */
+    Deploy = 1,
+    /**
+     * Pull (From target to workspace)
+     */
+    Pull = 2,
+}
+
 /**
  * Arguments for a deploy event.
  */

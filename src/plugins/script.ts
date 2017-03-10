@@ -50,7 +50,7 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
     /**
      * The direction.
      */
-    direction: DeployDirection;
+    direction: deploy_contracts.DeployDirection;
     /**
      * A state value for the ALL scripts that exists while the
      * current session.
@@ -73,20 +73,6 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      * Options from the target configuration.
      */
     targetOptions: any;
-}
-
-/**
- * List of deploy directions.
- */
-export enum DeployDirection {
-    /**
-     * Deploy (from workspace to target)
-     */
-    Deploy = 1,
-    /**
-     * Pull (From target to workspace)
-     */
-    Pull = 2,
 }
 
 /**
@@ -174,11 +160,11 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public deployFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
-        this.deployOrPullFile(DeployDirection.Deploy,
+        this.deployOrPullFile(deploy_contracts.DeployDirection.Deploy,
                               file, target, opts);
     }
 
-    protected deployOrPullFile(direction: DeployDirection,
+    protected deployOrPullFile(direction: deploy_contracts.DeployDirection,
                                file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
@@ -276,11 +262,11 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public deployWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
-        this.deployOrPullWorkspace(DeployDirection.Deploy,
+        this.deployOrPullWorkspace(deploy_contracts.DeployDirection.Deploy,
                                    files, target, opts);
     }
 
-    protected deployOrPullWorkspace(direction: DeployDirection,
+    protected deployOrPullWorkspace(direction: deploy_contracts.DeployDirection,
                                     files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let me = this;
         
@@ -392,12 +378,12 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public pullFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
-        this.deployOrPullFile(DeployDirection.Pull,
+        this.deployOrPullFile(deploy_contracts.DeployDirection.Pull,
                               file, target, opts);
     }
 
     public pullWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
-        this.deployOrPullWorkspace(DeployDirection.Pull,
+        this.deployOrPullWorkspace(deploy_contracts.DeployDirection.Pull,
                                    files, target, opts);
     }
 }
