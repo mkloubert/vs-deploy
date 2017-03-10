@@ -50,7 +50,7 @@ If you would like to add another translation, please read [that issue](https://g
    * [Deploy on save](#deploy-on-save-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
    * [ZIP file](#deploy-to-zip-file-)
-   * [Download / pull from SFTP](#download-pull-from-sftp-)
+   * [Download / pull from SFTP](#download--pull-from-sftp-)
 2. [Install](#install-)
 3. [How to use](#how-to-use-)
    * [Settings](#settings-)
