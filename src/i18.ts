@@ -255,12 +255,28 @@ export interface Translation {
         },
     },
     pull?: {
+        button?: {
+            cancelling?: string;
+            prepareText?: string;
+            text?: string;
+            tooltip?: string;
+        },
+        canceled?: string;
+        canceledWithErrors?: string;
         file?: {
             failed?: string;
+            pulling?: string;
+            pullingWithDestination?: string;
+            succeeded?: string;
+            succeededWithTarget?: string;
         },
         fileOrFolder?: {
             failed?: string;
         },
+        finished2?: string;
+        finishedWithErrors?: string;
+        noPlugins?: string;
+        noPluginsForType?: string;
         workspace?: {
             failedWithCategory?: string;
             pulling?: string;

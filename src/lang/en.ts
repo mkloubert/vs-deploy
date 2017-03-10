@@ -248,12 +248,28 @@ export const translation: Translation = {
         },
     },
     pull: {
+        button: {
+            cancelling: 'Cancelling...',
+            prepareText: 'Preparing pulling...',
+            text: 'Pulling...',
+            tooltip: 'Click here to cancel pulling...',
+        },
+        canceled: 'Canceled.',
+        canceledWithErrors: 'Canceled with errors!',
         file: {
             failed: 'Could not pull file {0:trim,surround}: {1}',
+            pulling: 'Pulling file {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Pulling file {0:trim,surround} from {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'File {0:trim,surround} has been successfully pulled.',
+            succeededWithTarget: 'File {0:trim,surround} has been successfully pulled from {1:trim,surround}.',
         },
         fileOrFolder: {
             failed: "Could not pull file / folder {0:trim,surround}: {1}",
         },
+        finished2: 'Finished',
+        finishedWithErrors: 'Finished with errors!',
+        noPlugins: 'No plugin(s) found!',
+        noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
         workspace: {
             failedWithCategory: 'Could not pull files ({0:trim}): {1}',
             pulling: 'Pulling package{0:trim,surround,leading_space}...',

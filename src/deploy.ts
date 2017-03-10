@@ -62,6 +62,7 @@ const AFTER_DEPLOYMENT_BUTTON_COLORS = {
 
 let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
+let nextCancelPullFileCommandId = Number.MAX_SAFE_INTEGER;
 
 interface ScriptCommandWrapper {
     button?: vscode.StatusBarItem;
@@ -2378,8 +2379,194 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let me = this;
 
         return new Promise<boolean>((resolve, reject) => {
-            //TODO: PULL
-            reject(new Error("@TODO: Implement"));
+            let hasCancelled = false;
+            let completed = (err?: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(hasCancelled);
+                }
+            };
+
+            me.onCancelling(() => hasCancelled = true);
+
+            try {
+                let type = deploy_helpers.parseTargetType(target.type);
+
+                let matchIngPlugins = me.pluginsWithContextes.filter(x => {
+                    return !type ||
+                           (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullFile);
+                });
+
+                let relativePath = deploy_helpers.toRelativePath(file);
+                if (false === relativePath) {
+                    relativePath = file;
+                }
+
+                if (matchIngPlugins.length > 0) {
+                    let pullNextPlugin: () => void;
+                    pullNextPlugin = () => {
+                        if (matchIngPlugins.length < 1) {
+                            completed();
+                            return;
+                        }
+
+                        if (hasCancelled) {
+                            completed();
+                            return;
+                        }
+
+                        let cancelCommand: vscode.Disposable;
+                        let currentPluginWithContext = matchIngPlugins.shift();
+                        let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
+                        let currentPlugin = currentPluginWithContext.plugin;
+                        let statusBarItem: vscode.StatusBarItem;
+
+                        let cleanUps = () => {
+                            deploy_helpers.tryDispose(cancelCommand);
+                            deploy_helpers.tryDispose(statusBarItem);
+                            deploy_helpers.tryDispose(contextToUse);
+                        };
+
+                        try {
+                            statusBarItem = vscode.window.createStatusBarItem(
+                                vscode.StatusBarAlignment.Left,
+                            );
+                            statusBarItem.color = '#ffffff';
+                            statusBarItem.text = i18.t('pull.button.prepareText');
+                            statusBarItem.tooltip = i18.t('pull.button.tooltip');
+
+                            let cancelCommandName = 'extension.deploy.cancelPullFile' + (nextCancelPullFileCommandId--);
+                            cancelCommand = vscode.commands.registerCommand(cancelCommandName, () => {
+                                if (hasCancelled) {
+                                    return;
+                                }
+
+                                hasCancelled = true;
+
+                                try {
+                                    contextToUse.emit(deploy_contracts.EVENT_CANCEL_PULL);
+                                }
+                                catch (e) {
+                                    me.log(i18.t('errors.withCategory', 'Deployer.pullFileFrom().cancel', e));
+                                }
+
+                                statusBarItem.text = i18.t('pull.button.cancelling');
+                                statusBarItem.tooltip = i18.t('pull.button.cancelling');
+                            });
+                            statusBarItem.command = cancelCommandName;
+
+                            let showResult = (err?: any) => {
+                                try {
+                                    cleanUps();
+
+                                    let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+
+                                    let resultMsg;
+                                    if (err) {
+                                        if (hasCancelled) {
+                                            resultMsg = i18.t('pull.canceledWithErrors');
+                                        }
+                                        else {
+                                            resultMsg = i18.t('pull.finishedWithErrors');
+                                        }
+                                    }
+                                    else {
+                                        if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
+                                            if (targetExpr) {
+                                                vscode.window.showInformationMessage(i18.t('pull.file.succeededWithTarget', file, targetExpr));
+                                            }
+                                            else {
+                                                vscode.window.showInformationMessage(i18.t('pull.file.succeeded', file));
+                                            }
+                                        }
+
+                                        if (hasCancelled) {
+                                            resultMsg = i18.t('pull.canceled');
+                                        }
+                                        else {
+                                            resultMsg = i18.t('pull.finished2');
+                                        }
+                                    }
+
+                                    if (resultMsg) {
+                                        me.outputChannel.appendLine(resultMsg);
+                                    }
+                                }
+                                finally {
+                                    completed(err);
+                                }
+                            };
+
+                            try {
+                                statusBarItem.show();
+
+                                currentPlugin.pullFile(file, target, {
+                                    context: contextToUse,
+
+                                    onBeforeDeploy: (sender, e) => {
+                                        let destination = deploy_helpers.toStringSafe(e.destination); 
+                                        let targetName = deploy_helpers.toStringSafe(e.target.name);
+
+                                        me.outputChannel.appendLine('');
+
+                                        let pullMsg: string;
+                                        if (targetName) {
+                                            targetName = ` ('${targetName}')`;
+                                        }
+                                        if (destination) {
+                                            pullMsg = i18.t('pull.file.pullingWithDestination', file, destination, targetName);
+                                        }
+                                        else {
+                                            pullMsg = i18.t('pull.file.pulling', file, targetName);
+                                        }
+
+                                        me.outputChannel.append(pullMsg);
+
+                                        statusBarItem.text = i18.t('pull.button.text');
+                                    },
+
+                                    onCompleted: (sender, e) => {
+                                        if (e.error) {
+                                            me.outputChannel.appendLine(i18.t('failed', e.error));
+                                        }
+                                        else {
+                                            me.outputChannel.appendLine(i18.t('ok'));
+                                        }
+
+                                        hasCancelled = hasCancelled || e.canceled;
+                                        showResult(e.error);
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                showResult(e);
+                            }
+                        }
+                        catch (e) {
+                            cleanUps();
+
+                            completed(e);
+                        }
+                    };
+
+                    pullNextPlugin();
+                }
+                else {
+                    if (type) {
+                        vscode.window.showWarningMessage(i18.t('pull.noPluginsForType', type));
+                    }
+                    else {
+                        vscode.window.showWarningMessage(i18.t('pull.noPlugins'));
+                    }
+
+                    completed();
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
         });
     };
 

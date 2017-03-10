@@ -246,12 +246,28 @@ export const translation: Translation = {
         },
     },
     pull: {
+        button: {
+            cancelling: 'Breche ab...',
+            prepareText: 'Bereite das Laden vor...',
+            text: 'Lade...',
+            tooltip: 'Hier klicken, um den Vorgang abzubrechen...',
+        },
+        canceled: 'Abgebrochen.',
+        canceledWithErrors: 'Abgebrochen mit Fehlern!',
         file: {
             failed: 'Datei {0:trim,surround} konnte nicht geladen werden: {1}',
+            pulling: 'Lade Datei {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Lade Datei {0:trim,surround} von {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'Die Datei {0:trim,surround} wurde erfolgreich geladen.',
+            succeededWithTarget: 'Die Datei {0:trim,surround} wurde erfolgreich von {1:trim,surround} geladen.',
         },
         fileOrFolder: {
             failed: "Datei bzw. Verzeichnis {0:trim,surround} konnte nicht geladen werden: {1}",
         },
+        finished2: 'Fertig',
+        finishedWithErrors: 'Beendet mit Fehlern!',
+        noPlugins: 'Keine passenden PlugIns gefunden!',
+        noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
         workspace: {
             failedWithCategory: 'Das Laden der Dateien schlug fehl ({0:trim}): {1}',
             pulling: 'Lade Paket{0:trim,surround,leading_space}...',

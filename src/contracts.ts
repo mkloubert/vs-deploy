@@ -48,6 +48,10 @@ export const DEFAULT_PORT = 23979;
  */
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 /**
+ * Name of the event to cancel a pull.
+ */
+export const EVENT_CANCEL_PULL = 'pull.cancel';
+/**
  * Name of the event that is raised when
  * configuration has been reloaded.
  */

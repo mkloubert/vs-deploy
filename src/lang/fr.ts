@@ -247,6 +247,15 @@ export const translation: Translation = {
         },
     },
     pull: {
+        button: {
+            cancelling: 'Annulation...',
+        },
+        canceled: 'Annulé.',
+        canceledWithErrors: 'Annulé avec erreurs!',
+        finished2: 'Terminé',
+        finishedWithErrors: 'Terminé avec erreurs!',
+        noPlugins: 'Aucun plugin trouvé!',
+        noPluginsForType: 'Aucun plugin correspondant pour {0:trim,surround}!',
         workspace: {
             selectPackage: 'Sélectionnez un paquetage...',
             virtualTargetName: 'Cible du lot virtuel pour le paquetage courant',

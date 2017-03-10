@@ -247,6 +247,15 @@ export const translation: Translation = {
         },
     },
     pull: {
+        button: {
+            cancelling: 'Отмена...',
+        },
+        canceled: 'Отменено.',
+        canceledWithErrors: 'Отменено с ошибками!',
+        finished2: 'Завершено',
+        finishedWithErrors: 'Завершено с ошибками!',
+        noPlugins: 'Модули не найдены!',
+        noPluginsForType: 'Не найдено модулей соответствующих {0:trim,surround}!',
         workspace: {
             selectPackage: 'Выберите пакет...',
             virtualTargetName: 'Виртуальное пакетное назначение для текущего пакета',
