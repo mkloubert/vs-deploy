@@ -254,6 +254,11 @@ export interface Translation {
             showChangeLog?: string;
         },
     },
+    pull?: {
+        fileOrFolder?: {
+            failed?: string;
+        }
+    },
     quickDeploy?: {
         caption?: string;
         failed?: string;

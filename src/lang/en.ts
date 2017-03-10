@@ -246,6 +246,11 @@ export const translation: Translation = {
             showChangeLog: 'Show changelog...',
         },
     },
+    pull: {
+        fileOrFolder: {
+            failed: "Could not pull file / folder {0:trim,surround}: {1}",
+        }
+    },
     quickDeploy: {
         caption: 'Quick deploy!',
         failed: 'Quick deploy failed: {0}',

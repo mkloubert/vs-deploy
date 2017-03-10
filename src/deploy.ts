@@ -897,13 +897,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {string[]} files The files to deploy.
      * @param {deploy_contracts.DeployTarget} target The target.
      * 
-     * @returns {Promise<any>} The promise.
+     * @returns {Promise<boolean>} The promise.
      */
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
         let nameOfTarget = deploy_helpers.normalizeString(target.name);
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             let hasCancelled = false;
             let completed = (err?: any) => {
                 delete me._DEPLOY_WORKSPACE_IN_PROGRESS[nameOfTarget];
@@ -2474,14 +2474,117 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {any} [uri] The URI of the file / folder to deploy. 
      */
     public pullFileOrFolder(uri?: any) {
-        vscode.window.showInformationMessage('@TODO: pullFileOrFolder');
+        let me = this;
+
+        let path: string;
+        
+        if (uri && uri.fsPath) {
+            path = uri.fsPath;
+        }
+        else {
+            let currentEditor = vscode.window.activeTextEditor;
+
+            if (currentEditor) {
+                let currentDocument = currentEditor.document;
+                if (currentDocument) {
+                    path = currentDocument.fileName;
+                }
+            }
+        }
+
+        if (deploy_helpers.isEmptyString(path)) {
+            return;
+        }
+
+        let showError = (err: any) => {
+            vscode.window.showErrorMessage(i18.t('pull.fileOrFolder.failed', path, err));
+        };
+
+        // check if file or folder
+        FS.lstat(path, (err, stats) => {
+            if (err) {
+                showError(err);
+                return;
+            }
+
+            try {
+                if (stats.isDirectory()) {
+                    me.pullFolder(path);  // folder
+                }
+                else if (stats.isFile()) {
+                    me.pullFile(path);  // file
+                }
+                else {
+                    showError(new Error(i18.t('isNo.validItem', path)));
+                }
+            }
+            catch (e) {
+                showError(e);
+            }
+        });
+    }
+
+    /**
+     * Pulls a file.
+     * 
+     * @param {string} file The path of the file to deploy. 
+     */
+    protected pullFile(file: string) {
+        //TODO: PULL
+        vscode.window.showErrorMessage('@TODO: pullFile');
+    }
+
+    /**
+     * Pulls a file from a target.
+     * 
+     * @param {string} file The file to pull.
+     * @param {deploy_contracts.DeployTarget} target The target from where to pull.
+     * 
+     * @return {Promise<boolean>} The promise.
+     */
+    protected pullFileFrom(file: string, target: deploy_contracts.DeployTarget): Promise<boolean> {
+        let me = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            //TODO: PULL
+            reject(new Error("@TODO: Implement"));
+        });
+    };
+
+    /**
+     * Pulls a folder.
+     * 
+     * @param {string} dir The path of the folder to pull.
+     */
+    protected pullFolder(dir: string) {
+        //TODO: PULL
+        vscode.window.showErrorMessage('@TODO: pullFolder');
     }
 
     /**
      * Pulls files to the workspace.
      */
     public pullWorkspace() {
-        vscode.window.showInformationMessage('@TODO: pullWorkspace');
+        //TODO: PULL
+        vscode.window.showErrorMessage('@TODO: pullWorkspace');
+    }
+
+    /**
+     * Pulls files of the workspace from a target.
+     * 
+     * @param {string[]} files The files to pull.
+     * @param {deploy_contracts.DeployTarget} target The target from where to pull from.
+     * 
+     * @returns {Promise<boolean>} The promise.
+     */
+    protected pullWorkspaceFrom(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
+        let me = this;
+        let nameOfTarget = deploy_helpers.normalizeString(target.name);
+
+        return new Promise<boolean>((resolve, reject) => {
+            //TODO: PULL
+            reject(new Error("@TODO: Implement"));
+        });
     }
 
     /**

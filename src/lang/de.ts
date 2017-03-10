@@ -245,6 +245,11 @@ export const translation: Translation = {
             showChangeLog: 'Änderungsprotokoll anzeigen (englisch)...',
         },
     },
+    pull: {
+        fileOrFolder: {
+            failed: "Datei bzw. Verzeichnis {0:trim,surround} konnte nicht geladen werden: {1}",
+        }
+    },
     quickDeploy: {
         caption: 'Bereitstellen!',
         failed: 'Schnelles Bereitstellen fehlgeschlagen: {0}',

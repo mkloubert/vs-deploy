@@ -634,7 +634,7 @@ export function isBinaryContent(data: Buffer): Promise<boolean> {
  * @return {boolean} Is empty or not.
  */
 export function isEmptyString(val: any): boolean {
-    return '' == toStringSafe(val).trim();
+    return '' === toStringSafe(val).trim();
 }
 
 /**
@@ -1165,7 +1165,7 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
  * @return {string} The output value.
  */
 export function toStringSafe(str: any, defValue: any = ''): string {
-    if (!str) {
+    if (isNullOrUndefined(str)) {
         str = '';
     }
     str = '' + str;

@@ -291,6 +291,8 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL + ALT + F` |
-| `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
-| `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL + ALT + W` |
+| `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
+| `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
+| `Deploy: Pull current file / folder` | Pulls the current opened file. | `CTRL+ALT+P, F` |
+| `Deploy: Pull workspace` | Pulls a specific package. | `CTRL+ALT+P, W` |
+| `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL+ALT+L` |
