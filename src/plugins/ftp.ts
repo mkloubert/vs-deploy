@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as FS from 'fs';
 const FTP = require('ftp');
 import * as i18 from '../i18';
 import * as Path from 'path';
@@ -62,6 +63,10 @@ function toFTPPath(path: string): string {
 }
 
 class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
+    public get canPull(): boolean {
+        return true;
+    }
+
     protected createContext(target: DeployTargetFTP,
                             files: string[],
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>> {
@@ -243,6 +248,90 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         return {
             description: i18.t('plugins.ftp.description'),
         };
+    }
+
+    protected pullFileWithContext(ctx: FTPContext,
+                                  file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+        
+        let completedInvoked = false;
+        let completed = (err?: any) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
+
+            let dir = getDirFromTarget(target);
+
+            let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
+            let targetDirectory = toFTPPath(Path.dirname(targetFile));
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            try {
+                ctx.connection.get(targetFile, (err, data) => {
+                    try {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            if (data) {
+                                data.once('error', (err) => {;
+                                    completed(err);
+                                });
+
+                                data.once('end', () => {
+                                    completed();
+                                });
+
+                                let pipe = data.pipe(FS.createWriteStream(file));
+
+                                pipe.once('error', (err) => {;
+                                    completed(err);
+                                });
+
+                                data.pipe(FS.createWriteStream(file));
+                            }
+                            else {
+                                completed(new Error("No data!"));  //TODO
+                            }
+                        }
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
     }
 }
 
