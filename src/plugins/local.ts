@@ -52,6 +52,10 @@ function getFullDirPathFromTarget(target: DeployTargetLocal): string {
 }
 
 class LocalPlugin extends deploy_objects.DeployPluginBase {
+    public get canPull(): boolean {
+        return true;
+    }
+
     public deployFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
