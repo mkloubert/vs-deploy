@@ -49,6 +49,10 @@ export interface OperationContext<T extends deploy_contracts.DeployOperation> {
      */
     files: string[];
     /**
+     * The global data from the settings.
+     */
+    globals: Object;
+    /**
      * Operation has been handled or not.
      */
     handled?: boolean;
@@ -362,6 +366,61 @@ export function sql(ctx: OperationContext<deploy_contracts.DeploySqlOperation>):
 
                     invokeNextQuery();
                 }).catch((err) => {
+                    completed(err);
+                });
+            }
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
+ * Executes Visual Studio Code commands.
+ * 
+ * @param {OperationContext<deploy_contracts.DeployVSCommandOperation>} ctx The execution context.
+ * 
+ * @returns {Promise<boolean>} The promise.
+ */
+export function vscommand(ctx: OperationContext<deploy_contracts.DeployVSCommandOperation>): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
+
+        try {
+            let vsCmdOp = ctx.operation;
+
+            let commandId = deploy_helpers.toStringSafe(vsCmdOp.command).trim();
+            if (!deploy_helpers.isEmptyString(commandId)) {
+                let args = vsCmdOp.arguments;
+                if (!args) {
+                    args = [];
+                }
+
+                if (deploy_helpers.toBooleanSafe(vsCmdOp.submitContext)) {
+                    // submit DeployVSCommandOperationContext object
+                    // as first argument
+
+                    let cmdCtx: deploy_contracts.DeployVSCommandOperationContext = {
+                        command: commandId,
+                        globals: ctx.globals,
+                        files: ctx.files,
+                        kind: ctx.kind,
+                        operation: vsCmdOp,
+                        options: vsCmdOp.contextOptions,
+                        require: (id) => {
+                            return require(id);
+                        }
+                    };
+
+                    args = [ cmdCtx ].concat(args);
+                }
+
+                args = [ commandId ].concat(args);
+
+                vscode.commands.executeCommand.apply(null, args).then(() => {
+                    completed();
+                }, (err) => {
                     completed(err);
                 });
             }
