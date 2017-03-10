@@ -39,7 +39,7 @@ export interface OperationContext<T extends deploy_contracts.DeployOperation> {
     /**
      * The app configuration.
      */
-    config: deploy_contracts.DeployConfiguration;
+    readonly config: deploy_contracts.DeployConfiguration;
     /**
      * Can store the error that is raised while the execution. 
      */
@@ -47,11 +47,11 @@ export interface OperationContext<T extends deploy_contracts.DeployOperation> {
     /**
      * The files to deploy / the deployed files.
      */
-    files: string[];
+    readonly files: string[];
     /**
      * The global data from the settings.
      */
-    globals: Object;
+    readonly globals: Object;
     /**
      * Operation has been handled or not.
      */
@@ -59,15 +59,15 @@ export interface OperationContext<T extends deploy_contracts.DeployOperation> {
     /**
      * Kind of operation.
      */
-    kind: deploy_contracts.DeployOperationKind;
+    readonly kind: deploy_contracts.DeployOperationKind;
     /**
      * The operation settings.
      */
-    operation: T;
+    readonly operation: T;
     /**
      * The output channel.
      */
-    outputChannel: vscode.OutputChannel;
+    readonly outputChannel: vscode.OutputChannel;
 }
 
 /**
