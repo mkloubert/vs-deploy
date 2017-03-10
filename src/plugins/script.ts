@@ -48,6 +48,10 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      */
     deployOptions: deploy_contracts.DeployFileOptions;
     /**
+     * The direction.
+     */
+    direction: DeployDirection;
+    /**
      * A state value for the ALL scripts that exists while the
      * current session.
      */
@@ -69,6 +73,20 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      * Options from the target configuration.
      */
     targetOptions: any;
+}
+
+/**
+ * List of deploy directions.
+ */
+export enum DeployDirection {
+    /**
+     * Deploy (from workspace to target)
+     */
+    Deploy = 1,
+    /**
+     * Pull (From target to workspace)
+     */
+    Pull = 2,
 }
 
 /**
@@ -151,7 +169,17 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected _globalState: Object = {};
     protected _scriptStates: Object = {};
 
+    public get canPull(): boolean {
+        return true;
+    }
+
     public deployFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
+        this.deployOrPullFile(DeployDirection.Deploy,
+                              file, target, opts);
+    }
+
+    protected deployOrPullFile(direction: DeployDirection,
+                               file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
         }
@@ -194,6 +222,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 let args: DeployFileArguments = {
                     context: me.context,
                     deployOptions: opts,
+                    direction: direction,
                     emitGlobal: function() {
                         return me.context
                                  .emitGlobal
@@ -247,6 +276,12 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public deployWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        this.deployOrPullWorkspace(DeployDirection.Deploy,
+                                   files, target, opts);
+    }
+
+    protected deployOrPullWorkspace(direction: DeployDirection,
+                                    files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let me = this;
         
         if (!opts) {
@@ -287,6 +322,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     let args: DeployWorkspaceArguments = {
                         context: me.context,
                         deployOptions: opts,
+                        direction: direction,
                         emitGlobal: function() {
                             return me.context
                                      .emitGlobal
@@ -353,6 +389,16 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
         this._globalState = {};
         this._scriptStates = {};
+    }
+
+    public pullFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
+        this.deployOrPullFile(DeployDirection.Pull,
+                              file, target, opts);
+    }
+
+    public pullWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        this.deployOrPullWorkspace(DeployDirection.Pull,
+                                   files, target, opts);
     }
 }
 
