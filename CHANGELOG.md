@@ -1,5 +1,19 @@
 # Change Log (vs-deploy)
 
+## 6.0.0 (March 11th, 2017; Pull / download files)
+
+Today there is a new big major release that supports pulling / downloading files from the following targets:
+
+* [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
+* [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
+* [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
+* [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
+* [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+* [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
+* [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api)
+* [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+* [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
+
 ## 5.34.1 (March 9th, 2017; Gitter)
 
 * created [room](https://gitter.im/mkloubert/vs-deploy) at [Gitter](https://gitter.im/mkloubert)
