@@ -167,6 +167,7 @@ export const translation: Translation = {
         api: {
             clientErrors: {
                 noPermissions: "Keine Schreibrechte!",
+                notFound: 'Datei nicht gefunden!',
                 unauthorized: "Benutzer hat keinen Zugriff!",
                 unknown: "Unbekannter Clientfehler: {0:trim} {2:trim,surround}",
             },

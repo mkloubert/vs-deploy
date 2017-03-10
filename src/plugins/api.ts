@@ -42,6 +42,10 @@ interface DeployTargeApi extends deploy_contracts.DeployTarget {
 }
 
 class ApiPlugin extends deploy_objects.DeployPluginBase {
+    public get canPull(): boolean {
+        return true;
+    }
+
     /** @inheritdoc */
     public deployFile(file: string, target: DeployTargeApi, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
@@ -161,7 +165,7 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                         req = HTTP.request(reqOpts, responseListener);
                     }
 
-                    req.on('error', (err) => {
+                    req.once('error', (err) => {
                         completed(err);
                     });
 
@@ -192,6 +196,166 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: i18.t('plugins.api.description'),
         };
+    }
+
+    /** @inheritdoc */
+    public pullFile(file: string, target: DeployTargeApi, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+        
+        let hasCancelled = false;
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        me.onCancelling(() => {
+            hasCancelled = true;
+        });
+
+        if (hasCancelled) {
+            completed();
+            return;
+        }
+
+        try {
+            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
+
+            let host = deploy_helpers.normalizeString(target.host);
+            if (!host) {
+                host = '127.0.0.1';
+            }
+
+            let port = target.port;
+            if (deploy_helpers.isEmptyString(port)) {
+                port = 1781;
+            }
+            else {
+                port = parseInt(deploy_helpers.toStringSafe(port).trim());
+            }
+
+            let isSecure = deploy_helpers.toBooleanSafe(target.isSecure);
+
+            let headers: any = {
+                'Content-type': deploy_helpers.detectMimeByFilename(file),
+            };
+
+            let user = deploy_helpers.normalizeString(target.user);
+            if (user) {
+                let pwd = deploy_helpers.toStringSafe(target.password);
+
+                headers['Authorization'] = `Basic ${(new Buffer(user + ':' + pwd).toString('base64'))}`;
+            }
+
+            let destination = `http${isSecure ? 's' : ''}://${host}:${port}/api/workspace${relativePath}`;
+            let url = URL.parse(destination);
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: destination,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            let reqOpts: HTTP.RequestOptions = {
+                headers: headers,
+                host: host,
+                method: 'GET',
+                path: url.pathname,
+                port: port,
+                protocol: url.protocol,
+            };
+
+            let responseListener = (res: HTTP.IncomingMessage) => {
+                let err: any;
+
+                if (res.statusCode >= 400 && res.statusCode < 500) {
+                    switch (res.statusCode) {
+                        case 401:
+                            err = new Error(i18.t('plugins.api.clientErrors.unauthorized'));
+                            break;
+
+                        case 404:
+                            err = new Error(i18.t('plugins.api.clientErrors.notFound'));
+                            break;
+
+                        default:
+                            err = new Error(i18.t('plugins.api.clientErrors.unknown',
+                                                  res.statusCode, res.statusMessage));
+                            break;
+                    }
+                }
+                else if (res.statusCode >= 500 && res.statusCode < 600) {
+                    switch (res.statusCode) {
+                        default:
+                            err = new Error(i18.t('plugins.api.serverErrors.unknown',
+                                                    res.statusCode, res.statusMessage));
+                            break;
+                    }
+                }
+
+                if (err) {
+                    completed(err);
+                }
+                else {
+                    let isFile = false;  // x-vscode-restapi-type
+                    if (res.headers) {
+                        for (let p in res.headers) {
+                            if ('x-vscode-restapi-type' === deploy_helpers.normalizeString(p)) {
+                                if ('file' === deploy_helpers.normalizeString(res.headers[p])) {
+                                    isFile = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (isFile) {
+                        deploy_helpers.readHttpBody(res).then((data) => {
+                            if (data) {
+                                FS.writeFile(file, data, (err) => {
+                                    completed(err);
+                                });
+                            }
+                            else {
+                                completed(new Error("No data!"));  // TODO
+                            }
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        completed(i18.t('isNo.file'));
+                    }
+                }
+            };
+
+            let req: HTTP.ClientRequest;
+            if (isSecure) {
+                req = HTTPs.request(reqOpts, responseListener);
+            }
+            else {
+                req = HTTP.request(reqOpts, responseListener);
+            }
+
+            req.once('error', (err) => {
+                completed(err);
+            });
+
+            req.end();
+        }
+        catch (e) {
+            completed(e);
+        }
     }
 }
 

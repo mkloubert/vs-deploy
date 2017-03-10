@@ -176,6 +176,7 @@ export interface Translation {
         api?: {
             clientErrors?: {
                 noPermissions?: string;
+                notFound?: string;
                 unauthorized?: string;
                 unknown?: string;
             },
