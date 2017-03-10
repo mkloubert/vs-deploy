@@ -29,7 +29,6 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
-import * as deploy_sql from './sql';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -1528,37 +1527,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 switch (deploy_helpers.toStringSafe(operation.type).toLowerCase().trim()) {
                     case '':
                     case 'open':
-                        let openOperation = <deploy_contracts.DeployOpenOperation>operation;
-                        let operationTarget = deploy_helpers.toStringSafe(openOperation.target);
-                        let waitForExit = deploy_helpers.toBooleanSafe(openOperation.wait, true);
-
-                        let openArgs = [];
-                        if (openOperation.arguments) {
-                            openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
-                        }
-                        openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
-                                           .filter(x => x);
-
-                        if (openArgs.length > 0) {
-                            let app = operationTarget;
-
-                            operationTarget = openArgs.pop();
-                            openArgs = [ app ].concat(openArgs);
-                        }
-
-                        me.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
-
-                        nextAction = null;
-                        deploy_helpers.open(operationTarget, {
-                            app: openArgs,
-                            wait: waitForExit,
-                        }).then(function() {
-                            me.outputChannel.appendLine(i18.t('ok'));
-
-                            completed();
-                        }).catch((err) => {
-                            completed(err);
-                        });
+                        executor = deploy_operations.open;
                         break;
 
                     case 'compile':
@@ -1643,78 +1612,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
 
                     case 'sql':
-                        {
-                            let sqlOp = <deploy_contracts.DeploySqlOperation>operation;
-
-                            let type: deploy_sql.SqlConnectionType;
-                            let args: any[];
-
-                            let engineName = deploy_helpers.normalizeString(sqlOp.engine);
-                            switch (engineName) {
-                                case '':
-                                case 'mysql':
-                                    // MySQL
-                                    type = deploy_sql.SqlConnectionType.MySql;
-                                    args = [
-                                        sqlOp.options,
-                                    ];
-                                    break;
-
-                                case 'sql':
-                                    // Microsoft SQL
-                                    type = deploy_sql.SqlConnectionType.MSSql;
-                                    args = [
-                                        sqlOp.options,
-                                    ];
-                                    break;
-                            }
-
-                            if (deploy_helpers.isNullOrUndefined(type)) {
-                                // unknown SQL engine
-                                
-                                nextAction = () => {
-                                    completed(new Error(i18.t('deploy.operations.unknownSqlEngine',
-                                                              engineName)));
-                                };
-                            }
-                            else {
-                                nextAction = null;
-
-                                let queries = deploy_helpers.asArray(sqlOp.queries)
-                                                            .filter(x => x);
-
-                                deploy_sql.createSqlConnection(type, args).then((conn) => {
-                                    let queriesCompleted = (err?: any) => {
-                                        conn.close().then(() => {
-                                            completed(err);
-                                        }).then((err2) => {
-                                            //TODO: log
-
-                                            completed(err);
-                                        });
-                                    };
-
-                                    let invokeNextQuery: () => void;
-                                    invokeNextQuery = () => {
-                                        if (queries.length < 1) {
-                                            queriesCompleted();
-                                            return;
-                                        }
-
-                                        let q = queries.shift();
-                                        conn.query(q).then(() => {
-                                            invokeNextQuery();
-                                        }).catch((err) => {
-                                            queriesCompleted(err);
-                                        });
-                                    };
-
-                                    invokeNextQuery();
-                                }).catch((err) => {
-                                    completed(err);
-                                });
-                            }
-                        }
+                        executor = deploy_operations.sql;
                         break;
 
                     case 'vscommand':
@@ -1760,81 +1658,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
 
                     case 'wait':
-                        let waitTime = parseFloat(deploy_helpers.toStringSafe((<deploy_contracts.DeployWaitOperation>operation).time));
-                        if (isNaN(waitTime)) {
-                            waitTime = 1000;
-                        }
-
-                        nextAction = null;
-                        setTimeout(() => {
-                            completed();
-                        }, waitTime);
+                        executor = deploy_operations.wait;
                         break;
 
                     case 'webdeploy':
-                        {
-                            let webDeployOp = <deploy_contracts.DeployWebDeployOperation>operation;
-
-                            let msDeploy = 'msdeploy.exe';
-                            if (!deploy_helpers.isEmptyString(webDeployOp.exec)) {
-                                msDeploy = deploy_helpers.toStringSafe(webDeployOp.exec);
-                            }
-
-                            let args = [
-                                // -source
-                                `-source:${deploy_helpers.toStringSafe(webDeployOp.source)}`,
-                            ];
-
-                            // -<param>:<value>
-                            let paramsWithValues = [
-                                'dest', 'declareParam', 'setParam', 'setParamFile', 'declareParamFile',
-                                'removeParam', 'disableLink', 'enableLink', 'disableRule', 'enableRule',
-                                'replace', 'skip', 'disableSkipDirective', 'enableSkipDirective',
-                                'preSync', 'postSync',
-                                'retryAttempts', 'retryInterval',
-                                'appHostConfigDir', 'webServerDir', 'xpath',
-                            ];
-                            for (let i = 0; i < paramsWithValues.length; i++) {
-                                let p = paramsWithValues[i];
-                                
-                                if (!deploy_helpers.isEmptyString(webDeployOp[p])) {
-                                    args.push(`-${p}:${deploy_helpers.toStringSafe(webDeployOp[p])}`);
-                                }
-                            }
-
-                            // -<param>
-                            let boolParams = [
-                                'whatif', 'disableAppStore', 'allowUntrusted',
-                                'showSecure', 'xml', 'unicode', 'useCheckSum',
-                                'verbose',
-                            ];
-                            for (let i = 0; i < boolParams.length; i++) {
-                                let p = boolParams[i];
-                                
-                                if (deploy_helpers.toBooleanSafe(webDeployOp[p])) {
-                                    args.push(`-${p}`);
-                                }
-                            }
-
-                            let openOpts: deploy_helpers.OpenOptions = {
-                                app: [ msDeploy ].concat(args)
-                                                 .map(x => deploy_helpers.toStringSafe(x))
-                                                 .filter(x => x),
-                                cwd: webDeployOp.dir,
-                                wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
-                            };
-
-                            let target = `-verb:${deploy_helpers.toStringSafe(webDeployOp.verb)}`;
-
-                            nextAction = null;
-                            deploy_helpers.open(target, openOpts).then(() => {
-                                me.outputChannel.appendLine(i18.t('ok'));
-
-                                completed();
-                            }).catch((err) => {
-                                completed(err);
-                            });
-                        }
+                        executor = deploy_operations.webdeploy;
                         break;
 
                     default:
