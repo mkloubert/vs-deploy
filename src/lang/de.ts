@@ -246,8 +246,20 @@ export const translation: Translation = {
         },
     },
     pull: {
+        file: {
+            failed: 'Datei {0:trim,surround} konnte nicht geladen werden: {1}',
+        },
         fileOrFolder: {
             failed: "Datei bzw. Verzeichnis {0:trim,surround} konnte nicht geladen werden: {1}",
+        },
+        workspace: {
+            failedWithCategory: 'Das Laden der Dateien schlug fehl ({0:trim}): {1}',
+            pulling: 'Lade Paket{0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Lade Paket{0:trim,surround,leading_space} von {1:trim,surround}...',
+            selectPackage: 'Wählen Sie ein Paket...',
+            selectSource: 'Wählen Sie eine Quelle...',
+            virtualTargetName: 'Virtuelles Ziel für aktuelles Paket',
+            virtualTargetNameWithPackage: 'Virtuelles Ziel für Paket {0:trim,surround}',
         }
     },
     quickDeploy: {
@@ -265,6 +277,7 @@ export const translation: Translation = {
         noneDefined: "Definieren sie bitte mindestens ein ZIEL in Ihrer 'settings.json'-Datei!",
         notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
         select: 'Bitte wählen Sie ein Ziel aus...',
+        selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
     warnings: {
         withCategory: '[WARNUNG] {0:trim}: {1}',

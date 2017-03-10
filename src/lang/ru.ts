@@ -246,6 +246,13 @@ export const translation: Translation = {
             showChangeLog: 'Показать список изменений...',
         },
     },
+    pull: {
+        workspace: {
+            selectPackage: 'Выберите пакет...',
+            virtualTargetName: 'Виртуальное пакетное назначение для текущего пакета',
+            virtualTargetNameWithPackage: 'Виртуальное пакетное назначение для пакета {0:trim,surround}',
+        }
+    },
     quickDeploy: {
         caption: 'Быстрое развёртывание!',
         failed: 'Быстрое развёртывание отклонено: {0}',

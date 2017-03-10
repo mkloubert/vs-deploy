@@ -246,6 +246,13 @@ export const translation: Translation = {
             showChangeLog: 'Afficher le journal de modifications...',
         },
     },
+    pull: {
+        workspace: {
+            selectPackage: 'Sélectionnez un paquetage...',
+            virtualTargetName: 'Cible du lot virtuel pour le paquetage courant',
+            virtualTargetNameWithPackage: 'Cible du lot virtuel pour le paquetage {0:trim,surround}',
+        }
+    },
     quickDeploy: {
         caption: 'Déploiement rapide!',
         failed: 'Échec du déploiement rapide: {0}',

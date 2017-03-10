@@ -348,14 +348,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected deployFile(file: string) {
         let me = this;
 
-        let targets = this.getTargets();
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (targets.length < 1) {
             vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
         }
 
-        let quickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                .map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
 
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
@@ -699,7 +699,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             root: dir,
         });
 
-        let targets = this.getTargets();
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (targets.length < 1) {
             vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
@@ -729,8 +730,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         // select the target
-        let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                    .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
                 placeHolder: i18.t('deploy.folder.selectTarget'),
@@ -752,21 +752,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public deployWorkspace() {
         let me = this;
 
-        let packages = this.getPackages();
+        let packages = this.getPackages()
+                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (packages.length < 1) {
             vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
             return;
         }
 
-        let packageQuickPicks = packages.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                        .map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
                 return;
             }
 
-            let targets = me.filterTargetsByPackage(pkg);
+            let targets = me.filterTargetsByPackage(pkg)
+                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
             if (targets.length < 1) {
                 vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
                 return;
@@ -829,8 +830,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (targetsOfPackage.length < 1) {
                 // no explicit targets
 
-                let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                            .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
@@ -2321,8 +2321,49 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {string} file The path of the file to deploy. 
      */
     protected pullFile(file: string) {
-        //TODO: PULL
-        vscode.window.showErrorMessage('@TODO: pullFile');
+        let me = this;
+
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+            return;
+        }
+
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+
+        let pull = (item: deploy_contracts.DeployFileQuickPickItem) => {
+            let showError = (err: any) => {
+                vscode.window.showErrorMessage(i18.t(`pull.file.failed`, file, err));
+            };
+            
+            try {
+                me.pullFileFrom(file, item.target).then((canceled) => {
+                    if (canceled) {
+                        return;
+                    }
+
+                    // currently nothing to do here
+                }).catch((err) => {
+                    showError(err);
+                });  // pullFileFrom
+            }
+            catch (e) {
+                showError(e);
+            }
+        };
+
+        if (quickPicks.length > 1) {
+            vscode.window.showQuickPick(quickPicks, {
+                placeHolder: i18.t('targets.selectSource'),
+            }).then((item) => {
+                        pull(item);
+                    });
+        }
+        else {
+            // auto select
+            pull(quickPicks[0]);
+        }
     }
 
     /**
@@ -2348,16 +2389,181 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {string} dir The path of the folder to pull.
      */
     protected pullFolder(dir: string) {
-        //TODO: PULL
-        vscode.window.showErrorMessage('@TODO: pullFolder');
+        let me = this;
+        
+        dir = Path.resolve(dir); 
+
+        let filesToPull: string[] = Glob.sync('**', {
+            absolute: true,
+            cwd: dir,
+            dot: true,
+            ignore: [],
+            nodir: true,
+            root: dir,
+        });
+
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+            return;
+        }
+
+        // start pull the folder
+        // by selected target
+        let pull = (t: deploy_contracts.DeployTarget) => {
+            me.pullWorkspaceFrom(filesToPull, t).then(() => {
+                //TODO
+            }).catch((err) => {
+                vscode.window.showErrorMessage(i18.t('deploy.folder.failed', dir, err));
+            });
+        };
+
+        // select the target
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        if (fileQuickPicks.length > 1) {
+            vscode.window.showQuickPick(fileQuickPicks, {
+                placeHolder: i18.t('deploy.folder.selectTarget'),
+            }).then((item) => {
+                if (item) {
+                    pull(item.target);
+                }
+            });
+        }
+        else {
+            // auto select
+            pull(fileQuickPicks[0].target);
+        }
     }
 
     /**
      * Pulls files to the workspace.
      */
     public pullWorkspace() {
-        //TODO: PULL
-        vscode.window.showErrorMessage('@TODO: pullWorkspace');
+        let me = this;
+
+        let packages = this.getPackages()
+                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (packages.length < 1) {
+            vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
+            return;
+        }
+
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+
+        let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
+            if (!pkg) {
+                return;
+            }
+
+            let targets = me.filterTargetsByPackage(pkg)
+                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+            if (targets.length < 1) {
+                vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+                return;
+            }
+
+            let packageName = deploy_helpers.toStringSafe(pkg.name);
+
+            let filesToPull = deploy_helpers.getFilesOfPackage(pkg);
+
+            let pull = (t: deploy_contracts.DeployTarget) => {
+                try {
+                    if (!t) {
+                        return;
+                    }
+
+                    let targetName = deploy_helpers.toStringSafe(t.name);
+
+                    me.outputChannel.appendLine('');
+
+                    let deployMsg: string;
+                    if (targetName) {
+                        deployMsg = i18.t('pull.workspace.pullingWithTarget', packageName, targetName);
+                    }
+                    else {
+                        deployMsg = i18.t('pull.workspace.pulling', packageName);
+                    }
+
+                    me.outputChannel.appendLine(deployMsg);
+
+                    if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                        me.outputChannel.show();
+                    }
+
+                    me.pullWorkspaceFrom(filesToPull, t).then(() => {
+                        //TODO
+                    }).catch((err) => {
+                        vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithCategory', 2, err));
+                    });
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithCategory', 1, e));
+                }
+            };
+
+            let targetsOfPackage = me.getTargetsFromPackage(pkg);
+            if (targetsOfPackage.length < 1) {
+                // no explicit targets
+
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                if (fileQuickPicks.length > 1) {
+                    vscode.window.showQuickPick(fileQuickPicks, {
+                        placeHolder: i18.t('pull.workspace.selectSource'),
+                    }).then((item) => {
+                        if (item) {
+                            pull(item.target);
+                        }
+                    });
+                }
+                else {
+                    // auto select
+                    pull(fileQuickPicks[0].target);
+                }
+            }
+            else {
+                // we have explicit defined targets here
+
+                if (1 == targetsOfPackage.length) {
+                    pull(targetsOfPackage[0]);  // pull the one and only
+                }
+                else {
+                    // create a virtual "batch" target
+                    // for the underlying "real" targets
+
+                    let virtualPkgName: string;
+                    if (packageName) {
+                        virtualPkgName = i18.t('pull.workspace.virtualTargetNameWithPackage', packageName);
+                    }
+                    else {
+                        virtualPkgName = i18.t('pull.workspace.virtualTargetName');
+                    }
+
+                    let batchTarget: any = {
+                        type: 'batch',
+                        name: virtualPkgName,
+                        targets: targetsOfPackage.map(x => x.name),
+                    };
+
+                    pull(batchTarget);
+                }
+            }
+        };
+
+        if (packageQuickPicks.length > 1) {
+            vscode.window.showQuickPick(packageQuickPicks, {
+                placeHolder: i18.t('pull.workspace.selectPackage'),
+            }).then((item) => {
+                        if (item) {
+                            selectTarget(item.package);
+                        }
+                    });
+        }
+        else {
+            // auto select
+            selectTarget(packageQuickPicks[0].package);
+        }
     }
 
     /**

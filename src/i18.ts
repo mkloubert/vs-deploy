@@ -255,8 +255,20 @@ export interface Translation {
         },
     },
     pull?: {
+        file?: {
+            failed?: string;
+        },
         fileOrFolder?: {
             failed?: string;
+        },
+        workspace?: {
+            failedWithCategory?: string;
+            pulling?: string;
+            pullingWithTarget?: string;
+            selectPackage?: string;
+            selectSource?: string;
+            virtualTargetName?: string;
+            virtualTargetNameWithPackage?: string;
         }
     },
     quickDeploy?: {
@@ -274,11 +286,12 @@ export interface Translation {
         noneDefined?: string;
         notFound?: string;
         select?: string;
+        selectSource?: string;
     },
     warnings?: {
         withCategory?: string;
     },
-    yes?: string,
+    yes?: string;
 }
 
 

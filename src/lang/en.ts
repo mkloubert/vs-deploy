@@ -111,6 +111,7 @@ export const translation: Translation = {
             nothingDeployed: 'No file deployed!',
             nothingDeployedWithTarget: 'No file deployed to {0:trim,surround}!',
             selectPackage: 'Select a package...',
+            selectTarget: 'Select a target...',
             someFailed: '{0:trim} of the {1:trim} file(s) could not be deployed!',
             someFailedWithTarget: '{0:trim} of the {1:trim} file(s) could not be deployed to {2:trim,surround}!',
             status: 'Deploying {0:trim,surround}... ',
@@ -247,8 +248,20 @@ export const translation: Translation = {
         },
     },
     pull: {
+        file: {
+            failed: 'Could not pull file {0:trim,surround}: {1}',
+        },
         fileOrFolder: {
             failed: "Could not pull file / folder {0:trim,surround}: {1}",
+        },
+        workspace: {
+            failedWithCategory: 'Could not pull files ({0:trim}): {1}',
+            pulling: 'Pulling package{0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Pulling package{0:trim,surround,leading_space} from {1:trim,surround}...',
+            selectPackage: 'Select a package...',
+            selectSource: 'Select a source...',
+            virtualTargetName: 'Virtual batch target for current package',
+            virtualTargetNameWithPackage: 'Virtual batch target for package {0:trim,surround}',
         }
     },
     quickDeploy: {
@@ -266,6 +279,7 @@ export const translation: Translation = {
         noneDefined: "Please define a least one TARGET in your 'settings.json'!",
         notFound: 'Could not find target {0:trim,surround}!',
         select: 'Select the target to deploy to...',
+        selectSource: 'Select the source from where to pull from...',
     },
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',
