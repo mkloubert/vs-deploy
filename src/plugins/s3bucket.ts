@@ -62,6 +62,10 @@ const KNOWN_CREDENTIAL_CLASSES = {
 };
 
 class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
+    public get canPull(): boolean {
+        return true;
+    }
+
     protected createContext(target: DeployTargetS3Bucket,
                             files: string[],
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<S3Context>> {
@@ -235,6 +239,71 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         return {
             description: i18.t('plugins.s3bucket.description'),
         };
+    }
+
+    protected pullFileWithContext(ctx: S3Context,
+                                  file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
+        let me = this;
+
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                // remove leading '/' chars
+                let bucketKey = relativePath;
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
+                }
+                bucketKey = ctx.dir + bucketKey;
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
+                }
+
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: bucketKey,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                let params: any = {
+                    Key: bucketKey,
+                };
+
+                ctx.connection.getObject(params, (err, data) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        FS.writeFile(file, data.Body, (err) => {
+                            completed(err);
+                        });
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
     }
 }
 
