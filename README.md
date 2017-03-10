@@ -10,20 +10,22 @@
 
 The extension supports the following destination types:
 
-* [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
-* [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
-* [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
-* [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
-* [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
-* [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
-* [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http)
-* [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
-* [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
-* [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
-* [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
-* [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
-* [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql)
-* [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
+| Type | Supports download / pull? |
+| ---- |:--:|
+| [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) | :heavy_check_mark: |
+| [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app) | |
+| [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) | :heavy_check_mark: |
+| [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox) | :heavy_check_mark: |
+| [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) | :heavy_check_mark: |
+| [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) | :heavy_check_mark: |
+| [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http) | |
+| [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local) | :heavy_check_mark: |
+| [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail) | |
+| [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote) | |
+| [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | :heavy_check_mark: |
+| [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | :heavy_check_mark: |
+| [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) | |
+| [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | :heavy_check_mark: |
 
 There is also build-in support for the following [compilers and processors](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-):
 
