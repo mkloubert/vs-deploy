@@ -369,7 +369,7 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
                 }
             },
 
-            onCompleted: (sender, e) => {
+            onFileCompleted: (sender, e) => {
                 if (opts.onCompleted) {
                     opts.onCompleted(sender, {
                         canceled: e.canceled,
@@ -404,7 +404,7 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
                 }
             },
 
-            onCompleted: (sender, e) => {
+            onFileCompleted: (sender, e) => {
                 if (opts.onCompleted) {
                     opts.onCompleted(sender, {
                         canceled: e.canceled,
@@ -413,7 +413,7 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
                         target: e.target,
                     });
                 }
-            }
+            },
         });
     }
 
