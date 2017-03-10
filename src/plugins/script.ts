@@ -129,6 +129,22 @@ export interface ScriptModule {
      * @return {Promise<any>} The promise.
      */
     deployWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
+    /**
+     * Pulls a file to the workspace.
+     * 
+     * @param {DeployFileArguments} args Arguments for the execution.
+     * 
+     * @return {Promise<DeployFileArguments>} The promise.
+     */
+    pullFile?: (args: DeployFileArguments) => Promise<DeployFileArguments>;
+    /**
+     * Pulls files to the workspace.
+     * 
+     * @param {DeployWorkspaceArguments} args Arguments for the execution.
+     * 
+     * @return {Promise<any>} The promise.
+     */
+    pullWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
 }
 
 function getScriptFile(target: DeployTargetScript): string {
@@ -199,7 +215,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 let scriptModule = loadScriptModule(scriptFile);
-                if (!scriptModule.deployFile) {
+
+                let scriptFunction: Function;
+                switch (direction) {
+                    case deploy_contracts.DeployDirection.Pull:
+                        scriptFunction = scriptModule['pullFile'] || scriptModule['deployFile'];
+                        break;
+
+                    default:
+                        // deploy
+                        scriptFunction = scriptModule['deployFile'] || scriptModule['pullFile'];
+                        break;
+                }
+
+                if (!scriptFunction) {
                     throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
                 }
 
@@ -243,7 +272,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     },
                 });
 
-                scriptModule.deployFile(args).then((a) => {
+                scriptFunction(args).then((a) => {
                     hasCancelled = (a || args).canceled;
                     completed();
                 }).catch((err) => {
@@ -300,7 +329,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 let scriptModule = loadScriptModule(scriptFile);
-                if (scriptModule.deployWorkspace) {
+
+                let scriptFunction: Function;
+                switch (direction) {
+                    case deploy_contracts.DeployDirection.Pull:
+                        scriptFunction = scriptModule['pullWorkspace'] || scriptModule['deployWorkspace'];
+                        break;
+
+                    default:
+                        // deploy
+                        scriptFunction = scriptModule['deployWorkspace'] || scriptModule['pullWorkspace'];
+                        break;
+                }
+
+                if (scriptFunction) {
                     // custom function
 
                     let allStates = me._scriptStates;
@@ -343,7 +385,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                     });
 
-                    scriptModule.deployWorkspace(args).then((a) => {
+                    scriptFunction(args).then((a) => {
                         hasCancelled = (a || args).canceled;
                         completed(null);
                     }).catch((err) => {
