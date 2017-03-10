@@ -48,6 +48,10 @@ interface AzureBlobContext {
 }
 
 class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBlobContext> {
+    public get canPull(): boolean {
+        return true;
+    }
+
     protected createContext(target: DeployTargetAzureBlob,
                             files: string[],
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<AzureBlobContext>> {         
@@ -180,6 +184,60 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         return {
             description: i18.t('plugins.azureblob.description'),
         };
+    }
+
+    protected pullFileWithContext(ctx: AzureBlobContext,
+                                  file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): void {
+        let me = this;
+
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                // remove leading '/' chars
+                let blob = relativePath;
+                while (0 == blob.indexOf('/')) {
+                    blob = blob.substr(1);
+                }
+                blob = ctx.dir + blob;
+                while (0 == blob.indexOf('/')) {
+                    blob = blob.substr(1);
+                }
+
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: blob,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                ctx.service.getBlobToLocalFile(ctx.container, blob, file, (err) => {
+                    completed(err);
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
     }
 }
 
