@@ -1,5 +1,40 @@
 # Change Log (vs-deploy)
 
+## 6.0.0 (March 11th, 2017; Pull / download files)
+
+Today there is a new big major release that supports pulling / downloading files from the following targets:
+
+* [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
+* [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
+* [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
+* [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
+* [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+* [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
+* [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api)
+* [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
+* [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
+
+## 5.34.1 (March 9th, 2017; Gitter)
+
+* created [room](https://gitter.im/mkloubert/vs-deploy) at [Gitter](https://gitter.im/mkloubert)
+
+## 5.34.0 (March 9th, 2017; use files of deployment for compilers)
+
+* added `useFilesOfDeployment` property for [compiler operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-), which indicates if files for deployment will be used as source, when not defined explicit
+
+## 5.33.0 (March 4th, 2017; result button in status bar)
+
+* added more information for result button in status bar (s. [issue #42](https://github.com/mkloubert/vs-deploy/issues/42))
+
+## 5.32.0 (March 3rd, 2017; readyTimeout setting for sftp targets)
+
+* added `readyTimeout` property for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, as described in [that issue](https://github.com/mkloubert/vs-deploy/issues/33#issuecomment-283950361) (thanks to [lvbeck](https://github.com/lvbeck)!)
+
+## 5.31.0 (March 1st, 2017; russian translation)
+
+* added russian translation (thanks to [sag3ll0](https://github.com/sag3ll0)!)
+* if you would like to submit another translation, have a look at [that issue](https://github.com/mkloubert/vs-deploy/issues/18)
+
 ## 5.30.0 (February 28th, 2017; french translation)
 
 * added french translation (thanks to [neiobaf](https://github.com/neiobaf)!)

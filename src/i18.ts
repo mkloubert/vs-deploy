@@ -78,6 +78,7 @@ export interface Translation {
             failed?: string;
         },
         finished?: string;
+        finished2?: string;
         finishedWithErrors?: string;
         folder?: {
             failed?: string;
@@ -175,6 +176,7 @@ export interface Translation {
         api?: {
             clientErrors?: {
                 noPermissions?: string;
+                notFound?: string;
                 unauthorized?: string;
                 unknown?: string;
             },
@@ -194,6 +196,7 @@ export interface Translation {
         },
         dropbox?: {
             description?: string;
+            notFound?: string;
             unknownResponse?: string;
         },
         ftp?: {
@@ -245,6 +248,8 @@ export interface Translation {
         zip?: {
             description?: string;
             fileAlreadyExists?: string;
+            fileNotFound?: string;
+            noFileFound?: string;
         }
     },
     popups?: {
@@ -252,6 +257,53 @@ export interface Translation {
             message?: string;
             showChangeLog?: string;
         },
+    },
+    pull?: {
+        button?: {
+            cancelling?: string;
+            prepareText?: string;
+            text?: string;
+            tooltip?: string;
+        },
+        canceled?: string;
+        canceledWithErrors?: string;
+        file?: {
+            failed?: string;
+            pulling?: string;
+            pullingWithDestination?: string;
+            succeeded?: string;
+            succeededWithTarget?: string;
+        },
+        fileOrFolder?: {
+            failed?: string;
+        },
+        finished2?: string;
+        finishedWithErrors?: string;
+        noPlugins?: string;
+        noPluginsForType?: string;
+        workspace?: {
+            allFailed?: string;
+            allFailedWithTarget?: string;
+            allSucceeded?: string;
+            allSucceededWithTarget?: string;
+            alreadyStarted?: string;
+            clickToCancel?: string;
+            failed?: string;
+            failedWithCategory?: string;
+            failedWithTarget?: string;
+            nothingPulled?: string;
+            nothingPulledWithTarget?: string;
+            pulling?: string;
+            pullingWithTarget?: string;
+            selectPackage?: string;
+            selectSource?: string;
+            someFailed?: string;
+            someFailedWithTarget?: string;
+            status?: string;
+            statusWithDestination?: string;
+            virtualTargetName?: string;
+            virtualTargetNameWithPackage?: string;
+        }
     },
     quickDeploy?: {
         caption?: string;
@@ -268,11 +320,12 @@ export interface Translation {
         noneDefined?: string;
         notFound?: string;
         select?: string;
+        selectSource?: string;
     },
     warnings?: {
         withCategory?: string;
     },
-    yes?: string,
+    yes?: string;
 }
 
 

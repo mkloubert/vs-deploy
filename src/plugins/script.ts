@@ -48,6 +48,10 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      */
     deployOptions: deploy_contracts.DeployFileOptions;
     /**
+     * The direction.
+     */
+    direction: deploy_contracts.DeployDirection;
+    /**
      * A state value for the ALL scripts that exists while the
      * current session.
      */
@@ -125,6 +129,22 @@ export interface ScriptModule {
      * @return {Promise<any>} The promise.
      */
     deployWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
+    /**
+     * Pulls a file to the workspace.
+     * 
+     * @param {DeployFileArguments} args Arguments for the execution.
+     * 
+     * @return {Promise<DeployFileArguments>} The promise.
+     */
+    pullFile?: (args: DeployFileArguments) => Promise<DeployFileArguments>;
+    /**
+     * Pulls files to the workspace.
+     * 
+     * @param {DeployWorkspaceArguments} args Arguments for the execution.
+     * 
+     * @return {Promise<any>} The promise.
+     */
+    pullWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
 }
 
 function getScriptFile(target: DeployTargetScript): string {
@@ -151,7 +171,17 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected _globalState: Object = {};
     protected _scriptStates: Object = {};
 
+    public get canPull(): boolean {
+        return true;
+    }
+
     public deployFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
+        this.deployOrPullFile(deploy_contracts.DeployDirection.Deploy,
+                              file, target, opts);
+    }
+
+    protected deployOrPullFile(direction: deploy_contracts.DeployDirection,
+                               file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
         }
@@ -185,7 +215,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 let scriptModule = loadScriptModule(scriptFile);
-                if (!scriptModule.deployFile) {
+
+                let scriptFunction: Function;
+                switch (direction) {
+                    case deploy_contracts.DeployDirection.Pull:
+                        scriptFunction = scriptModule['pullFile'] || scriptModule['deployFile'];
+                        break;
+
+                    default:
+                        // deploy
+                        scriptFunction = scriptModule['deployFile'] || scriptModule['pullFile'];
+                        break;
+                }
+
+                if (!scriptFunction) {
                     throw new Error(i18.t('plugins.script.noDeployFileFunction', relativeScriptPath));
                 }
 
@@ -194,6 +237,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 let args: DeployFileArguments = {
                     context: me.context,
                     deployOptions: opts,
+                    direction: direction,
                     emitGlobal: function() {
                         return me.context
                                  .emitGlobal
@@ -228,7 +272,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     },
                 });
 
-                scriptModule.deployFile(args).then((a) => {
+                scriptFunction(args).then((a) => {
                     hasCancelled = (a || args).canceled;
                     completed();
                 }).catch((err) => {
@@ -247,6 +291,12 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public deployWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        this.deployOrPullWorkspace(deploy_contracts.DeployDirection.Deploy,
+                                   files, target, opts);
+    }
+
+    protected deployOrPullWorkspace(direction: deploy_contracts.DeployDirection,
+                                    files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
         let me = this;
         
         if (!opts) {
@@ -279,7 +329,20 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 let scriptModule = loadScriptModule(scriptFile);
-                if (scriptModule.deployWorkspace) {
+
+                let scriptFunction: Function;
+                switch (direction) {
+                    case deploy_contracts.DeployDirection.Pull:
+                        scriptFunction = scriptModule['pullWorkspace'] || scriptModule['deployWorkspace'];
+                        break;
+
+                    default:
+                        // deploy
+                        scriptFunction = scriptModule['deployWorkspace'] || scriptModule['pullWorkspace'];
+                        break;
+                }
+
+                if (scriptFunction) {
                     // custom function
 
                     let allStates = me._scriptStates;
@@ -287,6 +350,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     let args: DeployWorkspaceArguments = {
                         context: me.context,
                         deployOptions: opts,
+                        direction: direction,
                         emitGlobal: function() {
                             return me.context
                                      .emitGlobal
@@ -321,7 +385,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                     });
 
-                    scriptModule.deployWorkspace(args).then((a) => {
+                    scriptFunction(args).then((a) => {
                         hasCancelled = (a || args).canceled;
                         completed(null);
                     }).catch((err) => {
@@ -353,6 +417,16 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected onConfigReloaded(cfg: deploy_contracts.DeployConfiguration) {
         this._globalState = {};
         this._scriptStates = {};
+    }
+
+    public pullFile(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): void {
+        this.deployOrPullFile(deploy_contracts.DeployDirection.Pull,
+                              file, target, opts);
+    }
+
+    public pullWorkspace(files: string[], target: DeployTargetScript, opts?: deploy_contracts.DeployWorkspaceOptions) {
+        this.deployOrPullWorkspace(deploy_contracts.DeployDirection.Pull,
+                                   files, target, opts);
     }
 }
 

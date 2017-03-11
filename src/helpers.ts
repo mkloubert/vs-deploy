@@ -634,7 +634,7 @@ export function isBinaryContent(data: Buffer): Promise<boolean> {
  * @return {boolean} Is empty or not.
  */
 export function isEmptyString(val: any): boolean {
-    return '' == toStringSafe(val).trim();
+    return '' === toStringSafe(val).trim();
 }
 
 /**
@@ -896,6 +896,43 @@ export function parseTargetType(str: string): string {
     str = ('' + str).toLowerCase().trim();
 
     return str;
+}
+
+
+/**
+ * Reads the content of the HTTP request body.
+ * 
+ * @param {HTTP.IncomingMessag} msg The HTTP message with the body.
+ * 
+ * @returns {Promise<Buffer>} The promise.
+ */
+export function readHttpBody(msg: HTTP.IncomingMessage): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        let completed = createSimplePromiseCompletedAction(resolve, reject);
+
+        try {
+            let buff: Buffer = msg.read();
+            if (null === buff) {
+                msg.once('readable', () => {
+                    readHttpBody(msg).then((b) => {
+                        resolve(b);
+                    }, (err) => {
+                        reject(err);
+                    });
+                });
+
+                msg.once('end', (b) => {
+                    resolve(b || Buffer.alloc(0));
+                });
+            }
+            else {
+                resolve(buff);
+            }
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**
@@ -1165,7 +1202,7 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
  * @return {string} The output value.
  */
 export function toStringSafe(str: any, defValue: any = ''): string {
-    if (!str) {
+    if (isNullOrUndefined(str)) {
         str = '';
     }
     str = '' + str;

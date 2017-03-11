@@ -4,24 +4,28 @@
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/mkloubert.vs-deploy.svg)](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-deploy)
 [![Rating](https://vsmarketplacebadge.apphb.com/rating-short/mkloubert.vs-deploy.svg)](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-deploy#review-details)
 
+[![Gitter](https://badges.gitter.im/mkloubert/vs-deploy.svg)](https://gitter.im/mkloubert/vs-deploy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 [Visual Studio Code](https://code.visualstudio.com/) (VS Code) extension that provides commands to deploy files of a workspace to a destination.
 
 The extension supports the following destination types:
 
-* [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket)
-* [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app)
-* [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob)
-* [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox)
-* [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)
-* [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
-* [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http)
-* [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local)
-* [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail)
-* [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote)
-* [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api)
-* [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp)
-* [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql)
-* [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip)
+| Type | Supports download / pull? |
+| ---- |:--:|
+| [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) | X |
+| [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app) | |
+| [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) | X |
+| [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox) | X |
+| [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) | X |
+| [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) | X |
+| [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http) | |
+| [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local) | X |
+| [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail) | |
+| [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote) | |
+| [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | X |
+| [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | X |
+| [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) | |
+| [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | X |
 
 There is also build-in support for the following [compilers and processors](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-):
 
@@ -29,6 +33,15 @@ There is also build-in support for the following [compilers and processors](http
 * [Pug](https://pugjs.org/)
 * [TypeScript](https://www.typescriptlang.org/)
 * [UglifyJS 2](https://github.com/mishoo/UglifyJS2)
+
+... and these languages:
+
+* english
+* french (thanks to [neiobaf](https://github.com/neiobaf)!)
+* german
+* russian (thanks to [sag3ll0](https://github.com/sag3ll0)!)
+
+If you would like to add another translation, please read [that issue](https://github.com/mkloubert/vs-deploy/issues/18) first.
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy)
 
@@ -39,6 +52,7 @@ There is also build-in support for the following [compilers and processors](http
    * [Deploy on save](#deploy-on-save-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
    * [ZIP file](#deploy-to-zip-file-)
+   * [Download / pull from SFTP](#download--pull-from-sftp-)
 2. [Install](#install-)
 3. [How to use](#how-to-use-)
    * [Settings](#settings-)
@@ -63,6 +77,10 @@ There is also build-in support for the following [compilers and processors](http
 ### Deploy to ZIP file [[&uarr;](#demos-)]
 
 ![Demo ZIP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
+
+### Download / pull from SFTP [[&uarr;](#demos-)]
+
+![Demo pull from SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo6.gif)
 
 ## Install [[&uarr;](#table-of-contents)]
 
@@ -280,6 +298,8 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
-| `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL + ALT + F` |
-| `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL + ALT + L` |
-| `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL + ALT + W` |
+| `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
+| `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
+| `Deploy: Pull current file / folder` | Pulls the current opened file. | `CTRL+ALT+P, F` |
+| `Deploy: Pull workspace` | Pulls a specific package. | `CTRL+ALT+P, W` |
+| `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL+ALT+L` |

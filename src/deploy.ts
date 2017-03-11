@@ -29,7 +29,6 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
-import * as deploy_sql from './sql';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -41,8 +40,30 @@ import * as Path from 'path';
 import * as vscode from 'vscode';
 
 
+const AFTER_DEPLOYMENT_BUTTON_COLORS = {
+    's': [
+        'ffffff',
+        'eeeeee',
+        'dddddd',
+    ],
+
+    'w': [
+        'ffff00',
+        'eeee00',
+        'dddd00',
+    ],
+
+    'e': [
+        '000000',
+        '111111',
+        '222222',
+    ],
+};
+
 let nextCancelDeployFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
+let nextCancelPullFileCommandId = Number.MAX_SAFE_INTEGER;
+let nextCancelPullWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
 interface ScriptCommandWrapper {
     button?: vscode.StatusBarItem;
@@ -57,10 +78,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Information button that is shown after a deployment has been finished.
      */
     protected readonly _AFTER_DEPLOYMENT_STATUS_ITEM: vscode.StatusBarItem;
-    /**
-     * Stores the packages that are currently deploy.
-     */
-    protected readonly _DEPLOY_WORKSPACE_IN_PROGRESS: any = {};
     /**
      * List of custom commands.
      */
@@ -93,6 +110,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores if 'deploy on save' feature is enabled or not.
      */
     protected _isDeployOnSaveEnabled = true;
+    private readonly _NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS = {
+        's': 0,
+        'w': 0,
+        'e': 0,
+    };
+    /**
+     * The ID of the last timeout that autmatically disapears
+     * the deploy result button in the status bar.
+     */
+    protected _lastAfterDeploymentButtonDisapearTimeout: NodeJS.Timer;
     /**
      * Stores the global output channel.
      */
@@ -117,6 +144,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The current status item of the running server.
      */
     protected _serverStatusItem: vscode.StatusBarItem;
+    /**
+     * Stores the packages that are currently deploy.
+     */
+    protected readonly _WORKSPACE_IN_PROGRESS: any = {};
 
     /**
      * Initializes a new instance of that class.
@@ -319,14 +350,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected deployFile(file: string) {
         let me = this;
 
-        let targets = this.getTargets();
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (targets.length < 1) {
             vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
         }
 
-        let quickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                .map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
 
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
@@ -345,11 +376,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 return;
                             }
 
-                            me.afterDeployment([ file ], item.target).then(() => {
-                                //TODO
-                            }).catch((err) => {
-                                showError(err, 'after');
-                            });  // after deployed
+                            // DO NOT invoke me.afterDeployment()
+                            // this is done by me.deployFileTo()!
                         }).catch((err) => {
                             showError(err, 'file');
                         });  // deploy
@@ -526,7 +554,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                             let showResult = (err?: any) => {
                                 let afterDeployButtonMsg = 'Deployment finished.';
-                                let afterDeployButtonColor: string;
 
                                 try {
                                     cleanUps();
@@ -556,16 +583,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                             resultMsg = i18.t('deploy.canceled');
                                         }
                                         else {
-                                            resultMsg = i18.t('deploy.finished');
+                                            resultMsg = i18.t('deploy.finished2');
 
                                             me.afterDeployment([ file ], target).catch((err) => {
                                                 vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
                                             });
                                         }
                                     }
-
-                                    afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
-                                                                                                0, err ? 1 : 0);
 
                                     if (resultMsg) {
                                         afterDeployButtonMsg = resultMsg;
@@ -575,7 +599,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 }
                                 finally {
                                     me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
-                                                                        afterDeployButtonColor);
+                                                                        [ file ],
+                                                                        err ? [] : [ file ],
+                                                                        err ? [ file ] : []);
 
                                     completed(err);
                                 }
@@ -675,7 +701,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             root: dir,
         });
 
-        let targets = this.getTargets();
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (targets.length < 1) {
             vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
             return;
@@ -705,8 +732,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         // select the target
-        let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                    .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
                 placeHolder: i18.t('deploy.folder.selectTarget'),
@@ -728,21 +754,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public deployWorkspace() {
         let me = this;
 
-        let packages = this.getPackages();
+        let packages = this.getPackages()
+                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
         if (packages.length < 1) {
             vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
             return;
         }
 
-        let packageQuickPicks = packages.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                        .map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
                 return;
             }
 
-            let targets = me.filterTargetsByPackage(pkg);
+            let targets = me.filterTargetsByPackage(pkg)
+                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
             if (targets.length < 1) {
                 vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
                 return;
@@ -805,8 +832,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (targetsOfPackage.length < 1) {
                 // no explicit targets
 
-                let fileQuickPicks = targets.filter(x => !deploy_helpers.toBooleanSafe(x.isHidden))
-                                            .map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
@@ -872,16 +898,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @param {string[]} files The files to deploy.
      * @param {deploy_contracts.DeployTarget} target The target.
      * 
-     * @returns {Promise<any>} The promise.
+     * @returns {Promise<boolean>} The promise.
      */
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
         let nameOfTarget = deploy_helpers.normalizeString(target.name);
 
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<boolean>((resolve, reject) => {
             let hasCancelled = false;
             let completed = (err?: any) => {
-                delete me._DEPLOY_WORKSPACE_IN_PROGRESS[nameOfTarget];
+                delete me._WORKSPACE_IN_PROGRESS[nameOfTarget];
 
                 if (err) {
                     reject(err);
@@ -961,7 +987,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 let succeeded: string[] = [];
                                 let showResult = (err?: any) => {
                                     let afterDeployButtonMsg = 'Deployment finished.';
-                                    let afterDeployButtonColor: string;
 
                                     try {
                                         cleanUps();
@@ -1022,8 +1047,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                         }
 
                                         let resultMsg: string;
-                                        afterDeployButtonColor = deploy_helpers.getStatusBarItemColor(err,
-                                                                                                    succeeded.length, failed.length);
                                         if (err || failed.length > 0) {
                                             if (hasCancelled) {
                                                 resultMsg = i18.t('deploy.canceledWithErrors');
@@ -1037,7 +1060,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 resultMsg = i18.t('deploy.canceled');
                                             }
                                             else {
-                                                resultMsg = i18.t('deploy.finished');
+                                                resultMsg = i18.t('deploy.finished2');
 
                                                 me.afterDeployment(files, target).catch((err) => {
                                                     vscode.window.showErrorMessage(i18.t('deploy.after.failed', err));
@@ -1052,7 +1075,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                         }
                                     }
                                     finally {
-                                        me.showStatusBarItemAfterDeployment(afterDeployButtonMsg, afterDeployButtonColor);
+                                        me.showStatusBarItemAfterDeployment(afterDeployButtonMsg,
+                                                                            files,
+                                                                            succeeded, failed);
 
                                         completed(err);
                                     }
@@ -1129,16 +1154,17 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
-            if (deploy_helpers.isNullOrUndefined(me._DEPLOY_WORKSPACE_IN_PROGRESS[nameOfTarget])) {
-                me._DEPLOY_WORKSPACE_IN_PROGRESS[nameOfTarget] = {
+            if (deploy_helpers.isNullOrUndefined(me._WORKSPACE_IN_PROGRESS[nameOfTarget])) {
+                me._WORKSPACE_IN_PROGRESS[nameOfTarget] = {
                     files: files,
                     target: target,
+                    type: 'deploy',
                 };
 
                 startDeployment();
             }
             else {
-                // there is currently something to be deployed to the target
+                // there is currently something that is in progress for the target
 
                 // [BUTTON] yes
                 let yesBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
@@ -1354,6 +1380,23 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Returns the next color for the deploy result in the status bar
+     * by category.
+     * 
+     * @param {string} category The category.
+     * 
+     * @return {string} The color.
+     */
+    protected getNextAfterDeploymentButtonColor(category: string) {
+        let index = this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category]++;
+        if (this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category] > 2) {
+            this._NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS[category] = 0;
+        }
+
+        return '#' + AFTER_DEPLOYMENT_BUTTON_COLORS[category][index];
+    }
+
+    /**
      * Returns the list of packages.
      * 
      * @returns {DeployPackage[]} The packages.
@@ -1487,37 +1530,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 switch (deploy_helpers.toStringSafe(operation.type).toLowerCase().trim()) {
                     case '':
                     case 'open':
-                        let openOperation = <deploy_contracts.DeployOpenOperation>operation;
-                        let operationTarget = deploy_helpers.toStringSafe(openOperation.target);
-                        let waitForExit = deploy_helpers.toBooleanSafe(openOperation.wait, true);
-
-                        let openArgs = [];
-                        if (openOperation.arguments) {
-                            openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
-                        }
-                        openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
-                                           .filter(x => x);
-
-                        if (openArgs.length > 0) {
-                            let app = operationTarget;
-
-                            operationTarget = openArgs.pop();
-                            openArgs = [ app ].concat(openArgs);
-                        }
-
-                        me.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
-
-                        nextAction = null;
-                        deploy_helpers.open(operationTarget, {
-                            app: openArgs,
-                            wait: waitForExit,
-                        }).then(function() {
-                            me.outputChannel.appendLine(i18.t('ok'));
-
-                            completed();
-                        }).catch((err) => {
-                            completed(err);
-                        });
+                        executor = deploy_operations.open;
                         break;
 
                     case 'compile':
@@ -1602,198 +1615,19 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         break;
 
                     case 'sql':
-                        {
-                            let sqlOp = <deploy_contracts.DeploySqlOperation>operation;
-
-                            let type: deploy_sql.SqlConnectionType;
-                            let args: any[];
-
-                            let engineName = deploy_helpers.normalizeString(sqlOp.engine);
-                            switch (engineName) {
-                                case '':
-                                case 'mysql':
-                                    // MySQL
-                                    type = deploy_sql.SqlConnectionType.MySql;
-                                    args = [
-                                        sqlOp.options,
-                                    ];
-                                    break;
-
-                                case 'sql':
-                                    // Microsoft SQL
-                                    type = deploy_sql.SqlConnectionType.MSSql;
-                                    args = [
-                                        sqlOp.options,
-                                    ];
-                                    break;
-                            }
-
-                            if (deploy_helpers.isNullOrUndefined(type)) {
-                                // unknown SQL engine
-                                
-                                nextAction = () => {
-                                    completed(new Error(i18.t('deploy.operations.unknownSqlEngine',
-                                                              engineName)));
-                                };
-                            }
-                            else {
-                                nextAction = null;
-
-                                let queries = deploy_helpers.asArray(sqlOp.queries)
-                                                            .filter(x => x);
-
-                                deploy_sql.createSqlConnection(type, args).then((conn) => {
-                                    let queriesCompleted = (err?: any) => {
-                                        conn.close().then(() => {
-                                            completed(err);
-                                        }).then((err2) => {
-                                            //TODO: log
-
-                                            completed(err);
-                                        });
-                                    };
-
-                                    let invokeNextQuery: () => void;
-                                    invokeNextQuery = () => {
-                                        if (queries.length < 1) {
-                                            queriesCompleted();
-                                            return;
-                                        }
-
-                                        let q = queries.shift();
-                                        conn.query(q).then(() => {
-                                            invokeNextQuery();
-                                        }).catch((err) => {
-                                            queriesCompleted(err);
-                                        });
-                                    };
-
-                                    invokeNextQuery();
-                                }).catch((err) => {
-                                    completed(err);
-                                });
-                            }
-                        }
+                        executor = deploy_operations.sql;
                         break;
 
                     case 'vscommand':
-                        {
-                            let vsCmdOp = <deploy_contracts.DeployVSCommandOperation>operation;
-
-                            let commandId = deploy_helpers.toStringSafe(vsCmdOp.command).trim();
-                            if (!deploy_helpers.isEmptyString(commandId)) {
-                                let args = vsCmdOp.arguments;
-                                if (!args) {
-                                    args = [];
-                                }
-
-                                if (deploy_helpers.toBooleanSafe(vsCmdOp.submitContext)) {
-                                    // submit DeployVSCommandOperationContext object
-                                    // as first argument
-
-                                    let cmdCtx: deploy_contracts.DeployVSCommandOperationContext = {
-                                        command: commandId,
-                                        globals: me.getGlobals(),
-                                        files: files,
-                                        kind: kind,
-                                        operation: vsCmdOp,
-                                        options: vsCmdOp.contextOptions,
-                                        require: (id) => {
-                                            return require(id);
-                                        }
-                                    };
-
-                                    args = [ cmdCtx ].concat(args);
-                                }
-
-                                args = [ commandId ].concat(args);
-
-                                nextAction = null;
-                                vscode.commands.executeCommand.apply(null, args).then(() => {
-                                    completed();
-                                }, (err) => {
-                                    completed(err);
-                                });;
-                            }
-                        }
+                        executor = deploy_operations.vscommand;
                         break;
 
                     case 'wait':
-                        let waitTime = parseFloat(deploy_helpers.toStringSafe((<deploy_contracts.DeployWaitOperation>operation).time));
-                        if (isNaN(waitTime)) {
-                            waitTime = 1000;
-                        }
-
-                        nextAction = null;
-                        setTimeout(() => {
-                            completed();
-                        }, waitTime);
+                        executor = deploy_operations.wait;
                         break;
 
                     case 'webdeploy':
-                        {
-                            let webDeployOp = <deploy_contracts.DeployWebDeployOperation>operation;
-
-                            let msDeploy = 'msdeploy.exe';
-                            if (!deploy_helpers.isEmptyString(webDeployOp.exec)) {
-                                msDeploy = deploy_helpers.toStringSafe(webDeployOp.exec);
-                            }
-
-                            let args = [
-                                // -source
-                                `-source:${deploy_helpers.toStringSafe(webDeployOp.source)}`,
-                            ];
-
-                            // -<param>:<value>
-                            let paramsWithValues = [
-                                'dest', 'declareParam', 'setParam', 'setParamFile', 'declareParamFile',
-                                'removeParam', 'disableLink', 'enableLink', 'disableRule', 'enableRule',
-                                'replace', 'skip', 'disableSkipDirective', 'enableSkipDirective',
-                                'preSync', 'postSync',
-                                'retryAttempts', 'retryInterval',
-                                'appHostConfigDir', 'webServerDir', 'xpath',
-                            ];
-                            for (let i = 0; i < paramsWithValues.length; i++) {
-                                let p = paramsWithValues[i];
-                                
-                                if (!deploy_helpers.isEmptyString(webDeployOp[p])) {
-                                    args.push(`-${p}:${deploy_helpers.toStringSafe(webDeployOp[p])}`);
-                                }
-                            }
-
-                            // -<param>
-                            let boolParams = [
-                                'whatif', 'disableAppStore', 'allowUntrusted',
-                                'showSecure', 'xml', 'unicode', 'useCheckSum',
-                                'verbose',
-                            ];
-                            for (let i = 0; i < boolParams.length; i++) {
-                                let p = boolParams[i];
-                                
-                                if (deploy_helpers.toBooleanSafe(webDeployOp[p])) {
-                                    args.push(`-${p}`);
-                                }
-                            }
-
-                            let openOpts: deploy_helpers.OpenOptions = {
-                                app: [ msDeploy ].concat(args)
-                                                 .map(x => deploy_helpers.toStringSafe(x))
-                                                 .filter(x => x),
-                                cwd: webDeployOp.dir,
-                                wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
-                            };
-
-                            let target = `-verb:${deploy_helpers.toStringSafe(webDeployOp.verb)}`;
-
-                            nextAction = null;
-                            deploy_helpers.open(target, openOpts).then(() => {
-                                me.outputChannel.appendLine(i18.t('ok'));
-
-                                completed();
-                            }).catch((err) => {
-                                completed(err);
-                            });
-                        }
+                        executor = deploy_operations.webdeploy;
                         break;
 
                     default:
@@ -1804,6 +1638,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 if (executor) {
                     let ctx: deploy_operations.OperationContext<deploy_contracts.DeployOperation> = {
                         config: me.config,
+                        files: files,
+                        globals: me.getGlobals(),
                         handled: handled,
                         kind: kind,
                         operation: operation,
@@ -2156,11 +1992,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             return;
                         }
 
-                        me.afterDeployment([ docFile ], t).then(() => {
-                            //TODO
-                        }).catch((err) => {
-                            showError(err);
-                        });  // after deployed
+                        // DO NOT invoke me.afterDeployment()
+                        // this is done by me.deployFileTo()!
                     }).catch((err) => {
                         showError(err);
                     });  // deploy
@@ -2427,6 +2260,780 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public get pluginsWithContextes(): deploy_contracts.DeployPluginWithContext[] {
         return this._plugins;
+    }
+
+    /**
+     * Pulls a file or folder.
+     * 
+     * @param {any} [uri] The URI of the file / folder to deploy. 
+     */
+    public pullFileOrFolder(uri?: any) {
+        let me = this;
+
+        let path: string;
+        
+        if (uri && uri.fsPath) {
+            path = uri.fsPath;
+        }
+        else {
+            let currentEditor = vscode.window.activeTextEditor;
+
+            if (currentEditor) {
+                let currentDocument = currentEditor.document;
+                if (currentDocument) {
+                    path = currentDocument.fileName;
+                }
+            }
+        }
+
+        if (deploy_helpers.isEmptyString(path)) {
+            return;
+        }
+
+        let showError = (err: any) => {
+            vscode.window.showErrorMessage(i18.t('pull.fileOrFolder.failed', path, err));
+        };
+
+        // check if file or folder
+        FS.lstat(path, (err, stats) => {
+            if (err) {
+                showError(err);
+                return;
+            }
+
+            try {
+                if (stats.isDirectory()) {
+                    me.pullFolder(path);  // folder
+                }
+                else if (stats.isFile()) {
+                    me.pullFile(path);  // file
+                }
+                else {
+                    showError(new Error(i18.t('isNo.validItem', path)));
+                }
+            }
+            catch (e) {
+                showError(e);
+            }
+        });
+    }
+
+    /**
+     * Pulls a file.
+     * 
+     * @param {string} file The path of the file to deploy. 
+     */
+    protected pullFile(file: string) {
+        let me = this;
+
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+            return;
+        }
+
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+
+        let pull = (item: deploy_contracts.DeployFileQuickPickItem) => {
+            let showError = (err: any) => {
+                vscode.window.showErrorMessage(i18.t(`pull.file.failed`, file, err));
+            };
+            
+            try {
+                me.pullFileFrom(file, item.target).then((canceled) => {
+                    if (canceled) {
+                        return;
+                    }
+
+                    // currently nothing to do here
+                }).catch((err) => {
+                    showError(err);
+                });  // pullFileFrom
+            }
+            catch (e) {
+                showError(e);
+            }
+        };
+
+        if (quickPicks.length > 1) {
+            vscode.window.showQuickPick(quickPicks, {
+                placeHolder: i18.t('targets.selectSource'),
+            }).then((item) => {
+                        pull(item);
+                    });
+        }
+        else {
+            // auto select
+            pull(quickPicks[0]);
+        }
+    }
+
+    /**
+     * Pulls a file from a target.
+     * 
+     * @param {string} file The file to pull.
+     * @param {deploy_contracts.DeployTarget} target The target from where to pull.
+     * 
+     * @return {Promise<boolean>} The promise.
+     */
+    protected pullFileFrom(file: string, target: deploy_contracts.DeployTarget): Promise<boolean> {
+        let me = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            let hasCancelled = false;
+            let completed = (err?: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(hasCancelled);
+                }
+            };
+
+            me.onCancelling(() => hasCancelled = true);
+
+            try {
+                let type = deploy_helpers.parseTargetType(target.type);
+
+                let matchIngPlugins = me.pluginsWithContextes.filter(x => {
+                    return !type ||
+                           (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullFile);
+                });
+
+                let relativePath = deploy_helpers.toRelativePath(file);
+                if (false === relativePath) {
+                    relativePath = file;
+                }
+
+                if (matchIngPlugins.length > 0) {
+                    let pullNextPlugin: () => void;
+                    pullNextPlugin = () => {
+                        if (matchIngPlugins.length < 1) {
+                            completed();
+                            return;
+                        }
+
+                        if (hasCancelled) {
+                            completed();
+                            return;
+                        }
+
+                        let cancelCommand: vscode.Disposable;
+                        let currentPluginWithContext = matchIngPlugins.shift();
+                        let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
+                        let currentPlugin = currentPluginWithContext.plugin;
+                        let statusBarItem: vscode.StatusBarItem;
+
+                        let cleanUps = () => {
+                            deploy_helpers.tryDispose(cancelCommand);
+                            deploy_helpers.tryDispose(statusBarItem);
+                            deploy_helpers.tryDispose(contextToUse);
+                        };
+
+                        try {
+                            statusBarItem = vscode.window.createStatusBarItem(
+                                vscode.StatusBarAlignment.Left,
+                            );
+                            statusBarItem.color = '#ffffff';
+                            statusBarItem.text = i18.t('pull.button.prepareText');
+                            statusBarItem.tooltip = i18.t('pull.button.tooltip');
+
+                            let cancelCommandName = 'extension.deploy.cancelPullFile' + (nextCancelPullFileCommandId--);
+                            cancelCommand = vscode.commands.registerCommand(cancelCommandName, () => {
+                                if (hasCancelled) {
+                                    return;
+                                }
+
+                                hasCancelled = true;
+
+                                try {
+                                    contextToUse.emit(deploy_contracts.EVENT_CANCEL_PULL);
+                                }
+                                catch (e) {
+                                    me.log(i18.t('errors.withCategory', 'Deployer.pullFileFrom().cancel', e));
+                                }
+
+                                statusBarItem.text = i18.t('pull.button.cancelling');
+                                statusBarItem.tooltip = i18.t('pull.button.cancelling');
+                            });
+                            statusBarItem.command = cancelCommandName;
+
+                            let showResult = (err?: any) => {
+                                try {
+                                    cleanUps();
+
+                                    let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+
+                                    let resultMsg;
+                                    if (err) {
+                                        if (hasCancelled) {
+                                            resultMsg = i18.t('pull.canceledWithErrors');
+                                        }
+                                        else {
+                                            resultMsg = i18.t('pull.finishedWithErrors');
+                                        }
+                                    }
+                                    else {
+                                        if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
+                                            if (targetExpr) {
+                                                vscode.window.showInformationMessage(i18.t('pull.file.succeededWithTarget', file, targetExpr));
+                                            }
+                                            else {
+                                                vscode.window.showInformationMessage(i18.t('pull.file.succeeded', file));
+                                            }
+                                        }
+
+                                        if (hasCancelled) {
+                                            resultMsg = i18.t('pull.canceled');
+                                        }
+                                        else {
+                                            resultMsg = i18.t('pull.finished2');
+                                        }
+                                    }
+
+                                    if (resultMsg) {
+                                        me.outputChannel.appendLine(resultMsg);
+                                    }
+                                }
+                                finally {
+                                    completed(err);
+                                }
+                            };
+
+                            try {
+                                statusBarItem.show();
+
+                                currentPlugin.pullFile(file, target, {
+                                    context: contextToUse,
+
+                                    onBeforeDeploy: (sender, e) => {
+                                        let destination = deploy_helpers.toStringSafe(e.destination); 
+                                        let targetName = deploy_helpers.toStringSafe(e.target.name);
+
+                                        me.outputChannel.appendLine('');
+
+                                        let pullMsg: string;
+                                        if (targetName) {
+                                            targetName = ` ('${targetName}')`;
+                                        }
+                                        if (destination) {
+                                            pullMsg = i18.t('pull.file.pullingWithDestination', file, destination, targetName);
+                                        }
+                                        else {
+                                            pullMsg = i18.t('pull.file.pulling', file, targetName);
+                                        }
+
+                                        me.outputChannel.append(pullMsg);
+
+                                        statusBarItem.text = i18.t('pull.button.text');
+                                    },
+
+                                    onCompleted: (sender, e) => {
+                                        if (e.error) {
+                                            me.outputChannel.appendLine(i18.t('failed', e.error));
+                                        }
+                                        else {
+                                            me.outputChannel.appendLine(i18.t('ok'));
+                                        }
+
+                                        hasCancelled = hasCancelled || e.canceled;
+                                        showResult(e.error);
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                showResult(e);
+                            }
+                        }
+                        catch (e) {
+                            cleanUps();
+
+                            completed(e);
+                        }
+                    };
+
+                    pullNextPlugin();
+                }
+                else {
+                    if (type) {
+                        vscode.window.showWarningMessage(i18.t('pull.noPluginsForType', type));
+                    }
+                    else {
+                        vscode.window.showWarningMessage(i18.t('pull.noPlugins'));
+                    }
+
+                    completed();
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    };
+
+    /**
+     * Pulls a folder.
+     * 
+     * @param {string} dir The path of the folder to pull.
+     */
+    protected pullFolder(dir: string) {
+        let me = this;
+        
+        dir = Path.resolve(dir); 
+
+        let filesToPull: string[] = Glob.sync('**', {
+            absolute: true,
+            cwd: dir,
+            dot: true,
+            ignore: [],
+            nodir: true,
+            root: dir,
+        });
+
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+            return;
+        }
+
+        // start pull the folder
+        // by selected target
+        let pull = (t: deploy_contracts.DeployTarget) => {
+            me.pullWorkspaceFrom(filesToPull, t).then(() => {
+                //TODO
+            }).catch((err) => {
+                vscode.window.showErrorMessage(i18.t('deploy.folder.failed', dir, err));
+            });
+        };
+
+        // select the target
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        if (fileQuickPicks.length > 1) {
+            vscode.window.showQuickPick(fileQuickPicks, {
+                placeHolder: i18.t('deploy.folder.selectTarget'),
+            }).then((item) => {
+                if (item) {
+                    pull(item.target);
+                }
+            });
+        }
+        else {
+            // auto select
+            pull(fileQuickPicks[0].target);
+        }
+    }
+
+    /**
+     * Pulls files to the workspace.
+     */
+    public pullWorkspace() {
+        let me = this;
+
+        let packages = this.getPackages()
+                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (packages.length < 1) {
+            vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
+            return;
+        }
+
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+
+        let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
+            if (!pkg) {
+                return;
+            }
+
+            let targets = me.filterTargetsByPackage(pkg)
+                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+            if (targets.length < 1) {
+                vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+                return;
+            }
+
+            let packageName = deploy_helpers.toStringSafe(pkg.name);
+
+            let filesToPull = deploy_helpers.getFilesOfPackage(pkg);
+
+            let pull = (t: deploy_contracts.DeployTarget) => {
+                try {
+                    if (!t) {
+                        return;
+                    }
+
+                    let targetName = deploy_helpers.toStringSafe(t.name);
+
+                    me.outputChannel.appendLine('');
+
+                    let deployMsg: string;
+                    if (targetName) {
+                        deployMsg = i18.t('pull.workspace.pullingWithTarget', packageName, targetName);
+                    }
+                    else {
+                        deployMsg = i18.t('pull.workspace.pulling', packageName);
+                    }
+
+                    me.outputChannel.appendLine(deployMsg);
+
+                    if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                        me.outputChannel.show();
+                    }
+
+                    me.pullWorkspaceFrom(filesToPull, t).then(() => {
+                        //TODO
+                    }).catch((err) => {
+                        vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithCategory', 2, err));
+                    });
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithCategory', 1, e));
+                }
+            };
+
+            let targetsOfPackage = me.getTargetsFromPackage(pkg);
+            if (targetsOfPackage.length < 1) {
+                // no explicit targets
+
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                if (fileQuickPicks.length > 1) {
+                    vscode.window.showQuickPick(fileQuickPicks, {
+                        placeHolder: i18.t('pull.workspace.selectSource'),
+                    }).then((item) => {
+                        if (item) {
+                            pull(item.target);
+                        }
+                    });
+                }
+                else {
+                    // auto select
+                    pull(fileQuickPicks[0].target);
+                }
+            }
+            else {
+                // we have explicit defined targets here
+
+                if (1 == targetsOfPackage.length) {
+                    pull(targetsOfPackage[0]);  // pull the one and only
+                }
+                else {
+                    // create a virtual "batch" target
+                    // for the underlying "real" targets
+
+                    let virtualPkgName: string;
+                    if (packageName) {
+                        virtualPkgName = i18.t('pull.workspace.virtualTargetNameWithPackage', packageName);
+                    }
+                    else {
+                        virtualPkgName = i18.t('pull.workspace.virtualTargetName');
+                    }
+
+                    let batchTarget: any = {
+                        type: 'batch',
+                        name: virtualPkgName,
+                        targets: targetsOfPackage.map(x => x.name),
+                    };
+
+                    pull(batchTarget);
+                }
+            }
+        };
+
+        if (packageQuickPicks.length > 1) {
+            vscode.window.showQuickPick(packageQuickPicks, {
+                placeHolder: i18.t('pull.workspace.selectPackage'),
+            }).then((item) => {
+                        if (item) {
+                            selectTarget(item.package);
+                        }
+                    });
+        }
+        else {
+            // auto select
+            selectTarget(packageQuickPicks[0].package);
+        }
+    }
+
+    /**
+     * Pulls files of the workspace from a target.
+     * 
+     * @param {string[]} files The files to pull.
+     * @param {deploy_contracts.DeployTarget} target The target from where to pull from.
+     * 
+     * @returns {Promise<boolean>} The promise.
+     */
+    protected pullWorkspaceFrom(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
+        let me = this;
+        let nameOfTarget = deploy_helpers.normalizeString(target.name);
+
+        return new Promise<boolean>((resolve, reject) => {
+            let hasCancelled = false;
+            let completed = (err?: any) => {
+                delete me._WORKSPACE_IN_PROGRESS[nameOfTarget];
+
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(hasCancelled);
+                }
+            };
+
+            me.onCancelling(() => hasCancelled = true);
+
+            let startPulling = () => {
+                try {
+                    let type = deploy_helpers.parseTargetType(target.type);
+
+                    let matchIngPlugins = me.pluginsWithContextes.filter(x => {
+                        return !type ||
+                               (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullWorkspace);
+                    });
+
+                    if (matchIngPlugins.length > 0) {
+                        let pullNextPlugin: () => void;
+                        pullNextPlugin = () => {
+                            if (matchIngPlugins.length < 1) {
+                                completed();
+                                return;
+                            }
+
+                            if (hasCancelled) {
+                                completed();
+                                return;
+                            }
+
+                            let cancelCommand: vscode.Disposable;
+                            let currentPluginWithContext = matchIngPlugins.shift();
+                            let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
+                            let currentPlugin = currentPluginWithContext.plugin;
+                            let statusBarItem: vscode.StatusBarItem;
+
+                            let cleanUps = () => {
+                                deploy_helpers.tryDispose(cancelCommand);
+                                deploy_helpers.tryDispose(statusBarItem);
+                                deploy_helpers.tryDispose(contextToUse);
+                            };
+
+                            try {
+                                statusBarItem = vscode.window.createStatusBarItem(
+                                    vscode.StatusBarAlignment.Left,
+                                );
+                                statusBarItem.color = '#ffffff';
+                                statusBarItem.text = i18.t('pull.button.prepareText');
+                                statusBarItem.tooltip = i18.t('pull.button.tooltip');
+
+                                let cancelCommandName = 'extension.deploy.cancelPullWorkspace' + (nextCancelPullWorkspaceCommandId--);
+                                cancelCommand = vscode.commands.registerCommand(cancelCommandName, () => {
+                                    if (hasCancelled) {
+                                        return;
+                                    }
+
+                                    hasCancelled = true;
+
+                                    try {
+                                        contextToUse.emit(deploy_contracts.EVENT_CANCEL_PULL);
+                                    }
+                                    catch (e) {
+                                        me.log(i18.t('errors.withCategory', 'Deployer.pullWorkspaceFrom().cancel', e));
+                                    }
+
+                                    statusBarItem.text = i18.t('pull.button.cancelling');
+                                    statusBarItem.tooltip = i18.t('pull.button.cancelling');
+                                });
+                                statusBarItem.command = cancelCommandName;
+
+                                let failed: string[] = [];
+                                let succeeded: string[] = [];
+                                let showResult = (err?: any) => {
+                                    try {
+                                        cleanUps();
+
+                                        let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+
+                                        if (err) {
+                                            if (targetExpr) {
+                                                vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithTarget', targetExpr, err));
+                                            }
+                                            else {
+                                                vscode.window.showErrorMessage(i18.t('pull.workspace.failed', err));
+                                            }
+                                        }
+                                        else {
+                                            if (failed.length > 0) {
+                                                if (succeeded.length < 1) {
+                                                    if (targetExpr) {
+                                                        vscode.window.showErrorMessage(i18.t('pull.workspace.allFailedWithTarget', targetExpr, err));
+                                                    }
+                                                    else {
+                                                        vscode.window.showErrorMessage(i18.t('pull.workspace.allFailed', err));
+                                                    }
+                                                }
+                                                else {
+                                                    let allCount = succeeded.length + failed.length;
+                                                    if (targetExpr) {
+                                                        vscode.window.showErrorMessage(i18.t('pull.workspace.someFailedWithTarget', failed.length, allCount
+                                                                                                                                    , targetExpr));
+                                                    }
+                                                    else {
+                                                        vscode.window.showErrorMessage(i18.t('pull.workspace.someFailed', failed.length, allCount));
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                let allCount = succeeded.length;
+                                                if (allCount > 0) {
+                                                    if (deploy_helpers.toBooleanSafe(me.config.showPopupOnSuccess, true)) {
+                                                        if (targetExpr) {
+                                                            vscode.window.showInformationMessage(i18.t('pull.workspace.allSucceededWithTarget', allCount
+                                                                                                                                                , targetExpr));
+                                                        }
+                                                        else {
+                                                            vscode.window.showInformationMessage(i18.t('pull.workspace.allSucceeded', allCount));
+                                                        }
+                                                    }
+                                                }
+                                                else {
+                                                    if (targetExpr) {
+                                                        vscode.window.showWarningMessage(i18.t('pull.workspace.nothingPulledWithTarget', targetExpr));
+                                                    }
+                                                    else {
+                                                        vscode.window.showWarningMessage(i18.t('pull.workspace.nothingPulled'));
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        let resultMsg: string;
+                                        if (err || failed.length > 0) {
+                                            if (hasCancelled) {
+                                                resultMsg = i18.t('pull.canceledWithErrors');
+                                            }
+                                            else {
+                                                resultMsg = i18.t('pull.finishedWithErrors');
+                                            }
+                                        }
+                                        else {
+                                            if (hasCancelled) {
+                                                resultMsg = i18.t('pull.canceled');
+                                            }
+                                            else {
+                                                resultMsg = i18.t('pull.finished2');
+                                            }
+                                        }
+
+                                        if (resultMsg) {
+                                            me.outputChannel.appendLine(resultMsg);
+                                        }
+                                    }
+                                    finally {
+                                        completed(err);
+                                    }
+                                };
+
+                                statusBarItem.show();
+
+                                currentPlugin.pullWorkspace(files, target, {
+                                    context: contextToUse,
+
+                                    onBeforeDeployFile: (sender, e) => {
+                                        let relativePath = deploy_helpers.toRelativePath(e.file);
+                                        if (false === relativePath) {
+                                            relativePath = e.file;
+                                        }
+
+                                        let statusMsg: string;
+
+                                        let destination = deploy_helpers.toStringSafe(e.destination);
+                                        if (destination) {
+                                            statusMsg = i18.t('pull.workspace.statusWithDestination', relativePath, destination);
+                                        }
+                                        else {
+                                            statusMsg = i18.t('pull.workspace.status', relativePath);
+                                        }
+
+                                        statusBarItem.text = i18.t('pull.button.text');
+                                        statusBarItem.tooltip = statusMsg + ` (${i18.t('pull.workspace.clickToCancel')})`;
+
+                                        me.outputChannel.append(statusMsg);
+                                    },
+
+                                    onCompleted: (sender, e) => {
+                                        hasCancelled = hasCancelled || e.canceled;
+                                        showResult(e.error);
+                                    },
+
+                                    onFileCompleted: (sender, e) => {
+                                        if (e.error) {
+                                            me.outputChannel.appendLine(i18.t('failed', e.error));
+
+                                            failed.push(e.file);
+                                        }
+                                        else {
+                                            me.outputChannel.appendLine(i18.t('ok'));
+
+                                            succeeded.push(e.file);
+                                        }
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                cleanUps();
+                
+                                vscode.window.showErrorMessage(i18.t('pull.workspace.failed', e));
+                            }
+                        };
+
+                        pullNextPlugin();
+                    }
+                    else {
+                        if (type) {
+                            vscode.window.showWarningMessage(i18.t('pull.noPluginsForType', type));
+                        }
+                        else {
+                            vscode.window.showWarningMessage(i18.t('pull.noPlugins'));
+                        }
+
+                        completed();
+                    }
+                }
+                catch (e) {
+                    completed(e);
+                }
+            };
+
+            if (deploy_helpers.isNullOrUndefined(me._WORKSPACE_IN_PROGRESS[nameOfTarget])) {
+                me._WORKSPACE_IN_PROGRESS[nameOfTarget] = {
+                    files: files,
+                    target: target,
+                    type: 'pull',
+                };
+
+                startPulling();
+            }
+            else {
+                // there is currently something that is in progress for the target
+
+                // [BUTTON] yes
+                let yesBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                yesBtn.action = () => {
+                    startPulling();
+                };
+                yesBtn.title = i18.t('yes');
+
+                vscode.window
+                      .showWarningMessage(i18.t('pull.workspace.alreadyStarted', target.name),
+                                          yesBtn)
+                      .then((item) => {
+                                if (!item || !item.action) {
+                                    return;
+                                }
+
+                                item.action();
+                            });
+            }
+        });
     }
 
     /**
@@ -3196,23 +3803,93 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Shows the 'after deploy' status bar item based of the current settings.
      * 
      * @param {string} text The text for the item.
-     * @param {string} [color] The custom color to use.
+     * @param {string[]} files The list of all files.
+     * @param {string[]} succeeded The list of succeeded files.
+     * @param {string[]} failed The list of failed files.
      */
-    protected showStatusBarItemAfterDeployment(text: string, color?: string) {
-        if (deploy_helpers.isEmptyString(color)) {
-            color = '#ffffff';
-        }
+    protected showStatusBarItemAfterDeployment(text: string,
+                                               files: string[],
+                                               succeeded: string[], failed: string[]) {
+        let me = this;
+        
+        try {
+            let now = Moment().format('HH:mm:ss');
+            let icon = '';
+            let color = '#ffffff';
+            let suffix = '';
 
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.color = color;
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.text = i18.t('deploy.after.button.text', text);
-        this._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = i18.t('deploy.after.button.tooltip');
+            let fileCount = files.length;
+            let failedCount = failed.length;
+            let succeededCount = succeeded.length;
 
-        let cfg = this.config;
-        if (deploy_helpers.toBooleanSafe(cfg.showDeployResultInStatusBar)) {
-            this._AFTER_DEPLOYMENT_STATUS_ITEM.show();
+            if (succeededCount < 1) {
+                if (failedCount < 1) {
+                    failedCount = fileCount;
+                }
+            }
+
+            if (files.length > 0) {
+                if (1 === files.length) {
+                    suffix = ` (${Path.basename(files[0])})`;
+                }
+                else {
+                    if (failedCount > 0) {
+                        suffix = ` (${failedCount} / {fileCount})`;
+                    }
+                    else {
+                        suffix = ` (${fileCount})`;
+                    }
+                }
+            }
+
+            if (failedCount >= succeededCount) {
+                // all failed
+                icon = '$(flame) ';
+                color = me.getNextAfterDeploymentButtonColor('e');
+            }
+            else {
+                if (failedCount < 1) {
+                    icon = '$(rocket) ';
+                    color = me.getNextAfterDeploymentButtonColor('s');
+                }
+                else {
+                    // at least one failed
+
+                    icon = '$(alert) ';
+                    color = me.getNextAfterDeploymentButtonColor('w');
+                }
+            }
+
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.color = color;
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.text = i18.t('deploy.after.button.text',
+                                                          text, now, icon, suffix);
+            me._AFTER_DEPLOYMENT_STATUS_ITEM.tooltip = i18.t('deploy.after.button.tooltip');
+
+            let cfg = me.config;
+            if (deploy_helpers.toBooleanSafe(cfg.showDeployResultInStatusBar)) {
+                me._AFTER_DEPLOYMENT_STATUS_ITEM.show();
+
+                let hideAfter = parseFloat(deploy_helpers.toStringSafe(cfg.hideDeployResultInStatusBarAfter).trim());
+                if (!isNaN(hideAfter)) {
+                    hideAfter = Math.round(hideAfter);
+                    if (hideAfter >= 0) {
+                        let thisTimer: NodeJS.Timer;
+
+                        me._lastAfterDeploymentButtonDisapearTimeout = thisTimer = setTimeout(() => {
+                            if (thisTimer === me._lastAfterDeploymentButtonDisapearTimeout) {
+                                me._AFTER_DEPLOYMENT_STATUS_ITEM.hide();
+                            }
+                        }, hideAfter * 1000);
+                    }
+                }
+            }
+            else {
+                me.hideAfterDeploymentStatusBarItem();
+            }
         }
-        else {
-            this.hideAfterDeploymentStatusBarItem();
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.showStatusBarItemAfterDeployment()', e));
         }
     }
 }

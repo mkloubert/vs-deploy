@@ -48,6 +48,10 @@ export const DEFAULT_PORT = 23979;
  */
 export const EVENT_CANCEL_DEPLOY = 'deploy.cancel';
 /**
+ * Name of the event to cancel a pull.
+ */
+export const EVENT_CANCEL_PULL = 'pull.cancel';
+/**
  * Name of the event that is raised when
  * configuration has been reloaded.
  */
@@ -340,6 +344,10 @@ export interface DeployCompileOperation extends DeployOperation {
      * The options for the compiler.
      */
     options?: any;
+    /**
+     * Use files that will be deployed / have been deployed as source or not.
+     */
+    useFilesOfDeployment?: boolean;
 }
 
 /**
@@ -395,6 +403,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * Defines an object that contains global values and objects, categorized by its properties.
      */
     globals?: GlobalVariables;
+    /**
+     * The time in seconds the result item in the status bar should disapear.
+     */
+    hideDeployResultInStatusBarAfter?: number;
     /**
      * Deploy host settings.
      */
@@ -633,6 +645,21 @@ export interface DeployContext extends vscode.Disposable, FileDeployer {
     targets: () => DeployTarget[];
 }
 
+
+/**
+ * List of deploy directions.
+ */
+export enum DeployDirection {
+    /**
+     * Deploy (from workspace to target)
+     */
+    Deploy = 1,
+    /**
+     * Pull (From target to workspace)
+     */
+    Pull = 2,
+}
+
 /**
  * Arguments for a deploy event.
  */
@@ -855,6 +882,10 @@ export interface DeployPlugin {
     __type?: string;
 
     /**
+     * Indicates if plugin can pull files or not.
+     */
+    canPull?: boolean;
+    /**
      * Deploys a file.
      * 
      * @param {string} file The path of the local file.
@@ -880,6 +911,22 @@ export interface DeployPlugin {
      * @return {DeployPluginInfo} The plugin info.
      */
     info?: () => DeployPluginInfo;
+    /**
+     * Pulls a file.
+     * 
+     * @param {string} file The path of the local file.
+     * @param {DeployTarget} target The target that contains the file to pull.
+     * @param {DeployFileOptions} [opts] Additional options.
+     */
+    pullFile?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => void;
+    /**
+     * Pulls files of to the workspace.
+     * 
+     * @param {string[]} files The files to pull.
+     * @param {DeployTarget} target The target that contains the files to pull.
+     * @param {DeployWorkspaceOptions} [opts] Additional options.
+     */
+    pullWorkspace?: (files: string[], target: DeployTarget, opts?: DeployWorkspaceOptions) => void;
 }
 
 /**

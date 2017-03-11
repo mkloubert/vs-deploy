@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Deploy: {0}",
+                text: "{2}Deploy: [{1}] {0}{3}",
                 tooltip: "Click here to show output...",
             },
             failed: "Could not invoke 'after deployed' operations: {0}",
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Could not deploy file / folder {0:trim,surround}: {1}',
         },
         finished: 'Finished.',
+        finished2: 'Finished',
         finishedWithErrors: 'Finished with errors!',
         folder: {
             failed: 'Could not deploy folder {0:trim,surround}: {1}',
@@ -110,6 +111,7 @@ export const translation: Translation = {
             nothingDeployed: 'No file deployed!',
             nothingDeployedWithTarget: 'No file deployed to {0:trim,surround}!',
             selectPackage: 'Select a package...',
+            selectTarget: 'Select a target...',
             someFailed: '{0:trim} of the {1:trim} file(s) could not be deployed!',
             someFailedWithTarget: '{0:trim} of the {1:trim} file(s) could not be deployed to {2:trim,surround}!',
             status: 'Deploying {0:trim,surround}... ',
@@ -167,6 +169,7 @@ export const translation: Translation = {
         api: {
             clientErrors: {
                 noPermissions: "No permissions to write!",
+                notFound: 'File not found!',
                 unauthorized: "User is unauthorized!",
                 unknown: "Unknown client error: {0:trim} {2:trim,surround}",
             },
@@ -186,6 +189,7 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Deploys to a DropBox folder.',
+            notFound: 'File not found!',
             unknownResponse: 'Unexpected response {0:trim} ({1:trim}): {2:trim,surround}',
         },
         ftp: {
@@ -237,6 +241,8 @@ export const translation: Translation = {
         zip: {
             description: 'Deploys to a ZIP file',
             fileAlreadyExists: 'File {0:trim,surround} already exists! Try again...',
+            fileNotFound: 'File not found!',
+            noFileFound: "No ZIP files found!",
         }
     },
     popups: {
@@ -244,6 +250,53 @@ export const translation: Translation = {
             message: "You are running new version of 'vs-deploy' ({0:trim})!",
             showChangeLog: 'Show changelog...',
         },
+    },
+    pull: {
+        button: {
+            cancelling: 'Cancelling...',
+            prepareText: 'Preparing pulling...',
+            text: 'Pulling...',
+            tooltip: 'Click here to cancel pulling...',
+        },
+        canceled: 'Canceled.',
+        canceledWithErrors: 'Canceled with errors!',
+        file: {
+            failed: 'Could not pull file {0:trim,surround}: {1}',
+            pulling: 'Pulling file {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Pulling file {0:trim,surround} from {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'File {0:trim,surround} has been successfully pulled.',
+            succeededWithTarget: 'File {0:trim,surround} has been successfully pulled from {1:trim,surround}.',
+        },
+        fileOrFolder: {
+            failed: "Could not pull file / folder {0:trim,surround}: {1}",
+        },
+        finished2: 'Finished',
+        finishedWithErrors: 'Finished with errors!',
+        noPlugins: 'No plugin(s) found!',
+        noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
+        workspace: {
+            allFailed: 'No file could be pulled: {0}',
+            allFailedWithTarget: 'No file could be pulled from {0:trim,surround}: {1}',
+            allSucceeded: 'All {0:trim} file(s) were successfully pulled.',
+            allSucceededWithTarget: 'All {0:trim} file(s) were successfully pulled from {1:trim,surround}.',
+            alreadyStarted: 'You have already started an operation for {0:trim,surround}! Do you really want to start this operation?',
+            clickToCancel: 'click here to cancel',
+            failed: 'Could not pull files: {0}',
+            failedWithCategory: 'Could not pull files ({0:trim}): {1}',
+            failedWithTarget: 'Could not pull files from {0:trim,surround}: {1}',
+            nothingPulled: 'No file pulled!',
+            nothingPulledWithTarget: 'No file pulled from {0:trim,surround}!',
+            pulling: 'Pulling package{0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Pulling package{0:trim,surround,leading_space} from {1:trim,surround}...',
+            selectPackage: 'Select a package...',
+            selectSource: 'Select a source...',
+            someFailed: '{0:trim} of the {1:trim} file(s) could not be pulled!',
+            someFailedWithTarget: '{0:trim} of the {1:trim} file(s) could not be pulled from {2:trim,surround}!',
+            status: 'Pulling {0:trim,surround}... ',
+            statusWithDestination: 'Pulling {0:trim,surround} from {1:trim,surround}... ',
+            virtualTargetName: 'Virtual batch target for current package',
+            virtualTargetNameWithPackage: 'Virtual batch target for package {0:trim,surround}',
+        }
     },
     quickDeploy: {
         caption: 'Quick deploy!',
@@ -260,6 +313,7 @@ export const translation: Translation = {
         noneDefined: "Please define a least one TARGET in your 'settings.json'!",
         notFound: 'Could not find target {0:trim,surround}!',
         select: 'Select the target to deploy to...',
+        selectSource: 'Select the source from where to pull from...',
     },
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',

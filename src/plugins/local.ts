@@ -52,6 +52,10 @@ function getFullDirPathFromTarget(target: DeployTargetLocal): string {
 }
 
 class LocalPlugin extends deploy_objects.DeployPluginBase {
+    public get canPull(): boolean {
+        return true;
+    }
+
     public deployFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
@@ -61,11 +65,11 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let dir = getFullDirPathFromTarget(target);
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     file: file,
                     target: target,
@@ -73,9 +77,9 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+        me.onCancelling(() => hasCancelled = true, opts);
 
-        if (hasCanceled) {
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -144,20 +148,20 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
 
-        let hasCanceled = false;
+        let hasCancelled = false;
         let completed = (err?: any) => {
             if (opts.onCompleted) {
                 opts.onCompleted(me, {
-                    canceled: hasCanceled,
+                    canceled: hasCancelled,
                     error: err,
                     target: target,
                 });
             }
         };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+        me.onCancelling(() => hasCancelled = true, opts);
 
-        if (hasCanceled) {
+        if (hasCancelled) {
             completed();  // cancellation requested
         }
         else {
@@ -191,6 +195,68 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: i18.t('plugins.local.description'),
         };
+    }
+
+    public pullFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions) {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        let dir = getFullDirPathFromTarget(target);
+
+        let hasCancelled = false;
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        me.onCancelling(() => hasCancelled = true, opts);
+
+        if (hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeTargetFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
+
+            let targetFile = Path.join(dir, <string>relativeTargetFilePath);
+            let targetDirectory = Path.dirname(targetFile);
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            FS.readFile(targetFile, (err, data) => {
+                if (err) {
+                    completed(err);
+                }
+                else {
+                    if (hasCancelled) {
+                        completed();  // cancellation requested
+                    }
+                    else {
+                        FS.writeFile(file, data, (err) => {
+                            completed(err);
+                        });
+                    }
+                }
+            });
+        }
     }
 }
 

@@ -34,6 +34,10 @@ interface DeployTargetTest extends deploy_contracts.DeployTarget {
 }
 
 class TestPlugin extends deploy_objects.DeployPluginBase {
+    public get canPull(): boolean {
+        return true;
+    }
+    
     public deployFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
         if (!opts) {
             opts = {};
@@ -93,6 +97,10 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: i18.t('plugins.test.description'),
         };
+    }
+
+    public pullFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
+        this.deployFile(file, target, opts);
     }
 }
 

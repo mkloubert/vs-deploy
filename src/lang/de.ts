@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Bereitstellen: {0}",
+                text: "{2}Bereitstellen: [{1}] {0}{3}",
                 tooltip: "Hier klicken, um die Ausgabe zu öffnen...",
             },
             failed: 'Fehler beim Ausführen der Aufgaben, die NACH dem Bereitstellen ausgeführt werden sollen: {0}',
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Datei bzw. Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
         },
         finished: 'Fertig.',
+        finished2: 'Fertig',
         finishedWithErrors: 'Beendet mit Fehlern!',
         folder: {
             failed: 'Das Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
@@ -112,7 +113,7 @@ export const translation: Translation = {
             selectPackage: 'Wählen Sie ein Paket...',
             selectTarget: 'Wählen Sie ein Ziel...',
             someFailed: '{0:trim} der {1:trim} Datei(en) konnten nicht bereitgestellt werden!',
-            someFailedWithTarget: '{0:trim} der {1:trim} Datei(en) konnte nicht in {2:trim,surround} bereitgestellt werden!',
+            someFailedWithTarget: '{0:trim} der {1:trim} Datei(en) konnten nicht in {2:trim,surround} bereitgestellt werden!',
             status: 'Stelle {0:trim,surround} bereit... ',
             statusWithDestination: 'Stelle {0:trim,surround} in {1:trim,surround} bereit... ',
             virtualTargetName: 'Virtuelles Ziel für aktuelles Paket',
@@ -166,6 +167,7 @@ export const translation: Translation = {
         api: {
             clientErrors: {
                 noPermissions: "Keine Schreibrechte!",
+                notFound: 'Datei nicht gefunden!',
                 unauthorized: "Benutzer hat keinen Zugriff!",
                 unknown: "Unbekannter Clientfehler: {0:trim} {2:trim,surround}",
             },
@@ -185,6 +187,7 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Lädt Dateien in ein DropBox-Verzeichnis.',
+            notFound: 'Datei nicht gefunden!',
             unknownResponse: 'Unerwartete Antwort {0:trim} ({1:trim}): {2:trim,surround}',
         },
         ftp: {
@@ -236,6 +239,8 @@ export const translation: Translation = {
         zip: {
             description: 'Speichert Dateien in eine ZIP-Datei',
             fileAlreadyExists: 'Die Datei {0:trim,surround} existiert bereits! Bitte versuchen Sie es erneut...',
+            fileNotFound: 'Datei nicht gefunden!',
+            noFileFound: "Keine ZIP-Datei gefunden!",
         }
     },
     popups: {
@@ -243,6 +248,53 @@ export const translation: Translation = {
             message: "Sie nutzen die neue Version {0:trim} von 'vs-deploy'!",
             showChangeLog: 'Änderungsprotokoll anzeigen (englisch)...',
         },
+    },
+    pull: {
+        button: {
+            cancelling: 'Breche ab...',
+            prepareText: 'Bereite das Laden vor...',
+            text: 'Lade...',
+            tooltip: 'Hier klicken, um den Vorgang abzubrechen...',
+        },
+        canceled: 'Abgebrochen.',
+        canceledWithErrors: 'Abgebrochen mit Fehlern!',
+        file: {
+            failed: 'Datei {0:trim,surround} konnte nicht geladen werden: {1}',
+            pulling: 'Lade Datei {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Lade Datei {0:trim,surround} von {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'Die Datei {0:trim,surround} wurde erfolgreich geladen.',
+            succeededWithTarget: 'Die Datei {0:trim,surround} wurde erfolgreich von {1:trim,surround} geladen.',
+        },
+        fileOrFolder: {
+            failed: "Datei bzw. Verzeichnis {0:trim,surround} konnte nicht geladen werden: {1}",
+        },
+        finished2: 'Fertig',
+        finishedWithErrors: 'Beendet mit Fehlern!',
+        noPlugins: 'Keine passenden PlugIns gefunden!',
+        noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
+        workspace: {
+            allFailed: 'Keine Datei konnte geladen werden: {0}',
+            allFailedWithTarget: 'Keine Datei konnte von {0:trim,surround} geladen werden: {1}',
+            allSucceeded: 'Alle {0:trim} Datei(en) wurden erfolgreich geladen.',
+            allSucceededWithTarget: 'Alle {0:trim} Datei(en) wurden erfolgreich von {1:trim,surround} geladen.',
+            alreadyStarted: 'Es wurde bereits einen Vorgang für {0:trim,surround} gestartet! Möchten Sie die Aktion wirklich durchführen?',
+            clickToCancel: 'hier klicken, um abzubrechen',
+            failed: 'Das Laden der Dateien schlug fehl: {0}',
+            failedWithCategory: 'Das Laden der Dateien schlug fehl ({0:trim}): {1}',
+            failedWithTarget: 'Das Laden der Dateien von {0:trim,surround} schlug fehl: {1}',
+            nothingPulled: 'Keine Datei geladen!',
+            nothingPulledWithTarget: 'Keine Datei von {0:trim,surround} geladen!',
+            pulling: 'Lade Paket{0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Lade Paket{0:trim,surround,leading_space} von {1:trim,surround}...',
+            selectPackage: 'Wählen Sie ein Paket...',
+            selectSource: 'Wählen Sie eine Quelle...',
+            someFailed: '{0:trim} der {1:trim} Datei(en) konnten nicht geladen werden!',
+            someFailedWithTarget: '{0:trim} der {1:trim} Datei(en) konnten nicht von {2:trim,surround} geladen werden!',
+            status: 'Lade {0:trim,surround}... ',
+            statusWithDestination: 'Lade {0:trim,surround} von {1:trim,surround}... ',
+            virtualTargetName: 'Virtuelles Ziel für aktuelles Paket',
+            virtualTargetNameWithPackage: 'Virtuelles Ziel für Paket {0:trim,surround}',
+        }
     },
     quickDeploy: {
         caption: 'Bereitstellen!',
@@ -259,6 +311,7 @@ export const translation: Translation = {
         noneDefined: "Definieren sie bitte mindestens ein ZIEL in Ihrer 'settings.json'-Datei!",
         notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
         select: 'Bitte wählen Sie ein Ziel aus...',
+        selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
     warnings: {
         withCategory: '[WARNUNG] {0:trim}: {1}',

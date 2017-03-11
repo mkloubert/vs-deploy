@@ -101,6 +101,10 @@ function toDropboxPath(path: string): string {
 
 
 class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxContext> {
+    public get canPull(): boolean {
+        return true;
+    }
+
     protected createContext(target: DeployTargetDropbox,
                             files: string[],
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
@@ -484,6 +488,105 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
         return {
             description: i18.t('plugins.dropbox.description'),
         };
+    }
+
+    protected pullFileWithContext(ctx: DropboxContext,
+                                  file: string, target: DeployTargetDropbox, opts?: deploy_contracts.DeployFileOptions): void {
+        let me = this;
+        
+        let completed = (err?: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
+
+            let targetFile = toDropboxPath(Path.join(ctx.dir, relativeFilePath));
+            let targetDirectory = toDropboxPath(Path.dirname(targetFile));
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            try {
+                let headersToSubmit = {
+                    'Authorization': `Bearer ${ctx.token}`,
+                    'Dropbox-API-Arg': JSON.stringify({
+                        "path": targetFile
+                    }),
+                };
+
+                // start the request
+                let req = HTTPs.request({
+                    headers: headersToSubmit,
+                    host: 'content.dropboxapi.com',
+                    method: 'POST',
+                    path: '/2/files/download',
+                    port: 443,
+                    protocol: 'https:',
+                }, (resp) => {
+                    let err: Error;
+
+                    switch (resp.statusCode) {
+                        case 200:
+                            deploy_helpers.readHttpBody(resp).then((data) => {
+                                if (data) {
+                                    FS.writeFile(file, data, (err) => {
+                                        completed(err);
+                                    });
+                                }
+                                else {
+                                    completed(new Error('No data!'));
+                                }
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                            break;
+
+                        case 404:
+                            // not found
+                            err = new Error(i18.t('plugins.dropbox.notFound'));
+                            break;
+
+                        default:
+                            err = new Error(i18.t('plugins.dropbox.unknownResponse',
+                                                  resp.statusCode, 2, resp.statusMessage));
+                            break;
+                    }
+
+                    completed(err);
+                });
+
+                req.once('error', (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                });
+
+                req.end();
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
     }
 }
 

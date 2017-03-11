@@ -43,7 +43,7 @@ export const translation: Translation = {
     deploy: {
         after: {
             button: {
-                text: "Развёртывание: {0}",
+                text: "{2}Развёртывание: [{1}] {0}{3}",
                 tooltip: "Щелкните здесь, что бы показать окно вывода...",
             },
             failed: "Не могу вызвать 'after deployed' операции: {0}",
@@ -71,6 +71,7 @@ export const translation: Translation = {
             failed: 'Не могу развернуть файл / каталог {0:trim,surround}: {1}',
         },
         finished: 'Завершено.',
+        finished2: 'Завершено',
         finishedWithErrors: 'Завершено с ошибками!',
         folder: {
             failed: 'Не могу развернуть каталог {0:trim,surround}: {1}',
@@ -244,6 +245,23 @@ export const translation: Translation = {
             message: "Запущена новая версия 'vs-deploy' ({0:trim})!",
             showChangeLog: 'Показать список изменений...',
         },
+    },
+    pull: {
+        button: {
+            cancelling: 'Отмена...',
+        },
+        canceled: 'Отменено.',
+        canceledWithErrors: 'Отменено с ошибками!',
+        finished2: 'Завершено',
+        finishedWithErrors: 'Завершено с ошибками!',
+        noPlugins: 'Модули не найдены!',
+        noPluginsForType: 'Не найдено модулей соответствующих {0:trim,surround}!',
+        workspace: {
+            clickToCancel: 'щелкнте здесь для отмены',
+            selectPackage: 'Выберите пакет...',
+            virtualTargetName: 'Виртуальное пакетное назначение для текущего пакета',
+            virtualTargetNameWithPackage: 'Виртуальное пакетное назначение для пакета {0:trim,surround}',
+        }
     },
     quickDeploy: {
         caption: 'Быстрое развёртывание!',

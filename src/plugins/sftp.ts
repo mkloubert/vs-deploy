@@ -50,6 +50,7 @@ interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
     agent?: string;
     agentForward?: boolean;
     tryKeyboard?: boolean;
+    readyTimeout?: number;
 }
 
 interface SFTPContext {
@@ -81,6 +82,10 @@ function toSFTPPath(path: string): string {
 
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext> {
+    public get canPull(): boolean {
+        return true;
+    }
+
     protected createContext(target: DeployTargetSFTP,
                             files: string[],
                             opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<SFTPContext>> {
@@ -198,6 +203,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
             let tryKeyboard = deploy_helpers.toBooleanSafe(target.tryKeyboard);
 
+            let readyTimeout = parseInt(deploy_helpers.toStringSafe(target.readyTimeout).trim());
+            if (isNaN(readyTimeout)) {
+                readyTimeout = undefined;
+            }
+
             try {
                 let privateKey: Buffer;
                 let openConnection = () => {
@@ -244,6 +254,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         agentForward: agentForward,
 
                         tryKeyboard: tryKeyboard,
+
+                        readyTimeout: readyTimeout,
                     }).then(() => {
                         completed(null, conn);
                     }).catch((err) => {
@@ -386,6 +398,80 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
         return {
             description: i18.t('plugins.sftp.description'),
         };
+    }
+
+    protected pullFileWithContext(ctx: SFTPContext,
+                                  file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+
+        let completedInvoked = false;
+        let completed = (err?: any) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: ctx.hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        if (ctx.hasCancelled) {
+            completed();  // cancellation requested
+        }
+        else {
+            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+            if (false === relativeFilePath) {
+                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                return;
+            }
+
+            let dir = getDirFromTarget(target);
+
+            let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
+            let targetDirectory = toSFTPPath(Path.dirname(targetFile));
+
+            if (opts.onBeforeDeploy) {
+                opts.onBeforeDeploy(me, {
+                    destination: targetDirectory,
+                    file: file,
+                    target: target,
+                });
+            }
+
+            ctx.connection.get(targetFile).then((data: NodeJS.ReadableStream) => {
+                if (data) {
+                    try {
+                        data.once('error', (err) => {;
+                            completed(err);
+                        });
+
+                        data.once('end', () => {
+                            completed();
+                        });
+
+                        let pipe = data.pipe(FS.createWriteStream(file));
+
+                        pipe.once('error', (err) => {;
+                            completed(err);
+                        });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                }
+                else {
+                    completed(new Error("No data!"));  //TODO
+                }
+            }).catch((err) => {
+                completed(err);
+            });
+        }
     }
 }
 
