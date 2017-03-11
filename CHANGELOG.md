@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 6.1.0 (March 11th, 2017; russian translation)
+
+* [sag3ll0](https://github.com/sag3ll0) updated russian translation
+
 ## 6.0.0 (March 11th, 2017; Pull / download files)
 
 Today there is a new big major release that supports pulling / downloading files from the following targets:
