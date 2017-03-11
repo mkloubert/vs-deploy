@@ -793,7 +793,9 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
  */
 export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBase<any> {
     /** @inheritdoc */
-    protected createContext(target: deploy_contracts.DeployTarget): Promise<DeployPluginContextWrapper<any>> {
+    protected createContext(target: deploy_contracts.DeployTarget,
+                            files: string[], opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
+                            direction: deploy_contracts.DeployDirection): Promise<DeployPluginContextWrapper<any>> {
         let me = this;
 
         let funcArgs = arguments;
@@ -803,10 +805,13 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                 me.createZipFile.apply(me, funcArgs).then((zipFile) => {
                     let wrapper: DeployPluginContextWrapper<any> = {
                         context: zipFile,
-                        destroy: (): Promise<any> => {
-                            return me.deployZipFile(zipFile, target);
-                        },
                     };
+
+                    if (deploy_contracts.DeployDirection.Deploy == direction) {
+                        wrapper.destroy = () => {
+                            return me.deployZipFile(zipFile, target);
+                        };
+                    }
 
                     resolve(wrapper);
                 }, (err) => {
