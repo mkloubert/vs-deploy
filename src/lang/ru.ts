@@ -102,7 +102,7 @@ export const translation: Translation = {
             allSucceeded: 'Все {0:trim} файл(ы) были успешно развёрнуты.',
             allSucceededWithTarget: 'Все {0:trim} файлы были успешно развёрнуты в {1:trim,surround}.',
             alreadyStarted: 'Вы уже начали развертывание в {0:trim,surround}! Вы действительно хотите начать эту операцию?',
-            clickToCancel: 'щелкнте здесь для отмены',
+            clickToCancel: 'щелкните здесь для отмены',
             deploying: 'Развёртывание пакета {0:trim,surround,leading_space}...',
             deployingWithTarget: 'Развёртывание пакета {0:trim,surround,leading_space} в {1:trim,surround}...',
             failed: 'Не могу развернуть файлы: {0}',
@@ -111,6 +111,7 @@ export const translation: Translation = {
             nothingDeployed: 'Файлы для развёртывания не найдены!',
             nothingDeployedWithTarget: 'Файлы для развёртывания в {0:trim,surround} не найдены!',
             selectPackage: 'Выберите пакет...',
+            selectTarget: 'Выберите назначение...',
             someFailed: '{0:trim} из {1:trim} файлов не могут быть развернуты!',
             someFailedWithTarget: '{0:trim} из {1:trim} файлов не могут быть развернуты в {2:trim,surround}!',
             status: 'Развёртывание {0:trim,surround}... ',
@@ -168,6 +169,7 @@ export const translation: Translation = {
         api: {
             clientErrors: {
                 noPermissions: "Не хватает прав для записи!",
+                notFound: 'Файл не найден!',
                 unauthorized: "Пользователь не авторизован!",
                 unknown: "Неизвестная ошибка клиента: {0:trim} {2:trim,surround}",
             },
@@ -187,6 +189,7 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Разворачивает в DropBox каталог.',
+            notFound: 'Файл не найден!',
             unknownResponse: 'Необжиданный ответ {0:trim} ({1:trim}): {2:trim,surround}',
         },
         ftp: {
@@ -238,6 +241,8 @@ export const translation: Translation = {
         zip: {
             description: 'Разворачивает в ZIP-архив',
             fileAlreadyExists: 'Файл {0:trim,surround} уже существует! Попробуйте снова...',
+            fileNotFound: 'Файл не найден!',
+            noFileFound: "Не найдены файлы ZIP архивов!",
         }
     },
     popups: {
@@ -249,16 +254,46 @@ export const translation: Translation = {
     pull: {
         button: {
             cancelling: 'Отмена...',
+            prepareText: 'Подготовка стягивания(pulling)...',
+            text: 'Стягивание(Pulling)...',
+            tooltip: 'Щелкните здесь что бы отменить стягивание(pulling)...',
         },
         canceled: 'Отменено.',
         canceledWithErrors: 'Отменено с ошибками!',
+        file: {
+            failed: 'Не могу стянуть(pull) файл {0:trim,surround}: {1}',
+            pulling: 'Стягивание(Pulling) файла {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Стягивание(Pulling) файла {0:trim,surround} из {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'Файл {0:trim,surround} был успешно стянут(pulled).',
+            succeededWithTarget: 'Файл {0:trim,surround} был успешно стянут(pulled) из {1:trim,surround}.',
+        },
+        fileOrFolder: {
+            failed: "Не могу стянуть(pull) файл / каталог {0:trim,surround}: {1}",
+        },
         finished2: 'Завершено',
         finishedWithErrors: 'Завершено с ошибками!',
         noPlugins: 'Модули не найдены!',
         noPluginsForType: 'Не найдено модулей соответствующих {0:trim,surround}!',
         workspace: {
-            clickToCancel: 'щелкнте здесь для отмены',
+            allFailed: 'Не удалось стянуть(pull) ни один из файлов: {0}',
+            allFailedWithTarget: 'Не удалось стянуть(pull) ни один из файлов из {0:trim,surround}: {1}',
+            allSucceeded: 'Все {0:trim} файл(ы) были успешно стянуты(pulled).',
+            allSucceededWithTarget: 'Все {0:trim} файл(ы) были успешно стянуты(pulled) из {1:trim,surround}.',
+            alreadyStarted: 'Вы уже начали процедуру {0:trim,surround}! Вы действительно хотите начать эту процедуру?',
+            clickToCancel: 'щелкните здесь для отмены',
+            failed: 'Не могу стянуть(pull) файлы: {0}',
+            failedWithCategory: 'Не могу стянуть(pull) файлы ({0:trim}): {1}',
+            failedWithTarget: 'Не могу стянуть(pull) файлы из {0:trim,surround}: {1}',
+            nothingPulled: 'Нет файлов для стягивания(pulled)!',
+            nothingPulledWithTarget: 'Нет файлов для стягивания(pulled) из {0:trim,surround}!',
+            pulling: 'Pulling package{0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Стягивание(Pulling) пакета{0:trim,surround,leading_space} из {1:trim,surround}...',
             selectPackage: 'Выберите пакет...',
+            selectSource: 'Выберите источник...',
+            someFailed: '{0:trim} из {1:trim} файла(ов) не может быть стянуто(pulled)!',
+            someFailedWithTarget: '{0:trim} из {1:trim} файла(ов) не может быть стянуто(pulled) из {2:trim,surround}!',
+            status: 'Стягивание(Pulling) {0:trim,surround}... ',
+            statusWithDestination: 'Стягивание(Pulling) {0:trim,surround} из {1:trim,surround}... ',
             virtualTargetName: 'Виртуальное пакетное назначение для текущего пакета',
             virtualTargetNameWithPackage: 'Виртуальное пакетное назначение для пакета {0:trim,surround}',
         }
@@ -278,6 +313,7 @@ export const translation: Translation = {
         noneDefined: "Пожалуйста, определите по крайней мере одно назначение(TARGET) в вашем 'settings.json'!",
         notFound: 'Не могу найти назначение {0:trim,surround}!',
         select: 'Выберите назначение для развёртывания...',
+        selectSource: 'Укажите источник откуда следует выполнить стягивание(pull)...',
     },
     warnings: {
         withCategory: '[ВНИМАНИЕ] {0:trim}: {1}',
