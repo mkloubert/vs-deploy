@@ -12,20 +12,20 @@ The extension supports the following destination types:
 
 | Type | Supports download / pull? |
 | ---- |:--:|
-| [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) | :heavy_check_mark: |
+| [Amazon AWS S3 buckets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket) | X |
 | [Apps / executables / scripts (bash, batch, e.g.)](https://github.com/mkloubert/vs-deploy/wiki/target_app) | |
-| [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) | :heavy_check_mark: |
-| [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox) | :heavy_check_mark: |
-| [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) | :heavy_check_mark: |
-| [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) | :heavy_check_mark: |
+| [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) | X |
+| [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox) | X |
+| [External Node.js based scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) | X |
+| [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) | X |
 | [HTTP(s)](https://github.com/mkloubert/vs-deploy/wiki/target_http) | |
-| [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local) | :heavy_check_mark: |
+| [Local or shared network folders inside a LAN](https://github.com/mkloubert/vs-deploy/wiki/target_local) | X |
 | [Mail (SMTP)](https://github.com/mkloubert/vs-deploy/wiki/target_mail) | |
 | [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote) | |
-| [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | :heavy_check_mark: |
-| [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | :heavy_check_mark: |
+| [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | X |
+| [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | X |
 | [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) | |
-| [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | :heavy_check_mark: |
+| [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | X |
 
 There is also build-in support for the following [compilers and processors](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-):
 
