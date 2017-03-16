@@ -196,6 +196,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                                              this.onConfigReloaded);
     }
 
+    /** @inheritdoc */
+    public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+        throw new Error("Not implemented!");
+    }
+
     /**
      * Registers for a callback for a 'cancel' event that is called once.
      * 
@@ -232,21 +237,75 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
             opts = {};
         }
         
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: null,
-                file: file,
-                target: target,
-            });
-        }
+        let hasCancelled = false;
+        let completed = (err: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
 
-        if (opts) {
-            opts.onCompleted(me, {
-                canceled: me.context.isCancelling(),
-                error: new Error("Not implemented!"),
-                file: file,
-                target: target,
-            });
+        let downloadCompleted = (downloadedData: Buffer) => {
+            try {
+                if (!downloadedData) {
+                    downloadedData = Buffer.alloc(0);
+                }
+
+                if (hasCancelled) {
+                    completed(null);
+                }
+                else {
+                    FS.writeFile(file, downloadedData, (err) => {
+                        completed(err);
+                    });
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        };
+
+        me.onCancelling(() => hasCancelled = true);
+
+        if (hasCancelled) {
+            completed(null);
+        }
+        else {
+            try {
+                let result = this.downloadFile(file, target, {
+                    baseDirectory: opts.baseDirectory,
+                    context: opts.context,
+                    onBeforeDeploy: opts.onBeforeDeploy,
+                });
+
+                if (result) {
+                    if (hasCancelled) {
+                        completed(null);
+                    }
+                    else {
+                        if (Buffer.isBuffer(result)) {
+                            downloadCompleted(result);
+                        }
+                        else {
+                            result.then((d) => {
+                                downloadCompleted(d);
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                    }
+                }
+                else {
+                    downloadCompleted(null);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 
@@ -343,6 +402,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 }
 
+//TODO: check
 /**
  * A basic deploy plugin that is specially based on multi
  * file operations (s. deployWorkspace() method).
@@ -621,8 +681,17 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         }
     }
 
-    /** @inheritdoc */
-    public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+    
+    /**
+     * Downloads a file by using a context.
+     * 
+     * @param {TContext} ctx The context to use.
+     * @param {string} file The path of the local file.
+     * @param {DeployTarget} target The target.
+     * @param {DeployFileOptions} [opts] Additional options.
+     */
+    protected downloadFileWithContext(ctx: TContext,
+                                      file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
         throw new Error("Not implemented!");
     }
 
@@ -636,29 +705,81 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      */
     protected pullFileWithContext(ctx: TContext,
                                   file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions) {
+        let me = this;
+        
         if (!opts) {
             opts = {};
         }
+        
+        let hasCancelled = false;
+        let completed = (err: any) => {
+            if (opts.onCompleted) {
+                opts.onCompleted(me, {
+                    canceled: hasCancelled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
 
-        let me = this;
+        let downloadCompleted = (downloadedData: Buffer) => {
+            try {
+                if (!downloadedData) {
+                    downloadedData = Buffer.alloc(0);
+                }
 
-        let hasCancelled = me.context.isCancelling();
+                if (hasCancelled) {
+                    completed(null);
+                }
+                else {
+                    FS.writeFile(file, downloadedData, (err) => {
+                        completed(err);
+                    });
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        };
 
-        if (opts.onBeforeDeploy) {
-            opts.onBeforeDeploy(me, {
-                destination: null,
-                file: file,
-                target: target,
-            });
+        me.onCancelling(() => hasCancelled = true);
+
+        if (hasCancelled) {
+            completed(null);
         }
+        else {
+            try {
+                let result = this.downloadFileWithContext(ctx, file, target, {
+                    baseDirectory: opts.baseDirectory,
+                    context: opts.context,
+                    onBeforeDeploy: opts.onBeforeDeploy,
+                });
 
-        if (opts.onCompleted) {
-            opts.onCompleted(me, {
-                canceled: hasCancelled,
-                error: new Error("Not implemented!"),
-                file: file,
-                target: target,
-            });
+                if (result) {
+                    if (hasCancelled) {
+                        completed(null);
+                    }
+                    else {
+                        if (Buffer.isBuffer(result)) {
+                            downloadCompleted(result);
+                        }
+                        else {
+                            result.then((d) => {
+                                downloadCompleted(d);
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                    }
+                }
+                else {
+                    downloadCompleted(null);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
         }
     }
 
@@ -931,8 +1052,8 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
     protected abstract deployZipFile(zipFile: any, target: deploy_contracts.DeployTarget): Promise<any>;
 
     /** @inheritdoc */
-    protected pullFileWithContext(zipFile: any,
-                                  file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): void {
+    protected downloadFileWithContext(zipFile: any,
+                                      file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
         if (!opts) {
             opts = {};
         }
@@ -940,36 +1061,26 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let me = this;
 
         let hasCancelled = false;
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
+        let result: Buffer = null;
 
-        hasCancelled = me.context.isCancelling();
-        if (hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativePath) {
-                relativePath = file;
-            }
+        me.onCancelling(() => hasCancelled = true);
 
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: `zip://${relativePath}`,
-                    file: file,
-                    target: target,
-                });
-            }
+        let err: any;
+        try {
+            if (!hasCancelled) {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    relativePath = file;
+                }
 
-            try {
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: `zip://${relativePath}`,
+                        file: file,
+                        target: target,
+                    });
+                }
+
                 let zipEntry = (<string>relativePath).trim();
                 while (0 === zipEntry.indexOf('/')) {
                     zipEntry = zipEntry.substr(1);
@@ -978,25 +1089,38 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                 if (zipFile.files && zipFile.files[zipEntry]) {
                     let f = zipFile.files[zipEntry];
                     if (f) {
-                        let buff: Buffer = f.asNodeBuffer();
-                        if (buff) {
-                            FS.writeFile(file, buff, (err) => {
-                                completed(err);
-                            });
+                        result = f.asNodeBuffer();
+                        if (!result) {
+                            throw new Error('No data!');  //TODO
                         }
-                        else {
-                            completed(new Error('No data!'));  //TODO
-                        }
+                    }
+                    else {
+                        throw i18.t('plugins.zip.fileNotFound');
                     }
                 }
                 else {
-                    completed(i18.t('plugins.zip.fileNotFound'));
+                    throw i18.t('plugins.zip.fileNotFound');
                 }
             }
-            catch (e) {
-                completed(e);
-            }
         }
+        catch (e) {
+            err = e;
+        }
+
+        if (opts.onCompleted) {
+            opts.onCompleted(me, {
+                canceled: hasCancelled,
+                error: err,
+                file: file,
+                target: target,
+            });
+        }
+        
+        if (err) {
+            throw err;
+        }
+
+        return result;
     }
 }
 
@@ -1387,11 +1511,6 @@ export class SimplePopupButton implements deploy_contracts.PopupButton {
 
     /** @inheritdoc */
     public toString(): string {
-        let t = this._title;
-        if (t) {
-            return t;
-        }
-
-        return 'SimplePopupButton';
+        return this._title || 'SimplePopupButton';
     }
 }

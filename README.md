@@ -298,6 +298,7 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
+| `Deploy: Compare files` | Compares a local file with a remote one. | `CTRL+ALT+P, C` |
 | `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
 | `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
 | `Deploy: Pull current file / folder` | Pulls the current opened file. | `CTRL+ALT+P, F` |
