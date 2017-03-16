@@ -494,15 +494,15 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                     };
 
                                     try {
-                                        data.once('end', () => {
-                                            downloadCompleted(null);
-                                        });
-
                                         // copy to temp file
                                         let pipe = data.pipe(FS.createWriteStream(tmpFile));
 
                                         pipe.once('error', (err) => {;
                                             downloadCompleted(err);
+                                        });
+
+                                        data.once('end', () => {
+                                            downloadCompleted(null);
                                         });
                                     }
                                     catch (e) {

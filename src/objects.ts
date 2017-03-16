@@ -402,7 +402,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 }
 
-//TODO: check
+
 /**
  * A basic deploy plugin that is specially based on multi
  * file operations (s. deployWorkspace() method).
@@ -681,6 +681,81 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         }
     }
 
+    /** @inheritdoc */
+    public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+        if (!opts) {
+            opts = {};
+        }
+        
+        let me = this;
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = (err: any, data?: Buffer) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
+
+            // destroy context before raise
+            // "completed" event
+            let destroyContext = (wrapper: DeployPluginContextWrapper<TContext>,
+                                  completedErr: any, data?: Buffer) => {
+                try {
+                    if (wrapper.destroy) {
+                        // destroy context
+
+                        wrapper.destroy().then(() => {
+                            completed(completedErr, data);
+                        }).catch((e) => {
+                            me.context.log(i18.t('errors.withCategory',
+                                                 'DeployPluginWithContextBase.downloadFile(2)', e));
+
+                            completed(completedErr, data);
+                        });
+                    }
+                    else {
+                        completed(completedErr, data);
+                    }
+                }
+                catch (e) {
+                    me.context.log(i18.t('errors.withCategory',
+                                         'DeployPluginWithContextBase.downloadFile(1)', e));
+
+                    completed(completedErr, data);
+                }
+            };
+
+            // create context...
+            me.createContext(target, [ file ], opts, deploy_contracts.DeployDirection.Pull).then((wrapper) => {
+                try {
+                    let result = me.downloadFileWithContext(wrapper.context, file, target, opts);
+                    if (result) {
+                        if (Buffer.isBuffer(result)) {
+                            destroyContext(wrapper, null, result);
+                        }
+                        else {
+                            result.then((data) => {
+                                destroyContext(wrapper, null, data);
+                            }).catch((err) => {
+                                destroyContext(wrapper, err);
+                            });
+                        }
+                    }
+                    else {
+                        destroyContext(wrapper, null);
+                    }
+                }
+                catch (e) {
+                    destroyContext(wrapper, e);
+                }
+            }).catch((err) => {
+                completed(err);
+            });
+        });
+    }
     
     /**
      * Downloads a file by using a context.
