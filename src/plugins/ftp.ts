@@ -298,14 +298,14 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 }
 
                 try {
-                    ctx.connection.get(targetFile, (err, data) => {
+                    ctx.connection.get(targetFile, (err, stream) => {
                         try {
                             if (err) {
                                 completed(err);
                             }
                             else {
-                                if (data) {
-                                    data.once('error', (err) => {;
+                                if (stream) {
+                                    stream.once('error', (err) => {;
                                         completed(err);
                                     });
 
@@ -350,14 +350,14 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
 
                                             try {
                                                 // copy to temp file
-                                                let pipe = data.pipe(FS.createWriteStream(tmpFile));
+                                                stream.pipe(FS.createWriteStream(tmpFile));
 
-                                                pipe.once('error', (err) => {;
-                                                    downloadCompleted(err);
+                                                stream.once('end', () => {
+                                                    downloadCompleted(null);
                                                 });
 
-                                                data.once('end', () => {
-                                                    downloadCompleted(null);
+                                                stream.once('close', () => {
+                                                    ctx.connection.end();
                                                 });
                                             }
                                             catch (e) {
