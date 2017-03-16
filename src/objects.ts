@@ -729,7 +729,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
             };
 
             // create context...
-            me.createContext(target, [ file ], opts, deploy_contracts.DeployDirection.Pull).then((wrapper) => {
+            me.createContext(target, [ file ], opts, deploy_contracts.DeployDirection.Download).then((wrapper) => {
                 try {
                     let result = me.downloadFileWithContext(wrapper.context, file, target, opts);
                     if (result) {

@@ -658,6 +658,10 @@ export enum DeployDirection {
      * Pull (From target to workspace)
      */
     Pull = 2,
+    /**
+     * Download from target
+     */
+    Download = 3,
 }
 
 /**
