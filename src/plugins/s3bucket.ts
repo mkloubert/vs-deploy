@@ -235,75 +235,82 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         }
     }
 
-    public info(): deploy_contracts.DeployPluginInfo {
-        return {
-            description: i18.t('plugins.s3bucket.description'),
-        };
-    }
-
-    protected pullFileWithContext(ctx: S3Context,
-                                  file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): void {
+    protected downloadFileWithContext(ctx: S3Context,
+                                      file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         let me = this;
 
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: ctx.hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
-
-        if (ctx.hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            try {
-                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-                if (false === relativePath) {
-                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                    return;
-                }
-
-                // remove leading '/' chars
-                let bucketKey = relativePath;
-                while (0 == bucketKey.indexOf('/')) {
-                    bucketKey = bucketKey.substr(1);
-                }
-                bucketKey = ctx.dir + bucketKey;
-                while (0 == bucketKey.indexOf('/')) {
-                    bucketKey = bucketKey.substr(1);
-                }
-
-                if (opts.onBeforeDeploy) {
-                    opts.onBeforeDeploy(me, {
-                        destination: bucketKey,
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = (err: any, data?: Buffer) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: ctx.hasCancelled,
+                        error: err,
                         file: file,
                         target: target,
                     });
                 }
 
-                let params: any = {
-                    Key: bucketKey,
-                };
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
 
-                ctx.connection.getObject(params, (err, data) => {
-                    if (err) {
-                        completed(err);
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                try {
+                    let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                    if (false === relativePath) {
+                        completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                        return;
                     }
-                    else {
-                        FS.writeFile(file, data.Body, (err) => {
-                            completed(err);
+
+                    // remove leading '/' chars
+                    let bucketKey = relativePath;
+                    while (0 == bucketKey.indexOf('/')) {
+                        bucketKey = bucketKey.substr(1);
+                    }
+                    bucketKey = ctx.dir + bucketKey;
+                    while (0 == bucketKey.indexOf('/')) {
+                        bucketKey = bucketKey.substr(1);
+                    }
+
+                    if (opts.onBeforeDeploy) {
+                        opts.onBeforeDeploy(me, {
+                            destination: bucketKey,
+                            file: file,
+                            target: target,
                         });
                     }
-                });
+
+                    let params: any = {
+                        Key: bucketKey,
+                    };
+
+                    ctx.connection.getObject(params, (err, data) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            completed(null, <any>data.Body);
+                        }
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
             }
-            catch (e) {
-                completed(e);
-            }
-        }
+        });
+    }
+    
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: i18.t('plugins.s3bucket.description'),
+        };
     }
 }
 
