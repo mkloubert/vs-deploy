@@ -195,6 +195,10 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
     
     /** @inheritdoc */
     public downloadFile(file: string, target: DeployTargeApi, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
+        if (!opts) {
+            opts = {};
+        }
+        
         let me = this;
         
         return new Promise<Buffer>((resolve, reject) => {
