@@ -30,6 +30,7 @@ import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Path from 'path';
 const SFTP = require('ssh2-sftp-client');
+import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 
 
@@ -394,84 +395,140 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
         }
     }
 
+    protected downloadFileWithContext(ctx: SFTPContext,
+                                      file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
+        let me = this;
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completedInvoked = false;
+            let completed = (err: any, data?: Buffer) => {
+                if (completedInvoked) {
+                    return;
+                }
+
+                completedInvoked = true;
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: ctx.hasCancelled,
+                        error: err,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
+
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativeFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                let dir = getDirFromTarget(target);
+
+                let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
+                let targetDirectory = toSFTPPath(Path.dirname(targetFile));
+
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: targetDirectory,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                ctx.connection.get(targetFile).then((data: NodeJS.ReadableStream) => {
+                    if (data) {
+                        try {
+                            data.once('error', (err) => {;
+                                completed(err);
+                            });
+
+                            TMP.tmpName({
+                                keep: true,
+                            }, (err, tmpFile) => {
+                                if (err) {
+                                    completed(err);
+                                }
+                                else {
+                                    let deleteTempFile = (err: any, data?: Buffer) => {
+                                        // delete temp file ...
+                                        FS.exists(tmpFile, (exists) => {
+                                            if (exists) {
+                                                // ... if exist
+
+                                                FS.unlink(tmpFile, () => {
+                                                    completed(err, data);
+                                                });
+                                            }
+                                            else {
+                                                completed(err, data);
+                                            }
+                                        });
+                                    };
+
+                                    let downloadCompleted = (err: any) => {
+                                        if (err) {
+                                            deleteTempFile(err);
+                                        }
+                                        else {
+                                            FS.readFile(tmpFile, (err, data) => {
+                                                if (err) {
+                                                    deleteTempFile(err);
+                                                }
+                                                else {
+                                                    deleteTempFile(null, data);
+                                                }
+                                            });
+                                        }
+                                    };
+
+                                    try {
+                                        data.once('end', () => {
+                                            downloadCompleted(null);
+                                        });
+
+                                        // copy to temp file
+                                        let pipe = data.pipe(FS.createWriteStream(tmpFile));
+
+                                        pipe.once('error', (err) => {;
+                                            downloadCompleted(err);
+                                        });
+                                    }
+                                    catch (e) {
+                                        downloadCompleted(e);
+                                    }
+                                }
+                            });
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    }
+                    else {
+                        completed(new Error("No data!"));  //TODO
+                    }
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
+        });
+    }
+
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: i18.t('plugins.sftp.description'),
         };
-    }
-
-    protected pullFileWithContext(ctx: SFTPContext,
-                                  file: string, target: DeployTargetSFTP, opts?: deploy_contracts.DeployFileOptions) {
-        let me = this;
-
-        let completedInvoked = false;
-        let completed = (err?: any) => {
-            if (completedInvoked) {
-                return;
-            }
-
-            completedInvoked = true;
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: ctx.hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
-
-        if (ctx.hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativeFilePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
-
-            let dir = getDirFromTarget(target);
-
-            let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
-            let targetDirectory = toSFTPPath(Path.dirname(targetFile));
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: targetDirectory,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            ctx.connection.get(targetFile).then((data: NodeJS.ReadableStream) => {
-                if (data) {
-                    try {
-                        data.once('error', (err) => {;
-                            completed(err);
-                        });
-
-                        data.once('end', () => {
-                            completed();
-                        });
-
-                        let pipe = data.pipe(FS.createWriteStream(file));
-
-                        pipe.once('error', (err) => {;
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                }
-                else {
-                    completed(new Error("No data!"));  //TODO
-                }
-            }).catch((err) => {
-                completed(err);
-            });
-        }
     }
 }
 
