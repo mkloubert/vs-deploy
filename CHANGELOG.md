@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 6.2.0 (March 16th, 2017; compare files)
+
+* can compare local files with remote ones in a diff window now
+
 ## 6.1.0 (March 11th, 2017; russian translation)
 
 * [sag3ll0](https://github.com/sag3ll0) updated russian translation
