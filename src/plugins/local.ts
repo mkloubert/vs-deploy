@@ -191,72 +191,75 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         }
     }
 
-    public info(): deploy_contracts.DeployPluginInfo {
-        return {
-            description: i18.t('plugins.local.description'),
-        };
-    }
-
-    public pullFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions) {
+    
+    public downloadFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         if (!opts) {
             opts = {};
         }
 
         let me = this;
 
-        let dir = getFullDirPathFromTarget(target);
+        return new Promise<Buffer>((resolve, reject) => {
+            let dir = getFullDirPathFromTarget(target);
 
-        let hasCancelled = false;
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
+            let hasCancelled = false;
+            let completed = (err: any, data?: Buffer) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: hasCancelled,
+                        error: err,
+                        file: file,
+                        target: target,
+                    });
+                }
 
-        me.onCancelling(() => hasCancelled = true, opts);
-
-        if (hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativeTargetFilePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
-
-            let targetFile = Path.join(dir, <string>relativeTargetFilePath);
-            let targetDirectory = Path.dirname(targetFile);
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: targetDirectory,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            FS.readFile(targetFile, (err, data) => {
                 if (err) {
-                    completed(err);
+                    reject(err);
                 }
                 else {
-                    if (hasCancelled) {
-                        completed();  // cancellation requested
+                    resolve(data);
+                }
+            };
+
+            me.onCancelling(() => hasCancelled = true, opts);
+
+            if (hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativeTargetFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                let targetFile = Path.join(dir, <string>relativeTargetFilePath);
+                let targetDirectory = Path.dirname(targetFile);
+
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: targetDirectory,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                FS.readFile(targetFile, (err, data) => {
+                    if (err) {
+                        completed(err);
                     }
                     else {
-                        FS.writeFile(file, data, (err) => {
-                            completed(err);
-                        });
+                        completed(null, data);
                     }
-                }
-            });
-        }
+                });
+            }
+        });
+    }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: i18.t('plugins.local.description'),
+        };
     }
 }
 
