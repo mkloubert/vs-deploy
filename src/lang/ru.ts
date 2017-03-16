@@ -40,6 +40,12 @@ export const translation: Translation = {
     commands: {
         executionFailed: "Выполнение команды {0:trim,surround} не удалось: {1}",
     },
+    compare: {
+        failed: 'Не могу стянуть(pull) файл {0:trim,surround}: {1}',
+        noPlugins: 'Модули не найдены!',
+        noPluginsForType: 'Не найдено модулей соответствующих {0:trim,surround}!',
+        selectSource: 'Укажите источник откуда следует выполнить стягивание(pull)...',
+    },
     deploy: {
         after: {
             button: {

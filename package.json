@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -26,6 +26,10 @@
     "menus": {
       "editor/title": [
         {
+          "command": "extension.deploy.compareFiles",
+          "group": "deploy"
+        },
+        {
           "command": "extension.deploy.file",
           "group": "deploy"
         },
@@ -36,6 +40,10 @@
       ],
       "editor/context": [
         {
+          "command": "extension.deploy.compareFiles",
+          "group": "deploy"
+        },
+        {
           "command": "extension.deploy.file",
           "group": "deploy"
         },
@@ -45,6 +53,10 @@
         }
       ],
       "explorer/context": [
+        {
+          "command": "extension.deploy.compareFiles",
+          "group": "deploy"
+        },
         {
           "command": "extension.deploy.file",
           "group": "deploy"
@@ -59,6 +71,11 @@
       {
         "command": "extension.deploy",
         "title": "Deploy workspace",
+        "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.compareFiles",
+        "title": "Compare files",
         "category": "Deploy"
       },
       {
@@ -87,6 +104,11 @@
         "command": "extension.deploy",
         "key": "ctrl+alt+w",
         "mac": "cmd+alt+w"
+      },
+      {
+        "command": "extension.deploy.compareFiles",
+        "key": "ctrl+alt+p c",
+        "mac": "cmd+alt+p c"
       },
       {
         "command": "extension.deploy.file",
@@ -17524,11 +17546,12 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "@types/tmp": "0.0.32",
+    "mocha": "^2.3.3",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
   },
   "icon": "icon.png",
   "author": {
@@ -17560,6 +17583,7 @@
     "nodemailer": "^2.7.0",
     "pug": "^2.0.0-beta11",
     "ssh2-sftp-client": "^1.0.5",
+    "tmp": "0.0.31",
     "typescript": "^2.1.5",
     "uglify-js": "^2.7.5"
   }

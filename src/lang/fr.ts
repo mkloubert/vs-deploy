@@ -40,6 +40,10 @@ export const translation: Translation = {
     commands: {
         executionFailed: "L'exécution de la commande {0:trim,surround} a échoué: {1}",
     },
+    compare: {
+        noPlugins: 'Aucun plugin trouvé!',
+        noPluginsForType: 'Aucun plugin correspondant pour {0:trim,surround}!',
+    },
     deploy: {
         after: {
             button: {

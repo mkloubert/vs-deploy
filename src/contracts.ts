@@ -906,6 +906,16 @@ export interface DeployPlugin {
      */
     dispose?: () => void;
     /**
+     * Downloads a file from target.
+     * 
+     * @param {string} file The file to download.
+     * @param {DeployTarget} target The source from where to download the file from.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {Promise<Buffer>} The promise.
+     */
+    downloadFile?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => Promise<Buffer> | Buffer;
+    /**
      * Return information of the plugin.
      * 
      * @return {DeployPluginInfo} The plugin info.

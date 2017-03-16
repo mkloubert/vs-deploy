@@ -40,6 +40,12 @@ export const translation: Translation = {
     commands: {
         executionFailed: "Die Ausführung des Kommandos {0:trim,surround} Schlug fehl: {1}",
     },
+    compare: {
+        failed: 'Datei {0:trim,surround} konnte nicht geladen werden: {1}',
+        noPlugins: 'Keine passenden PlugIns gefunden!',
+        noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
+        selectSource: 'Bitte wählen Sie eine Quelle aus...',
+    },
     deploy: {
         after: {
             button: {

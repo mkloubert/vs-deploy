@@ -40,6 +40,12 @@ export const translation: Translation = {
     commands: {
         executionFailed: "Execution of command {0:trim,surround} failed: {1}",
     },
+    compare: {
+        failed: 'Could not pull file {0:trim,surround}: {1}',
+        noPlugins: 'No plugin(s) found!',
+        noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
+        selectSource: 'Select the source from where to pull from...',
+    },
     deploy: {
         after: {
             button: {

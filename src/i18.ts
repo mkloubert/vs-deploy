@@ -47,6 +47,12 @@ export interface Translation {
     commands?: {
         executionFailed?: string;
     },
+    compare?: {
+        failed?: string;
+        noPlugins?: string;
+        noPluginsForType?: string;
+        selectSource?: string;
+    },
     deploy?: {
         after?: {
             button?: {

@@ -621,6 +621,11 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         }
     }
 
+    /** @inheritdoc */
+    public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+        throw new Error("Not implemented!");
+    }
+
     /**
      * Pulls a file by using a context.
      * 

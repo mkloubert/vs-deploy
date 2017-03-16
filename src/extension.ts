@@ -80,6 +80,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // compare local file with remote
+    let compareFiles = vscode.commands.registerCommand('extension.deploy.compareFiles', (u?) => {
+        try {
+            deployer.compareFiles(u);
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[COMPARE FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     // deploy open file or selected folder
     let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?: any) => {
         try {
@@ -177,6 +187,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
     context.subscriptions.push(deployer,
+                               compareFiles,
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,
                                pull, pullFileOrFolder,
                                listen,

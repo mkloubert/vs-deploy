@@ -39,30 +39,42 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
     }
     
     public deployFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
+        this.downloadFile(file, target, opts).then(() => {
+            // already handled
+        }).catch(() => {
+            // already handled
+        });
+    }
+
+    public downloadFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         if (!opts) {
             opts = {};
         }
-
+        
         let me = this;
+        
+        return new Promise<Buffer>((resolve, reject) => {
+            let hasCanceled = false;
+            let completed = (err: any, data?: Buffer) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: hasCanceled,
+                        error: err,
+                        file: file,
+                        target: target,
+                    });
+                }
 
-        let hasCanceled = false;
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: hasCanceled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
 
-        me.onCancelling(() => hasCanceled = true, opts);
+            me.onCancelling(() => hasCanceled = true, opts);
 
-        if (hasCanceled) {
-            completed();  // cancellation requested
-        }
-        else {
             try {
                 let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
                 if (false === relativePath) {
@@ -78,19 +90,19 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
                     });
                 }
 
-                FS.readFile(file, (err) => {
+                FS.readFile(file, (err, data) => {
                     if (err) {
                         completed(err);
-                        return;
                     }
-
-                    completed();
+                    else {
+                        completed(null, data);
+                    }
                 });
             }
             catch (e) {
                 completed(e);
             }
-        }
+        });
     }
 
     public info(): deploy_contracts.DeployPluginInfo {

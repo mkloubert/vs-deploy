@@ -37,6 +37,7 @@ import * as i18 from './i18';
 import * as Moment from 'moment';
 import * as OS from 'os';
 import * as Path from 'path';
+import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 
 
@@ -326,6 +327,197 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         if (deploy_helpers.toBooleanSafe(this.config.clearOutputOnStartup)) {
             this.outputChannel.clear();
         }
+    }
+
+    /**
+     * Compares a local file with a version from a target.
+     * 
+     * @param {any} [uri] The URI of the file. 
+     */
+    public compareFiles(uri?: any) {
+        let me = this;
+
+        let targets = this.getTargets()
+                          .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+        if (targets.length < 1) {
+            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+            return;
+        }
+
+        let path: string;
+        if (uri && uri.fsPath) {
+            path = uri.fsPath;
+        }
+        else {
+            let currentEditor = vscode.window.activeTextEditor;
+
+            if (currentEditor) {
+                let currentDocument = currentEditor.document;
+                if (currentDocument) {
+                    path = currentDocument.fileName;
+                }
+            }
+        }
+
+        if (deploy_helpers.isEmptyString(path)) {
+            return;
+        }
+
+        let startDownlods = (t: deploy_contracts.DeployTarget) => {
+            let type = deploy_helpers.parseTargetType(t.type);
+
+            let matchIngPlugins = me.pluginsWithContextes.filter(x => {
+                return !type ||
+                       (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.downloadFile);
+            });
+
+            if (matchIngPlugins.length > 0) {
+                let nextPlugin: () => void;
+
+                let diffFinished = (err: any) => {
+                    if (err) {
+                        vscode.window
+                              .showErrorMessage(i18.t('compare.failed', Path.basename(path), err));
+                    }
+
+                    nextPlugin();
+                };
+
+                nextPlugin = () => {
+                    try {
+                        if (matchIngPlugins.length < 1) {
+                            return;
+                        }
+
+                        let mp = matchIngPlugins.shift();
+                        let p = mp.plugin;
+
+                        let downloadedData: Buffer;
+                        let doDiff = () => {  // run "diff app"
+                            if (!downloadedData) {
+                                downloadedData = Buffer.alloc(0);
+                            }
+
+                            try {
+                                // save downloaded data
+                                // to temp file
+                                TMP.tmpName({
+                                    keep: true,
+                                    prefix: 'vsd-',
+                                    postfix: Path.extname(path),
+                                }, (err, tmpPath) => {
+                                    if (err) {
+                                        diffFinished(err);    
+                                    }
+                                    else {
+                                        FS.writeFile(tmpPath, downloadedData, (err) => {
+                                            if (err) {
+                                                diffFinished(err);
+                                            }
+                                            else {
+                                                try {
+                                                    let windowTitle = 'Compare files';  //TODO
+
+                                                    vscode.commands.executeCommand('vscode.diff',
+                                                                                   vscode.Uri.file(path), vscode.Uri.file(tmpPath), windowTitle).then(() => {
+                                                        nextPlugin();
+                                                    }, (err) => {
+                                                        diffFinished(err);
+
+                                                        nextPlugin();
+                                                    });
+                                                }
+                                                catch (e) {
+                                                    diffFinished(e);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                diffFinished(e);
+                            }
+                        };
+
+                        // download data
+                        let downloadResult = p.downloadFile(path, t);
+                        if (downloadResult) {
+                            if (Buffer.isBuffer(downloadResult)) {
+                                downloadedData = downloadResult;
+
+                                doDiff();
+                            }
+                            else {
+                                downloadResult.then((data) => {
+                                    downloadedData = data;
+
+                                    doDiff();
+                                }, (err) => {
+                                    diffFinished(err);
+                                });
+                            }
+                        }
+                        else {
+                            doDiff();
+                        }
+                    }
+                    catch (e) {
+                        diffFinished(e);
+                    }
+                }
+
+                nextPlugin();  // start with first plugin
+            }
+            else {
+                // no matching plugin found
+
+                if (type) {
+                    vscode.window.showWarningMessage(i18.t('compare.noPluginsForType', type));
+                }
+                else {
+                    vscode.window.showWarningMessage(i18.t('compare.noPlugins'));
+                }
+            }
+        }  // startDownlods()
+
+        let selectTarget = () => {
+            // select the target /
+            // source from where to download from
+            let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+            if (fileQuickPicks.length > 1) {
+                vscode.window.showQuickPick(fileQuickPicks, {
+                    placeHolder: i18.t('compare.selectSource'),
+                }).then((item) => {
+                    if (item) {
+                        startDownlods(item.target);
+                    }
+                });
+            }
+            else {
+                // auto select
+                startDownlods(fileQuickPicks[0].target);
+            }
+        }  // selectTarget()
+
+        // first check if file
+        FS.lstat(path, (err, stats) => {
+            if (err) {
+                vscode.window
+                      .showErrorMessage(i18.t('compare.failed', path, err));
+            }
+            else {
+                if (stats.isFile()) {
+                    selectTarget();
+                }
+                else {
+                    // no file
+
+                    vscode.window
+                          .showErrorMessage(i18.t('isNo.file', path));
+                }
+            }
+        });
     }
 
     /**
