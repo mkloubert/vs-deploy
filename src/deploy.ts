@@ -363,7 +363,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let startDownlods = (t: deploy_contracts.DeployTarget) => {
+        let startDownlods = (t: deploy_contracts.DeployTarget, files: string[]) => {
             let type = deploy_helpers.parseTargetType(t.type);
 
             let matchIngPlugins = me.pluginsWithContextes.filter(x => {
@@ -374,110 +374,116 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (matchIngPlugins.length > 0) {
                 let nextPlugin: () => void;
 
-                let diffFinished = (err: any) => {
-                    if (err) {
-                        vscode.window
-                              .showErrorMessage(i18.t('compare.failed', Path.basename(path), err));
+                nextPlugin = () => {
+                    if (matchIngPlugins.length < 1) {
+                        return;  // we have finished
                     }
 
-                    nextPlugin();
-                };
+                    let filesTODO = files.map(x => x);
 
-                nextPlugin = () => {
-                    try {
-                        if (matchIngPlugins.length < 1) {
+                    let mp = matchIngPlugins.shift();
+                    let p = mp.plugin;
+
+                    let nextFile = () => {
+                        if (filesTODO.length < 1) {
+                            nextPlugin();
                             return;
                         }
 
-                        let mp = matchIngPlugins.shift();
-                        let p = mp.plugin;
+                        let f = filesTODO.shift();
 
-                        let downloadedData: Buffer;
-                        let doDiff = () => {  // run "diff app"
-                            if (!downloadedData) {
-                                downloadedData = Buffer.alloc(0);
+                        let diffFinished = (err: any) => {
+                            if (err) {
+                                vscode.window
+                                      .showErrorMessage(i18.t('compare.failed', Path.basename(f), err));
                             }
 
-                            try {
-                                // save downloaded data
-                                // to temp file
-                                TMP.tmpName({
-                                    keep: true,
-                                    prefix: 'vsd-',
-                                    postfix: Path.extname(path),
-                                }, (err, tmpPath) => {
-                                    if (err) {
-                                        diffFinished(err);    
-                                    }
-                                    else {
-                                        FS.writeFile(tmpPath, downloadedData, (err) => {
-                                            if (err) {
-                                                diffFinished(err);
-                                            }
-                                            else {
-                                                try {
-                                                    let realtivePath = deploy_helpers.toRelativePath(path);
-                                                    if (false === realtivePath) {
-                                                        realtivePath = path;
-                                                    }
-
-                                                    let titleSuffix = deploy_helpers.toStringSafe(t.name).trim();
-
-                                                    let windowTitle = `[vs-deploy] Diff '${realtivePath}'`;
-                                                    if ('' === titleSuffix) {
-                                                        titleSuffix = deploy_helpers.normalizeString(t.type);
-                                                    }
-                                                    if ('' !== titleSuffix) {
-                                                        windowTitle += ` (${titleSuffix})`;
-                                                    }
-
-                                                    vscode.commands.executeCommand('vscode.diff',
-                                                                                   vscode.Uri.file(tmpPath), vscode.Uri.file(path), windowTitle).then(() => {
-                                                        nextPlugin();
-                                                    }, (err) => {
-                                                        diffFinished(err);
-
-                                                        nextPlugin();
-                                                    });
-                                                }
-                                                catch (e) {
-                                                    diffFinished(e);
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                            catch (e) {
-                                diffFinished(e);
-                            }
+                            nextFile();
                         };
 
-                        // download data
-                        let downloadResult = p.downloadFile(path, t);
-                        if (downloadResult) {
-                            if (Buffer.isBuffer(downloadResult)) {
-                                downloadedData = downloadResult;
+                        try {
+                            let doDiff = (downloadedData?: Buffer) => {  // run "diff app"
+                                if (!downloadedData) {
+                                    downloadedData = Buffer.alloc(0);
+                                }
 
-                                doDiff();
+                                try {
+                                    // save downloaded data
+                                    // to temp file
+                                    TMP.tmpName({
+                                        keep: true,
+                                        prefix: 'vsd-',
+                                        postfix: Path.extname(f),
+                                    }, (err, tmpPath) => {
+                                        if (err) {
+                                            diffFinished(err);    
+                                        }
+                                        else {
+                                            FS.writeFile(tmpPath, downloadedData, (err) => {
+                                                if (err) {
+                                                    diffFinished(err);
+                                                }
+                                                else {
+                                                    try {
+                                                        let realtivePath = deploy_helpers.toRelativePath(f);
+                                                        if (false === realtivePath) {
+                                                            realtivePath = f;
+                                                        }
+
+                                                        let titleSuffix = deploy_helpers.toStringSafe(t.name).trim();
+
+                                                        let windowTitle = `[vs-deploy] Diff '${realtivePath}'`;
+                                                        if ('' === titleSuffix) {
+                                                            titleSuffix = deploy_helpers.normalizeString(t.type);
+                                                        }
+                                                        if ('' !== titleSuffix) {
+                                                            windowTitle += ` (${titleSuffix})`;
+                                                        }
+
+                                                        vscode.commands.executeCommand('vscode.diff',
+                                                                                    vscode.Uri.file(tmpPath), vscode.Uri.file(f), windowTitle).then(() => {
+                                                            diffFinished(null);
+                                                        }, (err) => {
+                                                            diffFinished(err);
+                                                        });
+                                                    }
+                                                    catch (e) {
+                                                        diffFinished(e);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                catch (e) {
+                                    diffFinished(e);
+                                }
+                            };
+
+                            // download data
+                            let downloadResult = p.downloadFile(f, t);
+                            if (downloadResult) {
+                                if (Buffer.isBuffer(downloadResult)) {
+                                    doDiff(downloadResult);
+                                }
+                                else {
+                                    downloadResult.then((data) => {
+                                        doDiff(data);
+                                    }, (err) => {
+                                        diffFinished(err);
+                                    });
+                                }
                             }
                             else {
-                                downloadResult.then((data) => {
-                                    downloadedData = data;
-
-                                    doDiff();
-                                }, (err) => {
-                                    diffFinished(err);
-                                });
+                                doDiff();
                             }
                         }
-                        else {
-                            doDiff();
+                        catch (e) {
+                            diffFinished(e);
                         }
-                    }
-                    catch (e) {
-                        diffFinished(e);
-                    }
+                    };
+                    
+                    nextFile();  // start with first file
                 }
 
                 nextPlugin();  // start with first plugin
@@ -494,7 +500,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             }
         }  // startDownlods()
 
-        let selectTarget = () => {
+        let selectTarget = (files: string[]) => {
             // select the target /
             // source from where to download from
             let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
@@ -503,13 +509,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     placeHolder: i18.t('compare.selectSource'),
                 }).then((item) => {
                     if (item) {
-                        startDownlods(item.target);
+                        startDownlods(item.target, files);
                     }
                 });
             }
             else {
                 // auto select
-                startDownlods(fileQuickPicks[0].target);
+                startDownlods(fileQuickPicks[0].target, files);
             }
         }  // selectTarget()
 
@@ -521,7 +527,25 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             }
             else {
                 if (stats.isFile()) {
-                    selectTarget();
+                    selectTarget([ path ]);
+                }
+                else if (stats.isDirectory()) {
+                    Glob('**', {
+                        absolute: true,
+                        cwd: path,
+                        dot: true,
+                        ignore: [],
+                        nodir: true,
+                        root: path,
+                    }, (e: any, files: string[]) => {
+                        if (e) {
+                            vscode.window
+                                  .showErrorMessage(i18.t('compare.failed', path, e));
+                        }
+                        else {
+                            selectTarget(files);
+                        }
+                    });
                 }
                 else {
                     // no file

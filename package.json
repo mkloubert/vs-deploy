@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "6.2.1",
+  "version": "6.2.2",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -17546,6 +17546,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
+    "@types/glob": "^5.0.30",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
     "@types/tmp": "0.0.32",
