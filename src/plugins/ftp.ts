@@ -30,6 +30,7 @@ import * as FS from 'fs';
 const FTP = require('ftp');
 import * as i18 from '../i18';
 import * as Path from 'path';
+import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 
 
@@ -244,94 +245,148 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         }
     }
 
+    protected downloadFileWithContext(ctx: FTPContext,
+                                      file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
+        let me = this;
+        
+        return new Promise<Buffer>((resolve, reject) => {
+            let completedInvoked = false;
+            let completed = (err: any, data?: Buffer) => {
+                if (completedInvoked) {
+                    return;
+                }
+
+                completedInvoked = true;
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: ctx.hasCancelled,
+                        error: err,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
+
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativeFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                let dir = getDirFromTarget(target);
+
+                let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
+                let targetDirectory = toFTPPath(Path.dirname(targetFile));
+
+                if (opts.onBeforeDeploy) {
+                    opts.onBeforeDeploy(me, {
+                        destination: targetDirectory,
+                        file: file,
+                        target: target,
+                    });
+                }
+
+                try {
+                    ctx.connection.get(targetFile, (err, data) => {
+                        try {
+                            if (err) {
+                                completed(err);
+                            }
+                            else {
+                                if (data) {
+                                    data.once('error', (err) => {;
+                                        completed(err);
+                                    });
+
+                                    TMP.tmpName({
+                                        keep: true,
+                                    }, (err, tmpFile) => {
+                                        if (err) {
+                                            completed(err);
+                                        }
+                                        else {
+                                            let deleteTempFile = (err: any, data?: Buffer) => {
+                                                // delete temp file ...
+                                                FS.exists(tmpFile, (exists) => {
+                                                    if (exists) {
+                                                        // ... if exist
+
+                                                        FS.unlink(tmpFile, () => {
+                                                            completed(err, data);
+                                                        });
+                                                    }
+                                                    else {
+                                                        completed(err, data);
+                                                    }
+                                                });
+                                            };
+
+                                            let downloadCompleted = (err: any) => {
+                                                if (err) {
+                                                    deleteTempFile(err);
+                                                }
+                                                else {
+                                                    FS.readFile(tmpFile, (err, data) => {
+                                                        if (err) {
+                                                            deleteTempFile(err);
+                                                        }
+                                                        else {
+                                                            deleteTempFile(null, data);
+                                                        }
+                                                    });
+                                                }
+                                            };
+
+                                            try {
+                                                data.once('end', () => {
+                                                    downloadCompleted(null);
+                                                });
+
+                                                // copy to temp file
+                                                let pipe = data.pipe(FS.createWriteStream(tmpFile));
+
+                                                pipe.once('error', (err) => {;
+                                                    downloadCompleted(err);
+                                                });
+                                            }
+                                            catch (e) {
+                                                downloadCompleted(e);
+                                            }
+                                        }
+                                    });
+                                }
+                                else {
+                                    completed(new Error("No data!"));  //TODO
+                                }
+                            }
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }
+        });
+    }
+    
     public info(): deploy_contracts.DeployPluginInfo {
         return {
             description: i18.t('plugins.ftp.description'),
         };
-    }
-
-    protected pullFileWithContext(ctx: FTPContext,
-                                  file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions) {
-        let me = this;
-        
-        let completedInvoked = false;
-        let completed = (err?: any) => {
-            if (completedInvoked) {
-                return;
-            }
-
-            completedInvoked = true;
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: ctx.hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
-
-        if (ctx.hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-            if (false === relativeFilePath) {
-                completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                return;
-            }
-
-            let dir = getDirFromTarget(target);
-
-            let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
-            let targetDirectory = toFTPPath(Path.dirname(targetFile));
-
-            if (opts.onBeforeDeploy) {
-                opts.onBeforeDeploy(me, {
-                    destination: targetDirectory,
-                    file: file,
-                    target: target,
-                });
-            }
-
-            try {
-                ctx.connection.get(targetFile, (err, data) => {
-                    try {
-                        if (err) {
-                            completed(err);
-                        }
-                        else {
-                            if (data) {
-                                data.once('error', (err) => {;
-                                    completed(err);
-                                });
-
-                                data.once('end', () => {
-                                    completed();
-                                });
-
-                                let pipe = data.pipe(FS.createWriteStream(file));
-
-                                pipe.once('error', (err) => {;
-                                    completed(err);
-                                });
-
-                                data.pipe(FS.createWriteStream(file));
-                            }
-                            else {
-                                completed(new Error("No data!"));  //TODO
-                            }
-                        }
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                });
-            }
-            catch (e) {
-                completed(e);
-            }
-        }
     }
 }
 
