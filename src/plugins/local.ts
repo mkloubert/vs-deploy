@@ -190,7 +190,6 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             }
         }
     }
-
     
     public downloadFile(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         if (!opts) {
