@@ -29,6 +29,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as i18 from '../i18';
+import * as TMP from 'tmp';
 
 
 interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
@@ -180,64 +181,108 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         }
     }
 
-    public info(): deploy_contracts.DeployPluginInfo {
-        return {
-            description: i18.t('plugins.azureblob.description'),
-        };
-    }
-
-    protected pullFileWithContext(ctx: AzureBlobContext,
-                                  file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): void {
+    protected downloadFileWithContext(ctx: AzureBlobContext,
+                                      file: string, target: DeployTargetAzureBlob, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         let me = this;
 
-        let completed = (err?: any) => {
-            if (opts.onCompleted) {
-                opts.onCompleted(me, {
-                    canceled: ctx.hasCancelled,
-                    error: err,
-                    file: file,
-                    target: target,
-                });
-            }
-        };
-
-        if (ctx.hasCancelled) {
-            completed();  // cancellation requested
-        }
-        else {
-            try {
-                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-                if (false === relativePath) {
-                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                    return;
-                }
-
-                // remove leading '/' chars
-                let blob = relativePath;
-                while (0 == blob.indexOf('/')) {
-                    blob = blob.substr(1);
-                }
-                blob = ctx.dir + blob;
-                while (0 == blob.indexOf('/')) {
-                    blob = blob.substr(1);
-                }
-
-                if (opts.onBeforeDeploy) {
-                    opts.onBeforeDeploy(me, {
-                        destination: blob,
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = (err: any, data?: Buffer) => {
+                if (opts.onCompleted) {
+                    opts.onCompleted(me, {
+                        canceled: ctx.hasCancelled,
+                        error: err,
                         file: file,
                         target: target,
                     });
                 }
 
-                ctx.service.getBlobToLocalFile(ctx.container, blob, file, (err) => {
-                    completed(err);
-                });
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
+
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
             }
-            catch (e) {
-                completed(e);
+            else {
+                try {
+                    let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                    if (false === relativePath) {
+                        completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                        return;
+                    }
+
+                    // remove leading '/' chars
+                    let blob = relativePath;
+                    while (0 == blob.indexOf('/')) {
+                        blob = blob.substr(1);
+                    }
+                    blob = ctx.dir + blob;
+                    while (0 == blob.indexOf('/')) {
+                        blob = blob.substr(1);
+                    }
+
+                    if (opts.onBeforeDeploy) {
+                        opts.onBeforeDeploy(me, {
+                            destination: blob,
+                            file: file,
+                            target: target,
+                        });
+                    }
+
+                    TMP.tmpName({
+                        keep: true,
+                    }, (err, tmpPath) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            // delete temp file
+                            let deleteTempFile = (e: any, data?: Buffer) => {
+                                FS.exists(tmpPath, (exists) => {
+                                    if (exists) {
+                                        FS.unlink(tmpPath, () => {
+                                            completed(e, data);
+                                        });
+                                    }
+                                    else {
+                                        completed(e, data);  // nothing to delete
+                                    }
+                                });
+                            };
+
+                            ctx.service.getBlobToLocalFile(ctx.container, blob, tmpPath, (e) => {
+                                if (e) {
+                                    deleteTempFile(e);  // could not download blob
+                                }
+                                else {
+                                    FS.readFile(tmpPath, (e, data) => {
+                                        if (e) {
+                                            deleteTempFile(e);  // could not read temp file
+                                        }
+                                        else {
+                                            deleteTempFile(null, data);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
             }
-        }
+        });
+    }
+
+    public info(): deploy_contracts.DeployPluginInfo {
+        return {
+            description: i18.t('plugins.azureblob.description'),
+        };
     }
 }
 
