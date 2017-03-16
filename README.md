@@ -50,9 +50,10 @@ If you would like to add another translation, please read [that issue](https://g
 1. [Demos](#demos-)
    * [Deploying to SFTP](#deploying-to-sftp-)
    * [Deploy on save](#deploy-on-save-)
-   * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
-   * [ZIP file](#deploy-to-zip-file-)
    * [Download / pull from SFTP](#download--pull-from-sftp-)
+   * [Compare files](#compare-files-)
+   * [ZIP file](#deploy-to-zip-file-)
+   * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
 2. [Install](#install-)
 3. [How to use](#how-to-use-)
    * [Settings](#settings-)
@@ -70,17 +71,21 @@ If you would like to add another translation, please read [that issue](https://g
 
 ![Demo Deploy on save](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
-### Deploy to remote Visual Studio Code instance [[&uarr;](#demos-)]
+### Download / pull from SFTP [[&uarr;](#demos-)]
 
-![Demo Remote](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
+![Demo pull from SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo6.gif)
+
+### Compare files [[&uarr;](#demos-)]
+
+![Demo compare files](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo7.gif)
 
 ### Deploy to ZIP file [[&uarr;](#demos-)]
 
 ![Demo ZIP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo4.gif)
 
-### Download / pull from SFTP [[&uarr;](#demos-)]
+### Deploy to remote Visual Studio Code instance [[&uarr;](#demos-)]
 
-![Demo pull from SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo6.gif)
+![Demo Remote](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo3.gif)
 
 ## Install [[&uarr;](#table-of-contents)]
 

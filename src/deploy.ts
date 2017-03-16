@@ -416,7 +416,20 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                             }
                                             else {
                                                 try {
-                                                    let windowTitle = 'Compare files';  //TODO
+                                                    let realtivePath = deploy_helpers.toRelativePath(path);
+                                                    if (false === realtivePath) {
+                                                        realtivePath = path;
+                                                    }
+
+                                                    let titleSuffix = deploy_helpers.toStringSafe(t.name).trim();
+
+                                                    let windowTitle = `[vs-deploy] Diff '${realtivePath}'`;
+                                                    if ('' === titleSuffix) {
+                                                        titleSuffix = deploy_helpers.normalizeString(t.type);
+                                                    }
+                                                    if ('' !== titleSuffix) {
+                                                        windowTitle += ` (${titleSuffix})`;
+                                                    }
 
                                                     vscode.commands.executeCommand('vscode.diff',
                                                                                    vscode.Uri.file(tmpPath), vscode.Uri.file(path), windowTitle).then(() => {
