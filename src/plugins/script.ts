@@ -434,7 +434,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         let me = this;
         
         return new Promise<Buffer>((resolve, reject) => {
-            me.deployOrPullFile(deploy_contracts.DeployDirection.Download, file, target, opts).then((args) => {
+            me.deployOrPullFile(deploy_contracts.DeployDirection.Pull, file, target, opts).then((args) => {
                 resolve(args.data);
             }).catch((err) => {
                 reject(err);
