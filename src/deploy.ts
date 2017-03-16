@@ -419,7 +419,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                     let windowTitle = 'Compare files';  //TODO
 
                                                     vscode.commands.executeCommand('vscode.diff',
-                                                                                   vscode.Uri.file(path), vscode.Uri.file(tmpPath), windowTitle).then(() => {
+                                                                                   vscode.Uri.file(tmpPath), vscode.Uri.file(path), windowTitle).then(() => {
                                                         nextPlugin();
                                                     }, (err) => {
                                                         diffFinished(err);

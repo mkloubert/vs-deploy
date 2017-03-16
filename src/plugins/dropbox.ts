@@ -484,7 +484,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
         }
     }
 
-    
     protected downloadFileWithContext(ctx: DropboxContext,
                                       file: string, target: DeployTargetDropbox, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
         let me = this;
@@ -548,8 +547,14 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     }, (resp) => {
                         let err: Error;
 
+                        let next = () => {
+                            completed(err);
+                        };
+
                         switch (resp.statusCode) {
                             case 200:
+                                next = null;
+
                                 deploy_helpers.readHttpBody(resp).then((data) => {
                                     if (data) {
                                         completed(null, data);
@@ -569,11 +574,13 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                             default:
                                 err = new Error(i18.t('plugins.dropbox.unknownResponse',
-                                                    resp.statusCode, 2, resp.statusMessage));
+                                                      resp.statusCode, 2, resp.statusMessage));
                                 break;
                         }
 
-                        completed(err);
+                        if (next) {
+                            next();
+                        }
                     });
 
                     req.once('error', (err) => {
