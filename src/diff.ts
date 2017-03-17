@@ -37,6 +37,7 @@ export interface CompareResultItem {
     areDifferent?: boolean;
     error?: any;
     file: string;
+    id: number;
     isLocalBinary?: boolean;
     isRemoteBinary?: boolean;
     mimeLocal?: string;
@@ -58,11 +59,17 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
 
     return new Promise<CompareResultItem[]>((resolve, reject) => {
         let result: CompareResultItem[] = [];
+        let nextId = -1;
         let completed = (err: any) => {
             if (err) {
                 reject(err);
             }
             else {
+                result = result.sort((x, y) => {
+                    return deploy_helpers.compareValues(deploy_helpers.normalizeString(x.file),
+                                                        deploy_helpers.normalizeString(y.file));
+                });
+
                 resolve(result);
             }
         };
@@ -91,6 +98,7 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                         return new Promise<any>((resolve, reject) => {
                                             let cri: CompareResultItem = {
                                                 file: f,
+                                                id: ++nextId,
                                                 plugin: p,
                                             };
 
@@ -127,6 +135,8 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                                             
                                                                             resolve();
                                                                         }).catch(() => {
+                                                                            //TODO log
+
                                                                             resolve();
                                                                         });
                                                                     });
@@ -140,6 +150,8 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                                             
                                                                             resolve();
                                                                         }).catch(() => {
+                                                                            //TODO log
+
                                                                             resolve();
                                                                         });
                                                                     });
@@ -174,7 +186,7 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                     }).catch((err) => {
                                                         compareCompleted(err);
                                                     });
-                                                };
+                                                };  // loadLocalFile()
 
                                                 // download data
                                                 let downloadResult = p.downloadFile(f, t);

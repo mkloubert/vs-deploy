@@ -1522,7 +1522,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                             if (targetQuickPicks.length > 1) {
                                 vscode.window.showQuickPick(targetQuickPicks, {
-                                    placeHolder: i18.t('deploy.workspace.selectTarget'),
+                                    placeHolder: i18.t('pull.workspace.selectSource'),
                                 }).then((item) => {
                                     if (item) {
                                         startDetection(filesOfPackage, item.target);
@@ -1551,10 +1551,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                                 let virtualPkgName: string;
                                 if (packageName) {
-                                    virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
+                                    virtualPkgName = i18.t('pull.workspace.virtualTargetNameWithPackage', packageName);
                                 }
                                 else {
-                                    virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
+                                    virtualPkgName = i18.t('pull.workspace.virtualTargetName');
                                 }
 
                                 let batchTarget: any = {
@@ -1570,7 +1570,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     if (packageQuickPicks.length > 1) {
                         vscode.window.showQuickPick(packageQuickPicks, {
-                            placeHolder: i18.t('deploy.workspace.selectPackage'),
+                            placeHolder: i18.t('pull.workspace.selectPackage'),
                         }).then((item) => {
                                     if (item) {
                                         selectTarget(item.package);
@@ -1588,7 +1588,44 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     }
                 }
 
-                selectPackage();
+                let firstAction = () => {
+                    selectPackage();
+                };
+
+                /* TODO
+                if (uri) {
+                    let path: string;
+
+                    firstAction = () => {
+                        if (uri.fsPath) {
+                            path = uri.fsPath;
+                        }
+
+                        if (deploy_helpers.isEmptyString(path)) {
+                            selectPackage();
+                        }
+                        else {
+                            FS.stat(path, (err, stats) => {
+                                if (err) {
+                                    completed(err);
+                                }
+                                else {
+                                    if (stats.isFile()) {
+
+                                    }
+                                    else if (stats.isDirectory()) {
+
+                                    }
+                                    else {
+                                        completed(i18.t('isNo.file'));
+                                    }
+                                }
+                            });
+                        }
+                    };
+                } */
+
+                firstAction();
             }
             catch (e) {
                 completed(e);
