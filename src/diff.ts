@@ -79,7 +79,7 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
 
             let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                 return !type ||
-                        (x.plugin.__type == type && x.plugin.canPull && x.plugin.downloadFile);
+                        (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.downloadFile);
             });
 
             if (matchIngPlugins.length > 0) {

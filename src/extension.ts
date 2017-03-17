@@ -120,9 +120,11 @@ export function activate(context: vscode.ExtensionContext) {
     // detect changes
     let detectChanges = vscode.commands.registerCommand('extension.deploy.detectChanges', () => {
         deployer.detectChanges().then((changes) => {
-            if (changes) {
-                //TODO
+            if (!changes) {
+                return;
             }
+
+            //TODO
         }).catch((err) => {
             vscode.window.showErrorMessage(`[DETECT CHANGES ERROR]: ${deploy_helpers.toStringSafe(err)}`);
         });

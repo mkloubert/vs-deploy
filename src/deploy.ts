@@ -1470,14 +1470,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public detectChanges(uri?: any): Promise<deploy_diff.CompareResultItem[] | false | null> {
         let me = this;
-        let args = arguments;
 
         return new Promise<any>((resolve, reject) => {
             let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_diff.CompareResultItem[] | false | null>(resolve, reject);
 
             try {
                 let startDetection = (files: string[], t: deploy_contracts.DeployTarget) => {
-                    deploy_diff.detectChanges.apply(me, args).then((result: deploy_diff.CompareResultItem[]) => {
+                    deploy_diff.detectChanges.apply(me, [ files, t ]).then((result: deploy_diff.CompareResultItem[]) => {
                         completed(null, result);
                     }).catch((err) => {
                         completed(err);
