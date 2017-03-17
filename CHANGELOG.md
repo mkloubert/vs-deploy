@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 6.3.0 (March 17th, 2017; diff before deploy)
+
+* added `diffBeforeDeploy` property for [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that indicates if a diff should be made BEFORE a file is being to be deployed
+
 ## 6.2.0 (March 16th, 2017; compare files)
 
 * can compare local files with remote ones in a diff window now

@@ -109,6 +109,7 @@ export interface Translation {
             unknownSqlEngine?: string;
             unknownType?: string;
         },
+        startQuestion?: string;
         workspace?: {
             allFailed?: string;
             allFailedWithTarget?: string;

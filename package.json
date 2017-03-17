@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "6.2.4",
+  "version": "6.3.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -693,6 +693,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -1683,6 +1688,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -2669,6 +2679,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -3642,6 +3657,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -4624,6 +4644,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -5615,6 +5640,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -6625,6 +6655,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -7594,6 +7629,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -8603,6 +8643,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -9574,6 +9619,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -10570,6 +10620,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -11635,6 +11690,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -12684,6 +12744,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -13651,6 +13716,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -14647,6 +14717,11 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -15606,6 +15681,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
@@ -16580,6 +16660,11 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",

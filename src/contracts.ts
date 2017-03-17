@@ -1089,6 +1089,10 @@ export interface DeployTarget extends Hideable, Sortable {
      */
     description?: string;
     /**
+     * Start a diff before deploy file(s).
+     */
+    diffBeforeDeploy?: boolean;
+    /**
      * A list of one or more package names that indicates
      * if that target is hidden from GUI if one of the package(s) has been selected.
      */

@@ -102,6 +102,7 @@ export const translation: Translation = {
             unknownSqlEngine: 'Unbekannter SQL Typ {0:trim,surround}!',
             unknownType: 'UNBEKANNTER TYP: {0:trim,surround}',
         },
+        startQuestion: 'Soll das Bereitstellen gestartet werden?',
         workspace: {
             allFailed: 'Keine Datei konnte bereitgestellt werden: {0}',
             allFailedWithTarget: 'Keine Datei konnte nach {0:trim,surround} bereitgestellt werden: {1}',

@@ -102,6 +102,7 @@ export const translation: Translation = {
             unknownSqlEngine: 'Unknown SQL engine {0:trim,surround}!',
             unknownType: 'UNKNOWN TYPE: {0:trim,surround}',
         },
+        startQuestion: 'Start deploy?',
         workspace: {
             allFailed: 'No file could be deployed: {0}',
             allFailedWithTarget: 'No file could be deployed to {0:trim,surround}: {1}',
