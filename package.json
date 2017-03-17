@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "6.3.0",
+  "version": "6.4.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -79,6 +79,11 @@
         "category": "Deploy"
       },
       {
+        "command": "extension.deploy.detectChanges",
+        "title": "Detect changes",
+        "category": "Deploy"
+      },
+      {
         "command": "extension.deploy.file",
         "title": "Deploy current file / folder",
         "category": "Deploy"
@@ -109,6 +114,11 @@
         "command": "extension.deploy.compareFiles",
         "key": "ctrl+alt+p c",
         "mac": "cmd+alt+p c"
+      },
+      {
+        "command": "extension.deploy.detectChanges",
+        "key": "ctrl+alt+p d",
+        "mac": "cmd+alt+p d"
       },
       {
         "command": "extension.deploy.file",
@@ -17631,6 +17641,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
+    "@types/file-type": "0.0.2",
     "@types/glob": "^5.0.30",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
@@ -17654,6 +17665,7 @@
   "dependencies": {
     "aws-sdk": "^2.7.19",
     "azure-storage": "^1.4.0",
+    "file-type": "^4.1.0",
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
@@ -17665,6 +17677,7 @@
     "mssql": "^3.3.0",
     "mysql": "^2.12.0",
     "node-uuid": "^1.4.7",
+    "node-workflows": "^1.3.1",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.0",
     "pug": "^2.0.0-beta11",

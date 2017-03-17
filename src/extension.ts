@@ -117,6 +117,17 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // detect changes
+    let detectChanges = vscode.commands.registerCommand('extension.deploy.detectChanges', () => {
+        deployer.detectChanges().then((changes) => {
+            if (changes) {
+                //TODO
+            }
+        }).catch((err) => {
+            vscode.window.showErrorMessage(`[DETECT CHANGES ERROR]: ${deploy_helpers.toStringSafe(err)}`);
+        });
+    });
+
     // returns deploy targets
     let getTargets = vscode.commands.registerCommand('extension.deploy.getTargets', (cb: (err: any, targets?: vs_contracts.DeployTarget[]) => void) => {
         try {
@@ -192,6 +203,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(deployer,
                                compareFiles,
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,
+                               detectChanges,
                                pull, pullFileOrFolder,
                                listen,
                                quickDeploy,
