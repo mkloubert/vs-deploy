@@ -3631,7 +3631,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                            alignment = vscode.StatusBarAlignment.Right;
                                        }
 
-                                       btn = vscode.window.createStatusBarItem(alignment);
+                                       let priority: number;
+                                       if (!deploy_helpers.isNullOrUndefined(x.button.priority)) {
+                                           priority = parseFloat(deploy_helpers.toStringSafe(x.button.priority).trim());
+                                       }
+
+                                       btn = vscode.window.createStatusBarItem(alignment, priority);
                                        btn.command = cmdName;
                                         
                                        // caption
@@ -3654,10 +3659,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                        let color = deploy_helpers.toStringSafe(x.button.color).toLowerCase().trim();
                                        if (color) {
                                            btn.color = color;
-                                       }
-
-                                       if (!deploy_helpers.isNullOrUndefined(x.button.priority)) {
-                                           btn.priority = parseFloat(deploy_helpers.toStringSafe(x.button.priority).trim());
                                        }
 
                                        if (deploy_helpers.toBooleanSafe(x.button.show, true)) {
