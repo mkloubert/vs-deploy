@@ -1464,27 +1464,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     /**
      * Detects changes.
      * 
-     * @returns {(Promise<deploy_diff.CompareResultItem[]|false>)} The promise.
+     * @param {any} [u] The URI of the file or folder.
+     * 
+     * @returns {(Promise<deploy_diff.CompareResultItem[]|false|null>)} The promise.
      */
-    public detectChanges(): Promise<deploy_diff.CompareResultItem[] | false> {
+    public detectChanges(uri?: any): Promise<deploy_diff.CompareResultItem[] | false | null> {
         let me = this;
         let args = arguments;
 
         return new Promise<any>((resolve, reject) => {
-            let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_diff.CompareResultItem[] | false>(resolve, reject);
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_diff.CompareResultItem[] | false | null>(resolve, reject);
 
             try {
-                let packages = me.getPackages()
-                                 .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
-                if (packages.length < 1) {
-                    vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
-
-                    completed();
-                    return;
-                }
-
-                let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
-
                 let startDetection = (files: string[], t: deploy_contracts.DeployTarget) => {
                     deploy_diff.detectChanges.apply(me, args).then((result: deploy_diff.CompareResultItem[]) => {
                         completed(null, result);
@@ -1493,94 +1484,111 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     });
                 };
 
-                let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
-                    if (!pkg) {
+                let selectPackage = () => {
+                    let packages = me.getPackages()
+                                     .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+                    if (packages.length < 1) {
+                        vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
+
+                        completed(null, null);
                         return;
                     }
 
-                    let targets = me.filterTargetsByPackage(pkg)
-                                    .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
-                    if (targets.length < 1) {
-                        vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
-                        return;
-                    }
+                    let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
 
-                    let packageName = deploy_helpers.toStringSafe(pkg.name);
-
-                    let filesOfPackage = deploy_helpers.getFilesOfPackage(pkg);
-
-                    let targetsOfPackage = me.getTargetsFromPackage(pkg);
-                    if (targetsOfPackage.length < 1) {
-                        // no explicit targets
-
-                        let targetQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
-
-                        if (targetQuickPicks.length > 1) {
-                            vscode.window.showQuickPick(targetQuickPicks, {
-                                placeHolder: i18.t('deploy.workspace.selectTarget'),
-                            }).then((item) => {
-                                if (item) {
-                                    startDetection(filesOfPackage, item.target);
-                                }
-                                else {
-                                    completed(null, false);
-                                }
-                            }, (err) => {
-                                completed(err);
-                            });
+                    let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
+                        if (!pkg) {
+                            return;
                         }
-                        else {
-                            // auto select
-                            startDetection(filesOfPackage, targetQuickPicks[0].target);
-                        }
-                    }
-                    else {
-                        // we have explicit defined targets here
 
-                        if (1 === targetsOfPackage.length) {
-                            startDetection(filesOfPackage, targetsOfPackage[0]);  // deploy the one and only
-                        }
-                        else {
-                            // create a virtual "batch" target
-                            // for the underlying "real" targets
+                        let targets = me.filterTargetsByPackage(pkg)
+                                        .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+                        if (targets.length < 1) {
+                            vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
 
-                            let virtualPkgName: string;
-                            if (packageName) {
-                                virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
+                            completed(null, null);
+                            return;
+                        }
+
+                        let packageName = deploy_helpers.toStringSafe(pkg.name);
+
+                        let filesOfPackage = deploy_helpers.getFilesOfPackage(pkg);
+
+                        let targetsOfPackage = me.getTargetsFromPackage(pkg);
+                        if (targetsOfPackage.length < 1) {
+                            // no explicit targets
+
+                            let targetQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+
+                            if (targetQuickPicks.length > 1) {
+                                vscode.window.showQuickPick(targetQuickPicks, {
+                                    placeHolder: i18.t('deploy.workspace.selectTarget'),
+                                }).then((item) => {
+                                    if (item) {
+                                        startDetection(filesOfPackage, item.target);
+                                    }
+                                    else {
+                                        completed(null, false);
+                                    }
+                                }, (err) => {
+                                    completed(err);
+                                });
                             }
                             else {
-                                virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
+                                // auto select
+                                startDetection(filesOfPackage, targetQuickPicks[0].target);
                             }
-
-                            let batchTarget: any = {
-                                type: 'batch',
-                                name: virtualPkgName,
-                                targets: targetsOfPackage.map(x => x.name),
-                            };
-
-                            startDetection(filesOfPackage, batchTarget);
                         }
-                    }
-                };
+                        else {
+                            // we have explicit defined targets here
 
-                if (packageQuickPicks.length > 1) {
-                    vscode.window.showQuickPick(packageQuickPicks, {
-                        placeHolder: i18.t('deploy.workspace.selectPackage'),
-                    }).then((item) => {
-                                if (item) {
-                                    selectTarget(item.package);
+                            if (1 === targetsOfPackage.length) {
+                                startDetection(filesOfPackage, targetsOfPackage[0]);  // deploy the one and only
+                            }
+                            else {
+                                // create a virtual "batch" target
+                                // for the underlying "real" targets
+
+                                let virtualPkgName: string;
+                                if (packageName) {
+                                    virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
                                 }
                                 else {
-                                    completed(null, false);
+                                    virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
                                 }
-                            }, (err) => {
-                                completed(err);
-                            });
+
+                                let batchTarget: any = {
+                                    type: 'batch',
+                                    name: virtualPkgName,
+                                    targets: targetsOfPackage.map(x => x.name),
+                                };
+
+                                startDetection(filesOfPackage, batchTarget);
+                            }
+                        }
+                    };
+
+                    if (packageQuickPicks.length > 1) {
+                        vscode.window.showQuickPick(packageQuickPicks, {
+                            placeHolder: i18.t('deploy.workspace.selectPackage'),
+                        }).then((item) => {
+                                    if (item) {
+                                        selectTarget(item.package);
+                                    }
+                                    else {
+                                        completed(null, false);
+                                    }
+                                }, (err) => {
+                                    completed(err);
+                                });
+                    }
+                    else {
+                        // auto select
+                        selectTarget(packageQuickPicks[0].package);
+                    }
                 }
-                else {
-                    // auto select
-                    selectTarget(packageQuickPicks[0].package);
-                }
+
+                selectPackage();
             }
             catch (e) {
                 completed(e);
