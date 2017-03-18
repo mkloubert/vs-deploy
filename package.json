@@ -17641,11 +17641,24 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
+    "@types/diff": "0.0.31",
     "@types/file-type": "0.0.2",
+    "@types/fs-extra": "^2.0.0",
+    "@types/ftp": "^0.3.29",
     "@types/glob": "^5.0.30",
+    "@types/i18next": "^2.3.35",
+    "@types/less": "0.0.32",
+    "@types/mime": "0.0.29",
     "@types/mocha": "^2.2.32",
+    "@types/mssql": "^3.3.1",
+    "@types/mysql": "0.0.31",
     "@types/node": "^6.0.40",
+    "@types/node-uuid": "0.0.28",
+    "@types/nodemailer": "^1.3.32",
+    "@types/pug": "^2.0.4",
+    "@types/ssh2-sftp-client": "^1.0.5",
     "@types/tmp": "0.0.32",
+    "@types/uglify-js": "^2.6.28",
     "mocha": "^2.3.3",
     "typescript": "^2.0.3",
     "vscode": "^1.0.0"
@@ -17665,6 +17678,7 @@
   "dependencies": {
     "aws-sdk": "^2.7.19",
     "azure-storage": "^1.4.0",
+    "diff": "^3.2.0",
     "file-type": "^4.1.0",
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",

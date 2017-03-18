@@ -26,6 +26,7 @@
 import { Deployer } from './deploy';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as Diff from 'diff';
 import * as FileType from 'file-type';
 import * as FS from 'fs';
 import * as i18 from './i18';
@@ -33,16 +34,66 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
+/**
+ * An item of a compare result.
+ */
 export interface CompareResultItem {
+    /**
+     * The number of added chars.
+     */
+    added?: number;
+    /**
+     * The number of added lines.
+     */
+    addedLines?: number;
+    /**
+     * Files are different or not.
+     */
     areDifferent?: boolean;
+    /**
+     * The error (if occurred)
+     */
     error?: any;
+    /**
+     * The path to the local file.
+     */
     file: string;
+    /**
+     * The ID.
+     */
     id: number;
+    /**
+     * Is local file binary or not.
+     */
     isLocalBinary?: boolean;
+    /**
+     * Is remote file binary or not.
+     */
     isRemoteBinary?: boolean;
+    /**
+     * MIME type of the local file.
+     */
     mimeLocal?: string;
+    /**
+     * MIME type of the remote file.
+     */
     mimeRemote?: string;
+    /**
+     * The underlying plugin.
+     */
     plugin: deploy_contracts.DeployPlugin;
+    /**
+     * The number of removed chars.
+     */
+    removed?: number;
+    /**
+     * The number of removed lines.
+     */
+    removedLines?: number;
+    /**
+     * The target.
+     */
+    target: deploy_contracts.DeployTarget;
 }
 
 
@@ -100,6 +151,7 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                 file: f,
                                                 id: ++nextId,
                                                 plugin: p,
+                                                target: t,
                                             };
 
                                             let compareCompleted = (err: any) => {
@@ -169,6 +221,44 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                                 detectInfoWorkflow.next(() => {
                                                                     try {
                                                                         cri.mimeRemote = FileType(remoteData).mime;
+                                                                    }
+                                                                    catch (e) { /* TODO log */ }
+                                                                });
+
+                                                                // count changes (if text files)
+                                                                detectInfoWorkflow.next(() => {
+                                                                    try {
+                                                                        if (true === cri.areDifferent) {
+                                                                            if (false === cri.isLocalBinary && false === cri.isRemoteBinary) {
+                                                                                let strLocal = localData.toString('utf8');
+                                                                                let strRemote = remoteData.toString('utf8');
+
+                                                                                cri.added = 0;
+                                                                                cri.addedLines = 0;
+                                                                                cri.removed = 0;
+                                                                                cri.removedLines = 0;
+
+                                                                                // chars
+                                                                                Diff.diffChars(strRemote, strLocal).forEach(dr => {
+                                                                                    if (dr.added) {
+                                                                                        ++cri.added;
+                                                                                    }
+                                                                                    if (dr.removed) {
+                                                                                        ++cri.removed;
+                                                                                    }
+                                                                                });
+
+                                                                                // lines
+                                                                                Diff.diffLines(strRemote, strLocal).forEach(dr => {
+                                                                                    if (dr.added) {
+                                                                                        ++cri.addedLines;
+                                                                                    }
+                                                                                    if (dr.removed) {
+                                                                                        ++cri.removedLines;
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }
                                                                     }
                                                                     catch (e) { /* TODO log */ }
                                                                 });
