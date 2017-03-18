@@ -38,7 +38,7 @@ export const STYLES = {
     // END: bootstrap.css
 
     // START: detect-changes.css
-    "detect-changes.css": "H4sIAAAAAAAAC+PlSspPqVSo5uVSAIKkxOTs9KL80rwU3eT8nPwiK4WSosS84oLEotS8EmuImtzEovTMPCsFAyi/IDElJTMvHSigYFFQARSs5eUCAPOpU4BWAAAA",
+    "detect-changes.css": "H4sIAAAAAAAACzWOSw7CMAwF95Fyh3CAVgg2VTmNSUxqkZ9cUwqIuxOg8c5PnufR6pzdw7y0MnXOYK+e8y25zuaQeTTCkOYCjElO/5sI7CmNZr/tBZyj5GtghrLW8K2VVjK1TsFVOgjkK2NrDfIGXnKSbqYnVrQfMG7xgixkITQmknMBzY5iySzw89he9Mtsq+kEyeNXuL28k5NpNMdD8/kA+CYeWeYAAAA=",
     // END: detect-changes.css
 
     // START: font-awesome.css

@@ -233,8 +233,11 @@ export function activate(context: vscode.ExtensionContext) {
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
                                                                           new deploy_content.HtmlTextDocumentContentProvider(deployer));
 
-    // notfiy setting changes
-    context.subscriptions.push(htmlViewer);
+    let actionProvider = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html-action',
+                                                                              new deploy_content.ActionTextDocumentContentProvider(deployer));
+
+    // text content providers
+    context.subscriptions.push(actionProvider, htmlViewer);
 
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));

@@ -4,3 +4,13 @@ body {
     margin: 0;
     padding: 0 8px;
 }
+
+th {
+    text-align: center;
+    font-size: 0.8em;
+    vertical-align: middle !important;
+}
+
+th.vscd-change-col {
+    width: 32px;
+}

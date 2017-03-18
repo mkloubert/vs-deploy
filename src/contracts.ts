@@ -1420,6 +1420,36 @@ export interface Hideable {
 }
 
 /**
+ * A module for one or more HTML actions.
+ */
+export interface HtmlActionModule {
+    /**
+     * Handles a HTML action.
+     */
+    readonly handle: HtmlActionHandler;
+}
+
+/**
+ * A handler for a HTML action.
+ * 
+ * @param {HtmlActionHandlerContext} ctx The context.
+ * 
+ * @return {HtmlActionHandlerResult} The result.
+ */
+export type HtmlActionHandler = (ctx: HtmlActionHandlerContext) => HtmlActionHandlerResult;
+
+/**
+ * Context of a HTML action.
+ */
+export interface HtmlActionHandlerContext {
+}
+
+/**
+ * Possible results of a HTML action handler.
+ */
+export type HtmlActionHandlerResult = void | string | Promise<string>;
+
+/**
  * Describes the structure of the package file of that extenstion.
  */
 export interface PackageFile {

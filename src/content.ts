@@ -29,6 +29,56 @@ import * as vs_deploy from './deploy';
 
 
 /**
+ * Action content provider.
+ */
+export class ActionTextDocumentContentProvider implements vscode.TextDocumentContentProvider {
+    /**
+     * Stores the underlying controller.
+     */
+    protected readonly _CONTROLLER: vs_deploy.Deployer;
+    
+    /**
+     * Initializes a new instance of that class.
+     * 
+     * @param {vs_deploy.Deployer} controller The underlying controller instance.
+     */
+    constructor(controller: vs_deploy.Deployer) {
+        this._CONTROLLER = controller;
+    }
+
+    /**
+     * Gets the underlying controller.
+     */
+    public get controller(): vs_deploy.Deployer {
+        return this._CONTROLLER;
+    }
+
+    /** @inheritdoc */
+    public provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Thenable<string> {
+        let me = this;
+        
+        return new Promise<string>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction(resolve, reject);
+
+            try {
+                let params = deploy_helpers.uriParamsToObject(uri);
+
+                let action = deploy_helpers.normalizeString(decodeURIComponent(deploy_helpers.getUrlParam(params, 'a')));
+                if ('' === action) {
+                    completed(null);
+                }
+                else {
+                    
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+}
+
+/**
  * HTML content provider.
  */
 export class HtmlTextDocumentContentProvider implements vscode.TextDocumentContentProvider {

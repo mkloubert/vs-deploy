@@ -149,9 +149,6 @@ ${deploy_res_javascript.getContentSync('bootstrap.min.js').toString('utf8')}
   </head>
   
   <body>
-    <h1><a href="https://github.com/mkloubert/vs-deploy" target="_blank">vs-deploy</a></h1>
-
-    <h2>Changes</h2>
 `;
 
     let htmlEncoder = new HtmlEntities.AllHtmlEntities();
@@ -160,7 +157,15 @@ ${deploy_res_javascript.getContentSync('bootstrap.min.js').toString('utf8')}
         html += `<table class="table table-striped">
     <thead>
         <tr>
-            <th>File</th>
+            <th rowspan="2">File</th>
+            <th colspan="4">Changes</th>
+        </tr>
+
+        <tr>
+            <th class="vscd-change-col">C</th>
+            <th class="vscd-change-col">L</th>
+            <th class="vscd-change-col">W</th>
+            <th class="vscd-change-col">J</th>
         </tr>
     <thead>
     <tbody>
@@ -172,8 +177,11 @@ ${deploy_res_javascript.getContentSync('bootstrap.min.js').toString('utf8')}
             relativePath = r.file;
         }
 
+        let filePathJSON = JSON.stringify(relativePath);
+        filePathJSON = filePathJSON.substr(1, filePathJSON.length - 2);
+
         html += `<tr>
-    <td>${htmlEncoder.encode(relativePath)}</td>
+    <td><a href="#" onclick="vscd_comparefiles('${filePathJSON}')">${htmlEncoder.encode(relativePath)}</td>
 </tr>`;
     });
 
@@ -187,11 +195,19 @@ html += `
 
     html += `
 
+    <p id="test"></p>
+
     <script type="text/javascript">
-        $(function() {
-            //TODO
-        });
+        function vscd_comparefiles(f) {
+            var frame = $('#vscd-action-frame');
+
+            frame.attr('src',
+                       'vs-deploy-html-action://authority/?a=' + encodeURIComponent('comparefiles') + 
+                                                         '&f=' + encodeURIComponent(f));
+        }
     </script>
+
+    <iframe id="vscd-action-frame" src="about:blank" style="display: none; width: 0; height: 0;"></iframe>
   </body>
 </html>`;
 
