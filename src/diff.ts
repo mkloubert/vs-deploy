@@ -42,6 +42,10 @@ export interface CompareResultItem {
      * The number of added chars.
      */
     added?: number;
+        /**
+     * The number of added JSON elements.
+     */
+    addedJSON?: number;
     /**
      * The number of added lines.
      */
@@ -50,6 +54,10 @@ export interface CompareResultItem {
      * Files are different or not.
      */
     areDifferent?: boolean;
+    /**
+     * Both files are JSON are not.
+     */
+    areJSON?: boolean;
     /**
      * The error (if occurred)
      */
@@ -86,6 +94,10 @@ export interface CompareResultItem {
      * The number of removed chars.
      */
     removed?: number;
+    /**
+     * The number of removed JSON elements.
+     */
+    removedJSON?: number;
     /**
      * The number of removed lines.
      */
@@ -228,6 +240,20 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                                 // count changes (if text files)
                                                                 detectInfoWorkflow.next(() => {
                                                                     try {
+                                                                        let jsonLocal: any;
+                                                                        let jsonRemote: any;
+                                                                        if (false === cri.isLocalBinary && false === cri.isRemoteBinary) {
+                                                                            cri.areJSON = false;
+
+                                                                            try {
+                                                                                jsonLocal = JSON.parse(localData.toString('utf8'));
+                                                                                jsonRemote = JSON.parse(remoteData.toString('utf8'));
+
+                                                                                cri.areJSON = true;
+                                                                            }
+                                                                            catch (e) { }
+                                                                        }
+
                                                                         if (true === cri.areDifferent) {
                                                                             if (false === cri.isLocalBinary && false === cri.isRemoteBinary) {
                                                                                 let strLocal = localData.toString('utf8');
@@ -257,6 +283,22 @@ export function detectChanges(files: string[], t: deploy_contracts.DeployTarget)
                                                                                         ++cri.removedLines;
                                                                                     }
                                                                                 });
+
+                                                                                if (true === cri.areJSON) {
+                                                                                    // detect JSON changes
+
+                                                                                    cri.addedJSON = 0;
+                                                                                    cri.removedJSON = 0;
+
+                                                                                    Diff.diffJson(jsonRemote, jsonLocal).forEach(dr => {
+                                                                                        if (dr.added) {
+                                                                                            ++cri.addedJSON;
+                                                                                        }
+                                                                                        if (dr.removed) {
+                                                                                            ++cri.removedJSON;
+                                                                                        }
+                                                                                    });
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
