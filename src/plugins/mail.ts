@@ -27,8 +27,9 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as i18 from '../i18';
-const Mailer = require('nodemailer');
+import * as Mailer from 'nodemailer';
 import * as Moment from 'moment';
+import * as SMTP from "nodemailer-smtp-transport";
 import * as vscode from 'vscode';
 
 
@@ -117,7 +118,7 @@ https://github.com/mkloubert/vs-deploy`,
                             ]
                         };
 
-                        let transporter = Mailer.createTransport({
+                        let transporter = Mailer.createTransport(<SMTP.SmtpOptions>{
                             host: host,
                             port: port,
                             auth: auth,
