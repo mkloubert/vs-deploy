@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.0.0 (March 18th, 2017; run in terminal)
+
+* added `runInTerminal` settings for [app targets](https://github.com/mkloubert/vs-deploy/wiki/target_app) and [open target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-), that indicates if applications should be executed in VS Code integrated terminal instead in the external shell
+
 ## 6.3.0 (March 17th, 2017; diff before deploy)
 
 * added `diffBeforeDeploy` property for [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that indicates if a diff should be made BEFORE a file is being to be deployed

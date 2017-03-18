@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "6.3.0",
+  "version": "7.0.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.5.0"
@@ -883,6 +883,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -1314,6 +1319,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -1674,6 +1684,11 @@
                           }
                         ]
                       },
+                      "runInTerminal": {
+                        "type": "boolean",
+                        "description": "Run in integrated terminal or not.",
+                        "default": false
+                      },
                       "submitFileList": {
                         "type": "boolean",
                         "description": "Indicates if file list should be submitted to the app as arguments or not.",
@@ -1876,6 +1891,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -2308,6 +2328,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -2868,6 +2893,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -3299,6 +3329,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -3847,6 +3882,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -4278,6 +4318,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -4834,6 +4879,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -5265,6 +5315,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -5830,6 +5885,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -6261,6 +6321,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -6844,6 +6909,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -7275,6 +7345,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -7819,6 +7894,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -8250,6 +8330,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -8832,6 +8917,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -9263,6 +9353,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -9809,6 +9904,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -10240,6 +10340,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -10810,6 +10915,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -11241,6 +11351,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -11879,6 +11994,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -12310,6 +12430,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -12933,6 +13058,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -13364,6 +13494,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -13906,6 +14041,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -14337,6 +14477,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -14906,6 +15051,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -15337,6 +15487,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -15871,6 +16026,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -16302,6 +16462,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",
@@ -16850,6 +17015,11 @@
                                     "type": "string"
                                   }
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "wait": {
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
@@ -17281,6 +17451,11 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "wait": {
                                   "type": "boolean",

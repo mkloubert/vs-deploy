@@ -37,6 +37,7 @@ interface DeployTargetApp extends deploy_contracts.DeployTarget {
     separator?: string;
     submitFileList?: boolean;
     wait?: boolean;
+    runInTerminal?: boolean;
 }
 
 function createAppArgsList(file: string, app: string, args: string[]): string[] {
@@ -72,28 +73,6 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             opts = {};
         }
 
-        let app = deploy_helpers.toStringSafe(target.app);
-        let submitTheListOfFiles = deploy_helpers.toBooleanSafe(target.submitFileList, true);
-        let waitForApp = deploy_helpers.toBooleanSafe(target.wait);
-
-        let firstFile = files[0];
-        let nextFiles = files.filter((x, i) => i > 0);
-
-        let args = [];
-        if (target.arguments) {
-            args = args.concat(deploy_helpers.asArray(target.arguments));
-        }
-
-        if (submitTheListOfFiles) {
-            args = args.concat(nextFiles)
-                       .filter(x => x);
-        }
-
-        let separator = deploy_helpers.toStringSafe(target.separator);
-        if (!separator) {
-            separator = ' ';
-        }
-
         let completed = (err?: any) => {
             files.forEach(x => {
                 if (opts.onBeforeDeployFile) {
@@ -121,31 +100,81 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             }
         };
 
-        let appOpts: any;
-        let firstAppArg: any;
-        if (submitTheListOfFiles) {
-            firstAppArg = firstFile;
-            appOpts = createAppArgsList(nextFiles.join(separator), app, args);
+        let app = deploy_helpers.toStringSafe(target.app);
+        let submitTheListOfFiles = deploy_helpers.toBooleanSafe(target.submitFileList, true);
+        let waitForApp = deploy_helpers.toBooleanSafe(target.wait);
+
+        if (deploy_helpers.toBooleanSafe(target.runInTerminal)) {
+            // run in terminal
+
+            let args = deploy_helpers.asArray(target.arguments)
+                                     .map(x => deploy_helpers.toStringSafe(x))
+                                     .filter(x => x);
+
+            if (submitTheListOfFiles) {
+                args = args.concat(files);
+            }
+
+            let terminalName = '[vs-deploy]';
+            if (!deploy_helpers.isEmptyString(target.name)) {
+                terminalName += ' ' + deploy_helpers.toStringSafe(target.name).trim();
+            }
+
+            let app = deploy_helpers.toStringSafe(target.app);
+            if (!Path.isAbsolute(app)) {
+                app = Path.join(vscode.workspace.rootPath, app);
+            }
+            app = Path.resolve(app);
+
+            let terminal = vscode.window.createTerminal(terminalName,
+                                                        app, args);
+            terminal.show();
         }
         else {
-            if (args.length < 1) {
-                firstAppArg = app;
+            let firstFile = files[0];
+            let nextFiles = files.filter((x, i) => i > 0);
+
+            let args = [];
+            if (target.arguments) {
+                args = args.concat(deploy_helpers.asArray(target.arguments));
+            }
+
+            if (submitTheListOfFiles) {
+                args = args.concat(nextFiles)
+                        .filter(x => x);
+            }
+
+            let separator = deploy_helpers.toStringSafe(target.separator);
+            if ('' === separator) {
+                separator = ' ';
+            }
+
+            let appOpts: any;
+            let firstAppArg: any;
+            if (submitTheListOfFiles) {
+                firstAppArg = firstFile;
+                appOpts = createAppArgsList(nextFiles.join(separator), app, args);
             }
             else {
-                firstAppArg = args[0];
-                appOpts = createAppArgsList(nextFiles.join(separator), app,
-                                            args.filter((x, i) => i > 0));
+                if (args.length < 1) {
+                    firstAppArg = app;
+                }
+                else {
+                    firstAppArg = args[0];
+                    appOpts = createAppArgsList(nextFiles.join(separator), app,
+                                                args.filter((x, i) => i > 0));
+                }
             }
-        }
 
-        deploy_helpers.open(firstAppArg, {
-            app: appOpts,
-            wait: waitForApp,
-        }).then(() => {
-            completed();
-        }).catch((err) => {
-            completed(err);
-        });
+            deploy_helpers.open(firstAppArg, {
+                app: appOpts,
+                wait: waitForApp,
+            }).then(() => {
+                completed();
+            }).catch((err) => {
+                completed(err);
+            });
+        }
     }
 
     public info(): deploy_contracts.DeployPluginInfo {

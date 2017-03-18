@@ -758,6 +758,10 @@ export interface DeployOpenOperation extends DeployOperation {
      */
     arguments?: string | string[];
     /**
+     * Run in integrated terminal or not.
+     */
+    runInTerminal?: boolean;
+    /**
      * The type.
      */
     target?: string;

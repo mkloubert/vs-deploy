@@ -258,32 +258,56 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
             let operationTarget = deploy_helpers.toStringSafe(openOperation.target);
             let waitForExit = deploy_helpers.toBooleanSafe(openOperation.wait, true);
 
-            let openArgs = [];
-            if (openOperation.arguments) {
-                openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
+            if (deploy_helpers.toBooleanSafe(openOperation.runInTerminal)) {
+                // run in terminal
+
+                let args = deploy_helpers.asArray(openOperation.arguments)
+                                         .map(x => deploy_helpers.toStringSafe(x))
+                                         .filter(x => x);
+
+                let terminalName = '[vs-deploy]';
+                if (!deploy_helpers.isEmptyString(openOperation.name)) {
+                    terminalName += ' ' + deploy_helpers.toStringSafe(openOperation.name).trim();
+                }
+
+                let app = deploy_helpers.toStringSafe(openOperation.target);
+                if (!Path.isAbsolute(app)) {
+                    app = Path.join(vscode.workspace.rootPath, app);
+                }
+                app = Path.resolve(app);
+
+                let terminal = vscode.window.createTerminal(terminalName,
+                                                            app, args);
+                terminal.show();
             }
-            openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
-                               .filter(x => x);
+            else {
+                let openArgs = [];
+                if (openOperation.arguments) {
+                    openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
+                }
+                openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
+                                   .filter(x => x);
 
-            if (openArgs.length > 0) {
-                let app = operationTarget;
+                if (openArgs.length > 0) {
+                    let app = operationTarget;
 
-                operationTarget = openArgs.pop();
-                openArgs = [ app ].concat(openArgs);
+                    operationTarget = openArgs.pop();
+                    openArgs = [ app ].concat(openArgs);
+                }
+
+                ctx.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
+
+                deploy_helpers.open(operationTarget, {
+                    app: openArgs,
+                    wait: waitForExit,
+                }).then(function() {
+                    ctx.outputChannel.appendLine(i18.t('ok'));
+
+                    completed();
+                }).catch((err) => {
+                    completed(err);
+                });
             }
-
-            ctx.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
-
-            deploy_helpers.open(operationTarget, {
-                app: openArgs,
-                wait: waitForExit,
-            }).then(function() {
-                ctx.outputChannel.appendLine(i18.t('ok'));
-
-                completed();
-            }).catch((err) => {
-                completed(err);
-            });
         }
         catch (e) {
             completed(e);
