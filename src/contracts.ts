@@ -1308,6 +1308,32 @@ export interface DeployWorkspaceOptions {
 }
 
 /**
+ * A document.
+ */
+export interface Document {
+    /**
+     * The body / content of the document.
+     */
+    body: Buffer;
+    /**
+     * The encoding.
+     */
+    encoding?: string;
+    /**
+     * The ID.
+     */
+    id?: any;
+    /**
+     * The MIME type.
+     */
+    mime?: string;
+    /**
+     * The title.
+     */
+    title?: string;
+}
+
+/**
  * Arguments for an event.
  */
 export interface EventArguments {    

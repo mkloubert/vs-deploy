@@ -26,9 +26,12 @@
 import { Deployer } from './deploy';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_res_css from './resources/css';
+import * as deploy_res_javascript from './resources/javascript';
 import * as Diff from 'diff';
 import * as FileType from 'file-type';
 import * as FS from 'fs';
+import * as HtmlEntities from 'html-entities';
 import * as i18 from './i18';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
@@ -108,6 +111,92 @@ export interface CompareResultItem {
     target: deploy_contracts.DeployTarget;
 }
 
+
+export function buildHtml(result: CompareResultItem | CompareResultItem[]): string {
+    result = deploy_helpers.asArray(result)
+                           .filter(x => x);
+    
+    let html = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style type="text/css">
+    
+${deploy_res_css.getContentSync('bootstrap.css').toString('utf8')}
+    
+    </style>
+
+    <style type="text/css">
+    
+${deploy_res_css.getContentSync('detect-changes.css').toString('utf8')}
+    
+    </style>
+
+    <script type="text/javascript">
+    
+${deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8')}
+    
+    </script>
+
+    <script type="text/javascript">
+    
+${deploy_res_javascript.getContentSync('bootstrap.min.js').toString('utf8')}
+    
+    </script>
+  </head>
+  
+  <body>
+    <h1><a href="https://github.com/mkloubert/vs-deploy" target="_blank">vs-deploy</a></h1>
+
+    <h2>Changes</h2>
+`;
+
+    let htmlEncoder = new HtmlEntities.AllHtmlEntities();
+
+    if (result.length > 0) {
+        html += `<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>File</th>
+        </tr>
+    <thead>
+    <tbody>
+`;
+
+    result.forEach(r => {
+        let relativePath = deploy_helpers.toRelativePath(r.file);
+        if (false === relativePath) {
+            relativePath = r.file;
+        }
+
+        html += `<tr>
+    <td>${htmlEncoder.encode(relativePath)}</td>
+</tr>`;
+    });
+
+html += `
+    </tbody>
+</table>`;
+    }
+    else {
+        html += '<p>' + htmlEncoder.encode('No files.') + '</p>';
+    }
+
+    html += `
+
+    <script type="text/javascript">
+        $(function() {
+            //TODO
+        });
+    </script>
+  </body>
+</html>`;
+
+    return html;
+}
 
 /**
  * Detects changes of files.

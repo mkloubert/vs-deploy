@@ -105,6 +105,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _host: DeployHost;
     /**
+     * Stores for HTML document.
+     */
+    protected _htmlDocs: deploy_contracts.Document[];
+    /**
      * Stores if 'deploy on change' feature is enabled or not.
      */
     protected _isDeployOnChangeEnabled = true;
@@ -2129,6 +2133,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets the storage of HTML document.
+     */
+    public get htmlDocuments(): deploy_contracts.Document[] {
+        return this._htmlDocs;
+    }
+
+    /**
      * Starts listening for files.
      */
     public listen() {
@@ -3913,6 +3924,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         this._config = cfg;
 
         me._globalScriptOperationState = {};
+        me._htmlDocs = [];
         me._scriptOperationStates = {};
 
         let next = () => {

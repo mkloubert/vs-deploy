@@ -25,6 +25,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_content from './content';
+import * as deploy_contracts from './contracts';
+import * as deploy_diff from './diff';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 import * as Moment from 'moment';
@@ -124,9 +127,13 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            //TODO
+            deploy_helpers.openHtmlDocument(deployer.htmlDocuments, deploy_diff.buildHtml(changes), '[vs-deploy] Detected changes').then(() => {
+
+            }).catch((err) => {
+                vscode.window.showErrorMessage(`[DETECT CHANGES ERROR.2]: ${deploy_helpers.toStringSafe(err)}`);
+            });
         }).catch((err) => {
-            vscode.window.showErrorMessage(`[DETECT CHANGES ERROR]: ${deploy_helpers.toStringSafe(err)}`);
+            vscode.window.showErrorMessage(`[DETECT CHANGES ERROR.1]: ${deploy_helpers.toStringSafe(err)}`);
         });
     });
 
@@ -167,6 +174,32 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // open HTML document
+    let openHtmlDoc = vscode.commands.registerCommand('extension.deploy.openHtmlDoc', (doc: deploy_contracts.Document) => {
+        try {
+            let htmlDocs = deployer.htmlDocuments;
+
+            let url = vscode.Uri.parse(`vs-deploy-html://authority/?id=${encodeURIComponent(deploy_helpers.toStringSafe(doc.id))}` + 
+                                       `&x=${encodeURIComponent(deploy_helpers.toStringSafe(new Date().getTime()))}`);
+
+            let title = deploy_helpers.toStringSafe(doc.title).trim();
+            if (!title) {
+                title = `[vs-deploy] HTML document #${deploy_helpers.toStringSafe(doc.id)}`;
+            }
+
+            vscode.commands.executeCommand('vscode.previewHtml', url, vscode.ViewColumn.One, title).then((success) => {
+                deploy_helpers.removeDocuments(doc, htmlDocs);
+            }, (err) => {
+                deploy_helpers.removeDocuments(doc, htmlDocs);
+
+                deploy_helpers.log(`[ERROR] extension.deploy.openHtmlDoc(2): ${err}`);
+            });
+        }
+        catch (e) {
+            deploy_helpers.log(`[ERROR] extension.deploy.openHtmlDoc(1): ${e}`);
+        }
+    });
+
     // open output window after deployment
     let openOutputAfterDeploment = vscode.commands.registerCommand('extension.deploy.openOutputAfterDeploment', () => {
         try {
@@ -197,6 +230,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
+                                                                          new deploy_content.HtmlTextDocumentContentProvider(deployer));
+
+    // notfiy setting changes
+    context.subscriptions.push(htmlViewer);
+
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
@@ -209,7 +248,8 @@ export function activate(context: vscode.ExtensionContext) {
                                pull, pullFileOrFolder,
                                listen,
                                quickDeploy,
-                               openOutputAfterDeploment);
+                               openHtmlDoc, openOutputAfterDeploment,
+                               htmlViewer);
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();

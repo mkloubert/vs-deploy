@@ -10,3 +10,4 @@ src/**
 tsconfig.json
 pushall.sh
 typedoc.cmd
+res/**

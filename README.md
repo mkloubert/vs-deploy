@@ -306,6 +306,7 @@ Press `F1` to open the list of commands and enter one of the following commands:
 | `Deploy: Compare files` | Compares a local file with a remote one. | `CTRL+ALT+P, C` |
 | `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
 | `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
+| `Deploy: Detect changes` | Detects changes of a specific package. | `CTRL+ALT+P, D` |
 | `Deploy: Pull current file / folder` | Pulls the current opened file. | `CTRL+ALT+P, F` |
 | `Deploy: Pull workspace` | Pulls a specific package. | `CTRL+ALT+P, W` |
 | `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL+ALT+L` |

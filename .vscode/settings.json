@@ -6,5 +6,51 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    "typescript.tsdk": "./node_modules/typescript/lib" // we want to use the TS server from our node_modules folder to control its version
+    "typescript.tsdk": "./node_modules/typescript/lib", // we want to use the TS server from our node_modules folder to control its version
+
+    "deploy": {
+        "showPopupOnSuccess": false,
+
+        "packages": [
+            {
+                "name": "[Resources] CSS files",
+                "files": [
+                    "res/css/*.css"
+                ],
+
+                "deployOnSave": true,
+                "useTargetListForDeployOnSave": true,
+
+                "targets": [ "CSS Embedded Resource Builder" ]
+            },
+            {
+                "name": "[Resources] JavaScript files",
+                "files": [
+                    "res/javascript/*.js"
+                ],
+
+                "deployOnSave": true,
+                "useTargetListForDeployOnSave": true,
+
+                "targets": [ "JavaScript Embedded Resource Builder" ]
+            }
+        ],
+
+        "targets": [
+            {
+                "name": "CSS Embedded Resource Builder",
+                "type": "script",
+
+                "script": "./res/embedded_resource.js",
+                "options": "css"
+            },
+            {
+                "name": "JavaScript Embedded Resource Builder",
+                "type": "script",
+
+                "script": "./res/embedded_resource.js",
+                "options": "javascript"
+            }
+        ]
+    }
 }
