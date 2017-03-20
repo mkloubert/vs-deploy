@@ -349,7 +349,7 @@ export function formatArray(formatStr: any, args: any[]): string {
                 switch (fp) {
                     case 'leading_space':
                         resultValue = toStringSafe(resultValue);
-                        if (resultValue) {
+                        if ('' !== resultValue) {
                             resultValue = ' ' + resultValue;
                         }
                         break;
@@ -368,7 +368,7 @@ export function formatArray(formatStr: any, args: any[]): string {
 
                     case 'surround':
                         resultValue = toStringSafe(resultValue);
-                        if (resultValue) {
+                        if ('' !== resultValue) {
                             resultValue = "'" + toStringSafe(resultValue) + "'";
                         }
                         break;
