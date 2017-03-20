@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.1.0 (March 20th, 2017; WebDeploy)
+
+* added `runInTerminal` property for [webdeploy target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy-), that indicates if the tool should be executed in VS Code integrated terminal instead in the external shell
+
 ## 7.0.0 (March 18th, 2017; run in terminal)
 
 * added `runInTerminal` settings for [app targets](https://github.com/mkloubert/vs-deploy/wiki/target_app) and [open target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-), that indicates if applications should be executed in VS Code integrated terminal instead in the external shell

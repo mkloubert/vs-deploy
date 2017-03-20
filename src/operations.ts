@@ -537,23 +537,43 @@ export function webdeploy(ctx: OperationContext<deploy_contracts.DeployWebDeploy
                 }
             }
 
-            let openOpts: deploy_helpers.OpenOptions = {
-                app: [ msDeploy ].concat(args)
-                                    .map(x => deploy_helpers.toStringSafe(x))
-                                    .filter(x => x),
-                cwd: webDeployOp.dir,
-                wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
-            };
+            if (deploy_helpers.toBooleanSafe(webDeployOp.runInTerminal)) {
+                // run in terminal
 
-            let target = `-verb:${deploy_helpers.toStringSafe(webDeployOp.verb)}`;
+                let terminalName = '[vs-deploy :: WebDeploy]';
+                if (!deploy_helpers.isEmptyString(webDeployOp.name)) {
+                    terminalName += ' ' + deploy_helpers.toStringSafe(webDeployOp.name).trim();
+                }
 
-            deploy_helpers.open(target, openOpts).then(() => {
-                ctx.outputChannel.appendLine(i18.t('ok'));
+                let app = msDeploy;
+                if (!Path.isAbsolute(app)) {
+                    app = Path.join(vscode.workspace.rootPath, app);
+                }
+                app = Path.resolve(app);
 
-                completed();
-            }).catch((err) => {
-                completed(err);
-            });
+                let terminal = vscode.window.createTerminal(terminalName,
+                                                            app, args);
+                terminal.show();
+            }
+            else {
+                let openOpts: deploy_helpers.OpenOptions = {
+                    app: [ msDeploy ].concat(args)
+                                     .map(x => deploy_helpers.toStringSafe(x))
+                                     .filter(x => x),
+                    cwd: webDeployOp.dir,
+                    wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
+                };
+
+                let target = `-verb:${deploy_helpers.toStringSafe(webDeployOp.verb)}`;
+
+                deploy_helpers.open(target, openOpts).then(() => {
+                    ctx.outputChannel.appendLine(i18.t('ok'));
+
+                    completed();
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
         }
         catch (e) {
             completed(e);

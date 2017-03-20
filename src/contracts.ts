@@ -762,7 +762,7 @@ export interface DeployOpenOperation extends DeployOperation {
      */
     runInTerminal?: boolean;
     /**
-     * The type.
+     * The application / target to open.
      */
     target?: string;
     /**
@@ -1279,6 +1279,10 @@ export interface DeployWebDeployOperation extends DeployOperation {
      * The optional path to the executable.
      */
     exec?: string;
+    /**
+     * Run in integrated terminal or not.
+     */
+    runInTerminal?: boolean;
     /**
      * Wait for execution finished or not.
      */
