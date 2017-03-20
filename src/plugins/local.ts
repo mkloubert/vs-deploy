@@ -27,7 +27,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
-const FSExtra = require('fs-extra');
+import * as FSExtra from 'fs-extra';
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
