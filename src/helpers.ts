@@ -31,7 +31,7 @@ const Glob = require('glob');
 import * as HTTP from 'http';
 import * as i18 from './i18';
 const IsBinaryFile = require("isbinaryfile");
-const MIME = require('mime');
+import * as MIME from 'mime';
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as Path from 'path';
@@ -278,8 +278,8 @@ export function detectMimeByFilename(file: string, defValue: any = 'application/
                   'helpers.detectMimeByFilename()', e));
     }
 
-    mime = toStringSafe(mime).toLowerCase().trim();
-    if (!mime) {
+    mime = normalizeString(mime);
+    if ('' === mime) {
         mime = defValue;
     }
 

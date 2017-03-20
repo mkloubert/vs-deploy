@@ -17980,6 +17980,8 @@
     "@types/ftp": "^0.3.29",
     "@types/glob": "^5.0.30",
     "@types/gulp": "^4.0.2",
+    "@types/i18next": "^2.3.35",
+    "@types/mime": "0.0.29",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
     "@types/ssh2-sftp-client": "^1.0.5",
