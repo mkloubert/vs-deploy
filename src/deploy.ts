@@ -33,6 +33,7 @@ import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
 const Glob = require('glob');
+import * as Gulp from 'gulp';
 import * as i18 from './i18';
 import * as Moment from 'moment';
 import * as OS from 'os';
@@ -3754,6 +3755,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me.showExtensionInfoPopups();
 
             me.reloadCommands();
+
+            me.reloadGulp();
+
             me.executeStartupCommands();
 
             // deploy.config.reloaded
@@ -3789,6 +3793,21 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         if (deploy_helpers.toBooleanSafe(this._config.openOutputOnStartup)) {
             this.outputChannel.show();
+        }
+    }
+
+    /**
+     * Reloads all Gulp tasks.
+     */
+    protected reloadGulp() {
+        let me = this;
+
+        try {
+            (<any>Gulp).reset();
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.reloadGulp()', e));
         }
     }
 

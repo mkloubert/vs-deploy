@@ -209,6 +209,9 @@ export interface Translation {
         ftp?: {
             description?: string;
         },
+        gulp?: {
+            description?: string;
+        },
         http?: {
             description?: string;
             protocolNotSupported?: string;

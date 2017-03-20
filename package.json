@@ -17984,6 +17984,7 @@
     "@types/mime": "0.0.29",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
+    "@types/node-uuid": "0.0.28",
     "@types/ssh2-sftp-client": "^1.0.5",
     "@types/tmp": "0.0.32",
     "mocha": "^2.3.3",
