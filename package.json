@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -1147,6 +1147,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -1583,6 +1588,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -2156,6 +2166,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -2592,6 +2607,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -3157,6 +3177,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -3593,6 +3618,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -4146,6 +4176,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -4582,6 +4617,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -5143,6 +5183,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -5579,6 +5624,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -6149,6 +6199,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -6585,6 +6640,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -7173,6 +7233,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -7609,6 +7674,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -8158,6 +8228,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -8594,6 +8669,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -9181,6 +9261,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -9617,6 +9702,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -10168,6 +10258,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -10604,6 +10699,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -11179,6 +11279,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -11615,6 +11720,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -12258,6 +12368,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -12694,6 +12809,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -13322,6 +13442,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -13758,6 +13883,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -14305,6 +14435,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -14741,6 +14876,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -15315,6 +15455,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -15751,6 +15896,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -16290,6 +16440,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -16726,6 +16881,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
@@ -17279,6 +17439,11 @@
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
                                 },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
                                 "setParam": {
                                   "type": "string",
                                   "description": "Specifies values during a sync operation for the parameters that you specify."
@@ -17715,6 +17880,11 @@
                                   "type": "number",
                                   "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
                                   "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
                                 },
                                 "setParam": {
                                   "type": "string",
