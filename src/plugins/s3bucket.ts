@@ -224,7 +224,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                             Body: data,
                         };
 
-                        if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {
+                        if (!deploy_helpers.isEmptyString(contentType)) {
                             params['ContentType'] = contentType;
                         }
 

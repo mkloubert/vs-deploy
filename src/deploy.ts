@@ -1483,7 +1483,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 Object.keys(networkInterfaces).forEach((ifName) => {
                     let ifaces = networkInterfaces[ifName].filter(x => {
                         let addr = deploy_helpers.toStringSafe(x.address)
-                                                    .toLowerCase().trim();
+                                                 .toLowerCase().trim();
                         if ('IPv4' == x.family) {
                             return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
                         }
