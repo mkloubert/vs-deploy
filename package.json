@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.1.1",
+  "version": "7.2.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -2705,6 +2705,15 @@
                       "container": {
                         "type": "string",
                         "description": "The name of the container inside the storage."
+                      },
+                      "contentType": {
+                        "type": "string",
+                        "description": "Defines the content type for files explicit."
+                      },
+                      "detectMime": {
+                        "type": "boolean",
+                        "description": "Detect the MIME type for a file automatically or not.",
+                        "default": true
                       },
                       "dir": {
                         "type": "string",
@@ -11810,6 +11819,10 @@
                       "bucket": {
                         "type": "string",
                         "description": "The name of the target bucket."
+                      },
+                      "contentType": {
+                        "type": "string",
+                        "description": "Defines the content type for files explicit."
                       },
                       "credentials": {
                         "type": "object",

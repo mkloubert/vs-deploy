@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.2.0 (March 23rd, 2017; content type for Azure and S3)
+
+* content type is detected (and submitted) for files that are deployed to [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) now ... this behavior can be changed by setting the `contentType` or `detectMime` properties in the target(s)
+* added `contentType` property for [S3 bucket targets](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), which can define the mime type for all files explicit
+
 ## 7.1.0 (March 20th, 2017; WebDeploy)
 
 * added `runInTerminal` property for [webdeploy target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy-), that indicates if the tool should be executed in VS Code integrated terminal instead in the external shell

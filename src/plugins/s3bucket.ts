@@ -40,6 +40,7 @@ interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
     },
     detectMime?: boolean;
     dir?: string;
+    contentType?: string;
 }
 
 interface S3Context {
@@ -184,6 +185,15 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                     bucketKey = bucketKey.substr(1);
                 }
 
+                let contentType = deploy_helpers.normalizeString(target.contentType);
+                if ('' === contentType) {
+                    // no explicit content type
+
+                    if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {  // detect?
+                        contentType = deploy_helpers.detectMimeByFilename(file);
+                    }
+                }
+
                 if (opts.onBeforeDeploy) {
                     opts.onBeforeDeploy(me, {
                         destination: bucketKey,
@@ -215,7 +225,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         };
 
                         if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {
-                            params['ContentType'] = deploy_helpers.detectMimeByFilename(file);
+                            params['ContentType'] = contentType;
                         }
 
                         ctx.connection.putObject(params, (err, data) => {
