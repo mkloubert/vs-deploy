@@ -2706,6 +2706,15 @@
                         "type": "string",
                         "description": "The name of the container inside the storage."
                       },
+                      "contentType": {
+                        "type": "string",
+                        "description": "Defines the content type for files explicit."
+                      },
+                      "detectMime": {
+                        "type": "boolean",
+                        "description": "Detect the MIME type for a file automatically or not.",
+                        "default": true
+                      },
                       "dir": {
                         "type": "string",
                         "description": "The target directory.",
@@ -11811,6 +11820,10 @@
                         "type": "string",
                         "description": "The name of the target bucket."
                       },
+                      "contentType": {
+                        "type": "string",
+                        "description": "Defines the content type for files explicit."
+                      },
                       "credentials": {
                         "type": "object",
                         "description": "The credentials to use.",
@@ -17976,9 +17989,16 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
+    "@types/fs-extra": "^2.0.0",
+    "@types/ftp": "^0.3.29",
     "@types/glob": "^5.0.30",
+    "@types/gulp": "^4.0.2",
+    "@types/i18next": "^2.3.35",
+    "@types/mime": "0.0.29",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
+    "@types/node-uuid": "0.0.28",
+    "@types/ssh2-sftp-client": "^1.0.5",
     "@types/tmp": "0.0.32",
     "mocha": "^2.3.3",
     "typescript": "^2.0.3",
@@ -18002,6 +18022,7 @@
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
+    "gulp": "^3.9.1",
     "i18next": "^4.1.4",
     "isbinaryfile": "^3.0.2",
     "less": "^2.7.2",
