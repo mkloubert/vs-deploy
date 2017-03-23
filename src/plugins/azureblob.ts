@@ -39,6 +39,8 @@ interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
     dir?: string;
     host?: string;
     publicAccessLevel?: string;
+    detectMime?: boolean;
+    contentType?: string;
 }
 
 interface AzureBlobContext {
@@ -130,6 +132,15 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                     blob = blob.substr(1);
                 }
 
+                let contentType = deploy_helpers.normalizeString(target.contentType);
+                if ('' === contentType) {
+                    // no explicit content type
+
+                    if (deploy_helpers.toBooleanSafe(target.detectMime, true)) {  // detect?
+                        contentType = deploy_helpers.detectMimeByFilename(file);
+                    }
+                }
+
                 if (opts.onBeforeDeploy) {
                     opts.onBeforeDeploy(me, {
                         destination: blob,
@@ -169,7 +180,11 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                             return;
                         }
 
-                        ctx.service.createBlockBlobFromText(ctx.container, blob, data, (err) => {
+                        ctx.service.createBlockBlobFromText(ctx.container, blob, data, {
+                            contentSettings: {
+                                contentType: contentType,
+                            },
+                        }, (err) => {
                             completed(err);
                         });
                     });
