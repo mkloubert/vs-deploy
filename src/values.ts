@@ -203,7 +203,7 @@ export class FileValue extends ValueBase {
 
     /** @inheritdoc */
     public get value(): any {
-        let file = deploy_helpers.toStringSafe(this.item);
+        let file = deploy_helpers.toStringSafe(this.item.file);
         file = replaceWithValues(this.otherValues, file);
         if (!Path.isAbsolute(file)) {
             file = Path.join(vscode.workspace.rootPath, file)
