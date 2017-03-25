@@ -25,7 +25,9 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as FS from 'fs';
 import * as OS from 'os';
+import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
@@ -56,11 +58,40 @@ export abstract class ValueBase implements deploy_contracts.ObjectWithNameAndVal
     }
 
     /**
+     * Anthing that identifies that value.
+     */
+    public id: any;
+
+    /**
      * Gets the underlying item.
      */
     public get item(): deploy_contracts.ValueWithName {
         return this._ITEM;
     }
+
+    /**
+     * Gets the list of "other" values.
+     */
+    public get otherValues(): ValueBase[] {
+        let result: ValueBase[] = [];
+
+        let ovp = this.otherValueProvider;
+        if (ovp) {
+            try {
+                result = result.concat(deploy_helpers.asArray(ovp()));
+            }
+            catch (e) {
+                //TODO: log
+            }
+        }
+
+        return result.filter(x => x);
+    }
+
+    /**
+     * The function that provides the "other" values.
+     */
+    public otherValueProvider: () => ValueBase[];
 
     /** @inheritdoc */
     public get name(): string {
@@ -155,6 +186,59 @@ export class EnvValue extends ValueBase {
 }
 
 /**
+ * A value from a file.
+ */
+export class FileValue extends ValueBase {
+    /** @inheritdoc */
+    constructor(value?: deploy_contracts.FileValueWithName) {
+        super(value);
+    }
+
+    /**
+     * Gets the underlying item.
+     */
+    public get item(): deploy_contracts.FileValueWithName {
+        return <deploy_contracts.FileValueWithName>super.item;
+    }
+
+    /** @inheritdoc */
+    public get value(): any {
+        let file = deploy_helpers.toStringSafe(this.item);
+        file = replaceWithValues(this.otherValues, file);
+        if (!Path.isAbsolute(file)) {
+            file = Path.join(vscode.workspace.rootPath, file)
+        }
+        file = Path.resolve(file);
+
+        let content = FS.readFileSync(file);
+        
+        if (content) {
+            if (deploy_helpers.toBooleanSafe(this.item.asBinary)) {
+                return content;
+            }
+            else {
+                // as string
+
+                let enc = deploy_helpers.normalizeString(this.item.encoding);
+                if ('' === enc) {
+                    enc = 'utf8';
+                }
+
+                let str = content.toString(enc);
+
+                if (deploy_helpers.toBooleanSafe(this.item.usePlaceholders)) {
+                    str = replaceWithValues(this.otherValues, str);
+                }
+
+                return str;
+            }
+        }
+
+        return content;
+    }
+}
+
+/**
  * A static value.
  */
 export class StaticValue extends ValueBase {
@@ -238,6 +322,46 @@ export function getValues(): ValueBase[] {
 }
 
 /**
+ * Handles a value as string and replaces placeholders.
+ * 
+ * @param {ValueBase|ValueBase[]} values The "placeholders".
+ * @param {any} val The value to parse.
+ * 
+ * @return {string} The parsed value.
+ */
+export function replaceWithValues(values: ValueBase | ValueBase[], val: any): string {
+    let allValues = deploy_helpers.asArray(values).filter(x => x);
+
+    if (!deploy_helpers.isNullOrUndefined(val)) {
+        let str = deploy_helpers.toStringSafe(val);
+
+        allValues.forEach(v => {
+            let vn = deploy_helpers.normalizeString(v.name);
+
+            // ${VAR_NAME}
+            str = str.replace(/(\$)(\{)([^\}]*)(\})/gm, (match, varIdentifier, openBracket, varName: string, closedBracked) => {
+                let newValue: string = match;
+
+                if (deploy_helpers.normalizeString(varName) === vn) {
+                    try {
+                        newValue = deploy_helpers.toStringSafe(v.value);
+                    }
+                    catch (e) {
+                        //TODO: log
+                    }
+                }
+
+                return newValue;
+            });
+        });
+
+        return str;
+    }
+
+    return val;
+}
+
+/**
  * Converts a list of value items to objects.
  * 
  * @param {(deploy_contracts.ValueWithName|deploy_contracts.ValueWithName[])} items The item(s) to convert.
@@ -247,7 +371,7 @@ export function getValues(): ValueBase[] {
 export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_contracts.ValueWithName[]): ValueBase[] {
     let result: ValueBase[] = [];
 
-    deploy_helpers.asArray(items).filter(i => i).forEach(i => {
+    deploy_helpers.asArray(items).filter(i => i).forEach((i, idx) => {
         let newValue: ValueBase;
         
         switch (deploy_helpers.normalizeString(i.type)) {
@@ -264,9 +388,18 @@ export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_co
             case 'environment':
                 newValue = new EnvValue(<deploy_contracts.EnvValueWithName>i);
                 break;
+
+            case 'file':
+                newValue = new FileValue(<deploy_contracts.FileValueWithName>i);
+                break;
         }
 
         if (newValue) {
+            newValue.id = idx;
+            newValue.otherValueProvider = () => {
+                return result.filter(x => x.id !== newValue.id);
+            };
+
             result.push(newValue);
         }
     });

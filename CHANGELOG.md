@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.7.0 (March 25th, 2017; placeholders from files)
+
+* can use [files](https://github.com/mkloubert/vs-deploy/wiki/values#file-) as [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) now
+
 ## 7.6.0 (March 25th, 2017; placeholders from environment vars)
 
 * can use [environment variables](https://github.com/mkloubert/vs-deploy/wiki/values#env-) as [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) now

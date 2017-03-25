@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.6.0",
+  "version": "7.7.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -18356,6 +18356,51 @@
                     "required": [
                       "name",
                       "type"
+                    ]
+                  },
+                  {
+                    "description": "A value from a file.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The name of the value.",
+                        "type": "string"
+                      },
+                      "type": {
+                        "description": "The type of the value.",
+                        "type": "string",
+                        "enum": [
+                          "file"
+                        ]
+                      },
+                      "description": {
+                        "description": "An optional description for the value.",
+                        "type": "string"
+                      },
+                      "asBinary": {
+                        "description": "Returns as binary / buffer or not.",
+                        "type": "boolean",
+                        "default": false
+                      },
+                      "encoding": {
+                        "description": "The text encoding to use.",
+                        "type": "string",
+                        "default": "utf8"
+                      },
+                      "file": {
+                        "description": "The path to the file.",
+                        "type": "string"
+                      },
+                      "usePlaceholders": {
+                        "description": "Also use placeholders for the (string) content or not.",
+                        "type": "boolean",
+                        "default": false
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "file"
                     ]
                   }
                 ]
