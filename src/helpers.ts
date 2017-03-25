@@ -304,6 +304,30 @@ export function distinctArray<T>(arr: T[]): T[] {
 }
 
 /**
+ * Filters items by platform.
+ * 
+ * @param {(T|T[])} items The items to filter.
+ * @param {string} [platform] The custom name of the platform to use.
+ * 
+ * @returns {T[]} The new list of filtered items. 
+ */
+export function filterPlatformItems<T extends deploy_contracts.PlatformItem>(items: T | T[], platform?: string): T[] {
+    platform = normalizeString(platform);
+    if ('' === platform) {
+        platform = normalizeString(process.platform);
+    }
+    
+    return asArray<T>(items).filter(x => x)
+                            .filter(x => {
+                                        let platformNames = asArray(x.platforms).map(x => normalizeString(x))
+                                                                                .filter(x => x);
+
+                                        return platformNames.length < 1 ||
+                                               platformNames.indexOf(platform) > -1;
+                                    });
+}
+
+/**
  * Formats a string.
  * 
  * @param {any} formatStr The value that represents the format string.

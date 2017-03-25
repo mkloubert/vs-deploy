@@ -1684,7 +1684,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let myName = this.name;
         packages = deploy_helpers.sortPackages(packages, () => myName);
 
-        return packages.filter(p => {
+        // isFor
+        packages = packages.filter(p => {
             let validHosts = deploy_helpers.asArray(p.isFor)
                                            .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
                                            .filter(x => x);
@@ -1695,6 +1696,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             return validHosts.indexOf(myName) > -1;
         });
+
+        // platforms
+        packages = deploy_helpers.filterPlatformItems(packages);
+
+        return packages;
     }
 
     /**
@@ -1713,7 +1719,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let myName = this.name;
         targets = deploy_helpers.sortTargets(targets, () => myName);
 
-        return targets.filter(t => {
+        // isFor
+        targets = targets.filter(t => {
             let validHosts = deploy_helpers.asArray(t.isFor)
                                            .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
                                            .filter(x => x);
@@ -1724,6 +1731,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             return validHosts.indexOf(myName) > -1;
         });
+
+        // platforms
+        targets = deploy_helpers.filterPlatformItems(targets);
+
+        return targets;
     }
 
     /**

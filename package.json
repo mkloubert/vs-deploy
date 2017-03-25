@@ -532,6 +532,22 @@
                     "description": "Exclude 'node_modules' directory by default or not.",
                     "default": false
                   },
+                  "platforms": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "description": "The name of the platform the package is for."
+                      },
+                      {
+                        "type": "array",
+                        "description": "One or more platform names the package is for.",
+                        "items": {
+                          "type": "string",
+                          "description": "The name of platform the package is for."
+                        }
+                      }
+                    ]
+                  },
                   "sortOrder": {
                     "description": "The sort order(s).",
                     "oneOf": [
@@ -752,6 +768,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -1771,6 +1803,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -2792,6 +2840,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -3790,6 +3854,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -4797,6 +4877,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -5813,6 +5909,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -6848,6 +6960,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -7842,6 +7970,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -8876,6 +9020,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -9872,6 +10032,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -10893,6 +11069,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -11987,6 +12179,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -13061,6 +13269,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -14053,6 +14277,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -15074,6 +15314,22 @@
                         "type": "string",
                         "description": "The name of the target."
                       },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
                         "oneOf": [
@@ -16058,6 +16314,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
@@ -17057,6 +17329,22 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
                       },
                       "showIf": {
                         "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",

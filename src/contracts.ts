@@ -806,7 +806,7 @@ export enum DeployOperationKind {
 /**
  * A package.
  */
-export interface DeployPackage extends Hideable, Sortable {
+export interface DeployPackage extends Hideable, PlatformItem, Sortable {
     /**
      * Deploys files on change.
      */
@@ -1077,7 +1077,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends Hideable, Sortable {
+export interface DeployTarget extends Hideable, PlatformItem, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -1431,6 +1431,16 @@ export interface OpenFileFilter extends FileFilter {
      * A list of one or more (host)names that filter is for.
      */
     isFor?: string | string[];
+}
+
+/**
+ * An item / object that can be filtered by platform.
+ */
+export interface PlatformItem {
+    /**
+     * One or more platform the item is for.
+     */
+    platforms?: string | string[];
 }
 
 /**
