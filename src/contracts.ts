@@ -1345,6 +1345,18 @@ export interface DeployWorkspaceOptions {
 }
 
 /**
+ * A value with a name that accesses an environment variable with the same name.
+ */
+export interface EnvValueWithName extends ValueWithName {
+    /**
+     * The optional alias of the variable.
+     */
+    alias?: string;
+    /** @inheritdoc */
+    type: "env" | "environment";
+}
+
+/**
  * Arguments for an event.
  */
 export interface EventArguments {    

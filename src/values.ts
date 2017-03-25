@@ -104,6 +104,57 @@ export class CodeValue extends ValueBase {
 }
 
 /**
+ * A value that accesses an environment variable.
+ */
+export class EnvValue extends ValueBase {
+    /** @inheritdoc */
+    constructor(value?: deploy_contracts.EnvValueWithName) {
+        super(value);
+    }
+
+    /** @inheritdoc */
+    public get alias(): string {
+        return this.item.alias;
+    }
+
+    /** @inheritdoc */
+    public get name(): string {
+        return deploy_helpers.isEmptyString(this.alias) ? this.realName
+                                                        : this.alias;
+    }
+
+    /**
+     * Gets the underlying item.
+     */
+    public get item(): deploy_contracts.EnvValueWithName {
+        return <deploy_contracts.EnvValueWithName>super.item;
+    }
+
+    /** @inheritdoc */
+    public get value(): any {
+        let value: any;
+
+        let myName = deploy_helpers.toStringSafe(this.realName).trim();
+
+        for (let p in process.env) {
+            if (deploy_helpers.toStringSafe(p).trim() === myName) {
+                value = process.env[p];  // found
+                break;
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Gets the "real" name.
+     */
+    public get realName(): string {
+        return super.name;
+    }
+}
+
+/**
  * A static value.
  */
 export class StaticValue extends ValueBase {
@@ -207,6 +258,11 @@ export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_co
 
             case 'code':
                 newValue = new CodeValue(<deploy_contracts.CodeValueWithName>i);
+                break;
+
+            case 'env':
+            case 'environment':
+                newValue = new EnvValue(<deploy_contracts.EnvValueWithName>i);
                 break;
         }
 
