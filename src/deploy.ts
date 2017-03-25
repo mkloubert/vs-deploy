@@ -29,6 +29,7 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
+import * as deploy_values from './values';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -1777,6 +1778,34 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         });
 
         return pkgTargets;
+    }
+
+    /**
+     * Gets the current list of values.
+     */
+    public getValues(): deploy_values.ValueBase[] {
+        let myName = this.name;
+
+        let values = deploy_helpers.asArray(this.config.values)
+                                   .filter(x => x);
+
+        // isFor
+        values = values.filter(v => {
+            let validHosts = deploy_helpers.asArray(v.isFor)
+                                           .map(x => deploy_helpers.normalizeString(x))
+                                           .filter(x => '' !== x);
+
+            if (validHosts.length < 1) {
+                return true;
+            }
+
+            return validHosts.indexOf(myName) > -1;
+        });
+
+        // platforms
+        values = deploy_helpers.filterPlatformItems(values);
+
+        return deploy_values.toValueObjects(values);
     }
 
     /**
@@ -3750,7 +3779,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         
         let cfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
         this._config = cfg;
-
+        
         me._globalScriptOperationState = {};
         me._scriptOperationStates = {};
 
@@ -3892,7 +3921,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         ctx.outputChannel = () => me.outputChannel;
                         ctx.packageFile = () => me.packageFile;
                         ctx.packages = () => me.getPackages();
+                        ctx.replaceWithValues = (v) => me.replaceWithValues(v);
                         ctx.targets = () => me.getTargets();
+                        ctx.values = () => me.getValues();
 
                         return ctx;
                     };
@@ -3971,6 +4002,46 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         finally {
             oldPlugins = null;
         }
+    }
+
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    public replaceWithValues(val: any): string {
+        let me = this;
+
+        if (!deploy_helpers.isNullOrUndefined(val)) {
+            let str = deploy_helpers.toStringSafe(val);
+
+            this.getValues().forEach(v => {
+                let vn = deploy_helpers.normalizeString(v.name);
+
+                // ${VAR_NAME}
+                str = str.replace(/(\$)(\{)([^\}]*)(\})/gm, (match, varIdentifier, openBracket, varName: string, closedBracked) => {
+                    let newValue: string = match;
+
+                    if (deploy_helpers.normalizeString(varName) === vn) {
+                        try {
+                            newValue = deploy_helpers.toStringSafe(v.value);
+                        }
+                        catch (e) {
+                            me.log(i18.t('errors.withCategory',
+                                         'Deployer.replaceWithValues()', e));
+                        }
+                    }
+
+                    return newValue;
+                });
+            });
+
+            return str;
+        }
+        
+        return val;
     }
 
     /**

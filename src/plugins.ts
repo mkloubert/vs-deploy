@@ -101,10 +101,12 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         packageFile: null,
         packages: null,
         plugins: null,
+        replaceWithValues: null,
         require: function(id) {
             return require(id);
         },
         targets: null,
+        values: null,
         warn: function(msg) {
             if (msg) {
                 vscode.window.showWarningMessage('' + msg);
@@ -152,7 +154,9 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         ctx.packageFile = () => baseCtx.packageFile();
         ctx.packages = () => baseCtx.packages();
         ctx.plugins = () => baseCtx.plugins();
+        ctx.replaceWithValues = (val) => baseCtx.replaceWithValues(val);
         ctx.targets = () => baseCtx.targets();
+        ctx.values = () => baseCtx.values();
     }
 
     return ctx;

@@ -61,6 +61,14 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      */
     globalState?: Object;
     /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
+    /**
      * The underlying "parent" object.
      */
     sender: any;
@@ -257,6 +265,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                         file: file,
                         globals: me.context.globals(),
+                        replaceWithValues: (v) => me.context.replaceWithValues(v),
                         require: function(id) {
                             return me.context.require(id);
                         },
@@ -379,6 +388,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                             },
                             files: files,
                             globals: me.context.globals(),
+                            replaceWithValues: (v) => me.context.replaceWithValues(v),
                             require: function(id) {
                                 return me.context.require(id);
                             },
