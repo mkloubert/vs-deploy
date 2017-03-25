@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.5.0 (March 25th, 2017; placeholders for zip targets)
+
+* can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now
+
 ## 7.4.0 (March 25th, 2017; values and placeholders)
 
 * can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) and [local](https://github.com/mkloubert/vs-deploy/wiki/target_local) targets and [deploy operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) now

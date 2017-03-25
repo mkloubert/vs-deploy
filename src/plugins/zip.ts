@@ -61,6 +61,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
             try {
                 let targetDir = deploy_helpers.toStringSafe(target.target);
+                targetDir = me.context.replaceWithValues(targetDir);
                 if (!targetDir) {
                     targetDir = './';
                 }
@@ -122,7 +123,10 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                 }
                 else {
                     // custom filename
-                    loadZIP(target.fileName);
+                    let zipFileName = deploy_helpers.toStringSafe(target.fileName);
+                    zipFileName = me.context.replaceWithValues(zipFileName);
+
+                    loadZIP(zipFileName);
                 }
             }
             catch (e) {
@@ -136,6 +140,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
         let me = this;
 
         let targetDir = deploy_helpers.toStringSafe(target.target);
+        targetDir = me.context.replaceWithValues(targetDir);
         if (!targetDir) {
             targetDir = './';
         }
@@ -219,7 +224,9 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                                     // that is deleted if it exists
 
                                     deleteIfExists = true;
+
                                     zipFileName = deploy_helpers.toStringSafe(target.fileName);
+                                    zipFileName = me.context.replaceWithValues(zipFileName);
                                 }
 
                                 let zipFile = Path.join(targetDir, zipFileName);
