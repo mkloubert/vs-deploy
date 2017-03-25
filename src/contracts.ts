@@ -1739,6 +1739,10 @@ export type ValueProvider<TValue> = () => TValue;
  */
 export interface ValueWithName extends MachineItem, PlatformItem {
     /**
+     * An optional description for the value.
+     */
+    description?: string;
+    /**
      * The name of the value.
      */
     name: string;

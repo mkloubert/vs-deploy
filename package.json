@@ -18287,6 +18287,10 @@
                           "static"
                         ]
                       },
+                      "description": {
+                        "description": "An optional description for the value.",
+                        "type": "string"
+                      },
                       "value": {
                         "description": "The value."
                       }
@@ -18306,6 +18310,10 @@
                         "enum": [
                           "code"
                         ]
+                      },
+                      "description": {
+                        "description": "An optional description for the value.",
+                        "type": "string"
                       },
                       "code": {
                         "description": "The (JavaScript) code to execute."
