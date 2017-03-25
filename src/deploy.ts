@@ -39,6 +39,7 @@ import * as OS from 'os';
 import * as Path from 'path';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
 
 const AFTER_DEPLOYMENT_BUTTON_COLORS = {
@@ -128,7 +129,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     /**
      * Stores the package file of that extension.
      */
-    protected _PACKAGE_FILE: deploy_contracts.PackageFile;
+    protected readonly _PACKAGE_FILE: deploy_contracts.PackageFile;
     /**
      * Loaded plugins.
      */
@@ -186,63 +187,62 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let me = this;
 
         return new Promise<boolean>((resolve, reject) => {
-            try {
-                let afterDeployedOperations = deploy_helpers.asArray(target.deployed)
-                                                            .filter(x => x);
+            let afterDeployedOperations = deploy_helpers.asArray(target.deployed)
+                                                        .filter(x => x);
 
-                let i = -1;
-                let canceled = false;
-                let completed = (err?: any) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve(canceled);
-                    }
-                };
+            let hasCancelled = false;
+            let completed = (err: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(hasCancelled);
+                }
+            };
 
-                let invokeNext: () => void;
-                invokeNext = () => {
-                    if (afterDeployedOperations.length < 1) {
-                        completed();
-                        return;
-                    }
+            me.onCancelling(() => hasCancelled = true);
 
-                    let currentOperation = afterDeployedOperations.shift();
-                    ++i;
+            let workflow = Workflows.create();
 
-                    try {
+            afterDeployedOperations.forEach((currentOperation, i) => {
+                workflow.next((ctx) => {
+                    return new Promise<any>((res, rej) => {
                         let operationName = deploy_operations.getOperationName(currentOperation);
-                        
-                        me.outputChannel.append(`[AFTER DEPLOYED #${i + 1}] '${operationName}' `);
+                    
+                        me.outputChannel.append(`[AFTER DEPLOY #${i + 1}] '${operationName}' `);
 
-                        me.handleCommonDeployOperation(currentOperation,
-                                                       deploy_contracts.DeployOperationKind.After,
-                                                       files,
-                                                       target).then((handled) => {
-                            if (handled) {
-                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
-                            }
-                            else {
-                                me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
-                            }
+                        if (hasCancelled) {
+                            ctx.finish();
+                        }
+                        else {
+                            me.handleCommonDeployOperation(currentOperation,
+                                                           deploy_contracts.DeployOperationKind.After,
+                                                           files,
+                                                           target).then((handled) => {
+                                if (handled) {
+                                    me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                                }
+                                else {
+                                    me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
+                                }
 
-                            invokeNext();
-                        }).catch((err) => {
-                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+                                res();
+                            }).catch((err) => {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
 
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                };
+                                rej(err);
+                            });
+                        }
+                    });
+                });
+            });
 
-                invokeNext();
-            }
-            catch (e) {
-                reject(e);
+            if (!hasCancelled) {
+                workflow.start().then(() => {
+                    completed(null);
+                }).catch((e) => {
+                    completed(e);
+                });
             }
         });
     }
@@ -259,63 +259,62 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let me = this;
 
         return new Promise<boolean>((resolve, reject) => {
-            try {
-                let beforeDeployOperations = deploy_helpers.asArray(target.beforeDeploy)
-                                                           .filter(x => x);
+            let beforeDeployOperations = deploy_helpers.asArray(target.beforeDeploy)
+                                                       .filter(x => x);
 
-                let i = -1;
-                let canceled = false;
-                let completed = (err?: any) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve(canceled);
-                    }
-                };
+            let hasCancelled = false;
+            let completed = (err: any) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(hasCancelled);
+                }
+            };
 
-                let invokeNext: () => void;
-                invokeNext = () => {
-                    if (beforeDeployOperations.length < 1) {
-                        completed();
-                        return;
-                    }
+            me.onCancelling(() => hasCancelled = true);
 
-                    let currentOperation = beforeDeployOperations.shift();
-                    ++i;
+            let workflow = Workflows.create();
 
-                    try {
+            beforeDeployOperations.forEach((currentOperation, i) => {
+                workflow.next((ctx) => {
+                    return new Promise<any>((res, rej) => {
                         let operationName = deploy_operations.getOperationName(currentOperation);
-                        
+                    
                         me.outputChannel.append(`[BEFORE DEPLOY #${i + 1}] '${operationName}' `);
 
-                        me.handleCommonDeployOperation(currentOperation,
-                                                       deploy_contracts.DeployOperationKind.Before,
-                                                       files,
-                                                       target).then((handled) => {
-                            if (handled) {
-                                me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
-                            }
-                            else {
-                                me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
-                            }
+                        if (hasCancelled) {
+                            ctx.finish();
+                        }
+                        else {
+                            me.handleCommonDeployOperation(currentOperation,
+                                                           deploy_contracts.DeployOperationKind.Before,
+                                                           files,
+                                                           target).then((handled) => {
+                                if (handled) {
+                                    me.outputChannel.appendLine(i18.t('deploy.operations.finished'));
+                                }
+                                else {
+                                    me.outputChannel.appendLine(i18.t('deploy.operations.unknownType', currentOperation.type));
+                                }
 
-                            invokeNext();
-                        }).catch((err) => {
-                            me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
+                                res();
+                            }).catch((err) => {
+                                me.outputChannel.appendLine(i18.t('deploy.operations.failed', err));
 
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                };
+                                rej(err);
+                            });
+                        }
+                    });
+                });
+            });
 
-                invokeNext();
-            }
-            catch (e) {
-                reject(e);
+            if (!hasCancelled) {
+                workflow.start().then(() => {
+                    completed(null);
+                }).catch((e) => {
+                    completed(e);
+                });
             }
         });
     }
