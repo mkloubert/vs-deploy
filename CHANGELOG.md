@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.3.0 (March 25th, 2017; platform specific packages and targets)
+
+* added `platforms` setting for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can define for which platform an item is for
+
 ## 7.2.0 (March 23rd, 2017; content type for Azure and S3)
 
 * content type is detected (and submitted) for files that are deployed to [Azure blob storages](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob) now ... this behavior can be changed by setting the `contentType` or `detectMime` properties in the target(s)
