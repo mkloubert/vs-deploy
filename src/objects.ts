@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
+import * as Events from 'events';
 import * as FS from 'fs';
 import * as i18 from './i18';
 import * as vscode from 'vscode';
@@ -65,7 +66,7 @@ export interface MultiTargetContext {
  * A basic deploy plugin that is specially based on single
  * file operations (s. deployFile() method).
  */
-export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin, vscode.Disposable {
+export abstract class DeployPluginBase extends Events.EventEmitter implements deploy_contracts.DeployPlugin, vscode.Disposable {
     /**
      * Stores the deploy context.
      */
@@ -77,6 +78,8 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
      * @param {deploy_contracts.DeployContext} [ctx] The underlying deploy context.
      */
     public constructor(ctx?: deploy_contracts.DeployContext) {
+        super();
+
         this._context = ctx;
 
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_CONFIG_RELOADED,

@@ -200,6 +200,9 @@ export const translation: Translation = {
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },
+        gulp: {
+            description: 'Sendet Dateien an ein Gulp-Skript',
+        },
         http: {
             description: 'Sendet Dateien an einen HTTP-Server/-Dienst',
             protocolNotSupported: 'Protokolle vom Typ {0:trim,surround} werden nicht unterstützt!',

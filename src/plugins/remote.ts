@@ -30,7 +30,7 @@ import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Net from 'net';
-const UUID = require('node-uuid');
+import * as UUID from 'node-uuid';
 import * as ZLib from 'zlib';
 
 

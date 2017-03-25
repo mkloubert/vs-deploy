@@ -25,7 +25,7 @@
 
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
-const i18next = require('i18next');
+import * as i18next from 'i18next';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
@@ -207,6 +207,9 @@ export interface Translation {
             unknownResponse?: string;
         },
         ftp?: {
+            description?: string;
+        },
+        gulp?: {
             description?: string;
         },
         http?: {
