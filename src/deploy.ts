@@ -1818,6 +1818,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             };
 
             let executor: deploy_operations.OperationExecutor<deploy_contracts.DeployOperation>;
+            let executorThisArgs: any = me;
 
             try {
                 let nextAction = completed;
@@ -1941,7 +1942,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         outputChannel: me.outputChannel,
                     };
 
-                    let execRes = executor(ctx);
+                    let execRes = executor.apply(executorThisArgs,
+                                                 [ ctx ]);
                     if ('object' === typeof execRes) {
                         execRes.then((hasHandled) => {
                             handled = deploy_helpers.toBooleanSafe(hasHandled,
