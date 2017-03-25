@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as vs_deploy from './deploy';
 
 
 /**
@@ -113,6 +114,67 @@ export class StaticValue extends ValueBase {
     public get value(): any {
         return this.item.value;
     }
+}
+
+/**
+ * Gets the current list of values.
+ * 
+ * @return {ValueBase[]} The values.
+ */
+export function getValues(): ValueBase[] {
+    let me: vs_deploy.Deployer = this;
+
+    let myName = me.name;
+
+    let values = deploy_helpers.asArray(me.config.values)
+                               .filter(x => x);
+
+    // isFor
+    values = values.filter(v => {
+        let validHosts = deploy_helpers.asArray(v.isFor)
+                                       .map(x => deploy_helpers.normalizeString(x))
+                                       .filter(x => '' !== x);
+
+        if (validHosts.length < 1) {
+            return true;
+        }
+
+        return validHosts.indexOf(myName) > -1;
+    });
+
+    // platforms
+    values = deploy_helpers.filterPlatformItems(values);
+
+    let objs = toValueObjects(values);
+
+    // ${cwd}
+    {
+        objs.push(new CodeValue({
+            name: 'cwd',
+            type: "code",
+            code: "process.cwd()",
+        }));
+    }
+
+    // ${homeDir}
+    {
+        objs.push(new CodeValue({
+            name: 'homeDir',
+            type: "code",
+            code: "require('os').homedir()",
+        }));
+    }
+
+    // ${workspaceRoot}
+    {
+        objs.push(new CodeValue({
+            name: 'workspaceRoot',
+            type: "code",
+            code: "require('vscode').workspace.rootPath",
+        }));
+    }
+
+    return objs;
 }
 
 /**

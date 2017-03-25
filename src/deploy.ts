@@ -1782,30 +1782,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
     /**
      * Gets the current list of values.
+     * 
+     * @return {ValueBase[]} The values.
      */
     public getValues(): deploy_values.ValueBase[] {
-        let myName = this.name;
-
-        let values = deploy_helpers.asArray(this.config.values)
-                                   .filter(x => x);
-
-        // isFor
-        values = values.filter(v => {
-            let validHosts = deploy_helpers.asArray(v.isFor)
-                                           .map(x => deploy_helpers.normalizeString(x))
-                                           .filter(x => '' !== x);
-
-            if (validHosts.length < 1) {
-                return true;
-            }
-
-            return validHosts.indexOf(myName) > -1;
-        });
-
-        // platforms
-        values = deploy_helpers.filterPlatformItems(values);
-
-        return deploy_values.toValueObjects(values);
+        return deploy_values.getValues
+                            .apply(this, arguments);
     }
 
     /**
@@ -3779,7 +3761,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         
         let cfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
         this._config = cfg;
-        
+
         me._globalScriptOperationState = {};
         me._scriptOperationStates = {};
 

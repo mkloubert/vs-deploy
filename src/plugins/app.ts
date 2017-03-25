@@ -101,6 +101,8 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
         };
 
         let app = deploy_helpers.toStringSafe(target.app);
+        app = me.context.replaceWithValues(app);
+
         let submitTheListOfFiles = deploy_helpers.toBooleanSafe(target.submitFileList, true);
         let waitForApp = deploy_helpers.toBooleanSafe(target.wait);
 
@@ -120,7 +122,6 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 terminalName += ' ' + deploy_helpers.toStringSafe(target.name).trim();
             }
 
-            let app = deploy_helpers.toStringSafe(target.app);
             if (!Path.isAbsolute(app)) {
                 app = Path.join(vscode.workspace.rootPath, app);
             }
