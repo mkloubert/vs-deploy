@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.5.0",
+  "version": "7.6.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -18327,6 +18327,36 @@
                       "type",
                       "code"
                     ]
+                  },
+                  {
+                    "description": "A value that accesses an environment variable.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The name of the environment value.",
+                        "type": "string"
+                      },
+                      "type": {
+                        "description": "The type of the value.",
+                        "type": "string",
+                        "enum": [
+                          "env",
+                          "environment"
+                        ]
+                      },
+                      "description": {
+                        "description": "An optional description for the value.",
+                        "type": "string"
+                      },
+                      "alias": {
+                        "description": "The alias to use.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type"
+                    ]
                   }
                 ]
               }
@@ -18345,7 +18375,6 @@
     "@types/fs-extra": "^2.0.0",
     "@types/ftp": "^0.3.29",
     "@types/glob": "^5.0.30",
-    "@types/gulp": "^4.0.2",
     "@types/i18next": "^2.3.35",
     "@types/mime": "0.0.29",
     "@types/mocha": "^2.2.32",
@@ -18375,7 +18404,6 @@
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
-    "gulp": "^3.9.1",
     "i18next": "^4.1.4",
     "isbinaryfile": "^3.0.2",
     "less": "^2.7.2",

@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.6.0 (March 25th, 2017; placeholders from environment vars)
+
+* can use [environment variables](https://github.com/mkloubert/vs-deploy/wiki/values#env-) as [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) now
+
 ## 7.5.0 (March 25th, 2017; placeholders for zip targets)
 
 * can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now
