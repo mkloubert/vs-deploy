@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.4.0 (March 25th, 2017; values and placeholders)
+
+* can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [app](https://github.com/mkloubert/vs-deploy/wiki/target_app) and [local](https://github.com/mkloubert/vs-deploy/wiki/target_local) targets and [deploy operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) now
+
 ## 7.3.0 (March 25th, 2017; platform specific packages and targets)
 
 * added `platforms` setting for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can define for which platform an item is for

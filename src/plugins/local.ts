@@ -38,19 +38,6 @@ interface DeployTargetLocal extends deploy_contracts.DeployTarget {
     empty?: boolean;
 }
 
-function getFullDirPathFromTarget(target: DeployTargetLocal): string {
-    let dir = deploy_helpers.toStringSafe(target.dir);
-    if (!dir) {
-        dir = './';
-    }
-
-    if (!Path.isAbsolute(dir)) {
-        dir = Path.join(vscode.workspace.rootPath, dir);
-    }
-
-    return dir;
-}
-
 class LocalPlugin extends deploy_objects.DeployPluginBase {
     public get canPull(): boolean {
         return true;
@@ -63,7 +50,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
         let me = this;
 
-        let dir = getFullDirPathFromTarget(target);
+        let dir = getFullDirPathFromTarget(target, me);
 
         let hasCancelled = false;
         let completed = (err?: any) => {
@@ -144,6 +131,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         let me = this;
 
         let targetDir = deploy_helpers.toStringSafe(target.dir);
+        targetDir = me.context.replaceWithValues(targetDir);
         if (!Path.isAbsolute(targetDir)) {
             targetDir = Path.join(vscode.workspace.rootPath, targetDir);
         }
@@ -199,7 +187,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         let me = this;
 
         return new Promise<Buffer>((resolve, reject) => {
-            let dir = getFullDirPathFromTarget(target);
+            let dir = getFullDirPathFromTarget(target, me);
 
             let hasCancelled = false;
             let completed = (err: any, data?: Buffer) => {
@@ -271,4 +259,19 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
     return new LocalPlugin(ctx);
+}
+
+function getFullDirPathFromTarget(target: DeployTargetLocal,
+                                  plugin: LocalPlugin): string {
+    let dir = deploy_helpers.toStringSafe(target.dir);
+    dir = plugin.context.replaceWithValues(dir);
+    if ('' === dir) {
+        dir = './';
+    }
+
+    if (!Path.isAbsolute(dir)) {
+        dir = Path.join(vscode.workspace.rootPath, dir);
+    }
+
+    return dir;
 }

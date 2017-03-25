@@ -29,6 +29,7 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
+import * as deploy_values from './values';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -1781,6 +1782,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets the current list of values.
+     * 
+     * @return {ValueBase[]} The values.
+     */
+    public getValues(): deploy_values.ValueBase[] {
+        return deploy_values.getValues
+                            .apply(this, arguments);
+    }
+
+    /**
      * Handles a "common" deploy operation.
      * 
      * @param {deploy_contracts.DeployOperation} operation The operation.
@@ -1808,6 +1819,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             };
 
             let executor: deploy_operations.OperationExecutor<deploy_contracts.DeployOperation>;
+            let executorThisArgs: any = me;
 
             try {
                 let nextAction = completed;
@@ -1858,6 +1870,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 globals: me.getGlobals(),
                                 kind: kind,
                                 options: deploy_helpers.cloneObject(scriptOpts.options),
+                                replaceWithValues: (v) => me.replaceWithValues(v),
                                 require: function(id) {
                                     return require(id);
                                 },
@@ -1931,7 +1944,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         outputChannel: me.outputChannel,
                     };
 
-                    let execRes = executor(ctx);
+                    let execRes = executor.apply(executorThisArgs,
+                                                 [ ctx ]);
                     if ('object' === typeof execRes) {
                         execRes.then((hasHandled) => {
                             handled = deploy_helpers.toBooleanSafe(hasHandled,
@@ -3652,6 +3666,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 require: function(id) {
                                                     return require(id);
                                                 },
+                                                replaceWithValues: (v) => me.replaceWithValues(v),
                                             };
 
                                             // args.globalState
@@ -3911,7 +3926,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         ctx.outputChannel = () => me.outputChannel;
                         ctx.packageFile = () => me.packageFile;
                         ctx.packages = () => me.getPackages();
+                        ctx.replaceWithValues = (v) => me.replaceWithValues(v);
                         ctx.targets = () => me.getTargets();
+                        ctx.values = () => me.getValues();
 
                         return ctx;
                     };
@@ -3990,6 +4007,46 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         finally {
             oldPlugins = null;
         }
+    }
+
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    public replaceWithValues(val: any): string {
+        let me = this;
+
+        if (!deploy_helpers.isNullOrUndefined(val)) {
+            let str = deploy_helpers.toStringSafe(val);
+
+            this.getValues().forEach(v => {
+                let vn = deploy_helpers.normalizeString(v.name);
+
+                // ${VAR_NAME}
+                str = str.replace(/(\$)(\{)([^\}]*)(\})/gm, (match, varIdentifier, openBracket, varName: string, closedBracked) => {
+                    let newValue: string = match;
+
+                    if (deploy_helpers.normalizeString(varName) === vn) {
+                        try {
+                            newValue = deploy_helpers.toStringSafe(v.value);
+                        }
+                        catch (e) {
+                            me.log(i18.t('errors.withCategory',
+                                         'Deployer.replaceWithValues()', e));
+                        }
+                    }
+
+                    return newValue;
+                });
+            });
+
+            return str;
+        }
+        
+        return val;
     }
 
     /**

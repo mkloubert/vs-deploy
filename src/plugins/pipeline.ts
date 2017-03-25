@@ -84,6 +84,14 @@ export interface PipeArguments extends deploy_contracts.ScriptArguments {
      */
     files?: string[];
     /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
+    /**
      * The underlying "parent" object.
      */
     sender: any;
@@ -204,6 +212,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                     },
                     files: files,
                     globals: me.context.globals(),
+                    replaceWithValues: (v) => me.context.replaceWithValues(v),
                     require: function(id) {
                         return me.context.require(id);
                     },

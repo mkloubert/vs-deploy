@@ -29,6 +29,7 @@ import * as deploy_helpers from './helpers';
 import * as deploy_sql from './sql';
 import * as i18 from './i18';
 import * as Path from 'path';
+import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
 
@@ -250,6 +251,8 @@ export function getOperationName(operation: deploy_contracts.DeployOperation): s
  * @returns {Promise<boolean>} The promise.
  */
 export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>): Promise<boolean> {
+    let me: vs_deploy.Deployer = this;
+
     return new Promise<boolean>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
 
@@ -271,6 +274,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                 }
 
                 let app = deploy_helpers.toStringSafe(openOperation.target);
+                app = me.replaceWithValues(app);
                 if (!Path.isAbsolute(app)) {
                     app = Path.join(vscode.workspace.rootPath, app);
                 }
@@ -290,6 +294,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
 
                 if (openArgs.length > 0) {
                     let app = operationTarget;
+                    app = me.replaceWithValues(app);
 
                     operationTarget = openArgs.pop();
                     openArgs = [ app ].concat(openArgs);
