@@ -1428,6 +1428,30 @@ export interface FileFilter {
 }
 
 /**
+ * A value with a name that loads its value from file.
+ */
+export interface FileValueWithName extends ValueWithName {
+    /**
+     * Returns as binary / buffer or not.
+     */
+    asBinary?: boolean;
+    /**
+     * The text encoding to use.
+     */
+    encoding?: string;
+    /**
+     * The file to load.
+     */
+    file: string;
+    /** @inheritdoc */
+    type: "file";
+    /**
+     * Also use placeholders for the (string) content or not.
+     */
+    usePlaceholders?: boolean;
+}
+
+/**
  * Global variables.
  */
 export type GlobalVariables = Object;

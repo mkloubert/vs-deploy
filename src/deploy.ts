@@ -4017,36 +4017,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @return {string} The parsed value.
      */
     public replaceWithValues(val: any): string {
-        let me = this;
-
-        if (!deploy_helpers.isNullOrUndefined(val)) {
-            let str = deploy_helpers.toStringSafe(val);
-
-            this.getValues().forEach(v => {
-                let vn = deploy_helpers.normalizeString(v.name);
-
-                // ${VAR_NAME}
-                str = str.replace(/(\$)(\{)([^\}]*)(\})/gm, (match, varIdentifier, openBracket, varName: string, closedBracked) => {
-                    let newValue: string = match;
-
-                    if (deploy_helpers.normalizeString(varName) === vn) {
-                        try {
-                            newValue = deploy_helpers.toStringSafe(v.value);
-                        }
-                        catch (e) {
-                            me.log(i18.t('errors.withCategory',
-                                         'Deployer.replaceWithValues()', e));
-                        }
-                    }
-
-                    return newValue;
-                });
-            });
-
-            return str;
-        }
-        
-        return val;
+        return deploy_values.replaceWithValues(this.getValues(), val);
     }
 
     /**

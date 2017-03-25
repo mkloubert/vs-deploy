@@ -339,7 +339,7 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                             });
                         }
                         else {
-                            completed(i18.t('isNo.file'));
+                            completed(i18.t('isNo.file', relativePath));
                         }
                     }
                 };
