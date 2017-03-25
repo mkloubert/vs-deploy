@@ -1869,6 +1869,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 globals: me.getGlobals(),
                                 kind: kind,
                                 options: deploy_helpers.cloneObject(scriptOpts.options),
+                                replaceWithValues: (v) => me.replaceWithValues(v),
                                 require: function(id) {
                                     return require(id);
                                 },
@@ -3664,6 +3665,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 require: function(id) {
                                                     return require(id);
                                                 },
+                                                replaceWithValues: (v) => me.replaceWithValues(v),
                                             };
 
                                             // args.globalState

@@ -1052,6 +1052,14 @@ export interface DeployScriptOperationArguments extends ScriptArguments, FileDep
      */
     options?: any;
     /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
+    /**
      * A state value for the current script that exists while the
      * current session.
      */
@@ -1622,6 +1630,14 @@ export interface ScriptCommandExecutorArguments extends ScriptArguments, FileDep
      * The options.
      */
     options?: any;
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
 }
 
 /**
@@ -1687,6 +1703,14 @@ export interface ValidatorArguments<T> extends ScriptArguments {
      * The options for validation.
      */
     options?: any;
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
     /**
      * The value to check.
      */

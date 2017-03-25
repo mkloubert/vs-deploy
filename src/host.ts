@@ -573,6 +573,7 @@ export class DeployHost {
                                                             require: function(id) {
                                                                 return require(id);
                                                             },
+                                                            replaceWithValues: (v) => me.deployer.replaceWithValues(v),
                                                             value: file,
                                                         };
 
