@@ -260,7 +260,10 @@ export class DeployHost {
                 // file data transformer
                 transformerOpts = cfg.host.transformerOptions;
                 if (cfg.host.transformer) {
-                    let transformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.transformer);
+                    let transformerModuleScript = deploy_helpers.toStringSafe(cfg.host.transformer);
+                    transformerModuleScript = me.deployer.replaceWithValues(transformerModuleScript);
+
+                    let transformerModule = deploy_helpers.loadDataTransformerModule(transformerModuleScript);
                     if (transformerModule) {
                         transformer = transformerModule.restoreData ||
                                       transformerModule.transformData;
@@ -270,7 +273,10 @@ export class DeployHost {
                 // JSON data transformer
                 jsonTransformerOpts = cfg.host.messageTransformerOptions;
                 if (cfg.host.messageTransformer) {
-                    let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(cfg.host.messageTransformer);
+                    let jsonTransformerModuleScript = deploy_helpers.toStringSafe(cfg.host.messageTransformer);
+                    jsonTransformerModuleScript = me.deployer.replaceWithValues(jsonTransformerModuleScript);
+
+                    let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(jsonTransformerModuleScript);
                     if (jsonTransformerModule) {
                         jsonTransformer = jsonTransformerModule.restoreData ||
                                           jsonTransformerModule.transformData;
@@ -280,7 +286,10 @@ export class DeployHost {
                 // file validator
                 validatorOpts = cfg.host.validatorOptions;
                 if (cfg.host.validator) {
-                    let validatorModule = deploy_helpers.loadValidatorModule<RemoteFile>(cfg.host.validator);
+                    let validatorModuleScript = deploy_helpers.toStringSafe(cfg.host.validator);
+                    validatorModuleScript = me.deployer.replaceWithValues(validatorModuleScript);
+
+                    let validatorModule = deploy_helpers.loadValidatorModule<RemoteFile>(validatorModuleScript);
                     if (validatorModule) {
                         validator = validatorModule.validate;
                     }
@@ -288,6 +297,7 @@ export class DeployHost {
             }
 
             dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
+            dir = me.deployer.replaceWithValues(dir);
             if (!Path.isAbsolute(dir)) {
                 dir = Path.join(vscode.workspace.rootPath, dir);
             }
