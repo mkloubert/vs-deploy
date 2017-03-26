@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.8.0 (March 26th, 2017; placeholders)
+
+* can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [pipline](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline) and [script](https://github.com/mkloubert/vs-deploy/wiki/target_script) targets now
+
 ## 7.7.0 (March 25th, 2017; placeholders from files)
 
 * can use [files](https://github.com/mkloubert/vs-deploy/wiki/values#file-) as [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) now
