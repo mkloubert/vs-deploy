@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.12.0 (March 26th, 2017; placeholders)
+
+* can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-) now
+
 ## 7.11.0 (March 26th, 2017; placeholders)
 
 * added `$require` variable for [code based placeholders](https://github.com/mkloubert/vs-deploy/wiki/values#code-)
