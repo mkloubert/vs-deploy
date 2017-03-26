@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.13.0 (March 26th, 2017; placeholders)
+
+* can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [remote](https://github.com/mkloubert/vs-deploy/wiki/target_remote) targets now
+
 ## 7.12.0 (March 26th, 2017; placeholders)
 
 * can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-) now

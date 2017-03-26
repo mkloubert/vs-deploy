@@ -204,10 +204,13 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             // data transformer
             let transformer: deploy_contracts.DataTransformer;
             if (target.transformer) {
-                let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
+                let transformerModuleScript = deploy_helpers.toStringSafe(target.transformer);
+                transformerModuleScript = me.context.replaceWithValues(transformerModuleScript);
+
+                let transformerModule = deploy_helpers.loadDataTransformerModule(transformerModuleScript);
                 if (transformerModule) {
                     transformer = transformerModule.transformData ||
-                                transformerModule.restoreData;
+                                  transformerModule.restoreData;
                 }
             }
             transformer = deploy_helpers.toDataTransformerSafe(transformer);
@@ -216,10 +219,13 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             // for the whole JSON message
             let jsonTransformer: deploy_contracts.DataTransformer;
             if (target.messageTransformer) {
-                let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(target.messageTransformer);
+                let jsonTransformerModuleScript = deploy_helpers.toStringSafe(target.messageTransformer);
+                jsonTransformerModuleScript = me.context.replaceWithValues(jsonTransformerModuleScript);
+
+                let jsonTransformerModule = deploy_helpers.loadDataTransformerModule(jsonTransformerModuleScript);
                 if (jsonTransformerModule) {
                     jsonTransformer = jsonTransformerModule.transformData ||
-                                    jsonTransformerModule.restoreData;
+                                      jsonTransformerModule.restoreData;
                 }
             }
             jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
