@@ -129,6 +129,9 @@ export class CodeValue extends ValueBase {
         let $homeDir = OS.homedir();
         let $me = this;
         let $others = {};
+        let $require = function(id: string) {
+            return require(deploy_helpers.toStringSafe(id));
+        };
         let $workspaceRoot = vscode.workspace.rootPath;
 
         // define properties for $others
