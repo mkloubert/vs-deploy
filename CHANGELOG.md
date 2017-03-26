@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.11.0 (March 26th, 2017; placeholders)
+
+* added `$require` variable for [code based placeholders](https://github.com/mkloubert/vs-deploy/wiki/values#code-)
+
 ## 7.10.0 (March 26th, 2017; placeholders)
 
 * added `$others` variable for [code based placeholders](https://github.com/mkloubert/vs-deploy/wiki/values#code-)
