@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.10.0 (March 26th, 2017; placeholders)
+
+* added `$others` variable for [code based placeholders](https://github.com/mkloubert/vs-deploy/wiki/values#code-)
+
 ## 7.9.0 (March 26th, 2017; placeholders for commands)
 
 * can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) for [commands](https://github.com/mkloubert/vs-deploy/wiki/commands) and [quick deploy buttons](https://github.com/mkloubert/vs-deploy/wiki#quick-deployment-) now

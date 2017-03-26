@@ -128,7 +128,30 @@ export class CodeValue extends ValueBase {
         let $cwd = process.cwd();
         let $homeDir = OS.homedir();
         let $me = this;
+        let $others = {};
         let $workspaceRoot = vscode.workspace.rootPath;
+
+        // define properties for $others
+        this.otherValues.forEach(ov => {
+            try {
+                let propertyName = deploy_helpers.toStringSafe(ov.name);
+                if ('' === propertyName) {
+                    return;
+                }
+
+                Object.defineProperty($others, propertyName, {
+                    enumerable: true,
+                    configurable: true,
+
+                    get: () => {
+                        return ov.value;
+                    }
+                });
+            }
+            catch (e) {
+                //TODO: log
+            }
+        });
 
         return eval(this.code);
     }
