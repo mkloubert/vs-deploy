@@ -3642,7 +3642,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                        };
                                        
                                        try {
-                                            let cmdModule = deploy_helpers.loadScriptCommandModule(x.script);
+                                            let moduleScript = deploy_helpers.toStringSafe(x.script);
+                                            moduleScript = me.replaceWithValues(moduleScript);
+
+                                            let cmdModule = deploy_helpers.loadScriptCommandModule(moduleScript);
                                             if (!cmdModule.execute) {
                                                 completed();
                                                 return;  // no execute() function found
@@ -3710,12 +3713,15 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                        btn = vscode.window.createStatusBarItem(alignment, priority);
                                        btn.command = cmdName;
                                         
-                                       // caption
+                                       // caption / text
                                        if (deploy_helpers.isEmptyString(x.button.text)) {
                                            btn.text = cmdName;
                                        }
                                        else {
-                                           btn.text = deploy_helpers.toStringSafe(x.button.text);
+                                           let txt = deploy_helpers.toStringSafe(x.button.text);
+                                           txt = me.replaceWithValues(txt);
+
+                                           btn.text = txt;
                                        }
 
                                        // tooltip
@@ -3723,12 +3729,15 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                            btn.tooltip = cmdName;
                                        }
                                        else {
-                                           btn.tooltip = deploy_helpers.toStringSafe(x.button.tooltip);
+                                           let tt = deploy_helpers.toStringSafe(x.button.tooltip);
+                                           tt = me.replaceWithValues(tt);
+
+                                           btn.tooltip = tt;
                                        }
 
                                        // color
-                                       let color = deploy_helpers.toStringSafe(x.button.color).toLowerCase().trim();
-                                       if (color) {
+                                       let color = deploy_helpers.normalizeString(me.replaceWithValues(x.button.color));
+                                       if ('' !== color) {
                                            btn.color = color;
                                        }
 
@@ -3794,8 +3803,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
         i18.init(this._config.language).then(() => {
             if (me._config.button) {
-                let txt = deploy_helpers.toStringSafe(me._config.button.text).trim();
-                if (!txt) {
+                let txt = deploy_helpers.toStringSafe(me._config.button.text);
+                txt = me.replaceWithValues(txt).trim();
+                if ('' !== txt) {
                     txt = i18.t('quickDeploy.caption');
                 }
                 me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
