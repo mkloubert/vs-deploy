@@ -159,25 +159,6 @@ export interface ScriptModule {
     pullWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
 }
 
-function getScriptFile(target: DeployTargetScript): string {
-    let scriptFile = deploy_helpers.toStringSafe(target.script);
-    if (!scriptFile) {
-        scriptFile = './deploy.js';
-    }
-
-    if (!Path.isAbsolute(scriptFile)) {
-        scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
-    }
-
-    return scriptFile;
-}
-
-function loadScriptModule(scriptFile: string): ScriptModule {
-    scriptFile = Path.resolve(scriptFile);
-
-    delete require.cache[scriptFile];
-    return require(scriptFile);
-}
 
 class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected _globalState: Object = {};
@@ -227,7 +208,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }
             else {
                 try {
-                    let scriptFile = getScriptFile(target);
+                    let scriptFile = getScriptFile(target, me);
 
                     let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
                     if (false === relativeScriptPath) {
@@ -351,7 +332,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
             }
             else {
                 try {
-                    let scriptFile = getScriptFile(target);
+                    let scriptFile = getScriptFile(target, me);
 
                     let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
                     if (false === relativeScriptPath) {
@@ -473,4 +454,25 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
     return new ScriptPlugin(ctx);
+}
+
+function getScriptFile(target: DeployTargetScript, plugin: ScriptPlugin): string {
+    let scriptFile = deploy_helpers.toStringSafe(target.script);
+    scriptFile = plugin.context.replaceWithValues(scriptFile);
+    if (!scriptFile) {
+        scriptFile = './deploy.js';
+    }
+
+    if (!Path.isAbsolute(scriptFile)) {
+        scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+    }
+
+    return scriptFile;
+}
+
+function loadScriptModule(scriptFile: string): ScriptModule {
+    scriptFile = Path.resolve(scriptFile);
+
+    delete require.cache[scriptFile];
+    return require(scriptFile);
 }

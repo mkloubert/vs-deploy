@@ -132,25 +132,6 @@ export interface PipelineModule {
     pipe: (args: PipeArguments) => Promise<PipeArguments>;
 }
 
-function getScriptFile(target: DeployTargetPipeline): string {
-    let scriptFile = deploy_helpers.toStringSafe(target.script);
-    if (!scriptFile) {
-        scriptFile = './pipeline.js';
-    }
-
-    if (!Path.isAbsolute(scriptFile)) {
-        scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
-    }
-
-    return scriptFile;
-}
-
-function loadScriptModule(scriptFile: string): PipelineModule {
-    scriptFile = Path.resolve(scriptFile);
-
-    delete require.cache[scriptFile];
-    return require(scriptFile);
-}
 
 class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
     protected _globalState: Object = {};
@@ -187,7 +168,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
         }
         else {
             try {
-                let scriptFile = getScriptFile(target);
+                let scriptFile = getScriptFile(target, me);
 
                 let relativeScriptPath = deploy_helpers.toRelativePath(scriptFile, opts.baseDirectory);
                 if (false === relativeScriptPath) {
@@ -332,4 +313,25 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
     return new PipelinePlugin(ctx);
+}
+
+function getScriptFile(target: DeployTargetPipeline, plugin: PipelinePlugin): string {
+    let scriptFile = deploy_helpers.toStringSafe(target.script);
+    scriptFile = plugin.context.replaceWithValues(scriptFile);
+    if (!scriptFile) {
+        scriptFile = './pipeline.js';
+    }
+
+    if (!Path.isAbsolute(scriptFile)) {
+        scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+    }
+
+    return scriptFile;
+}
+
+function loadScriptModule(scriptFile: string): PipelineModule {
+    scriptFile = Path.resolve(scriptFile);
+
+    delete require.cache[scriptFile];
+    return require(scriptFile);
 }
