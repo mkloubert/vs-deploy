@@ -30,6 +30,7 @@ import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from '../i18';
+const MIME = require('mime');
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as URL from 'url';

@@ -27,7 +27,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
-import * as FTP from 'ftp';
+const FTP = require('ftp');
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as TMP from 'tmp';
@@ -46,7 +46,7 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
 
 interface FTPContext {
     cachedRemoteDirectories: any;
-    connection: FTP;
+    connection: any;
     hasCancelled: boolean;
 }
 
@@ -74,7 +74,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         let me = this;
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>((resolve, reject) => {
-            let completed = (err: any, conn?: FTP) => {
+            let completed = (err: any, conn?: any) => {
                 if (err) {
                     reject(err);
                 }
