@@ -3801,7 +3801,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (me._config.button) {
                 let txt = deploy_helpers.toStringSafe(me._config.button.text);
                 txt = me.replaceWithValues(txt).trim();
-                if ('' !== txt) {
+                if ('' === txt) {
                     txt = i18.t('quickDeploy.caption');
                 }
                 me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
