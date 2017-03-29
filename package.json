@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.13.0",
+  "version": "7.14.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -5846,6 +5846,24 @@
                         "type": "string",
                         "description": "The username for the authentication.",
                         "default": "anonymous"
+                      },
+                      "connTimeout": {
+                        "type": "integer",
+                        "description": "How long (in milliseconds) to wait for the control connection to be established.",
+                        "default": 10000,
+                        "minimum": 0
+                      },
+                      "pasvTimeout": {
+                        "type": "integer",
+                        "description": "How long (in milliseconds) to wait for a PASV data connection to be established.",
+                        "default": 10000,
+                        "minimum": 0
+                      },
+                      "keepalive": {
+                        "type": "integer",
+                        "description": "How often (in milliseconds) to send a 'dummy' (NOOP) command to keep the connection alive.",
+                        "default": 10000,
+                        "minimum": 0
                       },
                       "description": {
                         "type": "string",

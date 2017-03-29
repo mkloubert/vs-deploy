@@ -27,7 +27,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
-const FTP = require('ftp');
+import * as FTP from 'ftp';
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as TMP from 'tmp';
@@ -42,11 +42,14 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
     user?: string;
     password?: string;
     secure?: boolean;
+    connTimeout?: number;
+    pasvTimeout?: number;
+    keepalive?: number;
 }
 
 interface FTPContext {
     cachedRemoteDirectories: any;
-    connection: any;
+    connection: FTP;
     hasCancelled: boolean;
 }
 
@@ -74,7 +77,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         let me = this;
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>((resolve, reject) => {
-            let completed = (err: any, conn?: any) => {
+            let completed = (err: any, conn?: FTP) => {
                 if (err) {
                     reject(err);
                 }
@@ -85,7 +88,16 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                         hasCancelled: false,
                     };
 
-                    me.onCancelling(() => ctx.hasCancelled = true, opts);
+                    me.onCancelling(() => {
+                        ctx.hasCancelled = true;
+
+                        try {
+                            conn.end();
+                        }
+                        catch (e) {
+                            me.context.log(i18.t(`errors.withCategory`, 'FtpPlugin.createContext().onCancelling()', e));
+                        }
+                    }, opts);
 
                     let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
                         context: ctx,
@@ -124,6 +136,21 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 }
                 rejectUnauthorized = !!rejectUnauthorized;
 
+                let connTimeout = parseInt(deploy_helpers.toStringSafe(target.connTimeout).trim());
+                if (isNaN(connTimeout)) {
+                    connTimeout = undefined;
+                }
+
+                let pasvTimeout = parseInt(deploy_helpers.toStringSafe(target.pasvTimeout).trim());
+                if (isNaN(pasvTimeout)) {
+                    pasvTimeout = undefined;
+                }
+
+                let keepalive = parseInt(deploy_helpers.toStringSafe(target.keepalive).trim());
+                if (isNaN(keepalive)) {
+                    keepalive = undefined;
+                }
+
                 try {
                     let conn = new FTP();
                     conn.on('error', function(err) {
@@ -144,6 +171,9 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                         secureOptions: {
                             rejectUnauthorized: rejectUnauthorized,
                         },
+                        connTimeout: connTimeout,
+                        pasvTimeout: pasvTimeout,
+                        keepalive: keepalive,
                     });
                 }
                 catch (e) {

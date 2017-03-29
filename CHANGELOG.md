@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.14.0 (March 29th, 2017; cancellation of FTP deployments)
+
+* improved cancellation of FTP deployments
+* added `connTimeout`, `pasvTimeout` and `keepalive` properties for [ftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+
 ## 7.13.0 (March 26th, 2017; placeholders)
 
 * can use [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [remote](https://github.com/mkloubert/vs-deploy/wiki/target_remote) targets now
