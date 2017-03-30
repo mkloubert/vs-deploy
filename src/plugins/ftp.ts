@@ -29,6 +29,7 @@ import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as FTP from 'ftp';
 import * as i18 from '../i18';
+const jsFTP = require('jsftp');
 import * as Path from 'path';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
@@ -45,11 +46,12 @@ interface DeployTargetFTP extends deploy_contracts.DeployTarget {
     connTimeout?: number;
     pasvTimeout?: number;
     keepalive?: number;
+    engine?: string;
 }
 
 interface FTPContext {
     cachedRemoteDirectories: any;
-    connection: FTP;
+    connection: FtpClientBase;
     hasCancelled: boolean;
 }
 
@@ -66,6 +68,488 @@ function toFTPPath(path: string): string {
     return deploy_helpers.replaceAllStrings(path, Path.sep, '/');
 }
 
+abstract class FtpClientBase {
+    public abstract connect(target: DeployTargetFTP): Promise<boolean>;
+
+    public abstract cwd(dir: string): Promise<string>;
+
+    public abstract end(): Promise<boolean>;
+
+    public abstract get(file: string): Promise<Buffer>;
+
+    public abstract mkdir(dir: string): Promise<string>;
+
+    public abstract put(file: string, data: Buffer): Promise<Buffer>;
+}
+
+class FtpClient extends FtpClientBase {
+    protected _connection: FTP;
+
+    public connect(target: DeployTargetFTP): Promise<boolean> {
+        let me = this;
+
+        let isSecure = deploy_helpers.toBooleanSafe(target.secure, false);
+
+        let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
+        let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
+
+        let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+        let pwd = deploy_helpers.toStringSafe(target.password);
+
+        let rejectUnauthorized = target.rejectUnauthorized;
+        if (deploy_helpers.isNullOrUndefined(rejectUnauthorized)) {
+            rejectUnauthorized = true;
+        }
+        rejectUnauthorized = !!rejectUnauthorized;
+
+        let connTimeout = parseInt(deploy_helpers.toStringSafe(target.connTimeout).trim());
+        if (isNaN(connTimeout)) {
+            connTimeout = undefined;
+        }
+
+        let pasvTimeout = parseInt(deploy_helpers.toStringSafe(target.pasvTimeout).trim());
+        if (isNaN(pasvTimeout)) {
+            pasvTimeout = undefined;
+        }
+
+        let keepalive = parseInt(deploy_helpers.toStringSafe(target.keepalive).trim());
+        if (isNaN(keepalive)) {
+            keepalive = undefined;
+        }
+        
+        return new Promise<boolean>((resolve, reject) => {
+            let conn: FTP;
+            let completedInvoked = false;
+            let completed = (err: any, connected?: boolean) => {
+                if (completedInvoked) {
+                    return;
+                }
+                
+                completedInvoked = true;
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    me._connection = conn;
+
+                    resolve(connected);
+                }
+            };
+
+            try {
+                if (me.connection) {
+                    completed(null, false);
+                    return;
+                }
+
+                conn = new FTP();
+                conn.once('error', function(err) {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, true);
+                    }
+                });
+                conn.once('ready', function() {
+                    completed(null, true);
+                });
+                conn.connect({
+                    host: host, port: port,
+                    user: user, password: pwd,
+                    secure: isSecure,
+                    secureOptions: {
+                        rejectUnauthorized: rejectUnauthorized,
+                    },
+                    connTimeout: connTimeout,
+                    pasvTimeout: pasvTimeout,
+                    keepalive: keepalive,
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public get connection(): FTP {
+        return this._connection;
+    }
+
+    public cwd(dir: string): Promise<string> {
+        let me = this;
+
+        return new Promise<string>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<string>(resolve, reject);
+
+            try {
+                me.connection.cwd(dir, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, dir);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public end(): Promise<boolean> {
+        let me = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
+
+            try {
+                let conn = this._connection;
+
+                if (conn) {
+                    conn.end();
+
+                    me._connection = null;
+                    completed(null, true);
+                }
+                else {
+                    completed(null, false);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public get(file: string): Promise<Buffer> {
+        let me = this;
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<Buffer>(resolve, reject);
+
+            try {
+                me.connection.get(file, (err, stream) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        try {
+                            TMP.tmpName({
+                                keep: true,
+                            }, (err, tmpFile) => {
+                                let deleteTempFile = (err: any, data?: Buffer) => {
+                                    // delete temp file ...
+                                    FS.exists(tmpFile, (exists) => {
+                                        if (exists) {
+                                            // ... if exist
+
+                                            FS.unlink(tmpFile, () => {
+                                                completed(err, data);
+                                            });
+                                        }
+                                        else {
+                                            completed(err, data);
+                                        }
+                                    });
+                                };
+
+                                let downloadCompleted = (err: any) => {
+                                    if (err) {
+                                        deleteTempFile(err);
+                                    }
+                                    else {
+                                        FS.readFile(tmpFile, (err, data) => {
+                                            if (err) {
+                                                deleteTempFile(err);
+                                            }
+                                            else {
+                                                deleteTempFile(null, data);
+                                            }
+                                        });
+                                    }
+                                };
+
+                                try {
+                                    // copy to temp file
+                                    stream.pipe(FS.createWriteStream(tmpFile));
+
+                                    stream.once('end', () => {
+                                        downloadCompleted(null);
+                                    });
+                                }
+                                catch (e) {
+                                    downloadCompleted(e);
+                                }
+                            });
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public mkdir(dir: string): Promise<string> {
+        let me = this;
+
+        return new Promise<string>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<string>(resolve, reject);
+
+            try {
+                me.connection.mkdir(dir, true, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, dir);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public put(file: string, data: Buffer): Promise<Buffer> {
+        let me = this;
+
+        if (!data) {
+            data = Buffer.alloc(0);
+        }
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<Buffer>(resolve, reject);
+
+            try {
+                me.connection.put(data, file, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, data);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+}
+
+class JsFTPClient extends FtpClientBase {
+    protected _connection: any;
+
+    public connect(target: DeployTargetFTP): Promise<boolean> {
+        let me = this;
+
+        let isSecure = deploy_helpers.toBooleanSafe(target.secure, false);
+
+        let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
+        let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
+
+        let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
+        let pwd = deploy_helpers.toStringSafe(target.password);
+        
+        return new Promise<boolean>((resolve, reject) => {
+            let conn: any;
+            let completedInvoked = false;
+            let completed = (err: any, connected?: boolean) => {
+                if (completedInvoked) {
+                    return;
+                }
+                
+                completedInvoked = true;
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    me._connection = conn;
+
+                    resolve(connected);
+                }
+            };
+
+            try {
+                if (me.connection) {
+                    completed(null, false);
+                    return;
+                }
+
+                conn = new jsFTP({
+                    host: host,
+                    port: port,
+                    user: user, 
+                    pass: pwd,
+                });
+                
+                me._connection = conn;
+
+                completed(null, true);
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public get connection(): any {
+        return this._connection;
+    }
+
+    public cwd(dir: string): Promise<string> {
+        let me = this;
+
+        return new Promise<string>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<string>(resolve, reject);
+
+            try {
+                me.connection.list(dir, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, dir);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public end(): Promise<boolean> {
+        let me = this;
+
+        return new Promise<boolean>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
+
+            try {
+                let conn = this._connection;
+
+                if (conn) {
+                    conn.destroy();
+
+                    me._connection = null;
+                    completed(null, true);
+                }
+                else {
+                    completed(null, false);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public get(file: string): Promise<Buffer> {
+        let me = this;
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<Buffer>(resolve, reject);
+
+            try {
+                me.connection.get(file, (err, socket) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        try {
+                            let result: Buffer = Buffer.alloc(0);
+
+                            socket.on("data", function(data: Buffer) {
+                                try {
+                                    if (data) {
+                                        result = Buffer.concat([result, data]);
+                                    }
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
+                            });
+
+                            socket.once("close", function(hadErr) {
+                                if (hadErr) {
+                                    completed(hadErr);
+                                }
+                                else {
+                                    completed(null, result);
+                                }
+                            });
+
+                            socket.resume();
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public mkdir(dir: string): Promise<string> {
+        let me = this;
+
+        return new Promise<string>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<string>(resolve, reject);
+
+            try {
+                me.connection.raw.mkd(dir, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, dir);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+
+    public put(file: string, data: Buffer): Promise<Buffer> {
+        let me = this;
+
+        if (!data) {
+            data = Buffer.alloc(0);
+        }
+
+        return new Promise<Buffer>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<Buffer>(resolve, reject);
+
+            try {
+                me.connection.put(data, file, (err) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        completed(null, data);
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
+    }
+}
+
 class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
     public get canPull(): boolean {
         return true;
@@ -77,7 +561,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         let me = this;
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>((resolve, reject) => {
-            let completed = (err: any, conn?: FTP) => {
+            let completed = (err: any, conn?: FtpClientBase) => {
                 if (err) {
                     reject(err);
                 }
@@ -91,12 +575,9 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     me.onCancelling(() => {
                         ctx.hasCancelled = true;
 
-                        try {
-                            conn.end();
-                        }
-                        catch (e) {
+                        conn.end().catch((e) => {
                             me.context.log(i18.t(`errors.withCategory`, 'FtpPlugin.createContext().onCancelling()', e));
-                        }
+                        });
                     }, opts);
 
                     let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
@@ -105,14 +586,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             return new Promise<any>((resolve2, reject2) => {
                                 delete ctx.cachedRemoteDirectories;
 
-                                try {
-                                    conn.end();
-
+                                conn.end().then(() => {
                                     resolve2(conn);
-                                }
-                                catch (e) {
+                                }).catch((e) => {
                                     reject2(e);
-                                }
+                                });
                             });
                         },
                     };
@@ -121,67 +599,28 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 }
             };
 
-            try {
-                let isSecure = deploy_helpers.toBooleanSafe(target.secure, false);
+            let client: FtpClientBase;
+            let engine = deploy_helpers.normalizeString(target.engine);
+            switch (engine) {
+                case '':
+                case 'ftp':
+                    client = new FtpClient();
+                    break;
 
-                let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
-                let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
-
-                let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
-                let pwd = deploy_helpers.toStringSafe(target.password);
-
-                let rejectUnauthorized = target.rejectUnauthorized;
-                if (deploy_helpers.isNullOrUndefined(rejectUnauthorized)) {
-                    rejectUnauthorized = true;
-                }
-                rejectUnauthorized = !!rejectUnauthorized;
-
-                let connTimeout = parseInt(deploy_helpers.toStringSafe(target.connTimeout).trim());
-                if (isNaN(connTimeout)) {
-                    connTimeout = undefined;
-                }
-
-                let pasvTimeout = parseInt(deploy_helpers.toStringSafe(target.pasvTimeout).trim());
-                if (isNaN(pasvTimeout)) {
-                    pasvTimeout = undefined;
-                }
-
-                let keepalive = parseInt(deploy_helpers.toStringSafe(target.keepalive).trim());
-                if (isNaN(keepalive)) {
-                    keepalive = undefined;
-                }
-
-                try {
-                    let conn = new FTP();
-                    conn.on('error', function(err) {
-                        if (err) {
-                            completed(err);
-                        }
-                        else {
-                            completed(null, conn);
-                        }
-                    });
-                    conn.on('ready', function() {
-                        completed(null, conn);
-                    });
-                    conn.connect({
-                        host: host, port: port,
-                        user: user, password: pwd,
-                        secure: isSecure,
-                        secureOptions: {
-                            rejectUnauthorized: rejectUnauthorized,
-                        },
-                        connTimeout: connTimeout,
-                        pasvTimeout: pasvTimeout,
-                        keepalive: keepalive,
-                    });
-                }
-                catch (e) {
-                    completed(e);
-                }
+                case 'jsftp':
+                    client = new JsFTPClient();
+                    break;
             }
-            catch (e) {
-                completed(e);
+
+            if (client) {
+                client.connect(target).then(() => {
+                    completed(null, client);
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
+            else {
+                completed(new Error(`Unknown engine: '${engine}'`));  //TODO: translate
             }
         });
     }
@@ -226,14 +665,23 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     ctx.cachedRemoteDirectories[targetDirectory] = [];
                 }
 
-                try {
-                    ctx.connection.put(file, targetFile, (err) => {
+                FS.readFile(file, (err, data) => {
+                    if (err) {
                         completed(err);
-                    });
-                }
-                catch (e) {
-                    completed(e);
-                }
+                    }
+                    else {
+                        if (ctx.hasCancelled) {
+                            completed();  // cancellation requested
+                            return;
+                        }
+
+                        ctx.connection.put(targetFile, data).then(() => {
+                            completed();
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                });
             };
 
             if (opts.onBeforeDeploy) {
@@ -245,27 +693,31 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             }
 
             if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
-                ctx.connection.cwd(targetDirectory, (err) => {
+                // first check if directory exists ...
+                ctx.connection.cwd(targetDirectory).then(() => {
                     if (ctx.hasCancelled) {
                         completed();  // cancellation requested
-                        return;
-                    }
-
-                    if (err) {
-                        // directory not found
-                        // try to create...
-
-                        ctx.connection.mkdir(targetDirectory, true, (err) => {
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
-
-                            uploadFile(true);
-                        });
                     }
                     else {
                         uploadFile(true);
+                    }
+                }).catch((err) => {
+                    if (ctx.hasCancelled) {
+                        completed();
+                    }
+                    else {
+                        if (err) {
+                            // does not exist => try to create
+
+                            ctx.connection.mkdir(targetDirectory).then(() => {
+                                uploadFile(true);
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        else {
+                            uploadFile(true);
+                        }
                     }
                 });
             }
@@ -327,88 +779,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     });
                 }
 
-                try {
-                    ctx.connection.get(targetFile, (err, stream) => {
-                        try {
-                            if (err) {
-                                completed(err);
-                            }
-                            else {
-                                if (stream) {
-                                    stream.once('error', (err) => {;
-                                        completed(err);
-                                    });
-
-                                    TMP.tmpName({
-                                        keep: true,
-                                    }, (err, tmpFile) => {
-                                        if (err) {
-                                            completed(err);
-                                        }
-                                        else {
-                                            let deleteTempFile = (err: any, data?: Buffer) => {
-                                                // delete temp file ...
-                                                FS.exists(tmpFile, (exists) => {
-                                                    if (exists) {
-                                                        // ... if exist
-
-                                                        FS.unlink(tmpFile, () => {
-                                                            completed(err, data);
-                                                        });
-                                                    }
-                                                    else {
-                                                        completed(err, data);
-                                                    }
-                                                });
-                                            };
-
-                                            let downloadCompleted = (err: any) => {
-                                                if (err) {
-                                                    deleteTempFile(err);
-                                                }
-                                                else {
-                                                    FS.readFile(tmpFile, (err, data) => {
-                                                        if (err) {
-                                                            deleteTempFile(err);
-                                                        }
-                                                        else {
-                                                            deleteTempFile(null, data);
-                                                        }
-                                                    });
-                                                }
-                                            };
-
-                                            try {
-                                                // copy to temp file
-                                                stream.pipe(FS.createWriteStream(tmpFile));
-
-                                                stream.once('end', () => {
-                                                    downloadCompleted(null);
-                                                });
-
-                                                stream.once('close', () => {
-                                                    ctx.connection.end();
-                                                });
-                                            }
-                                            catch (e) {
-                                                downloadCompleted(e);
-                                            }
-                                        }
-                                    });
-                                }
-                                else {
-                                    completed(new Error("No data!"));  //TODO
-                                }
-                            }
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
-                    });
-                }
-                catch (e) {
-                    completed(e);
-                }
+                ctx.connection.get(targetFile).then((data) => {
+                    completed(null, data);
+                }).catch((err) => {
+                    completed(err);
+                });
             }
         });
     }

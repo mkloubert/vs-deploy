@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.14.1",
+  "version": "7.15.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -5864,6 +5864,16 @@
                         "description": "How often (in milliseconds) to send a 'dummy' (NOOP) command to keep the connection alive.",
                         "default": 10000,
                         "minimum": 0
+                      },
+                      "engine": {
+                        "type": "string",
+                        "description": "The engine to use.",
+                        "default": "ftp",
+                        "enum": [
+                          "",
+                          "ftp",
+                          "jsftp"
+                        ]
                       },
                       "description": {
                         "type": "string",
@@ -18469,6 +18479,7 @@
     "glob": "^7.1.1",
     "i18next": "^4.1.4",
     "isbinaryfile": "^3.0.2",
+    "jsftp": "^1.5.5",
     "less": "^2.7.2",
     "mime": "^1.3.4",
     "moment": "^2.17.1",

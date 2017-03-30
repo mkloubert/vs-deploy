@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.15.0 (March 30th, 2017; alternate FTP engine)
+
+* added [jsftp](https://github.com/sergi/jsftp) as alternate engine for [ftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), which can be defined by `engine` setting ... s. [issue](https://github.com/mkloubert/vs-deploy/issues/50)
+
 ## 7.14.0 (March 29th, 2017; cancellation of FTP deployments)
 
 * improved cancellation of FTP deployments
