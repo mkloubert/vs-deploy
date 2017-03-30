@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.15.0",
+  "version": "7.16.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -419,6 +419,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if file should be opened or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that filter is for.",
                         "oneOf": [
@@ -522,6 +536,20 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "if": {
+                    "description": "A list of one or more conditions (as JavaScript code) that defines if package is available or not.",
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
                   },
                   "name": {
                     "type": "string",
@@ -717,6 +745,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -1752,6 +1794,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -2800,6 +2856,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -3803,6 +3873,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -4826,6 +4910,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -5898,6 +5996,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -6948,6 +7060,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -7947,6 +8073,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -9008,6 +9148,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -10009,6 +10163,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -11046,6 +11214,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -12167,6 +12349,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -13257,6 +13453,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -14254,6 +14464,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -15302,6 +15526,20 @@
                           }
                         ]
                       },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
                       "isFor": {
                         "description": "A list of one or more (host)names that target is visible for.",
                         "oneOf": [
@@ -16291,6 +16529,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -17306,6 +17558,20 @@
                       },
                       "hideIf": {
                         "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
                         "oneOf": [
                           {
                             "type": "string"

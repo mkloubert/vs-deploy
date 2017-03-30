@@ -271,6 +271,30 @@ export interface Command {
 }
 
 /**
+ * An item that uses JavaScript code if it is available or not.
+ */
+export interface ConditionalItem {
+    /**
+     * One or more (JavaScript) conditions that check if that item is available or not.
+     */
+    if?: string | string[];
+}
+
+/**
+ * Filters "conditional" items.
+ */
+export interface ConditionalItemFilter {
+    /**
+     * Filters "conditional" items.
+     * 
+     * @param {T|T[]} items The items to filter.
+     * 
+     * @return {T[]} The filtered items.
+     */
+    filterConditionalItems<T extends ConditionalItem>(items: T | T[]): T[];
+}
+
+/**
  * Describes a function that transforms data into new format.
  * 
  * @param {DataTransformerContext} ctx The transformer context.
@@ -529,7 +553,7 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
 /**
  * A deploy context.
  */
-export interface DeployContext extends vscode.Disposable, FileDeployer {
+export interface DeployContext extends ConditionalItemFilter, vscode.Disposable, FileDeployer {
     /**
      * Returns the current config.
      * 
@@ -835,7 +859,7 @@ export enum DeployOperationKind {
 /**
  * A package.
  */
-export interface DeployPackage extends Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
     /**
      * Deploys files on change.
      */
@@ -1110,7 +1134,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -1523,7 +1547,7 @@ export interface PackageFile {
 /**
  * Files to open at startup.
  */
-export interface OpenFileFilter extends FileFilter, MachineItem {
+export interface OpenFileFilter extends ConditionalItem, FileFilter, MachineItem {
     /**
      * Close other opened files or not.
      */

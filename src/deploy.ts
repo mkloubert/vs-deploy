@@ -1597,6 +1597,54 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Filters "conditional" items.
+     * 
+     * @param {T|T[]} items The items to filter.
+     * 
+     * @return {T[]} The filtered items.
+     */
+    public filterConditionalItems<T extends deploy_contracts.ConditionalItem>(items: T | T[]): T[] {
+        let me = this;
+
+        let values = me.getValues();
+        
+        let result = deploy_helpers.asArray(items)
+                                   .filter(x => x);
+
+        result = result.filter((x, idx) => {
+            try {
+                let conditions = deploy_helpers.asArray(x.if)
+                                               .map(x => deploy_helpers.toStringSafe(x))
+                                               .filter(x => '' !== x.trim());
+
+                for (let i = 0; i < conditions.length; i++) {
+                    let cv = new deploy_values.CodeValue({
+                        code: conditions[i],
+                        name: `condition_${idx}_${i}`,
+                        type: 'code',
+                    });
+
+                    cv.otherValueProvider = () => values;
+
+                    if (!deploy_helpers.toBooleanSafe(cv.value)) {
+                        return false;  // at least one condition does NOT match
+                    }
+                }
+            }
+            catch (e) {
+                me.log(i18.t('errors.withCategory',
+                             'Deployer.filterConditionalItems()', e));
+                
+                return false;
+            }
+
+            return true;
+        });
+
+        return result;    
+    }
+
+    /**
      * Filters the list of targets by a package.
      * 
      * @param {deploy_contracts.DeployPackage} pkg The package.
@@ -1701,6 +1749,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         // platforms
         packages = deploy_helpers.filterPlatformItems(packages);
 
+        // if
+        packages = me.filterConditionalItems(packages);
+
         return packages;
     }
 
@@ -1735,6 +1786,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         // platforms
         targets = deploy_helpers.filterPlatformItems(targets);
+
+        // if
+        targets = me.filterConditionalItems(targets);
 
         return targets;
     }
@@ -2402,14 +2456,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             let cfg = me.config;
             if (cfg.open) {
                 // cleanup filter list
-                let filters = deploy_helpers.asArray(cfg.open)
-                                            .filter(x => {
-                                                        return x &&
-                                                               deploy_helpers.asArray(x.files)
-                                                                             .map(y => deploy_helpers.toStringSafe(y))
-                                                                             .filter(y => y)
-                                                                             .length > 0;
-                                                    });
+                let filters = me.filterConditionalItems(cfg.open)
+                                .filter(x => {
+                                            return deploy_helpers.asArray(x.files)
+                                                                 .map(y => deploy_helpers.toStringSafe(y))
+                                                                 .filter(y => '' !== y)
+                                                                 .length > 0;
+                                        });
 
                 let closeOtherEditors = false;
                 let filesToOpen: string[] = [];
@@ -3909,6 +3962,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             return me.emitGlobal
                                      .apply(me, arguments);
                         };
+                        ctx.filterConditionalItems = (items) => me.filterConditionalItems(items);
                         ctx.globals = () => me.getGlobals();
                         ctx.log = function(msg) {
                             me.log(msg);

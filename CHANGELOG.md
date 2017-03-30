@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.16.0 (March 31th, 2017; if settings)
+
+* added `if` properties for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) and [files](https://github.com/mkloubert/vs-deploy/wiki/open_on_startup), that can define via JavaScript code if item is available or not
+
 ## 7.15.0 (March 30th, 2017; alternate FTP engine)
 
 * added [jsftp](https://github.com/sergi/jsftp) as alternate engine for [ftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), which can be defined by `engine` setting ... s. [issue](https://github.com/mkloubert/vs-deploy/issues/50)

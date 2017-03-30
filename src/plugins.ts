@@ -73,6 +73,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
             return this;
         },
+        filterConditionalItems: null,
         globals: null,
         info: function(msg) {
             if (msg) {
@@ -145,6 +146,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
             return baseCtx.emitGlobal
                           .apply(baseCtx, arguments);
         };
+        ctx.filterConditionalItems = (items) => baseCtx.filterConditionalItems(items),
         ctx.globals = () => baseCtx.globals();
         ctx.log = function(msg) {
             baseCtx.log(msg);
