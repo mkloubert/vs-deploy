@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.16.0",
+  "version": "7.17.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -420,7 +420,7 @@
                         ]
                       },
                       "if": {
-                        "description": "A list of one or more conditions (as JavaScript code) that defines if file should be opened or not.",
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if file(s) should be opened or not.",
                         "oneOf": [
                           {
                             "type": "string"
@@ -522,6 +522,10 @@
                   "description": {
                     "type": "string",
                     "description": "A description for the package."
+                  },
+                  "detail": {
+                    "type": "string",
+                    "description": "Additional information that should be shown in the GUI, e.g."
                   },
                   "exclude": {
                     "description": "A list of one or more glob patterns of files that should be execluded from deployment.",
@@ -737,6 +741,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -1786,6 +1794,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -2837,6 +2849,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -3865,6 +3881,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -4902,6 +4922,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -5977,6 +6001,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -7041,6 +7069,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -8065,6 +8097,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -9129,6 +9165,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -10155,6 +10195,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -11206,6 +11250,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -12330,6 +12378,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -13434,6 +13486,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -14456,6 +14512,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -15507,6 +15567,10 @@
                         "type": "string",
                         "description": "A description for the target."
                       },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
                       "diffBeforeDeploy": {
                         "type": "boolean",
                         "description": "Start a diff before deploy file(s) or not.",
@@ -16521,6 +16585,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -17550,6 +17618,10 @@
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
                       },
                       "diffBeforeDeploy": {
                         "type": "boolean",
@@ -18695,6 +18767,40 @@
                       "name",
                       "type",
                       "file"
+                    ]
+                  },
+                  {
+                    "description": "A value from a script.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The name of the value.",
+                        "type": "string"
+                      },
+                      "type": {
+                        "description": "The type of the value.",
+                        "type": "string",
+                        "enum": [
+                          "script"
+                        ]
+                      },
+                      "description": {
+                        "description": "An optional description for the value.",
+                        "type": "string"
+                      },
+                      "script": {
+                        "description": "The path to the script.",
+                        "type": "string",
+                        "default": "./my-value.js"
+                      },
+                      "options": {
+                        "description": "Data for the underlying script."
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "script"
                     ]
                   }
                 ]

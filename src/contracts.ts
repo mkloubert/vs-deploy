@@ -873,6 +873,10 @@ export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, P
      */
     description?: string;
     /**
+     * Additional information that should be shown in the GUI, e.g.
+     */
+    detail?: string;
+    /**
      * Files to exclude.
      */
     exclude?: string[];
@@ -1149,6 +1153,10 @@ export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, Pl
      * The description.
      */
     description?: string;
+    /**
+     * Additional information that should be shown in the GUI, e.g.
+     */
+    detail?: string;
     /**
      * Start a diff before deploy file(s).
      */
@@ -1708,6 +1716,83 @@ export interface ScriptCommandModule {
      * Executes the command.
      */
     execute?: ScriptCommandExecutor;
+}
+
+/**
+ * A module of a script value.
+ */
+export interface ScriptValueModule {
+    /**
+     * Gets the value.
+     */
+    getValue: ScriptValueProvider;
+}
+
+/**
+ * A function that provides a script value.
+ * 
+ * @param {ScriptValueProviderArguments} args The arguments for the underlying script.
+ * 
+ * @return {any} The value.
+ */
+export type ScriptValueProvider = (args: ScriptValueProviderArguments) => any;
+
+/**
+ * Arguments for the function of a script value.
+ */
+export interface ScriptValueProviderArguments extends ScriptArguments {
+    /**
+     * Gets the object that can share data between all values.
+     */
+    readonly globalState: Object;
+    /**
+     * Gets the name of that value.
+     */
+    readonly name: string;
+    /**
+     * Gets the data for the underlying script.
+     */
+    readonly options: any;
+    /**
+     * Gets the object that can access the other values.
+     */
+    readonly others: { [key: string]: any };
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    replaceWithValues: (val: any) => string;
+    /**
+     * Loads a module from the script context.
+     * 
+     * @param {string} id The ID / path to the module.
+     * 
+     * @return {any} The loaded module.
+     */
+    require: (id: string) => any;
+    /**
+     * Gets or sets a state for that script.
+     */
+    state: any;
+}
+
+/**
+ * A (static) value with a name.
+ */
+export interface ScriptValueWithName extends ValueWithName {
+    /**
+     * Data for the underlying script.
+     */
+    options?: any;
+    /**
+     * The path to the script.
+     */
+    script: string;
+    /** @inheritdoc */
+    type: "script";
 }
 
 /**

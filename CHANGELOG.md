@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.17.0 (March 31th, 2017; script values)
+
+* can also use [scripts](https://github.com/mkloubert/vs-deploy/wiki/values#script-) for providing values now
+* added `detail` settings for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can be used to show additional information in the GUI, e.g.
+
 ## 7.16.0 (March 31th, 2017; if settings)
 
 * added `if` properties for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-) and [files](https://github.com/mkloubert/vs-deploy/wiki/open_on_startup), that can define via JavaScript code if item is available or not

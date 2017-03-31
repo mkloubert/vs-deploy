@@ -24,12 +24,17 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 import * as OS from 'os';
 import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
+
+
+let globalScriptValueState: Object;
+let scriptValueStates: Object;
 
 
 /**
@@ -127,6 +132,7 @@ export class CodeValue extends ValueBase {
     public get value(): any {
         let $cwd = process.cwd();
         let $homeDir = OS.homedir();
+        let $globalState = globalScriptValueState;
         let $me = this;
         let $others = {};
         let $require = function(id: string) {
@@ -265,6 +271,144 @@ export class FileValue extends ValueBase {
 }
 
 /**
+ * A value provided by a script.
+ */
+export class ScriptValue extends ValueBase {
+    protected _config: deploy_contracts.DeployConfiguration;
+
+    /** @inheritdoc */
+    constructor(value?: deploy_contracts.ScriptValueWithName,
+                cfg?: deploy_contracts.DeployConfiguration) {
+        super(value);
+
+        this._config = cfg;
+    }
+
+    /**
+     * Gets the underlying configuration.
+     */
+    public get config(): deploy_contracts.DeployConfiguration {
+        return this._config || <any>{};
+    }
+
+    /**
+     * Gets the underlying item.
+     */
+    public get item(): deploy_contracts.ScriptValueWithName {
+        return <deploy_contracts.ScriptValueWithName>super.item;
+    }
+
+    /** @inheritdoc */
+    public get value(): any {
+        let me = this;
+
+        let result: any;
+
+        let script = deploy_helpers.toStringSafe(me.item.script);
+        script = replaceWithValues(me.otherValues, script);
+
+        if (!deploy_helpers.isEmptyString(script)) {
+            if (!Path.isAbsolute(script)) {
+                script = Path.join(vscode.workspace.rootPath, script);
+            }
+            script = Path.resolve(script);
+
+            delete require.cache[script];
+            if (FS.existsSync(script)) {
+                let scriptModule = deploy_helpers.loadModule<deploy_contracts.ScriptValueModule>(script);
+                if (scriptModule) {
+                    if (scriptModule.getValue) {
+                        let args: deploy_contracts.ScriptValueProviderArguments = {
+                            emitGlobal: function() {
+                                return deploy_globals.EVENTS.emit
+                                                            .apply(deploy_globals.EVENTS, arguments);
+                            },
+                            globals: deploy_helpers.cloneObject(me.config.globals),
+                            globalState: undefined,
+                            name: undefined,
+                            options: deploy_helpers.cloneObject(me.item.options),
+                            others: undefined,
+                            replaceWithValues: function(val) {
+                                return replaceWithValues(me.otherValues, val);
+                            },
+                            require: (id) => {
+                                return require(deploy_helpers.toStringSafe(id));
+                            },
+                            state: undefined,
+                        };
+
+                        let others: Object = {};
+                        me.otherValues.forEach(ov => {
+                            try {
+                                let propertyName = deploy_helpers.toStringSafe(ov.name);
+                                if ('' === propertyName) {
+                                    return;
+                                }
+
+                                Object.defineProperty(others, propertyName, {
+                                    enumerable: true,
+                                    configurable: true,
+
+                                    get: () => {
+                                        return ov.value;
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                //TODO: log
+                            }
+                        });
+
+                        // args.globalState
+                        Object.defineProperty(args, 'globalState', {
+                            enumerable: true,
+
+                            get: () => {
+                                return globalScriptValueState;
+                            },
+                        });
+
+                        // args.name
+                        Object.defineProperty(args, 'name', {
+                            enumerable: true,
+
+                            get: () => {
+                                return me.name;
+                            },
+                        });
+
+                        // args.others
+                        Object.defineProperty(args, 'others', {
+                            enumerable: true,
+
+                            get: () => {
+                                return others;
+                            },
+                        });
+
+                        // args.state
+                        Object.defineProperty(args, 'state', {
+                            enumerable: true,
+
+                            get: () => {
+                                return scriptValueStates[script];
+                            },
+                            set: (newValue) => {
+                                scriptValueStates[script] = newValue;
+                            }
+                        });
+
+                        result = scriptModule.getValue(args);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+/**
  * A static value.
  */
 export class StaticValue extends ValueBase {
@@ -315,7 +459,7 @@ export function getValues(): ValueBase[] {
     // platforms
     values = deploy_helpers.filterPlatformItems(values);
 
-    let objs = toValueObjects(values);
+    let objs = toValueObjects(values, me.config);
 
     // ${cwd}
     {
@@ -388,13 +532,22 @@ export function replaceWithValues(values: ValueBase | ValueBase[], val: any): st
 }
 
 /**
+ * Resets all code / script based state values and objects.
+ */
+export function resetScriptStates() {
+    globalScriptValueState = {};
+    scriptValueStates = {};
+}
+
+/**
  * Converts a list of value items to objects.
  * 
  * @param {(deploy_contracts.ValueWithName|deploy_contracts.ValueWithName[])} items The item(s) to convert.
  *  
  * @returns {ValueBase[]} The items as objects. 
  */
-export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_contracts.ValueWithName[]): ValueBase[] {
+export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_contracts.ValueWithName[],
+                               cfg?: deploy_contracts.DeployConfiguration): ValueBase[] {
     let result: ValueBase[] = [];
 
     deploy_helpers.asArray(items).filter(i => i).forEach((i, idx) => {
@@ -417,6 +570,10 @@ export function toValueObjects(items: deploy_contracts.ValueWithName | deploy_co
 
             case 'file':
                 newValue = new FileValue(<deploy_contracts.FileValueWithName>i);
+                break;
+
+            case 'script':
+                newValue = new ScriptValue(<deploy_contracts.ScriptValueWithName>i, cfg);
                 break;
         }
 

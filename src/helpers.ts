@@ -26,6 +26,7 @@
 import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
+import * as deploy_values from './values';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as HTTP from 'http';
@@ -124,11 +125,13 @@ export function compareValues<T>(x: T, y: T): number {
  * @param {string} file The file to deploy.
  * @param {deploy_contracts.DeployTarget} target The target to deploy to.
  * @param {number} index The zero based index.
+ * @param {deploy_values.ValueBase[]} [values] Values / placeholders to use.
  * 
  * @returns {deploy_contracts.DeployFileQuickPickItem} The new item.
  */
-export function createFileQuickPick(file: string, target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployFileQuickPickItem {
-    let qp: any = createTargetQuickPick(target, index);
+export function createFileQuickPick(file: string, target: deploy_contracts.DeployTarget, index: number,
+                                    values?: deploy_values.ValueBase[]): deploy_contracts.DeployFileQuickPickItem {
+    let qp: any = createTargetQuickPick(target, index, values);
     qp['file'] = file;
 
     return qp;
@@ -139,10 +142,12 @@ export function createFileQuickPick(file: string, target: deploy_contracts.Deplo
  * 
  * @param {deploy_contracts.DeployPackage} pkg The package.
  * @param {number} index The zero based index.
+ * @param {deploy_values.ValueBase[]} [values] Values / placeholders to use.
  * 
  * @returns {deploy_contracts.DeployPackageQuickPickItem} The new item.
  */
-export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number): deploy_contracts.DeployPackageQuickPickItem {
+export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number,
+                                       values?: deploy_values.ValueBase[]): deploy_contracts.DeployPackageQuickPickItem {
     let name = toStringSafe(pkg.name).trim();
     if (!name) {
         name = i18.t('packages.defaultName', index + 1);
@@ -150,11 +155,22 @@ export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, inde
 
     let description = toStringSafe(pkg.description).trim();
 
-    return {
+    let item: deploy_contracts.DeployPackageQuickPickItem = {
         description: description,
         label: name,
         package: pkg,
     };
+
+    // item.detail
+    Object.defineProperty(item, 'detail', {
+        enumerable: true,
+
+        get: () => {
+            return deploy_values.replaceWithValues(values, pkg.detail);
+        }
+    });
+
+    return item;
 }
 
 /**
@@ -185,10 +201,12 @@ export function createSimplePromiseCompletedAction<TResult>(resolve: Function, r
  * 
  * @param {deploy_contracts.DeployTarget} target The target.
  * @param {number} index The zero based index.
+ * @param {deploy_values.ValueBase[]} [values] Values / placeholders to use.
  * 
  * @returns {deploy_contracts.DeployTargetQuickPickItem} The new item.
  */
-export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number): deploy_contracts.DeployTargetQuickPickItem {
+export function createTargetQuickPick(target: deploy_contracts.DeployTarget, index: number,
+                                      values?: deploy_values.ValueBase[]): deploy_contracts.DeployTargetQuickPickItem {
     let name = toStringSafe(target.name).trim();
     if (!name) {
         name = i18.t('targets.defaultName', index + 1);
@@ -196,11 +214,22 @@ export function createTargetQuickPick(target: deploy_contracts.DeployTarget, ind
 
     let description = toStringSafe(target.description).trim();
 
-    return {
+    let item: deploy_contracts.DeployTargetQuickPickItem = {
         description: description,
         label: name,
         target: target,
     };
+
+    // item.detail
+    Object.defineProperty(item, 'detail', {
+        enumerable: true,
+
+        get: () => {
+            return deploy_values.replaceWithValues(values, target.detail);
+        }
+    });
+
+    return item;
 }
 
 /**

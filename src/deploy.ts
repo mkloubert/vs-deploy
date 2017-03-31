@@ -510,7 +510,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             let selectTarget = (files: string[]) => {
                 // select the target /
                 // source from where to download from
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                                me.getValues()));
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
                         placeHolder: i18.t('compare.selectSource'),
@@ -592,7 +593,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i,
+                                                                                  me.getValues()));
 
         let deploy = (item: deploy_contracts.DeployFileQuickPickItem) => {
             try {
@@ -1005,7 +1007,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         // select the target
-        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                        me.getValues()));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
                 placeHolder: i18.t('deploy.folder.selectTarget'),
@@ -1034,7 +1037,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i,
+                                                                                             me.getValues()));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
@@ -1105,7 +1109,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (targetsOfPackage.length < 1) {
                 // no explicit targets
 
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                                me.getValues()));
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
@@ -2684,7 +2689,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i));
+        let quickPicks = targets.map((x, i) => deploy_helpers.createFileQuickPick(file, x, i,
+                                                                                  me.getValues()));
 
         let pull = (item: deploy_contracts.DeployFileQuickPickItem) => {
             let showError = (err: any) => {
@@ -2960,7 +2966,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         // select the target
-        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+        let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                        me.getValues()));
         if (fileQuickPicks.length > 1) {
             vscode.window.showQuickPick(fileQuickPicks, {
                 placeHolder: i18.t('deploy.folder.selectTarget'),
@@ -2989,7 +2996,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i));
+        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i,
+                                                                                             me.getValues()));
 
         let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
             if (!pkg) {
@@ -3046,7 +3054,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             if (targetsOfPackage.length < 1) {
                 // no explicit targets
 
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i));
+                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                                me.getValues()));
 
                 if (fileQuickPicks.length > 1) {
                     vscode.window.showQuickPick(fileQuickPicks, {
@@ -3830,6 +3839,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         me._globalScriptOperationState = {};
         me._scriptOperationStates = {};
+        deploy_values.resetScriptStates();
 
         let next = () => {
             me.reloadPlugins();
