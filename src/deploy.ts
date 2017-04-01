@@ -2120,7 +2120,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let name: string;
         if (cfg) {
-            name = this.replaceWithValues(cfg.name);  // use from config
+            name = cfg.name;  // use from config
         }
 
         if (deploy_helpers.isEmptyString(name)) {
