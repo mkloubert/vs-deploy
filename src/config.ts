@@ -46,7 +46,14 @@ export function mergeConfig(cfg: deploy_contracts.DeployConfiguration): Promise<
     let values = deploy_values.getBuildInValues();
     values = values.concat(deploy_values.toValueObjects(cfg.values));
 
-    let myName = deploy_helpers.normalizeString(OS.hostname());
+    let myName: string;
+    if (cfg) {
+        myName = cfg.name;
+    }
+    if (deploy_helpers.isEmptyString(myName)) {
+        myName = OS.hostname();
+    }
+    myName = deploy_helpers.normalizeString(myName);
 
     return new Promise<deploy_contracts.DeployConfiguration>((resolve, reject) => {
         let completed = (err: any, c?: deploy_contracts.DeployConfiguration) => {
