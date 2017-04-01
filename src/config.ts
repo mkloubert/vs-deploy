@@ -117,8 +117,8 @@ export function mergeConfig(cfg: deploy_contracts.DeployConfiguration): Promise<
 
                 // sort
                 allImports = allImports.sort((x, y) => {
-                    return deploy_helpers.compareValues(deploy_helpers.getSortValue(x),
-                                                        deploy_helpers.getSortValue(y));
+                    return deploy_helpers.compareValues(deploy_helpers.getSortValue(x, () => myName),
+                                                        deploy_helpers.getSortValue(y, () => myName));
                 });
 
                 // build workflow actions for each import entry
