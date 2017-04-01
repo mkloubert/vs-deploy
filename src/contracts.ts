@@ -1493,6 +1493,14 @@ export interface EventModuleExecutorArguments extends ScriptArguments {
      */
     readonly remove: () => boolean;
     /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    readonly replaceWithValues: (val: any) => string;
+    /**
      * Gets or sets a state for that event.
      */
     state: any;

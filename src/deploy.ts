@@ -4002,6 +4002,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                                         return true;
                                     },
+                                    replaceWithValues: (val) => {
+                                        return me.replaceWithValues(val);
+                                    },
                                     require: (id) => {
                                         return require(deploy_helpers.toStringSafe(id));
                                     },

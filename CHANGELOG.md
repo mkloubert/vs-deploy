@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.20.0 (April 2nd, 2017; global events)
+
+* added `replaceWithValues()` method to [EventModuleExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.eventmoduleexecutorarguments.html) interface
+
 ## 7.19.0 (April 2nd, 2017; global events)
 
 * can define [global events](https://github.com/mkloubert/vs-deploy/wiki/events) now
