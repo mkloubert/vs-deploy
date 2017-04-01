@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.19.0 (April 2nd, 2017; global events)
+
+* can define [global events](https://github.com/mkloubert/vs-deploy/wiki/events) now
+
 ## 7.18.0 (April 1st, 2017; imports and custom name)
 
 * can define [external config files](https://github.com/mkloubert/vs-deploy/wiki/imports) that can be imported/merged into the data defined in `settings.json`

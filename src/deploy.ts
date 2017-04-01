@@ -69,6 +69,13 @@ let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelPullFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelPullWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
+interface EventEntry {
+    event: deploy_contracts.Event;
+    index: number;
+    listener: Function;
+    name: string;
+}
+
 interface ScriptCommandWrapper {
     button?: vscode.StatusBarItem;
     command: vscode.Disposable,
@@ -94,6 +101,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores the underlying extension context.
      */
     protected readonly _CONTEXT: vscode.ExtensionContext;
+    /**
+     * Stores the current list of global events.
+     */
+    protected readonly _EVENTS: EventEntry[] = [];
     /**
      * The global file system watcher.
      */
@@ -3814,6 +3825,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let next = (cfg: deploy_contracts.DeployConfiguration) => {
             me._config = cfg;
 
+            me.reloadEvents();
+
             me.reloadPlugins();
             me.displayNetworkInfo();
 
@@ -3874,6 +3887,193 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
 
             applyCfg(loadedCfg);
+        });
+    }
+
+    /**
+     * Reloads the global events defined in the config file.
+     */
+    protected reloadEvents() {
+        let me = this;
+        let myName = me.name;
+
+        // unregister old events
+        while (me._EVENTS.length > 0) {
+            let ev = me._EVENTS.shift();
+
+            try {
+                deploy_globals.EVENTS.removeListener(ev.name,
+                                                     ev.listener);
+            }
+            catch (e) {
+                me.log(i18.t('errors.withCategory',
+                             `Deployer.reloadEvents()`, e));
+            }
+        }
+
+        let allEvents = deploy_helpers.asArray(this.config.events).filter(x => x);
+
+        // isFor
+        allEvents = allEvents.filter(p => {
+            let validHosts = deploy_helpers.asArray(p.isFor)
+                                           .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
+                                           .filter(x => x);
+
+            if (validHosts.length < 1) {
+                return true;
+            }
+
+            return validHosts.indexOf(myName) > -1;
+        });
+
+        // platforms
+        allEvents = deploy_helpers.filterPlatformItems(allEvents);
+
+        // if
+        allEvents = deploy_helpers.filterConditionalItems(allEvents);
+
+        // sort
+        allEvents = allEvents.sort((x, y) => {
+            return deploy_helpers.compareValues(deploy_helpers.getSortValue(x, () => me.name),
+                                                deploy_helpers.getSortValue(y, () => me.name));
+        });
+
+        let globalEventState = {};
+        allEvents.forEach((e, idx) => {
+            let eventState = deploy_helpers.cloneObject(e.state);
+
+            let entry: EventEntry;
+            entry = {
+                event: e,
+                index: undefined,
+                name: deploy_helpers.toStringSafe(e.name),
+                listener: function() {
+                    let eventCompleted = (err: any, exitCode?: number) => {
+                        if (err) {
+                            me.log(i18.t('errors.withCategory',
+                                         `Deployer.reloadEvents(${entry.name}#${idx}.2)`, err));
+                        }
+                        else {
+                            exitCode = parseInt(deploy_helpers.toStringSafe(exitCode).trim());
+                            if (isNaN(exitCode)) {
+                                exitCode = 0;
+                            }
+
+                            if (0 !== exitCode) {
+                                me.log(i18.t('errors.withCategory',
+                                             `Deployer.reloadEvents(${entry.name}#${idx}.3)`,
+                                             new Error(`Exit code: ${exitCode}`)));
+                            }
+                        }
+                    };
+
+                    try {
+                        // path to script
+                        let moduleScript = deploy_helpers.toStringSafe(e.script);
+                        moduleScript = me.replaceWithValues(moduleScript);
+                        if (!Path.isAbsolute(moduleScript)) {
+                            moduleScript = Path.join(vscode.workspace.rootPath, moduleScript);
+                        }
+                        moduleScript = Path.resolve(moduleScript);
+
+                        let scriptModule = deploy_helpers.loadModule<deploy_contracts.EventModule>(moduleScript);
+                        if (scriptModule) {
+                            if (scriptModule.raiseEvent) {
+                                let args: deploy_contracts.EventModuleExecutorArguments = {
+                                    arguments: arguments,
+                                    emitGlobal: function() {
+                                        return deploy_globals.EVENTS.emit
+                                                                    .apply(null, arguments);
+                                    },
+                                    globals: me.getGlobals(),
+                                    globalState: undefined,
+                                    name: e.name,
+                                    options: deploy_helpers.cloneObject(e.options),
+                                    remove: function() {
+                                        if (isNaN(entry.index)) {
+                                            return false;
+                                        }
+
+                                        deploy_globals.EVENTS.removeListener(entry.name,
+                                                                             entry.listener);
+                                        
+                                        me._EVENTS.splice(entry.index, 1);
+                                        entry.index = null;
+
+                                        return true;
+                                    },
+                                    require: (id) => {
+                                        return require(deploy_helpers.toStringSafe(id));
+                                    },
+                                    state: undefined,
+                                };
+
+                                // args.globalState
+                                Object.defineProperty(args, 'globalState', {
+                                    enumerable: true,
+                                    get: () => {
+                                        return globalEventState;
+                                    },
+                                });
+
+                                // args.state
+                                Object.defineProperty(args, 'state', {
+                                    enumerable: true,
+                                    get: () => {
+                                        return eventState;
+                                    },
+                                    set: (newValue) => {
+                                        eventState = newValue;
+                                    }
+                                });
+
+                                let eventResult = scriptModule.raiseEvent(args);
+                                if ('object' === typeof eventResult) {
+                                    // seems to be a promise
+
+                                    eventResult.then((ec) => {
+                                        eventCompleted(null, ec);
+                                    }).catch((err) => {
+                                        eventCompleted(err);
+                                    });
+                                }
+                                else {
+                                    eventCompleted(null, <number>eventResult);  // sync execution
+                                }
+                            }
+                        }
+                    }
+                    catch (e) {
+                        eventCompleted(e);
+                    }
+                },
+            };
+
+            if (deploy_helpers.isEmptyString(entry.name)) {
+                entry.name = 'vscdEvent' + idx;
+            }
+
+            let registrator: (event: string | Symbol, listener: Function) => Events.EventEmitter;
+            let registratorThisArgs: any = deploy_globals.EVENTS;
+            if (deploy_helpers.toBooleanSafe(e.once)) {
+                registrator = deploy_globals.EVENTS.once;
+            }
+            else {
+                registrator = deploy_globals.EVENTS.on;
+            }
+
+            try {
+                if (registrator) {
+                    registrator.apply(registratorThisArgs,
+                                      [ entry.name, entry.listener ]);
+
+                    entry.index = me._EVENTS.push(entry) - 1;
+                }
+            }
+            catch (e) {
+                me.log(i18.t('errors.withCategory',
+                             `Deployer.reloadEvents(${entry.name}#${idx}.1)`, e));
+            }
         });
     }
 

@@ -436,6 +436,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     displayNetworkInfo?: boolean;
     /**
+     * One or more global events.
+     */
+    events?: Event | Event[];
+    /**
      * Defines an object that contains global values and objects, categorized by its properties.
      */
     globals?: GlobalVariables;
@@ -1395,9 +1399,39 @@ export interface EnvValueWithName extends ValueWithName {
 }
 
 /**
+ * An event entry.
+ */
+export interface Event extends ConditionalItem, MachineItem, PlatformItem, Sortable {
+    /**
+     * A description for that event.
+     */
+    description?: string;
+        /**
+     * The name of the event.
+     */
+    name: string;
+    /**
+     * Execute once or not.
+     */
+    once?: boolean;
+    /**
+     * Options / data for the execution.
+     */
+    options?: any;
+    /**
+     * The path to the script.
+     */
+    script: string;
+    /**
+     * The initial value for the state.
+     */
+    state?: any;
+}
+
+/**
  * Arguments for an event.
  */
-export interface EventArguments {    
+export interface EventArguments {
 }
 
 /**
@@ -1407,6 +1441,62 @@ export interface EventArguments {
  * @param {EventArguments} e The arguments for the event.
  */
 export type EventHandler = (sender: any, e: EventArguments) => void;
+
+/**
+ * An event module.
+ */
+export interface EventModule {
+    /**
+     * Raises the event.
+     */
+    raiseEvent: EventModuleExecutor;
+}
+
+/**
+ * Describes a function for executing the logic of an event.
+ * 
+ * @param {EventModuleExecutorArguments} args The arguments for the execution.
+ * 
+ * @return {EventModuleExecutorResult} The result.
+ */
+export type EventModuleExecutor = (args: EventModuleExecutorArguments) => EventModuleExecutorResult; 
+
+/**
+ * A possible result of an event execution.
+ */
+export type EventModuleExecutorResult = Promise<number> | number | void; 
+
+/**
+ * Arguments for an event execution.
+ */
+export interface EventModuleExecutorArguments extends ScriptArguments {
+    /**
+     * The arguments of the underlying listener.
+     */
+    readonly arguments: IArguments;
+    /**
+     * Gets an object that can share data between all other events.
+     */
+    readonly globalState: Object;
+    /**
+     * Gets the name of the underlying event.
+     */
+    readonly name: string;
+    /**
+     * Data / options for the execution.
+     */
+    readonly options?: any;
+    /**
+     * Removes the underlying event.
+     * 
+     * @return {boolean} Event has been removed or not.
+     */
+    readonly remove: () => boolean;
+    /**
+     * Gets or sets a state for that event.
+     */
+    state: any;
+}
 
 /**
  * Arguments for a "file deployed completed" event.

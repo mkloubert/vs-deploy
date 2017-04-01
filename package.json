@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.18.3",
+  "version": "7.19.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -311,6 +311,100 @@
               "type": "boolean",
               "description": "Display network information in output window or not.",
               "default": true
+            },
+            "events": {
+              "description": "One or more global events.",
+              "type": "array",
+              "items": {
+                "description": "An event entry.",
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "description": "A description for that event.",
+                    "type": "string"
+                  },
+                  "if": {
+                    "description": "A list of one or more conditions (as JavaScript code) that defines if entry is available or not.",
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "isFor": {
+                    "description": "A list of one or more (host)names that entry is available for.",
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "name": {
+                    "description": "The name of the event.",
+                    "type": "string"
+                  },
+                  "once": {
+                    "description": "Execute once or not.",
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "options": {
+                    "description": "Options / data for the execution."
+                  },
+                  "platforms": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "description": "The name of the platform the entry is for."
+                      },
+                      {
+                        "type": "array",
+                        "description": "One or more platform names the entry is for.",
+                        "items": {
+                          "type": "string",
+                          "description": "The name of platform the entry is for."
+                        }
+                      }
+                    ]
+                  },
+                  "script": {
+                    "description": "The path to the underlying script.",
+                    "type": "string",
+                    "default": "./my-event.js"
+                  },
+                  "sortOrder": {
+                    "description": "The sort order(s).",
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "object"
+                      }
+                    ],
+                    "default": 0
+                  },
+                  "state": {
+                    "description": "The initial value for the state."
+                  }
+                },
+                "required": [
+                  "name",
+                  "script"
+                ]
+              }
             },
             "globals": {
               "type": "object",
