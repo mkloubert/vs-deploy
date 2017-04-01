@@ -313,7 +313,6 @@ export class ScriptValue extends ValueBase {
             }
             script = Path.resolve(script);
 
-            delete require.cache[script];
             if (FS.existsSync(script)) {
                 let scriptModule = deploy_helpers.loadModule<deploy_contracts.ScriptValueModule>(script);
                 if (scriptModule) {
