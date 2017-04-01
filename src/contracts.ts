@@ -495,6 +495,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         validatorOptions?: any;
     },
     /**
+     * A list of imports.
+     */
+    imports?: ImportType | ImportType[],
+    /**
      * The ID of the language to use (e.g. 'en', 'de')
      */
     language?: string;
@@ -502,6 +506,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * List of additional files of plugin modules to load.
      */
     modules?: string | string[];
+    /**
+     * A custom machine name.
+     */
+    name?: string;
     /**
      * A list files to open on startup.
      */
@@ -698,7 +706,6 @@ export interface DeployContext extends ConditionalItemFilter, vscode.Disposable,
     values: () => ObjectWithNameAndValue[];
 }
 
-
 /**
  * List of deploy directions.
  */
@@ -790,7 +797,6 @@ export interface DeployFilesEventArguments {
      */
     symbol?: symbol;
 }
-
 
 /**
  * 'Deploy on change' file filter.
@@ -1499,6 +1505,29 @@ export interface Hideable {
 }
 
 /**
+ * An import entry.
+ */
+export interface Import extends MachineItem, PlatformItem, Sortable {
+    /**
+     * An optional description for the entry.
+     */
+    description?: string;
+    /**
+     * Gets the source.
+     */
+    from: string;
+    /**
+     * Merge with parent object or not.
+     */
+    merge?: boolean;
+}
+
+/**
+ * Import types.
+ */
+export type ImportType = string | Import;
+
+/**
  * An item for a specific machine.
  */
 export interface MachineItem {
@@ -1535,6 +1564,16 @@ export interface ObjectWithValue {
 }
 
 /**
+ * Files to open at startup.
+ */
+export interface OpenFileFilter extends ConditionalItem, FileFilter, MachineItem {
+    /**
+     * Close other opened files or not.
+     */
+    closeOthers?: boolean;
+}
+
+/**
  * Describes the structure of the package file of that extenstion.
  */
 export interface PackageFile {
@@ -1550,16 +1589,6 @@ export interface PackageFile {
      * The version string.
      */
     version: string;
-}
-
-/**
- * Files to open at startup.
- */
-export interface OpenFileFilter extends ConditionalItem, FileFilter, MachineItem {
-    /**
-     * Close other opened files or not.
-     */
-    closeOthers?: boolean;
 }
 
 /**

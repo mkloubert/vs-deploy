@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.18.0 (April 1st, 2017; imports and custom name)
+
+* can define [external config files](https://github.com/mkloubert/vs-deploy/wiki/imports) that can be imported/merged into the data defined in `settings.json`
+* can define custom machine name in [settings](https://github.com/mkloubert/vs-deploy/wiki#settings--) now
+
 ## 7.17.0 (March 31th, 2017; script values)
 
 * can also use [scripts](https://github.com/mkloubert/vs-deploy/wiki/values#script-) for providing values now

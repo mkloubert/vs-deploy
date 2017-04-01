@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_config from './config';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
@@ -1609,44 +1610,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @return {T[]} The filtered items.
      */
     public filterConditionalItems<T extends deploy_contracts.ConditionalItem>(items: T | T[]): T[] {
-        let me = this;
-
-        let values = me.getValues();
-        
-        let result = deploy_helpers.asArray(items)
-                                   .filter(x => x);
-
-        result = result.filter((x, idx) => {
-            try {
-                let conditions = deploy_helpers.asArray(x.if)
-                                               .map(x => deploy_helpers.toStringSafe(x))
-                                               .filter(x => '' !== x.trim());
-
-                for (let i = 0; i < conditions.length; i++) {
-                    let cv = new deploy_values.CodeValue({
-                        code: conditions[i],
-                        name: `condition_${idx}_${i}`,
-                        type: 'code',
-                    });
-
-                    cv.otherValueProvider = () => values;
-
-                    if (!deploy_helpers.toBooleanSafe(cv.value)) {
-                        return false;  // at least one condition does NOT match
-                    }
-                }
-            }
-            catch (e) {
-                me.log(i18.t('errors.withCategory',
-                             'Deployer.filterConditionalItems()', e));
-                
-                return false;
-            }
-
-            return true;
-        });
-
-        return result;    
+        return deploy_helpers.filterConditionalItems<T>(items,
+                                                        this.getValues());    
     }
 
     /**
@@ -2151,8 +2116,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Get the name that represents that machine.
      */
     public get name(): string {
-        return deploy_helpers.toStringSafe(OS.hostname())
-                             .toLowerCase().trim();
+        let cfg = this.config;
+
+        let name: string;
+        if (cfg) {
+            name = this.replaceWithValues(cfg.name);  // use from config
+        }
+
+        if (deploy_helpers.isEmptyString(name)) {
+            name = OS.hostname();  // default
+        }
+
+        return deploy_helpers.normalizeString(name);
     }
 
     /**
@@ -3833,15 +3808,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public reloadConfiguration() {
         let me = this;
-        
-        let cfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
-        this._config = cfg;
 
-        me._globalScriptOperationState = {};
-        me._scriptOperationStates = {};
-        deploy_values.resetScriptStates();
+        let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
-        let next = () => {
+        let next = (cfg: deploy_contracts.DeployConfiguration) => {
+            me._config = cfg;
+
             me.reloadPlugins();
             me.displayNetworkInfo();
 
@@ -3858,37 +3830,51 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
         };
 
-        this._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
-        this._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
-        i18.init(this._config.language).then(() => {
-            if (me._config.button) {
-                let txt = deploy_helpers.toStringSafe(me._config.button.text);
-                txt = me.replaceWithValues(txt).trim();
-                if ('' === txt) {
-                    txt = i18.t('quickDeploy.caption');
+        let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
+            me._globalScriptOperationState = {};
+            me._scriptOperationStates = {};
+            deploy_values.resetScriptStates();
+
+            me._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
+            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
+            i18.init(cfg.language).then(() => {
+                if (cfg.button) {
+                    let txt = deploy_helpers.toStringSafe(cfg.button.text);
+                    txt = me.replaceWithValues(txt).trim();
+                    if ('' === txt) {
+                        txt = i18.t('quickDeploy.caption');
+                    }
+                    me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
                 }
-                me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+
+                me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+
+                next(cfg);
+            }).catch((err) => {
+                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+
+                next(cfg);
+            });
+
+            me._QUICK_DEPLOY_STATUS_ITEM.hide();
+            if (cfg.button) {
+                if (deploy_helpers.toBooleanSafe(cfg.button.enabled)) {
+                    me._QUICK_DEPLOY_STATUS_ITEM.show();
+                }
             }
 
-            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+            if (deploy_helpers.toBooleanSafe(cfg.openOutputOnStartup)) {
+                me.outputChannel.show();
+            }
+        }
 
-            next();
+        deploy_config.mergeConfig(loadedCfg).then((cfg) => {
+            applyCfg(cfg);
         }).catch((err) => {
-            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
 
-            next();
+            applyCfg(loadedCfg);
         });
-
-        this._QUICK_DEPLOY_STATUS_ITEM.hide();
-        if (this._config.button) {
-            if (deploy_helpers.toBooleanSafe(this._config.button.enabled)) {
-                this._QUICK_DEPLOY_STATUS_ITEM.show();
-            }
-        }
-
-        if (deploy_helpers.toBooleanSafe(this._config.openOutputOnStartup)) {
-            this.outputChannel.show();
-        }
     }
 
     /**

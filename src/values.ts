@@ -430,6 +430,44 @@ export class StaticValue extends ValueBase {
 }
 
 /**
+ * Returns a list of "build-in" values.
+ * 
+ * @return {ValueBase[]} The list of values.
+ */
+export function getBuildInValues(): ValueBase[] {
+    let objs: ValueBase[] = [];
+
+    // ${cwd}
+    {
+        objs.push(new CodeValue({
+            name: 'cwd',
+            type: "code",
+            code: "process.cwd()",
+        }));
+    }
+
+    // ${homeDir}
+    {
+        objs.push(new CodeValue({
+            name: 'homeDir',
+            type: "code",
+            code: "require('os').homedir()",
+        }));
+    }
+
+    // ${workspaceRoot}
+    {
+        objs.push(new CodeValue({
+            name: 'workspaceRoot',
+            type: "code",
+            code: "require('vscode').workspace.rootPath",
+        }));
+    }
+
+    return objs;
+}
+
+/**
  * Gets the current list of values.
  * 
  * @return {ValueBase[]} The values.
@@ -459,33 +497,7 @@ export function getValues(): ValueBase[] {
     values = deploy_helpers.filterPlatformItems(values);
 
     let objs = toValueObjects(values, me.config);
-
-    // ${cwd}
-    {
-        objs.push(new CodeValue({
-            name: 'cwd',
-            type: "code",
-            code: "process.cwd()",
-        }));
-    }
-
-    // ${homeDir}
-    {
-        objs.push(new CodeValue({
-            name: 'homeDir',
-            type: "code",
-            code: "require('os').homedir()",
-        }));
-    }
-
-    // ${workspaceRoot}
-    {
-        objs.push(new CodeValue({
-            name: 'workspaceRoot',
-            type: "code",
-            code: "require('vscode').workspace.rootPath",
-        }));
-    }
+    objs = objs.concat(getBuildInValues());
 
     return objs;
 }

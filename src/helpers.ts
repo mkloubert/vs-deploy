@@ -333,6 +333,50 @@ export function distinctArray<T>(arr: T[]): T[] {
 }
 
 /**
+ * Filters "conditional" items.
+ * 
+ * @param {T|T[]} items The items to filter.
+ * @param {deploy_values.ValueBase|deploy_values.ValueBase[]} [values] The values to use.
+ * 
+ * @return {T[]} The filtered items.
+ */
+export function filterConditionalItems<T extends deploy_contracts.ConditionalItem>(items: T | T[],
+                                                                                   values?: deploy_values.ValueBase | deploy_values.ValueBase[]): T[] {
+    let result = asArray(items).filter(x => x);
+
+    result = result.filter((x, idx) => {
+        try {
+            let conditions = asArray(x.if).map(x => toStringSafe(x))
+                                          .filter(x => '' !== x.trim());
+
+            for (let i = 0; i < conditions.length; i++) {
+                let cv = new deploy_values.CodeValue({
+                    code: conditions[i],
+                    name: `condition_${idx}_${i}`,
+                    type: 'code',
+                });
+
+                cv.otherValueProvider = () => asArray(values).filter(x => x);
+
+                if (!toBooleanSafe(cv.value)) {
+                    return false;  // at least one condition does NOT match
+                }
+            }
+        }
+        catch (e) {
+            log(i18.t('errors.withCategory',
+                      'helpers.filterConditionalItems()', e));
+            
+            return false;
+        }
+
+        return true;
+    });
+
+    return result;    
+}
+
+/**
  * Filters items by platform.
  * 
  * @param {(T|T[])} items The items to filter.
