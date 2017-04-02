@@ -883,36 +883,7 @@ export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, P
     /**
      * Settings for a "package button".
      */
-    button?: {
-        /**
-         * The custom ID for the underlying command.
-         */
-        command?: string;
-        /**
-         * Enable button or not.
-         */
-        enabled?: boolean;
-        /**
-         * Put button on the right side or not.
-         */
-        isRight?: boolean;
-        /**
-         * The priority.
-         */
-        priority?: number;
-        /**
-         * One or more explicit targets to deploy to.
-         */
-        targets?: string | string[];
-        /**
-         * A custom text for the button.
-         */
-        text?: string;
-        /**
-         * A custom tooltip for the button.
-         */
-        tooltip?: string;
-    },
+    button?: DeployPackageButton | boolean,
     /**
      * Deploys files on change.
      */
@@ -954,6 +925,40 @@ export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, P
      * if its 'deployOnSave' property is set to (true).
      */
     useTargetListForDeployOnSave?: boolean;
+}
+
+/**
+ * A button for a package.
+ */
+export interface DeployPackageButton {
+    /**
+     * The custom ID for the underlying command.
+     */
+    command?: string;
+    /**
+     * Enable button or not.
+     */
+    enabled?: boolean;
+    /**
+     * Put button on the right side or not.
+     */
+    isRight?: boolean;
+    /**
+     * The priority.
+     */
+    priority?: number;
+    /**
+     * One or more explicit targets to deploy to.
+     */
+    targets?: string | string[];
+    /**
+     * A custom text for the button.
+     */
+    text?: string;
+    /**
+     * A custom tooltip for the button.
+     */
+    tooltip?: string;
 }
 
 /**

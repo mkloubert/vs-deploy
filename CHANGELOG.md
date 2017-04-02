@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.23.0 (April 2nd, 2017; buttons for packages)
+
+* can use boolean values for [package buttons](https://github.com/mkloubert/vs-deploy/wiki#buttons-) now
+
 ## 7.22.0 (April 2nd, 2017; buttons for packages)
 
 * can define [buttons](https://github.com/mkloubert/vs-deploy/wiki#buttons-) for each [package](https://github.com/mkloubert/vs-deploy/wiki#packages-) now

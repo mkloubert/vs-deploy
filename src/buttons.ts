@@ -53,27 +53,39 @@ export function reloadPackageButtons() {
         let cmd: vscode.Disposable;
         let disposeItems = false;
         try {
-            if (p.button && deploy_helpers.toBooleanSafe(p.button.enabled, true)) {
+            let packageButton: deploy_contracts.DeployPackageButton;
+            if (!deploy_helpers.isNullOrUndefined(p.button)) {
+                if ('object' !== typeof p.button) {
+                    packageButton = {
+                        enabled: deploy_helpers.toBooleanSafe(p.button),
+                    };
+                }
+                else {
+                    packageButton = p.button;
+                }
+            }
+
+            if (packageButton && deploy_helpers.toBooleanSafe(packageButton.enabled, true)) {
                 // command ID
-                let cmdName = deploy_helpers.toStringSafe(p.button.command).trim();
+                let cmdName = deploy_helpers.toStringSafe(packageButton.command).trim();
                 if ('' === cmdName) {
                     cmdName = 'extension.deploy.deployPackageByButton' + (nextDeployPackageCommandId--);
                 }
 
                 // alignment
                 let align = vscode.StatusBarAlignment.Left;
-                if (deploy_helpers.toBooleanSafe(p.button.isRight)) {
+                if (deploy_helpers.toBooleanSafe(packageButton.isRight)) {
                     align = vscode.StatusBarAlignment.Right;
                 }
                 
                 // priority
-                let prio = parseFloat(deploy_helpers.toStringSafe(p.button.priority).trim());
+                let prio = parseFloat(deploy_helpers.toStringSafe(packageButton.priority).trim());
                 if (isNaN(prio)) {
                     prio = undefined;
                 }
 
                 // text
-                let text = deploy_helpers.toStringSafe(p.button.text);
+                let text = deploy_helpers.toStringSafe(packageButton.text);
                 text = me.replaceWithValues(text);
                 if (deploy_helpers.isEmptyString(text)) {
                     text = deploy_helpers.toStringSafe(p.name).trim();
@@ -83,7 +95,7 @@ export function reloadPackageButtons() {
                 }
 
                 // tooltip
-                let tooltip = deploy_helpers.toStringSafe(p.button.tooltip);
+                let tooltip = deploy_helpers.toStringSafe(packageButton.tooltip);
                 tooltip = me.replaceWithValues(tooltip);
                 if (deploy_helpers.isEmptyString(tooltip)) {
                     tooltip = deploy_helpers.toStringSafe(p.description).trim();
@@ -107,7 +119,7 @@ export function reloadPackageButtons() {
                         let allTargets = me.getTargets();
 
                         // collect explicit targets
-                        let targetNames = deploy_helpers.asArray(p.button.targets)
+                        let targetNames = deploy_helpers.asArray(packageButton.targets)
                                                         .map(x => deploy_helpers.normalizeString(x))
                                                         .filter(x => '' !== x);
                         targetNames = deploy_helpers.distinctArray(targetNames);

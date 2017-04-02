@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.22.0",
+  "version": "7.23.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -659,53 +659,62 @@
                 "type": "object",
                 "properties": {
                   "button": {
-                    "description": "The button that should be shown in the status bar.",
-                    "type": "object",
-                    "properties": {
-                      "command": {
-                        "description": "The custom ID for the underlying command.",
-                        "type": "string"
+                    "description": "Defines a button that should be shown in the status bar for that package.",
+                    "oneOf": [
+                      {
+                        "description": "Enable a button or not.",
+                        "type": "boolean"
                       },
-                      "enabled": {
-                        "description": "Enable button or not.",
-                        "type": "boolean",
-                        "default": true
-                      },
-                      "isRight": {
-                        "description": "Put button on the right side or not.",
-                        "type": "boolean",
-                        "default": false
-                      },
-                      "priority": {
-                        "description": "The priority.",
-                        "type": "number"
-                      },
-                      "targets": {
-                        "description": "The targets to deploy to.",
-                        "oneOf": [
-                          {
-                            "description": "The name of the target to deploy to.",
+                      {
+                        "description": "The button that should be shown in the status bar.",
+                        "type": "object",
+                        "properties": {
+                          "command": {
+                            "description": "The custom ID for the underlying command.",
                             "type": "string"
                           },
-                          {
-                            "description": "The names of the targets to deploy to.",
-                            "type": "array",
-                            "items": {
-                              "description": "The name of the target to deploy to.",
-                              "type": "string"
-                            }
+                          "enabled": {
+                            "description": "Enable button or not.",
+                            "type": "boolean",
+                            "default": true
+                          },
+                          "isRight": {
+                            "description": "Put button on the right side or not.",
+                            "type": "boolean",
+                            "default": false
+                          },
+                          "priority": {
+                            "description": "The priority.",
+                            "type": "number"
+                          },
+                          "targets": {
+                            "description": "The targets to deploy to.",
+                            "oneOf": [
+                              {
+                                "description": "The name of the target to deploy to.",
+                                "type": "string"
+                              },
+                              {
+                                "description": "The names of the targets to deploy to.",
+                                "type": "array",
+                                "items": {
+                                  "description": "The name of the target to deploy to.",
+                                  "type": "string"
+                                }
+                              }
+                            ]
+                          },
+                          "text": {
+                            "description": "A custom text for the button.",
+                            "type": "string"
+                          },
+                          "tooltip": {
+                            "description": "A custom tooltip for the button.",
+                            "type": "string"
                           }
-                        ]
-                      },
-                      "text": {
-                        "description": "A custom text for the button.",
-                        "type": "string"
-                      },
-                      "tooltip": {
-                        "description": "A custom tooltip for the button.",
-                        "type": "string"
+                        }
                       }
-                    }
+                    ]
                   },
                   "deployOnChange": {
                     "description": "One or more files to deploy if they change. (true) indicates to deploy to the targets of 'deployOnSave'.",
