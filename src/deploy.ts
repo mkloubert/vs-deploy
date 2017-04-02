@@ -3899,7 +3899,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     let autoStartCompleted = (err: any) => {
                         if (err) {
-                            vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(e)}`);
+                            vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
                         }
                     };
 
