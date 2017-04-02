@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.22.0 (April 2nd, 2017; buttons for packages)
+
+* can define [buttons](https://github.com/mkloubert/vs-deploy/wiki#buttons-) for each [package](https://github.com/mkloubert/vs-deploy/wiki#packages-) now
+
 ## 7.21.0 (April 2nd, 2017; REST API and cron jobs)
 
 * added `startApi` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) to start a REST API provided by extensions like [vs-rest-api](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-rest-api)

@@ -72,12 +72,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     // deploy workspace
     let deploy = vscode.commands.registerCommand('extension.deploy', () => {
-        try {
-            deployer.deployWorkspace();
-        }
-        catch (e) {
+        deployer.deployWorkspace().then((code) => {
+            //TODO
+        }).catch((e) => {
             vscode.window.showErrorMessage(`[DEPLOY WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        });
     });
 
     // compare local file with remote

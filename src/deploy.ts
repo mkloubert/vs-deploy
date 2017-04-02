@@ -25,6 +25,7 @@
 
 import * as deploy_config from './config';
 import * as deploy_contracts from './contracts';
+import * as deploy_buttons from './buttons';
 import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
@@ -78,7 +79,7 @@ interface EventEntry {
 
 interface ScriptCommandWrapper {
     button?: vscode.StatusBarItem;
-    command: vscode.Disposable,
+    command: vscode.Disposable;
 }
 
 /**
@@ -1038,148 +1039,199 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
     /**
      * Deploys files of the workspace.
+     * 
+     * @param {deploy_contracts.DeployPackage|deploy_contracts.DeployPackage[]} [packagesToDeploy] The package(s) to deploy.
+     * @param {deploy_contracts.DeployTarget|deploy_contracts.DeployTarget[]} [targetsToDeployTo] The target(s) to deploy to.
+     * 
+     * @return {Promise<number>} The promise.
      */
-    public deployWorkspace() {
+    public deployWorkspace(packagesToDeploy?: deploy_contracts.DeployPackage | deploy_contracts.DeployPackage[],
+                           targetsToDeployTo?: deploy_contracts.DeployTarget | deploy_contracts.DeployTarget[]): Promise<number> {
         let me = this;
 
-        let packages = this.getPackages()
-                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
-        if (packages.length < 1) {
-            vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
-            return;
-        }
-
-        let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i,
-                                                                                             me.getValues()));
-
-        let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
-            if (!pkg) {
-                return;
-            }
-
-            let targets = me.filterTargetsByPackage(pkg)
-                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
-            if (targets.length < 1) {
-                vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
-                return;
-            }
-
-            let packageName = deploy_helpers.toStringSafe(pkg.name);
-
-            let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
-
-            let deploy = (t: deploy_contracts.DeployTarget) => {
-                try {
-                    if (!t) {
-                        return;
-                    }
-
-                    let targetName = deploy_helpers.toStringSafe(t.name);
-
-                    me.outputChannel.appendLine('');
-
-                    let deployMsg: string;
-                    if (targetName) {
-                        deployMsg = i18.t('deploy.workspace.deployingWithTarget', packageName, targetName);
-                    }
-                    else {
-                        deployMsg = i18.t('deploy.workspace.deploying', packageName);
-                    }
-
-                    me.outputChannel.appendLine(deployMsg);
-
-                    if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
-                        me.outputChannel.show();
-                    }
-
-                    me.beforeDeploy(filesToDeploy, t).then((canceled) => {
-                        if (canceled) {
-                            return;
-                        }
-
-                        filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
-                        if (filesToDeploy.length < 1) {
-                            vscode.window.showWarningMessage(i18.t('deploy.noFiles'));
-                            return;
-                        }
-                        
-                        me.deployWorkspaceTo(filesToDeploy, t).then(() => {
-                            //TODO
-                        }).catch((err) => {
-                            vscode.window.showErrorMessage(i18.t('deploy.workspace.failedWithCategory', 2, err));
-                        });
-                    }).catch((err) => {
-                        vscode.window.showErrorMessage(i18.t('deploy.before.failed', err));
-                    });
+        return new Promise<number>((resolve, reject) => {
+            let completed = (err: any, code?: any) => {
+                if (err) {
+                    reject(err);
                 }
-                catch (e) {
-                    vscode.window.showErrorMessage(i18.t('deploy.workspace.failedWithCategory', 1, e));
+                else {
+                    resolve(code);
                 }
             };
 
-            let targetsOfPackage = me.getTargetsFromPackage(pkg);
-            if (targetsOfPackage.length < 1) {
-                // no explicit targets
+            let packages = deploy_helpers.asArray(packagesToDeploy).filter(x => x);
+            if (packages.length < 1) {
+                // no explicit packages found in method arguments
+                // so read packages from config
 
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
-                                                                                                me.getValues()));
-
-                if (fileQuickPicks.length > 1) {
-                    vscode.window.showQuickPick(fileQuickPicks, {
-                        placeHolder: i18.t('deploy.workspace.selectTarget'),
-                    }).then((item) => {
-                        if (item) {
-                            deploy(item.target);
-                        }
-                    });
-                }
-                else {
-                    // auto select
-                    deploy(fileQuickPicks[0].target);
-                }
+                packages = me.getPackages()
+                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
             }
-            else {
-                // we have explicit defined targets here
+            if (packages.length < 1) {
+                vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
 
-                if (1 == targetsOfPackage.length) {
-                    deploy(targetsOfPackage[0]);  // deploy the one and only
+                completed(null, 1);  // no packages found
+                return;
+            }
+
+            let packageQuickPicks = packages.map((x, i) => deploy_helpers.createPackageQuickPick(x, i,
+                                                                                                 me.getValues()));
+
+            let selectTarget = (pkg: deploy_contracts.DeployPackage) => {
+                if (!pkg) {
+                    completed(null, 3);  // aborted
+                    return;
                 }
-                else {
-                    // create a virtual "batch" target
-                    // for the underlying "real" targets
 
-                    let virtualPkgName: string;
-                    if (packageName) {
-                        virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
+                let targets = deploy_helpers.asArray(targetsToDeployTo).filter(x => x);
+                if (targets.length < 1) {
+                    // no explicit targets found in method arguments
+                    // so read targets from package
+
+                    targets = me.filterTargetsByPackage(pkg)
+                                .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+                }
+                if (targets.length < 1) {
+                    vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
+
+                    completed(null, 4);  // no target found
+                    return;
+                }
+
+                let packageName = deploy_helpers.toStringSafe(pkg.name);
+
+                let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
+
+                let deploy = (t: deploy_contracts.DeployTarget) => {
+                    try {
+                        if (!t) {
+                            completed(null, 6);  // aborted
+                            return;
+                        }
+
+                        let targetName = deploy_helpers.toStringSafe(t.name);
+
+                        me.outputChannel.appendLine('');
+
+                        let deployMsg: string;
+                        if (targetName) {
+                            deployMsg = i18.t('deploy.workspace.deployingWithTarget', packageName, targetName);
+                        }
+                        else {
+                            deployMsg = i18.t('deploy.workspace.deploying', packageName);
+                        }
+
+                        me.outputChannel.appendLine(deployMsg);
+
+                        if (deploy_helpers.toBooleanSafe(me.config.openOutputOnDeploy, true)) {
+                            me.outputChannel.show();
+                        }
+
+                        me.beforeDeploy(filesToDeploy, t).then((canceled) => {
+                            if (canceled) {
+                                completed(null, 7);  // canceled
+                                return;
+                            }
+
+                            filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
+                            if (filesToDeploy.length < 1) {
+                                vscode.window.showWarningMessage(i18.t('deploy.noFiles'));
+
+                                completed(null, 8);  // no files
+                                return;
+                            }
+                            
+                            me.deployWorkspaceTo(filesToDeploy, t).then(() => {
+                                completed(null, 0);  // anthing finished
+                            }).catch((err) => {
+                                completed(new Error(i18.t('deploy.workspace.failedWithCategory',
+                                                          2, err)));
+                            });
+                        }).catch((err) => {
+                            completed(new Error(i18.t('deploy.before.failed',
+                                                      err)));
+                        });
+                    }
+                    catch (e) {
+                        completed(new Error(i18.t('deploy.workspace.failedWithCategory',
+                                                  1, e)));
+                    }
+                };
+
+                let targetsOfPackage = me.getTargetsFromPackage(pkg);
+                if (targetsOfPackage.length < 1) {
+                    // no explicit targets
+
+                    let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
+                                                                                                    me.getValues()));
+
+                    if (fileQuickPicks.length > 1) {
+                        vscode.window.showQuickPick(fileQuickPicks, {
+                            placeHolder: i18.t('deploy.workspace.selectTarget'),
+                        }).then((item) => {
+                            if (item) {
+                                deploy(item.target);
+                            }
+                            else {
+                                completed(null, 5);  // aborted
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
                     }
                     else {
-                        virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
+                        // auto select
+                        deploy(fileQuickPicks[0].target);
                     }
-
-                    let batchTarget: any = {
-                        type: 'batch',
-                        name: virtualPkgName,
-                        targets: targetsOfPackage.map(x => x.name),
-                    };
-
-                    deploy(batchTarget);
                 }
-            }
-        };
+                else {
+                    // we have explicit defined targets here
 
-        if (packageQuickPicks.length > 1) {
-            vscode.window.showQuickPick(packageQuickPicks, {
-                placeHolder: i18.t('deploy.workspace.selectPackage'),
-            }).then((item) => {
-                        if (item) {
-                            selectTarget(item.package);
+                    if (1 === targetsOfPackage.length) {
+                        deploy(targetsOfPackage[0]);  // deploy the one and only
+                    }
+                    else {
+                        // create a virtual "batch" target
+                        // for the underlying "real" targets
+
+                        let virtualPkgName: string;
+                        if (packageName) {
+                            virtualPkgName = i18.t('deploy.workspace.virtualTargetNameWithPackage', packageName);
                         }
-                    });
-        }
-        else {
-            // auto select
-            selectTarget(packageQuickPicks[0].package);
-        }
+                        else {
+                            virtualPkgName = i18.t('deploy.workspace.virtualTargetName');
+                        }
+
+                        let batchTarget: any = {
+                            type: 'batch',
+                            name: virtualPkgName,
+                            targets: targetsOfPackage.map(x => x.name),
+                        };
+
+                        deploy(batchTarget);
+                    }
+                }
+            };
+
+            if (packageQuickPicks.length > 1) {
+                vscode.window.showQuickPick(packageQuickPicks, {
+                    placeHolder: i18.t('deploy.workspace.selectPackage'),
+                }).then((item) => {
+                            if (item) {
+                                selectTarget(item.package);
+                            }
+                            else {
+                                completed(null, 2);  // aborted
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
+            }
+            else {
+                // auto select
+                selectTarget(packageQuickPicks[0].package);
+            }
+        });
     }
 
     /**
@@ -2174,6 +2226,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         if (deploy_helpers.tryDispose(this._fileSystemWatcher)) {
             this._fileSystemWatcher = null;
         }
+
+        // destroy buttons
+        deploy_helpers.tryDispose(this._QUICK_DEPLOY_STATUS_ITEM);
+
+        deploy_buttons.unloadPackageButtons();
     }
 
     /**
@@ -3832,6 +3889,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             me.executeStartupCommands();
             me.openFiles();
+
+            deploy_buttons.reloadPackageButtons
+                          .apply(me, []);
         };
 
         let next = (cfg: deploy_contracts.DeployConfiguration) => {
