@@ -3897,11 +3897,40 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 if (deploy_helpers.toBooleanSafe(cfg.host.autoStart)) {
                     // auto start host
 
+                    let autoStartCompleted = (err: any) => {
+                        if (err) {
+                            vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(e)}`);
+                        }
+                    };
+
                     try {
-                        me.listen();
+                        let startListening = () => {
+                            try {
+                                me.listen();
+
+                                autoStartCompleted(null);
+                            }
+                            catch (e) {
+                                autoStartCompleted(e);
+                            }
+                        };
+
+                        let host = me._host;
+                        if (host) {
+                            host.stop().then(() => {
+                                me._host = null;
+
+                                startListening();
+                            }).catch((err) => {
+                                autoStartCompleted(err);
+                            });
+                        }
+                        else {
+                            startListening();
+                        }
                     }
                     catch (e) {
-                        vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(e)}`);
+                        autoStartCompleted(e);
                     }
                 }
             }
