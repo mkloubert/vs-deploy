@@ -145,9 +145,12 @@ export function reloadPackageButtons() {
                             }
                         });
 
+                        btn.hide();
                         me.deployWorkspace(p, targetToDeployTo).then((code) => {
-                            //TODO
+                            btn.show();
                         }).catch((err) => {
+                            btn.show();
+
                             me.log(i18.t('errors.withCategory',
                                          'buttons.reloadPackageButtons(3.${idx})', err));
                         });
