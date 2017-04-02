@@ -464,6 +464,9 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                             globals: me.context.globals(),
                             mode: deploy_contracts.DataTransformerMode.Transform,
                             options: target.transformerOptions,
+                            replaceWithValues: (val) => {
+                                return me.context.replaceWithValues(val);
+                            },
                             require: function(id) {
                                 return me.context.require(id);
                             },

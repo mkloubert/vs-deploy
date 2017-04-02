@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.24.0 (April 2nd, 2017; passwords for hosts and remote targets)
+
+* can use passwords for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-) and [remote targets](https://github.com/mkloubert/vs-deploy/wiki/target_remote) now
+* added `replaceWithValues()` to [DataTransformerContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.datatransformercontext.html) interface
+
 ## 7.23.0 (April 2nd, 2017; buttons for packages)
 
 * can use boolean values for [package buttons](https://github.com/mkloubert/vs-deploy/wiki#buttons-) now

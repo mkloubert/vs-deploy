@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as Crypto from 'crypto';
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
@@ -41,6 +42,8 @@ interface DeployTargetRemote extends deploy_contracts.DeployTarget {
     tag?: any;
     transformer?: string;
     transformerOptions?: any;
+    password?: string;
+    passwordAlgorithm?: string;
 }
 
 /**
@@ -230,6 +233,43 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
             }
             jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
 
+            let pwd = deploy_helpers.toStringSafe(target.password);
+            if ('' !== pwd) {
+                // add password wrapper
+                let baseJsonTransformer = jsonTransformer;
+
+                let pwdAlgo = deploy_helpers.normalizeString(target.passwordAlgorithm);
+                if ('' === pwdAlgo) {
+                    pwdAlgo = deploy_contracts.DEFAULT_PASSWORD_ALGORITHM;
+                }
+
+                jsonTransformer = (ctx) => {
+                    return new Promise<Buffer>((resolve, reject) => {
+                        try {
+                            baseJsonTransformer(ctx).then((uncryptedData) => {
+                                try {
+                                    let cipher = Crypto.createCipher(pwdAlgo, pwd);
+
+                                    let a = cipher.update(uncryptedData);
+                                    let b = cipher.final();
+
+                                    // return crypted data
+                                    resolve(Buffer.concat([a, b]));
+                                }
+                                catch (e) {
+                                    reject(e);
+                                }
+                            }).catch((err) => {
+                                reject(err);
+                            });
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    });
+                };
+            }
+
             try {
                 let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
                 if (false === relativePath) {
@@ -287,6 +327,9 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                         globals: me.context.globals(),
                         mode: deploy_contracts.DataTransformerMode.Transform,
                         options: target.transformerOptions,
+                        replaceWithValues: (val) => {
+                            return me.context.replaceWithValues(val);
+                        },
                         require: function(id) {
                             return me.context.require(id);
                         },
@@ -341,6 +384,9 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                                 globals: me.context.globals(),
                                 mode: deploy_contracts.DataTransformerMode.Transform,
                                 options: target.messageTransformerOptions,
+                                replaceWithValues: (val) => {
+                                    return me.context.replaceWithValues(val);
+                                },
                                 require: function(id) {
                                     return me.context.require(id);
                                 },

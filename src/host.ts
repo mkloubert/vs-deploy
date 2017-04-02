@@ -26,6 +26,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 import { Deployer } from './deploy';
+import * as Crypto from 'crypto';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
@@ -243,6 +244,7 @@ export class DeployHost {
             let jsonTransformer: deploy_contracts.DataTransformer;
             let jsonTransformerOpts: any;
             let maxMsgSize = deploy_contracts.DEFAULT_MAX_MESSAGE_SIZE;
+            let pwd: string;
             let port = deploy_contracts.DEFAULT_PORT;
             let transformer: deploy_contracts.DataTransformer;
             let transformerOpts: any;
@@ -294,6 +296,8 @@ export class DeployHost {
                         validator = validatorModule.validate;
                     }
                 }
+
+                pwd = deploy_helpers.toStringSafe(cfg.host.password);
             }
 
             dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
@@ -303,6 +307,40 @@ export class DeployHost {
             }
 
             jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
+            if (!deploy_helpers.isNullUndefinedOrEmptyString(pwd)) {
+                // add password wrapper
+
+                let baseJsonTransformer = jsonTransformer;
+
+                let pwdAlgo = deploy_helpers.normalizeString(cfg.host.passwordAlgorithm);
+                if ('' === pwdAlgo) {
+                    pwdAlgo = deploy_contracts.DEFAULT_PASSWORD_ALGORITHM;
+                }
+
+                jsonTransformer = (ctx) => {
+                    return new Promise<Buffer>((resolve, reject) => {
+                        try {
+                            let decipher = Crypto.createDecipher(pwdAlgo, pwd);
+
+                            let a = decipher.update(ctx.data);
+                            let b = decipher.final();
+
+                            // update data for base transformer
+                            ctx.data = Buffer.concat([ a, b ]);
+
+                            baseJsonTransformer(ctx).then((uncryptedData) => {
+                                resolve(uncryptedData);
+                            }).catch((err) => {
+                                reject(err);
+                            });
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    });
+                };
+            }
+
             transformer = deploy_helpers.toDataTransformerSafe(transformer);
             validator = deploy_helpers.toValidatorSafe(validator);
 
@@ -393,6 +431,9 @@ export class DeployHost {
                                     globals: me.deployer.getGlobals(),
                                     mode: deploy_contracts.DataTransformerMode.Restore,
                                     options: jsonTransformerOpts,
+                                    replaceWithValues: (val) => {
+                                        return me.deployer.replaceWithValues(val);
+                                    },
                                     require: function(id) {
                                         return require(id);
                                     },
@@ -650,6 +691,9 @@ export class DeployHost {
                                                                 globals: me.deployer.getGlobals(),
                                                                 require: function(id) {
                                                                     return require(id);
+                                                                },
+                                                                replaceWithValues: (val) => {
+                                                                    return me.deployer.replaceWithValues(val);
                                                                 },
                                                                 mode: deploy_contracts.DataTransformerMode.Restore,
                                                                 options: transformerOpts,

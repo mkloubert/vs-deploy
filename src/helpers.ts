@@ -747,6 +747,18 @@ export function isNullOrUndefined(val: any): boolean {
 }
 
 /**
+ * Checks if a value is (null), (undefined) or an empty string.
+ * 
+ * @param {any} val The value to check.
+ * 
+ * @return {boolean} Is (null)/(undefined)/empty string or not.
+ */
+export function isNullUndefinedOrEmptyString(val: any): boolean {
+    return isNullOrUndefined(val) ||
+           '' === toStringSafe(val);
+}
+
+/**
  * Loads a "data transformer" module.
  * 
  * @param {string} file The path of the module's file.

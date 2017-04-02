@@ -39,6 +39,10 @@ export const DEFAULT_HOST_DIR = './';
  */
 export const DEFAULT_MAX_MESSAGE_SIZE = 16777215;
 /**
+ * The default algorithm for crypting data by password.
+ */
+export const DEFAULT_PASSWORD_ALGORITHM = 'aes-256-ctr';
+/**
  * Default TCP port of a host.
  */
 export const DEFAULT_PORT = 23979;
@@ -323,6 +327,14 @@ export interface DataTransformerContext extends ScriptArguments {
      * The optional options for transformation.
      */
     options?: any;
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    readonly replaceWithValues: (val: any) => string;
 }
 
 /**
@@ -469,6 +481,14 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * The optional options for the "message data" transformer script.
          */
         messageTransformerOptions?: any;
+        /**
+         * An optional password to use.
+         */
+        password?: string;
+        /**
+         * The algorithm for the password to use.
+         */
+        passwordAlgorithm?: string;
         /**
          * The TCP port on that the host should listen.
          */

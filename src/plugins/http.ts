@@ -190,6 +190,9 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                 globals: me.context.globals(),
                                 mode: deploy_contracts.DataTransformerMode.Transform,
                                 options: target.transformerOptions,
+                                replaceWithValues: (val) => {
+                                    return me.context.replaceWithValues(val);
+                                },
                                 require: function(id) {
                                     return me.context.require(id);
                                 },

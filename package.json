@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.23.1",
+  "version": "7.24.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -436,6 +436,15 @@
                 },
                 "messageTransformerOptions": {
                   "description": "The data for the 'message data transformation', if needed."
+                },
+                "password": {
+                  "type": "string",
+                  "description": "An optional password to use."
+                },
+                "passwordAlgorithm": {
+                  "type": "string",
+                  "description": "The algorithm for the password to use.",
+                  "default": "aes-256-ctr"
                 },
                 "port": {
                   "type": "integer",
@@ -11504,6 +11513,15 @@
                       },
                       "transformerOptions": {
                         "description": "The data for the 'data transformation', if needed."
+                      },
+                      "password": {
+                        "type": "string",
+                        "description": "An optional password to use."
+                      },
+                      "passwordAlgorithm": {
+                        "type": "string",
+                        "description": "The algorithm for the password to use.",
+                        "default": "aes-256-ctr"
                       },
                       "description": {
                         "type": "string",
