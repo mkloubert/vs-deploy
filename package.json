@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.20.0",
+  "version": "7.21.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -836,6 +836,16 @@
             "showWarningsForNonExistingTargets": {
               "type": "boolean",
               "description": "Indicates if a warning popup / notification should be displayed if targets do not exist.",
+              "default": false
+            },
+            "startApi": {
+              "type": "boolean",
+              "description": "Starts the REST API or not (s. https://github.com/mkloubert/vs-rest-api).",
+              "default": false
+            },
+            "startCronJobs": {
+              "type": "boolean",
+              "description": "Starts the cron jobs or not (s. https://github.com/mkloubert/vs-cron).",
               "default": false
             },
             "startupCommands": {

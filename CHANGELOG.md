@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 7.21.0 (April 2nd, 2017; REST API and cron jobs)
+
+* added `startApi` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) to start a REST API provided by extensions like [vs-rest-api](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-rest-api)
+* added `startCronJobs` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) to start cron jobs handled by extensions like [vs-cron](https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-cron)
+
 ## 7.20.0 (April 2nd, 2017; global events)
 
 * added `replaceWithValues()` method to [EventModuleExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.eventmoduleexecutorarguments.html) interface

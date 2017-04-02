@@ -138,6 +138,9 @@ export interface Translation {
         countable?: string;
         withCategory?: string;
     },
+    extensions?: {
+        notInstalled?: string;
+    },
     failed?: string;
     host?: {
         button?: {
@@ -159,6 +162,7 @@ export interface Translation {
         started?: string;
         stopped?: string;
     },
+    install?: string;
     isNo?: {
         directory?: string;
         file?: string;

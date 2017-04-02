@@ -131,6 +131,9 @@ export const translation: Translation = {
         countable: 'FEHLER #{0:trim}: {1}',
         withCategory: '[FEHLER] {0:trim}: {1}',
     },
+    extensions: {
+        notInstalled: 'Die Erweiterung {0:trim,surround} ist NICHT installiert.',
+    },
     failed: '[FEHLGESCHLAGEN: {0}]',
     host: {
         button: {
@@ -151,6 +154,7 @@ export const translation: Translation = {
         started: 'Bereitstellungs-Dienst wurde erfolgreich auf Port {0:trim} im Verzeichnis {1:trim,surround} gestartet.',
         stopped: 'Bereitstellungs-Dienst wurde beendet.',
     },
+    install: 'Installieren',
     isNo: {
         directory: "{0:trim,surround} ist kein Verzeichnis!",
         file: "{0:trim,surround} ist keine Datei!",

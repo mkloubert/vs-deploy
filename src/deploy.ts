@@ -3822,25 +3822,30 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
+        let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
+            me.displayNetworkInfo();
+            me.showExtensionInfoPopups();
+            me.clearOutputOrNot();
+
+            // deploy.config.reloaded
+            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
+
+            me.executeStartupCommands();
+            me.openFiles();
+        };
+
         let next = (cfg: deploy_contracts.DeployConfiguration) => {
             me._config = cfg;
 
             me.reloadEvents();
-
             me.reloadPlugins();
-            me.displayNetworkInfo();
-
-            me.clearOutputOrNot();
-
-            me.openFiles();
-
-            me.showExtensionInfoPopups();
-
             me.reloadCommands();
-            me.executeStartupCommands();
 
-            // deploy.config.reloaded
-            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
+            me.startExternalExtensions().then(() => {
+                finished(null, cfg);
+            }).catch((err) => {
+                finished(err, cfg);
+            });
         };
 
         let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
@@ -4467,5 +4472,155 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me.log(i18.t('errors.withCategory',
                          'Deployer.showStatusBarItemAfterDeployment()', e));
         }
+    }
+
+    /**
+     * Starts external extensions.
+     * 
+     * @return {Promise<any>} The promise.
+     */
+    protected startExternalExtensions(): Promise<any> {
+        let me = this;
+        let cfg = me.config;
+
+        let startApi = deploy_helpers.toBooleanSafe(cfg.startApi);
+        let startCronJobs = deploy_helpers.toBooleanSafe(cfg.startCronJobs);
+
+        return new Promise<any>((resolve, reject) => {
+            let wf = Workflows.create();
+
+            let showExtensionInstallWindow = function(extensionName: string) {
+                let author = 'mkloubert';
+
+                let itemName = author + '.' + extensionName;
+
+                let installBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                installBtn.action = () => {
+                    deploy_helpers.open(`https://marketplace.visualstudio.com/items?itemName=${encodeURIComponent(itemName)}`).then(() => {
+                    }).catch((err) => {
+                        me.log(i18.t('errors.withCategory',
+                                     `Deployer.startExternalExtensions().showExtensionInstallWindow(${itemName}).1`, err));
+                    });
+                };
+                installBtn.title = i18.t('install');
+
+                vscode.window.showWarningMessage(i18.t('extensions.notInstalled', extensionName),
+                                                 installBtn)
+                             .then((item) => {
+                                       if (item) {
+                                           item.action();
+                                       }
+                                   }, (err) => {
+                                          me.log(i18.t('errors.withCategory',
+                                                       `Deployer.startExternalExtensions().showExtensionInstallWindow(${itemName}).2`, err));
+                                      });
+            };
+
+            // prepare things
+            wf.next((ctx) => {
+                ctx.value = {};
+
+                ctx.value.loadCommands = startApi ||
+                                         startCronJobs;
+            });
+
+            // collect all required data
+            // before we start
+            wf.next((ctx) => {
+                return new Promise<any>((res, rej) => {
+                    try {
+                        if (ctx.value.loadCommands) {
+                            ctx.value.commands = [];    // list of available VSCode commands
+
+                            vscode.commands.getCommands(false).then((commands) => {
+                                if (commands) {
+                                    commands.forEach(x => ctx.value.commands.push(x));
+                                }
+                                
+                                res();
+                            }, () => {
+                                res();
+                            });
+                        }
+                        else {
+                            res();  // nothing to do here
+                        }
+                    }
+                    catch (e) {
+                        rej(e);
+                    }
+                });
+            });
+
+            // vs-rest-api
+            if (startApi) {
+                wf.next((ctx) => {
+                    let commands: string[] = ctx.value.commands;
+
+                    return new Promise<any>((res, rej) => {
+                        try {
+                            let cmdName = 'extension.restApi.startHost';
+
+                            if (commands.indexOf(cmdName) > -1) {
+                                vscode.commands.executeCommand(cmdName).then(() => {
+                                    res();
+                                }, (err) => {
+                                    vscode.window.showErrorMessage('[vs-deploy.vs-rest-api] ' + deploy_helpers.toStringSafe(err));
+
+                                    res();
+                                });
+                            }
+                            else {
+                                // extension NOT installed
+
+                                showExtensionInstallWindow('vs-rest-api');
+                                res();
+                            }
+                        }
+                        catch (e) {
+                            rej(e);
+                        }
+                    });
+                });
+            }
+
+            // vs-cron
+            if (startCronJobs) {
+                wf.next((ctx) => {
+                    let commands: string[] = ctx.value.commands;
+
+                    return new Promise<any>((res, rej) => {
+                        try {
+                            let cmdName = 'extension.cronJons.restartRunningJobs';
+
+                            if (commands.indexOf(cmdName) > -1) {
+                                vscode.commands.executeCommand(cmdName).then(() => {
+                                    res();
+                                }, (err) => {
+                                    vscode.window.showErrorMessage('[vs-deploy.vs-cron] ' + deploy_helpers.toStringSafe(err));
+
+                                    res();
+                                });
+                            }
+                            else {
+                                // extension NOT installed
+
+                                showExtensionInstallWindow('vs-cron');
+                                res();
+                            }
+                        }
+                        catch (e) {
+                            rej(e);
+                        }
+                    });
+                });
+            }
+
+            wf.start().then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(err);
+            });
+        });
     }
 }

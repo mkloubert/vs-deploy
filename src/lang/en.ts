@@ -131,6 +131,9 @@ export const translation: Translation = {
         countable: 'ERROR #{0:trim}: {1}',
         withCategory: '[ERROR] {0:trim}: {1}',
     },
+    extensions: {
+        notInstalled: 'The extension {0:trim,surround} is NOT installed.',
+    },
     failed: '[FAILED: {0}]',
     host: {
         button: {
@@ -152,6 +155,7 @@ export const translation: Translation = {
         started: 'Started deploy host on port {0:trim} in directory {1:trim,surround}.',
         stopped: 'Deploy host has been stopped.',
     },
+    install: 'Install',
     isNo: {
         directory: "{0:trim,surround} is no directory!",
         file: "{0:trim,surround} is no file!",

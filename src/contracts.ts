@@ -543,6 +543,16 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     showWarningsForNonExistingTargets?: boolean;
     /**
+     * Starts the REST API or not.
+     * s. https://github.com/mkloubert/vs-rest-api
+     */
+    startApi?: boolean;
+    /**
+     * Starts the cron jobs or not.
+     * s. https://github.com/mkloubert/vs-cron
+     */
+    startCronJobs?: boolean;
+    /**
      * A list of one or more Visual Studio Code commands that should be run on startup.
      */
     startupCommands?: (string | StartupCommand)[] | StartupCommand | string;
