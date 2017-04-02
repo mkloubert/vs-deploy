@@ -4,6 +4,7 @@
 
 * can use passwords for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-) and [remote targets](https://github.com/mkloubert/vs-deploy/wiki/target_remote) now
 * added `replaceWithValues()` to [DataTransformerContext](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.datatransformercontext.html) interface
+* added `autoStart` setting for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-)
 
 ## 7.23.0 (April 2nd, 2017; buttons for packages)
 

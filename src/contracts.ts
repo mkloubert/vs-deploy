@@ -464,6 +464,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     host?: {
         /**
+         * Run on startup or not.
+         */
+        autoStart?: boolean;
+        /**
          * The root directory where files should be stored.
          */
         dir?: string;
