@@ -452,6 +452,16 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     events?: Event | Event[];
     /**
+     * Default value that indicates if a "fast" file check
+     * should be used for "deploy on change" feature or not.
+     */
+    fastCheckOnChange?: boolean;
+    /**
+     * Default value that indicates if a "fast" file check
+     * should be used for "deploy on save" feature or not.
+     */
+    fastCheckOnSave?: boolean;
+    /**
      * Defines an object that contains global values and objects, categorized by its properties.
      */
     globals?: GlobalVariables;
@@ -928,6 +938,16 @@ export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, P
      * Files to exclude.
      */
     exclude?: string[];
+    /**
+     * Indicates if a "fast" file check
+     * should be used for "deploy on change" feature or not.
+     */
+    fastCheckOnChange?: boolean;
+    /**
+     * Indicates if a "fast" file check
+     * should be used for "deploy on save" feature or not.
+     */
+    fastCheckOnSave?: boolean;
     /**
      * Files to include.
      */

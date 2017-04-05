@@ -140,8 +140,11 @@ export function reloadPackageButtons() {
                             }
                             else {
                                 // could not find any target
-                                vscode.window.showWarningMessage(i18.t('packages.couldNotFindTarget',
-                                                                       tn, p.name));
+
+                                if (deploy_helpers.toBooleanSafe(me.config.showWarningsForNonExistingTargets)) {
+                                    vscode.window.showWarningMessage(i18.t('packages.couldNotFindTarget',
+                                                                           tn, p.name));
+                                }
                             }
                         });
 

@@ -33,6 +33,7 @@ import * as HTTP from 'http';
 import * as i18 from './i18';
 const IsBinaryFile = require("isbinaryfile");
 const MIME = require('mime');
+import * as Minimatch from 'minimatch';
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as Path from 'path';
@@ -316,6 +317,70 @@ export function detectMimeByFilename(file: string, defValue: any = 'application/
 }
 
 /**
+ * Checks if a file path does match by any pattern.
+ * 
+ * @param {string} file The path to check. 
+ * @param {deploy_contracts.FileFilter} filter The filter to use.
+ * 
+ * @return {boolean} Does match or not. 
+ */
+export function doesFileMatchByFilter(file: string, filter: deploy_contracts.FileFilter): boolean {
+    if (!filter) {
+        return null;
+    }
+
+    file = toStringSafe(file);
+    
+    // files in include
+    let allFilePatterns: string[] = [];
+    if (filter.files) {
+        allFilePatterns = asArray(filter.files).map(x => toStringSafe(x))
+                                               .filter(x => '' !== x);
+
+        allFilePatterns = distinctArray(allFilePatterns);
+    }
+    if (allFilePatterns.length < 1) {
+        allFilePatterns.push('**');  // include all by default
+    }
+
+    // files to exclude
+    let allExcludePatterns: string[] = [];
+    if (filter.exclude) {
+        allExcludePatterns = asArray(filter.exclude).map(x => toStringSafe(x))
+                                                    .filter(x => '' !== x);
+    }
+    allExcludePatterns = distinctArray(allExcludePatterns);
+
+    let doesPatternMatch = (pattern: string) => {
+        return Minimatch(file, pattern, {
+            dot: true,
+            nonegate: true,
+            nocomment: true,
+        });
+    };
+
+    // first check if ignored
+    while (allExcludePatterns.length > 0) {
+        let ep = allExcludePatterns.shift();
+
+        if (doesPatternMatch(ep)) {
+            return false;  // ignored / excluded
+        }
+    }
+
+    // now check if matches
+    while (allFilePatterns.length > 0) {
+        let fp = allFilePatterns.shift();
+
+        if (doesPatternMatch(fp)) {
+            return true;  // included / does match
+        }
+    }
+
+    return false;
+}
+
+/**
  * Removes duplicate entries from an array.
  * 
  * @param {T[]} arr The input array.
@@ -497,7 +562,7 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] 
     let allFilePatterns: string[] = [];
     if (filter.files) {
         allFilePatterns = asArray(filter.files).map(x => toStringSafe(x))
-                                               .filter(x => x);
+                                               .filter(x => '' !== x);
 
         allFilePatterns = distinctArray(allFilePatterns);
     }
@@ -509,7 +574,7 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] 
     let allExcludePatterns: string[] = [];
     if (filter.exclude) {
         allExcludePatterns = asArray(filter.exclude).map(x => toStringSafe(x))
-                                                    .filter(x => x);
+                                                    .filter(x => '' !== x);
     }
     allExcludePatterns = distinctArray(allExcludePatterns);
 

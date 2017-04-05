@@ -1,5 +1,11 @@
 # Change Log (vs-deploy)
 
+## 7.25.0 (April 5th, 2017; faster file checks for deploy on save / change)
+
+* added `fastCheckOnChange` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that can define if a "faster" file check should be used for [deploy on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change)
+* added `fastCheckOnSave` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), which can define if a "faster" file check should be used for "deploy on save" feature
+* `showWarningsForNonExistingTargets` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) also works for [package buttons](https://github.com/mkloubert/vs-deploy/wiki#buttons-) now
+
 ## 7.24.0 (April 2nd, 2017; passwords for hosts and remote targets)
 
 * can use passwords for [hosts](https://github.com/mkloubert/vs-deploy/wiki#host-) and [remote targets](https://github.com/mkloubert/vs-deploy/wiki/target_remote) now

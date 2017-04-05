@@ -2325,6 +2325,17 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         return false;  // do NOT deploy on save
                     }
 
+                    let fastFileCheck = x.fastCheckOnSave;
+                    if (deploy_helpers.isNullOrUndefined(fastFileCheck)) {
+                        // not defined in package => use global value
+                        fastFileCheck = deploy_helpers.toBooleanSafe(me.config.fastCheckOnSave);
+                    }
+
+                    if (fastFileCheck) {
+                        // use mast check by minimatch
+                        return deploy_helpers.doesFileMatchByFilter(docFile, x);
+                    }
+
                     return deploy_helpers.getFilesOfPackage(x)
                                          .indexOf(docFile) > -1;
                 });
@@ -2467,17 +2478,40 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             continue;
                         }
 
-                        let matchingFiles: string[];
+                        let doesFileMatch = false;
 
-                        if (true === pkg.deployOnChange) {
-                            matchingFiles = deploy_helpers.getFilesOfPackage(pkg);
+                        let fastFileCheck = pkg.fastCheckOnChange;
+                        if (deploy_helpers.isNullOrUndefined(fastFileCheck)) {
+                            // not defined in package => use global value
+                            fastFileCheck = deploy_helpers.toBooleanSafe(me.config.fastCheckOnChange);
+                        }
+
+                        if (fastFileCheck) {
+                            // use minimatch
+
+                            if (true === pkg.deployOnChange) {
+                                doesFileMatch = deploy_helpers.doesFileMatchByFilter(filePath, pkg);
+                            }
+                            else {
+                                doesFileMatch = deploy_helpers.doesFileMatchByFilter(filePath, pkg.deployOnChange);
+                            }
                         }
                         else {
-                            matchingFiles = deploy_helpers.getFilesByFilter(pkg.deployOnChange)
-                                                          .filter(x => Path.resolve(x));
+                            // use Glob
+
+                            let matchingFiles: string[];
+                            if (true === pkg.deployOnChange) {
+                                matchingFiles = deploy_helpers.getFilesOfPackage(pkg);
+                            }
+                            else {
+                                matchingFiles = deploy_helpers.getFilesByFilter(pkg.deployOnChange)
+                                                              .filter(x => Path.resolve(x));
+                            }
+
+                            doesFileMatch = matchingFiles.map(x => normalizePath(x)).indexOf(normalizePath(filePath)) > -1;
                         }
 
-                        if (matchingFiles.map(x => normalizePath(x)).indexOf(normalizePath(filePath)) > -1) {
+                        if (doesFileMatch) {
                             packagesToDeploy.push(pkg);
                         }
                     }
