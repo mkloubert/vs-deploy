@@ -116,6 +116,8 @@ export function reloadPackageButtons() {
                 // register underlying command
                 cmd = vscode.commands.registerCommand(cmdName, () => {
                     try {
+                        btn.hide();
+
                         let allTargets = me.getTargets();
 
                         // collect explicit targets
@@ -148,19 +150,20 @@ export function reloadPackageButtons() {
                             }
                         });
 
-                        btn.hide();
                         me.deployWorkspace(p, targetToDeployTo).then((code) => {
                             btn.show();
                         }).catch((err) => {
                             btn.show();
 
                             me.log(i18.t('errors.withCategory',
-                                         'buttons.reloadPackageButtons(3.${idx})', err));
+                                         `buttons.reloadPackageButtons(3.${idx})`, err));
                         });
                     }
                     catch (e) {
+                        btn.show();
+
                         me.log(i18.t('errors.withCategory',
-                                     'buttons.reloadPackageButtons(2.${idx})', e));
+                                     `buttons.reloadPackageButtons(2.${idx})`, e));
                     }
                 });
 

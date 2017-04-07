@@ -2332,7 +2332,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     }
 
                     if (fastFileCheck) {
-                        // use mast check by minimatch
+                        // use fast check by minimatch
                         return deploy_helpers.doesFileMatchByFilter(docFile, x);
                     }
 
