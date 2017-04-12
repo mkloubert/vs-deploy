@@ -30,7 +30,7 @@ import * as FS from 'fs';
 import * as i18 from '../i18';
 
 
-interface DeployTargetTest extends deploy_contracts.DeployTarget {
+interface DeployTargetTest extends deploy_contracts.TransformableDeployTarget {
 }
 
 class TestPlugin extends deploy_objects.DeployPluginBase {
@@ -39,26 +39,32 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
     }
     
     public deployFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
-        this.downloadFile(file, target, opts).then(() => {
+        this.downloadFile(file, target, opts,
+                          deploy_contracts.DataTransformerMode.Transform).then(() => {
             // already handled
         }).catch(() => {
             // already handled
         });
     }
 
-    public downloadFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
+    public downloadFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions,
+                        transformMode?: deploy_contracts.DataTransformerMode): Promise<Buffer> {
         if (!opts) {
             opts = {};
+        }
+
+        if (arguments.length < 4) {
+            transformMode = deploy_contracts.DataTransformerMode.Restore;
         }
         
         let me = this;
         
         return new Promise<Buffer>((resolve, reject) => {
-            let hasCanceled = false;
+            let hasCancelled = false;
             let completed = (err: any, data?: Buffer) => {
                 if (opts.onCompleted) {
                     opts.onCompleted(me, {
-                        canceled: hasCanceled,
+                        canceled: hasCancelled,
                         error: err,
                         file: file,
                         target: target,
@@ -73,7 +79,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
                 }
             };
 
-            me.onCancelling(() => hasCanceled = true, opts);
+            me.onCancelling(() => hasCancelled = true, opts);
 
             try {
                 let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
@@ -91,11 +97,39 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
                 }
 
                 FS.readFile(file, (err, data) => {
+                    if (hasCancelled) {
+                        completed(null);  // cancellation requested
+                        return;
+                    }
+
                     if (err) {
                         completed(err);
                     }
                     else {
                         completed(null, data);
+
+                        try {
+                            let subCtx = {
+                                file: file,
+                                remoteFile: relativePath,
+                            };
+
+                            let tCtx = me.createDataTransformerContext(target, transformMode,
+                                                                       subCtx);
+                            tCtx.data = data;
+
+                            let transformer = me.loadDataTransformer(target, transformMode);
+
+                            let tResult = Promise.resolve(transformer(tCtx));
+                            tResult.then(() => {
+                                completed(null);
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
                     }
                 });
             }
@@ -112,7 +146,12 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
     }
 
     public pullFile(file: string, target: DeployTargetTest, opts?: deploy_contracts.DeployFileOptions): void {
-        this.deployFile(file, target, opts);
+        this.downloadFile(file, target, opts,
+                          deploy_contracts.DataTransformerMode.Restore).then(() => {
+            // already handled
+        }).catch(() => {
+            // already handled
+        });
     }
 }
 

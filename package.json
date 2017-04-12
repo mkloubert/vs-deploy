@@ -16932,6 +16932,13 @@
                         "type": "string",
                         "description": "A mock deployer that only checks what files will be deployed."
                       },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is handled."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
