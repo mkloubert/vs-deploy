@@ -142,7 +142,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
             if (submitTheListOfFiles) {
                 args = args.concat(nextFiles)
-                        .filter(x => x);
+                           .filter(x => x);
             }
 
             let separator = deploy_helpers.toStringSafe(target.separator);

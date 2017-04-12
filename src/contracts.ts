@@ -1240,7 +1240,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable, Transformable {
+export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -2060,6 +2060,12 @@ export interface Transformable {
      * The optional options for the transformer script.
      */
     transformerOptions?: any;
+}
+
+/**
+ * A target that supports data transformation.
+ */
+export interface TransformableDeployTarget extends DeployTarget, Transformable {
 }
 
 /**

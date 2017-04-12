@@ -98,11 +98,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     /**
      * Creates a basic data transformer context.
      * 
-     * @param {deploy_contracts.DeployTarget} target The target.
+     * @param {deploy_contracts.TransformableDeployTarget} target The target.
      * @param {deploy_contracts.DataTransformerMode} mode The mode.
      * @param {any} [subCtx] The "sub" context. 
      */
-    protected createDataTransformerContext(target: deploy_contracts.DeployTarget,
+    protected createDataTransformerContext(target: deploy_contracts.TransformableDeployTarget,
                                            mode: deploy_contracts.DataTransformerMode,
                                            subCtx: any = {}): deploy_contracts.DataTransformerContext {
         let me = this;
@@ -236,16 +236,17 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     /**
      * Loads a data transformer by target.
 
-     * @param {deploy_contracts.DeployTarget} target The target.
+     * @param {deploy_contracts.TransformableDeployTarget} target The target.
      * @param {deploy_contracts.DataTransformerMode} mode The mode.
      * 
      * @returns {deploy_contracts.DataTransformer} The loaded transformer.
      */
-    protected loadDataTransformer(target: deploy_contracts.DeployTarget,
+    protected loadDataTransformer(target: deploy_contracts.TransformableDeployTarget,
                                   mode: deploy_contracts.DataTransformerMode): deploy_contracts.DataTransformer {
         let transformer: deploy_contracts.DataTransformer;
 
         let script = deploy_helpers.toStringSafe(target.transformer);
+        script = this.context.replaceWithValues(script);
         if (!deploy_helpers.isEmptyString(script)) {
             let scriptModule = deploy_helpers.loadDataTransformerModule(script);
             if (scriptModule) {

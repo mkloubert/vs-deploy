@@ -160,34 +160,47 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                         return;
                     }
 
-                    let accessLevel = deploy_helpers.toStringSafe(target.publicAccessLevel);
-                    if (deploy_helpers.isEmptyString(accessLevel)) {
-                        accessLevel = 'blob';
-                    }
-
-                    let opts: AzureStorage.BlobService.CreateContainerOptions = {
-                        publicAccessLevel: accessLevel
-                    };
-
-                    ctx.service.createContainerIfNotExists(ctx.container, opts, (err) => {
-                        if (err) {
-                            completed(err);
-                            return;
+                    try {
+                        let accessLevel = deploy_helpers.toStringSafe(target.publicAccessLevel);
+                        if (deploy_helpers.isEmptyString(accessLevel)) {
+                            accessLevel = 'blob';
                         }
 
-                        if (ctx.hasCancelled) {
-                            completed();
-                            return;
-                        }
+                        let opts: AzureStorage.BlobService.CreateContainerOptions = {
+                            publicAccessLevel: accessLevel
+                        };
 
-                        ctx.service.createBlockBlobFromText(ctx.container, blob, data, {
-                            contentSettings: {
-                                contentType: contentType,
-                            },
-                        }, (err) => {
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        tCtx.data = data;
+
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((transformedData) => {
+                            ctx.service.createContainerIfNotExists(ctx.container, opts, (err) => {
+                                if (err) {
+                                    completed(err);
+                                    return;
+                                }
+
+                                if (ctx.hasCancelled) {
+                                    completed();
+                                    return;
+                                }
+
+                                ctx.service.createBlockBlobFromText(ctx.container, blob, transformedData, {
+                                    contentSettings: {
+                                        contentType: contentType,
+                                    },
+                                }, (err) => {
+                                    completed(err);
+                                });
+                            });
+                        }).catch((err) => {
                             completed(err);
                         });
-                    });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
                 });
             }
             catch (e) {
@@ -275,11 +288,19 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                 }
                                 else {
                                     FS.readFile(tmpPath, (e, data) => {
-                                        if (e) {
-                                            deleteTempFile(e);  // could not read temp file
+                                        try {
+                                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                            tCtx.data = data;
+
+                                            let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                            Promise.resolve(tResult).then((untransformedData) => {
+                                                deleteTempFile(null, untransformedData);
+                                            }).catch((err) => {
+                                                deleteTempFile(err);
+                                            });
                                         }
-                                        else {
-                                            deleteTempFile(null, data);
+                                        catch (err) {
+                                            deleteTempFile(err);
                                         }
                                     });
                                 }
