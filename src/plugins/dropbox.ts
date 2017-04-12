@@ -34,18 +34,15 @@ import * as Path from 'path';
 
 const PATH_SEP = '/';
 
-interface DeployTargetDropbox extends deploy_contracts.DeployTarget {
+interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     empty?: boolean;
-    transformer?: string;
-    transformerOptions?: any;
     token: string;
 }
 
 interface DropboxContext {
     dir: string;
     hasCancelled: boolean;
-    transformer: deploy_contracts.DataTransformer;
     token: string;
 }
 
@@ -111,17 +108,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
         let me = this;
         let dir = getDirFromTarget(target);
 
-        // data transformer
-        let transformer: deploy_contracts.DataTransformer;
-        if (target.transformer) {
-            let transformerModule = deploy_helpers.loadDataTransformerModule(target.transformer);
-            if (transformerModule) {
-                transformer = transformerModule.transformData ||
-                              transformerModule.restoreData;
-            }
-        }
-        transformer = deploy_helpers.toDataTransformerSafe(transformer);
-
         let empty = deploy_helpers.toBooleanSafe(target.empty);
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>>((resolve, reject) => {
@@ -138,7 +124,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 let ctx: DropboxContext = {
                     dir: dir,
                     hasCancelled: false,
-                    transformer: transformer,
                     token: deploy_helpers.toStringSafe(target.token),
                 };
 
@@ -453,24 +438,12 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                             globals: me.context.globals(),
                         };
 
-                        ctx.transformer({
-                            context: transformerCtx,
-                            data: data,
-                            emitGlobal: function() {
-                                return me.context
-                                         .emitGlobal
-                                         .apply(me.context, arguments);
-                            },
-                            globals: me.context.globals(),
-                            mode: deploy_contracts.DataTransformerMode.Transform,
-                            options: target.transformerOptions,
-                            replaceWithValues: (val) => {
-                                return me.context.replaceWithValues(val);
-                            },
-                            require: function(id) {
-                                return me.context.require(id);
-                            },
-                        }).then((transformedData) => {
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   transformerCtx);
+                        tCtx.data = data;
+
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((transformedData) => {
                             uploadFile(transformedData);
                         }).catch((err) => {
                             completed(err);
@@ -559,11 +532,25 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                 next = null;
 
                                 deploy_helpers.readHttpBody(resp).then((data) => {
-                                    if (data) {
-                                        completed(null, data);
+                                    try {
+                                        let transformerCtx: TransformerContext = {
+                                            file: file,
+                                            globals: me.context.globals(),
+                                        };
+
+                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                                   transformerCtx);
+                                        tCtx.data = data;
+
+                                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                        Promise.resolve(tResult).then((untransformedData) => {
+                                            completed(null, untransformedData);
+                                        }).catch((err) => {
+                                            completed(err);
+                                        });
                                     }
-                                    else {
-                                        completed(new Error('No data!'));
+                                    catch (e) {
+                                        completed(e);
                                     }
                                 }).catch((err) => {
                                     completed(err);
