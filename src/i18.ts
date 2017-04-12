@@ -336,7 +336,6 @@ export interface Translation {
     templates?: {
         placeholder?: string;
         publish?: {
-            description?: string;
             label?: string;
         }
     },

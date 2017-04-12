@@ -2081,7 +2081,7 @@ export interface TemplateCategory extends TemplateItem {
     /**
      * One or more child.
      */
-    children?: TemplateItem | TemplateItem[];
+    children?: TemplateItemList;
     /** @inheritdoc */
     type: "category" | "cat" | "c";
 }
@@ -2090,6 +2090,10 @@ export interface TemplateCategory extends TemplateItem {
  * A template file.
  */
 export interface TemplateFile extends TemplateItem {
+    /**
+     * A description for the item.
+     */
+    description?: string;
     /**
      * The source of the file.
      */
@@ -2103,18 +2107,15 @@ export interface TemplateFile extends TemplateItem {
  */
 export interface TemplateItem {
     /**
-     * A description for the item.
-     */
-    description?: string;
-    /**
-     * A label / (display) name.
-     */
-    name?: string;
-    /**
      * The type.
      */
     type?: string;
 }
+
+/**
+ * An object with a list of template items.
+ */
+export type TemplateItemList = { [name: string]: TemplateItem };
 
 /**
  * A template source.

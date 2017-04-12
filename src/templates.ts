@@ -29,6 +29,7 @@ import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
+const MergeDeep = require('merge-deep');
 import * as Path from 'path';
 import * as URL from 'url';
 import * as vs_deploy from './deploy';
@@ -41,7 +42,32 @@ interface ActionQuickPickItem extends vscode.QuickPickItem {
     sortOrder: any;
 }
 
+interface TemplateItemWithName extends deploy_contracts.TemplateItem {
+    name?: string;
+}
+
+const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
 const REGEX_HTTP_URL = /([\s]*)(http)([s]?)(\:)(\/\/)/gi;
+
+
+function extractTemplateItems(list: deploy_contracts.TemplateItemList): TemplateItemWithName[] {
+    let items: TemplateItemWithName[] = [];
+
+    if (list) {
+        for (let name in list) {
+            let i = list[name];
+            let iwn: TemplateItemWithName = deploy_helpers.cloneObject(i);
+
+            if (iwn) {
+                iwn.name = deploy_helpers.toStringSafe(name).trim();
+
+                items.push(iwn);
+            }
+        }
+    }
+
+    return items.filter(i => i);
+}
 
 function loadFromSource(src: string): Promise<Buffer> {
     src = deploy_helpers.toStringSafe(src);
@@ -74,23 +100,36 @@ function loadFromSource(src: string): Promise<Buffer> {
                     });
                 };
 
-                let request: HTTP.ClientRequest;
+                let opts: HTTP.RequestOptions = {
+                    protocol: 'http:',
+                };
+
+                let requestFactory: (options: HTTP.RequestOptions,
+                                     callback?: (res: HTTP.IncomingMessage) => void) => HTTP.ClientRequest;
+
                 switch (deploy_helpers.normalizeString(url.protocol)) {
                     case 'https:':
-                        request = HTTPs.request({
-                            protocol: 'https:'
-                        }, requestHandler);
+                        requestFactory = HTTPs.request;
+                        
+                        opts.protocol = 'https:';
                         break;
 
                     default:
                         // http
-                        request = HTTP.request({
-                            protocol: 'http:'
-                        }, requestHandler);
+                        requestFactory = HTTP.request;
+
+                        opts.protocol = 'http:';
                         break;
                 }
 
-                request.end();
+                if (requestFactory) {
+                    let request = requestFactory(opts, requestHandler);
+
+                    request.end();
+                }
+                else {
+                    completed(null, null);
+                }
             }
             else {
                 // (local) file
@@ -160,6 +199,10 @@ export function openTemplate() {
         if (sources.length > 0) {
             let wf = Workflows.create();
 
+            wf.next((ctx) => {
+                ctx.result = {};
+            });
+
             sources.forEach(ts => {
                 wf.next((ctx) => {
                     return new Promise<any>((resolve, reject) => {
@@ -181,198 +224,20 @@ export function openTemplate() {
                         try {
                             let src = me.replaceWithValues(ts.source);
 
-                            let showItems: (items: deploy_contracts.TemplateItem[]) => void;
-                            showItems = (items) => {
-                                try {
-                                    items = deploy_helpers.cloneObject(items);
-                                    items = (items || []).filter(i => i);
-
-                                    let createQuickPick = (i: deploy_contracts.TemplateItem) => {
-                                        let qp: ActionQuickPickItem;
-                                        let icon: string;
-
-                                        switch (deploy_helpers.normalizeString(i.type)) {
-                                            case '':
-                                            case 'f':
-                                            case 'file':
-                                                icon = 'database';
-                                                qp = {
-                                                    label: deploy_helpers.toStringSafe(i.name),
-                                                    description: deploy_helpers.toStringSafe(i.description),
-                                                    action: () => {
-                                                        return new Promise<any>((res, rej) => {
-                                                            try {
-                                                                let file = <deploy_contracts.TemplateFile>i;
-                                                                if (deploy_helpers.isEmptyString(file.source)) {
-                                                                    res();
-                                                                }
-                                                                else {
-                                                                    loadFromSource(file.source).then((data) => {
-                                                                        try {
-                                                                            let txt = data.toString('utf8');
-
-                                                                            vscode.workspace.openTextDocument(null).then((doc) => {
-                                                                                vscode.window.showTextDocument(doc).then((editor) => {
-                                                                                    editor.edit((builder) => {
-                                                                                        try {
-                                                                                            builder.insert(new vscode.Position(0, 0), txt);
-                                                                                        }
-                                                                                        catch (e) {
-                                                                                            rej(e);
-                                                                                        }
-                                                                                    });
-                                                                                }, (err) => {
-                                                                                    rej(err);
-                                                                                });
-                                                                            }, (e) => {
-                                                                                rej(e);
-                                                                            });
-                                                                        }
-                                                                        catch (e) {
-                                                                            rej(e);
-                                                                        }
-                                                                    }).catch((err) => {
-                                                                        rej(err);
-                                                                    });
-                                                                }
-                                                            }
-                                                            catch (e) {
-                                                                rej(e);
-                                                            }
-                                                        });
-                                                    },
-                                                    sortOrder: 1,
-                                                };
-                                                break;
-
-                                            case 'c':
-                                            case 'cat':
-                                            case 'category':
-                                                icon = 'file-directory';
-                                                qp = {
-                                                    label: deploy_helpers.toStringSafe(i.name),
-                                                    description: deploy_helpers.toStringSafe(i.description),
-                                                    action: () => {
-                                                        let cat = <deploy_contracts.TemplateCategory>i;
-
-                                                        showItems(deploy_helpers.asArray(cat.children));
-                                                    },
-                                                    sortOrder: 0,
-                                                };
-                                                break;
-                                        }
-
-                                        if (qp) {
-                                            // label
-                                            if (deploy_helpers.isEmptyString(qp.label)) {
-                                                qp.label = '';
-                                            }
-                                            else {
-                                                qp.label = me.replaceWithValues(qp.label);
-                                            }
-
-                                            // description
-                                            if (deploy_helpers.isEmptyString(qp.description)) {
-                                                qp.description = '';
-                                            }
-                                            else {
-                                                qp.description = me.replaceWithValues(qp.description);
-                                            }
-
-                                            // detail
-                                            if (deploy_helpers.isEmptyString(qp.detail)) {
-                                                qp.detail = undefined;
-                                            }
-                                            else {
-                                                qp.detail = me.replaceWithValues(qp.detail);
-                                            }
-
-                                            if (!deploy_helpers.isEmptyString(icon)) {
-                                                qp.label = `$(${icon}) ${qp.label}`;
-                                            }
-                                        }
-
-                                        return qp;
-                                    };
-
-                                    let quickPicks = items.map(i => createQuickPick(i)).filter(qp => qp);
-
-                                    quickPicks = quickPicks.sort((x, y) => {
-                                        // first sort by 'sortOrder'
-                                        let comp0 = deploy_helpers.compareValues(x.sortOrder, y.sortOrder);
-                                        if (0 !== comp0) {
-                                            return comp0;
-                                        }
-
-                                        // last but not least: by label
-                                        return deploy_helpers.compareValues(deploy_helpers.normalizeString(x.label),
-                                                                            deploy_helpers.normalizeString(y.label));
-                                    });
-
-                                    quickPicks.push({
-                                        label: '$(cloud-upload) ' + i18.t('templates.publish.label'),
-                                        description: i18.t('templates.publish.description'),
-                                        sortOrder: undefined,
-                                        action: () => deploy_helpers.open('https://github.com/mkloubert/vs-deploy/issues'),
-                                    });
-
-                                    vscode.window.showQuickPick(quickPicks, {
-                                        placeHolder: i18.t('templates.placeholder'),
-                                    }).then((qp) => {
-                                        if (!qp) {
-                                            completed(null);
-                                            return;
-                                        }
-
-                                        if (qp.action) {
-                                            try {
-                                                Promise.resolve(qp.action()).then(() => {
-                                                    completed(null);
-                                                }, (err) => {
-                                                    completed(err);
-                                                });
-                                            }
-                                            catch (e) {
-                                                completed(e);
-                                            }
-                                        }
-                                    }, (err) => {
-                                        completed(err);
-                                    });
-                                }
-                                catch (e) {
-                                    completed(e);
-                                }
-                            };
-
-                            let handleResult = (buff: Buffer) => {
-                                try {
-                                    let json = buff.toString('utf8');
-
-                                    let items: deploy_contracts.TemplateItem[];
-                                    if (!deploy_helpers.isEmptyString(json)) {
-                                        items = deploy_helpers.asArray(JSON.parse(json))
-                                                              .filter(x => x);
-                                    }
-                                    else {
-                                        items = [];
-                                    }
-
-                                    if (items.length > 0) {
-                                        showItems(items);
-                                    }
-                                    else {
-                                        //TODO: show warning
-                                        completed(null);
-                                    }
-                                }
-                                catch (e) {
-                                    completed(e);
-                                }
-                            };
-
                             loadFromSource(src).then((data) => {
-                                handleResult(data);
+                                try {
+                                    let downloadedList: deploy_contracts.TemplateItemList =
+                                        JSON.parse(data.toString('utf8'));
+
+                                    if (downloadedList) {
+                                        ctx.result = MergeDeep(ctx.result, downloadedList);
+                                    }
+
+                                    completed(null);
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
                             }).catch((e) => {
                                 completed(e);
                             });
@@ -384,14 +249,186 @@ export function openTemplate() {
                 });
             });
 
-            wf.start().then(() => {
+            let allCompleted = (err: any) => {
+                if (err) {
+                    vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
+                }
+            };
 
+            let showItems: (items: TemplateItemWithName[]) => void;
+            showItems = (items) => {
+                try {
+                    items = deploy_helpers.cloneObject(items);
+                    items = (items || []).filter(i => i);
+
+                    let createQuickPick = (i: TemplateItemWithName) => {
+                        let qp: ActionQuickPickItem;
+                        let icon: string;
+                        let detail: string;
+                        let description: string;
+
+                        switch (deploy_helpers.normalizeString(i.type)) {
+                            case '':
+                            case 'f':
+                            case 'file':
+                                icon = 'database';
+                                detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).source).trim();
+                                qp = {
+                                    label: deploy_helpers.toStringSafe(i.name),
+                                    description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).description),
+                                    action: () => {
+                                        return new Promise<any>((res, rej) => {
+                                            try {
+                                                let file = <deploy_contracts.TemplateFile>i;
+                                                if (deploy_helpers.isEmptyString(file.source)) {
+                                                    res();
+                                                }
+                                                else {
+                                                    loadFromSource(file.source).then((data) => {
+                                                        try {
+                                                            let txt = data.toString('utf8');
+
+                                                            vscode.workspace.openTextDocument(null).then((doc) => {
+                                                                vscode.window.showTextDocument(doc).then((editor) => {
+                                                                    editor.edit((builder) => {
+                                                                        try {
+                                                                            builder.insert(new vscode.Position(0, 0), txt);
+                                                                        }
+                                                                        catch (e) {
+                                                                            rej(e);
+                                                                        }
+                                                                    });
+                                                                }, (err) => {
+                                                                    rej(err);
+                                                                });
+                                                            }, (e) => {
+                                                                rej(e);
+                                                            });
+                                                        }
+                                                        catch (e) {
+                                                            rej(e);
+                                                        }
+                                                    }).catch((err) => {
+                                                        rej(err);
+                                                    });
+                                                }
+                                            }
+                                            catch (e) {
+                                                rej(e);
+                                            }
+                                        });
+                                    },
+                                    sortOrder: 1,
+                                };
+                                break;
+
+                            case 'c':
+                            case 'cat':
+                            case 'category':
+                                icon = 'file-directory';
+                                qp = {
+                                    label: deploy_helpers.toStringSafe(i.name),
+                                    description: '',
+                                    action: () => {
+                                        let cat = <deploy_contracts.TemplateCategory>i;
+
+                                        showItems(extractTemplateItems(cat.children));
+                                    },
+                                    sortOrder: 0,
+                                };
+                                break;
+                        }
+
+                        if (qp) {
+                            // label
+                            if (deploy_helpers.isEmptyString(qp.label)) {
+                                qp.label = '';
+                            }
+                            else {
+                                qp.label = me.replaceWithValues(qp.label);
+                            }
+
+                            // description
+                            if (deploy_helpers.isEmptyString(qp.description)) {
+                                qp.description = '';
+                            }
+                            else {
+                                qp.description = me.replaceWithValues(qp.description);
+                            }
+
+                            // detail
+                            if (!deploy_helpers.isEmptyString(detail)) {
+                                qp.detail = detail;
+                            }
+
+                            if (!deploy_helpers.isEmptyString(icon)) {
+                                qp.label = `$(${icon}) ${qp.label}`;
+                            }
+                        }
+
+                        return qp;
+                    };
+
+                    let quickPicks = items.map(i => createQuickPick(i)).filter(qp => qp);
+
+                    quickPicks = quickPicks.sort((x, y) => {
+                        // first sort by 'sortOrder'
+                        let comp0 = deploy_helpers.compareValues(x.sortOrder, y.sortOrder);
+                        if (0 !== comp0) {
+                            return comp0;
+                        }
+
+                        // last but not least: by label
+                        return deploy_helpers.compareValues(deploy_helpers.normalizeString(x.label),
+                                                            deploy_helpers.normalizeString(y.label));
+                    });
+
+                    // publish own template
+                    quickPicks.push({
+                        label: '$(cloud-upload) ' + i18.t('templates.publish.label'),
+                        description: '',
+                        detail: PUBLISH_URL,
+                        sortOrder: undefined,
+                        action: () => deploy_helpers.open(PUBLISH_URL),
+                    });
+
+                    vscode.window.showQuickPick(quickPicks, {
+                        placeHolder: i18.t('templates.placeholder'),
+                    }).then((qp) => {
+                        if (!qp) {
+                            allCompleted(null);
+                            return;
+                        }
+
+                        if (qp.action) {
+                            try {
+                                Promise.resolve(qp.action()).then(() => {
+                                    allCompleted(null);
+                                }, (err) => {
+                                    allCompleted(err);
+                                });
+                            }
+                            catch (e) {
+                                allCompleted(e);
+                            }
+                        }
+                    }, (err) => {
+                        allCompleted(err);
+                    });
+                }
+                catch (e) {
+                    allCompleted(e);
+                }
+            };
+
+            wf.start().then((list: deploy_contracts.TemplateItemList) => {
+                showItems(extractTemplateItems(list));
             }).catch((err) => {
-                
+                vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
             });
         }
         else {
-            //TODO: 
+            //TODO: show warning message
         }
     }
     catch (e) {

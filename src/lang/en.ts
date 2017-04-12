@@ -329,7 +329,6 @@ export const translation: Translation = {
     templates: {
         placeholder: 'Please select an item...',
         publish: {
-            description: 'Opens the issue, where you can post an example',
             label: 'Publish an example...',
         }
     },

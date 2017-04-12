@@ -327,7 +327,6 @@ export const translation: Translation = {
     templates: {
         placeholder: 'Wählen Sie einen Eintrag aus...',
         publish: {
-            description: 'Öffnet die GitHub-Seite, wo Beispiele gesammelt werden',
             label: 'Eigenes Beispiel veröffentlichen...',
         }
     },
