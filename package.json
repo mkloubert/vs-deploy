@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.26.0",
+  "version": "8.0.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -223,6 +223,10 @@
                       "type": "string",
                       "description": "The path to the script that is run when command is executed.",
                       "default": "./my-command.js"
+                    },
+                    "commandState": {
+                      "description": "The initial value for 'commandState' property.",
+                      "default": {}
                     }
                   },
                   "required": [

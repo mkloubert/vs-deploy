@@ -1874,6 +1874,11 @@ export interface ScriptCommand extends Command {
         tooltip?: string;
     },
     /**
+     * The initial value for 'commandState' property.
+     * s. https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptcommandexecutorarguments.html#commandstate
+     */
+    commandState?: any;
+    /**
      * Optional data for the execution.
      */
     options?: any;
@@ -1888,9 +1893,14 @@ export interface ScriptCommand extends Command {
  * 
  * @param {ScriptCommandExecutorArguments} args The arguments for the execution.
  * 
- * @returns {Promise<any>} The promise.
+ * @returns {ScriptCommandExecutorResult} The result.
  */
-export type ScriptCommandExecutor = (args: ScriptCommandExecutorArguments) => Promise<any>;
+export type ScriptCommandExecutor = (args: ScriptCommandExecutorArguments) => ScriptCommandExecutorResult;
+
+/**
+ * Possible results of a script command.
+ */
+export type ScriptCommandExecutorResult = any;
 
 /**
  * Arguments for a command execution.
