@@ -328,59 +328,57 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     ctx.cachedRemoteDirectories[targetDirectory] = [];
                 }
 
-                FS.readFile(file, (err, data) => {
+                FS.readFile(file, (err, untransformedJsonData) => {
                     if (err) {
                         completed(err);
                         return;
                     }
 
-                    ctx.dataTransformer({
-                        context: {
+                    try {
+                        let subCtx = {
+                            file: file,
+                            remoteFile: relativeFilePath,
                             sftp: ctx,
-                        },
-                        data: data,
-                        emitGlobal: function() {
-                            return me.context
-                                     .emitGlobal
-                                     .apply(me.context, arguments);
-                        },
-                        globals: me.context.globals(),
-                        mode: deploy_contracts.DataTransformerMode.Transform,
-                        options: ctx.dataTransformerOptions,
-                        replaceWithValues: (val) => {
-                            return me.context.replaceWithValues(val);
-                        },
-                        require: function(id) {
-                            return me.context.require(id);
-                        },
-                    }).then((data) => {
-                        try {
-                            let subCtx = {
-                                file: file,
-                                remoteFile: relativeFilePath,
-                            };
+                        };
 
-                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
-                                                                       subCtx);
-                            tCtx.data = data;
+                        let dtCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                    subCtx);
+                        dtCtx.data = untransformedJsonData;
 
-                            let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
-                            Promise.resolve(tResult).then((dataToUpload) => {
-                                ctx.connection.put(dataToUpload, targetFile).then(() => {
-                                    completed();
+                        let dtResult = Promise.resolve(ctx.dataTransformer(dtCtx));
+                        dtResult.then((transformedData) => {
+                            try {
+                                let subCtx2 = {
+                                    file: file,
+                                    remoteFile: relativeFilePath,
+                                    sftp: ctx,
+                                };
+
+                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                           subCtx2);
+                                tCtx.data = transformedData;
+
+                                let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                                Promise.resolve(tResult).then((dataToUpload) => {
+                                    ctx.connection.put(dataToUpload, targetFile).then(() => {
+                                        completed();
+                                    }).catch((e) => {
+                                        completed(e);
+                                    });
                                 }).catch((e) => {
                                     completed(e);
                                 });
-                            }).catch((e) => {
+                            }
+                            catch (e) {
                                 completed(e);
-                            });
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
-                    }).catch((err) => {
-                        completed(err);
-                    });
+                            }
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
                 });
             };
 

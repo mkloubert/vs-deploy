@@ -328,7 +328,8 @@ export class DeployHost {
                             // update data for base transformer
                             ctx.data = Buffer.concat([ a, b ]);
 
-                            baseJsonTransformer(ctx).then((uncryptedData) => {
+                            let btResult = Promise.resolve(baseJsonTransformer(ctx));
+                            btResult.then((uncryptedData) => {
                                 resolve(uncryptedData);
                             }).catch((err) => {
                                 reject(err);
@@ -413,337 +414,348 @@ export class DeployHost {
                                     }
                                 };
 
-                                let jsonTransformerCtx: MessageTransformerContext = {
-                                    globals: me.deployer.getGlobals(),
-                                    remote: remoteClient,
-                                    type: TransformationType.Message,
-                                };
-
                                 // restore "transformered" JSON message
-                                jsonTransformer({
-                                    context: jsonTransformerCtx,
-                                    data: msgBuff,
-                                    emitGlobal: function() {
-                                        return me.deployer
-                                                 .emit
-                                                 .apply(me.deployer, arguments);
-                                    },
-                                    globals: me.deployer.getGlobals(),
-                                    mode: deploy_contracts.DataTransformerMode.Restore,
-                                    options: jsonTransformerOpts,
-                                    replaceWithValues: (val) => {
-                                        return me.deployer.replaceWithValues(val);
-                                    },
-                                    require: function(id) {
-                                        return require(id);
-                                    },
-                                }).then((untransformedMsgBuff) => {
-                                    try {
-                                        let json = untransformedMsgBuff.toString('utf8');
-                                        
-                                        let file: RemoteFile;
-                                        if (json) {
-                                            file = JSON.parse(json);
-                                        }
+                                try {
+                                    let jsonTransformerCtx: MessageTransformerContext = {
+                                        globals: me.deployer.getGlobals(),
+                                        remote: remoteClient,
+                                        type: TransformationType.Message,
+                                    };
 
-                                        if (file) {
-                                            // output that we are receiving a file...
+                                    let jtCtx: deploy_contracts.DataTransformerContext = {
+                                        context: jsonTransformerCtx,
+                                        data: msgBuff,
+                                        emitGlobal: function() {
+                                            return me.deployer
+                                                     .emit
+                                                     .apply(me.deployer, arguments);
+                                        },
+                                        globals: me.deployer.getGlobals(),
+                                        mode: deploy_contracts.DataTransformerMode.Restore,
+                                        options: jsonTransformerOpts,
+                                        replaceWithValues: (val) => {
+                                            return me.deployer.replaceWithValues(val);
+                                        },
+                                        require: function(id) {
+                                            return require(id);
+                                        },
+                                    };
 
-                                            let fileInfo = '';
-                                            if (!deploy_helpers.isNullOrUndefined(file.nr)) {
-                                                let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
-                                                if (!isNaN(fileNr)) {
-                                                    fileInfo += ` (${fileNr}`;
-                                                    if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
-                                                        let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
-                                                        if (!isNaN(totalCount)) {
-                                                            fileInfo += ` / ${totalCount}`;
-
-                                                            if (0 != totalCount) {
-                                                                let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
-                                                                
-                                                                fileInfo += `; ${percentage}%`;
-                                                            }
-                                                        }
-                                                    }
-                                                    fileInfo += ")";
-                                                }
+                                    let jtResult = Promise.resolve(jsonTransformer(jtCtx));
+                                    jtResult.then((untransformedMsgBuff) => {
+                                        try {
+                                            let json = untransformedMsgBuff.toString('utf8');
+                                            
+                                            let file: RemoteFile;
+                                            if (json) {
+                                                file = JSON.parse(json);
                                             }
 
-                                            let receiveFileMsg = i18.t('host.receiveFile.receiving',
-                                                                       remoteClient.address, remoteClient.port,
-                                                                       fileInfo);
+                                            if (file) {
+                                                // output that we are receiving a file...
 
-                                            me.outputChannel.append(receiveFileMsg);
+                                                let fileInfo = '';
+                                                if (!deploy_helpers.isNullOrUndefined(file.nr)) {
+                                                    let fileNr = parseInt(deploy_helpers.toStringSafe(file.nr));
+                                                    if (!isNaN(fileNr)) {
+                                                        fileInfo += ` (${fileNr}`;
+                                                        if (!deploy_helpers.isNullOrUndefined(file.totalCount)) {
+                                                            let totalCount = parseInt(deploy_helpers.toStringSafe(file.totalCount));
+                                                            if (!isNaN(totalCount)) {
+                                                                fileInfo += ` / ${totalCount}`;
 
-                                            file.name = deploy_helpers.toStringSafe(file.name);
-                                            file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
-
-                                            if (file.name) {
-                                                let fileCompleted = (err?: any) => {
-                                                    completed(err, file.name);
-                                                };
-
-                                                try {
-                                                    let base64 = deploy_helpers.toStringSafe(file.data);
-
-                                                    let data: Buffer;
-                                                    if (base64) {
-                                                        data = new Buffer(base64, 'base64');
-                                                    }
-                                                    else {
-                                                        data = Buffer.alloc(0);
-                                                    }
-                                                    file.data = data;
-
-                                                    let targetFile = Path.join(dir, file.name);
-
-                                                    let handleData = function(data: Buffer) {
-                                                        try {
-                                                            while (0 == file.name.indexOf('/')) {
-                                                                file.name = file.name.substr(1);
+                                                                if (0 != totalCount) {
+                                                                    let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
+                                                                    
+                                                                    fileInfo += `; ${percentage}%`;
+                                                                }
                                                             }
+                                                        }
+                                                        fileInfo += ")";
+                                                    }
+                                                }
 
-                                                            if (file.name) {
-                                                                let targetDir = Path.dirname(targetFile);
-                                                                
-                                                                let copyFile = () => {
-                                                                    try {
-                                                                        FS.writeFile(targetFile, file.data, (err) => {
-                                                                            if (err) {
-                                                                                fileCompleted(err);
-                                                                                return;
-                                                                            }
+                                                let receiveFileMsg = i18.t('host.receiveFile.receiving',
+                                                                        remoteClient.address, remoteClient.port,
+                                                                        fileInfo);
 
-                                                                            fileCompleted();
-                                                                        });
-                                                                    }
-                                                                    catch (e) {
-                                                                        fileCompleted(e);
-                                                                    }
-                                                                };
+                                                me.outputChannel.append(receiveFileMsg);
 
-                                                                // check if targetDir is a directory
-                                                                let checkIfTargetDirIsDir = () => {
-                                                                    FS.lstat(targetDir, (err, stats) => {
-                                                                        if (err) {
-                                                                            fileCompleted(err);
-                                                                            return;
-                                                                        }
+                                                file.name = deploy_helpers.toStringSafe(file.name);
+                                                file.name = deploy_helpers.replaceAllStrings(file.name, Path.sep, '/');
 
-                                                                        if (stats.isDirectory()) {
-                                                                            copyFile();  // yes, continue...
-                                                                        }
-                                                                        else {
-                                                                            // no => ERROR
-                                                                            fileCompleted(new Error(i18.t('isNo.directory', targetDir)));
-                                                                        }
-                                                                    });
-                                                                };
+                                                if (file.name) {
+                                                    let fileCompleted = (err?: any) => {
+                                                        completed(err, file.name);
+                                                    };
 
-                                                                // check if targetDir exists
-                                                                let checkIfTargetDirExists = () => {
-                                                                    FS.exists(targetDir, (exists) => {
-                                                                        if (exists) {
-                                                                            // yes, continue...
-                                                                            checkIfTargetDirIsDir();
-                                                                        }
-                                                                        else {
-                                                                            // no, try to create
-                                                                            FSExtra.mkdirs(targetDir, function (err) {
-                                                                                if (err) {
-                                                                                    fileCompleted(err);
-                                                                                    return;
-                                                                                }
+                                                    try {
+                                                        let base64 = deploy_helpers.toStringSafe(file.data);
 
-                                                                                checkIfTargetDirIsDir();
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                };
-                                                                
-                                                                FS.exists(targetFile, (exists) => {
-                                                                    if (exists) {
+                                                        let data: Buffer;
+                                                        if (base64) {
+                                                            data = new Buffer(base64, 'base64');
+                                                        }
+                                                        else {
+                                                            data = Buffer.alloc(0);
+                                                        }
+                                                        file.data = data;
+
+                                                        let targetFile = Path.join(dir, file.name);
+
+                                                        let handleData = function(data: Buffer) {
+                                                            try {
+                                                                while (0 == file.name.indexOf('/')) {
+                                                                    file.name = file.name.substr(1);
+                                                                }
+
+                                                                if (file.name) {
+                                                                    let targetDir = Path.dirname(targetFile);
+                                                                    
+                                                                    let copyFile = () => {
                                                                         try {
-                                                                            FS.lstat(targetFile, (err, stats) => {
+                                                                            FS.writeFile(targetFile, file.data, (err) => {
                                                                                 if (err) {
                                                                                     fileCompleted(err);
                                                                                     return;
                                                                                 }
 
-                                                                                if (stats.isFile()) {
-                                                                                    FS.unlink(targetFile, (err) => {
-                                                                                        if (err) {
-                                                                                            fileCompleted(err);
-                                                                                            return;
-                                                                                        }
-
-                                                                                        checkIfTargetDirExists();
-                                                                                    });
-                                                                                }
-                                                                                else {
-                                                                                    fileCompleted(new Error(i18.t('isNo.file', targetFile)));
-                                                                                }
+                                                                                fileCompleted();
                                                                             });
                                                                         }
                                                                         catch (e) {
                                                                             fileCompleted(e);
                                                                         }
-                                                                    }
-                                                                    else {
-                                                                        checkIfTargetDirExists();
-                                                                    }
-                                                                });
-                                                            }
-                                                            else {
-                                                                fileCompleted(new Error(i18.t('host.errors.noFilename', 2)));
-                                                            }
-                                                            // if (file.name) #2
-                                                        }
-                                                        catch (e) {
-                                                            fileCompleted(e);
-                                                        }
-                                                    };  // handleData()
+                                                                    };
 
-                                                    let validateFile = () => {
-                                                        let validatorCtx: ValidatorContext = {
-                                                            globals: me.deployer.getGlobals(),
-                                                            remote: remoteClient,
-                                                            target: targetFile,
-                                                        };
+                                                                    // check if targetDir is a directory
+                                                                    let checkIfTargetDirIsDir = () => {
+                                                                        FS.lstat(targetDir, (err, stats) => {
+                                                                            if (err) {
+                                                                                fileCompleted(err);
+                                                                                return;
+                                                                            }
 
-                                                        let validatorArgs: deploy_contracts.ValidatorArguments<RemoteFile> = {
-                                                            context: validatorCtx,
-                                                            emitGlobal: function() {
-                                                                return me.deployer
-                                                                         .emit
-                                                                         .apply(me.deployer, arguments);
-                                                            },
-                                                            globals: me.deployer.getGlobals(),
-                                                            options: validatorOpts,
-                                                            require: function(id) {
-                                                                return require(id);
-                                                            },
-                                                            replaceWithValues: (v) => me.deployer.replaceWithValues(v),
-                                                            value: file,
-                                                        };
+                                                                            if (stats.isDirectory()) {
+                                                                                copyFile();  // yes, continue...
+                                                                            }
+                                                                            else {
+                                                                                // no => ERROR
+                                                                                fileCompleted(new Error(i18.t('isNo.directory', targetDir)));
+                                                                            }
+                                                                        });
+                                                                    };
 
-                                                        try {
-                                                            let updateTargetFile = (action: () => void) => {
-                                                                let vc: ValidatorContext = validatorArgs.context;
-                                                                if (vc) {
-                                                                    if (!deploy_helpers.isEmptyString(vc.target)) {
-                                                                        targetFile = vc.target;
-                                                                    }
-                                                                }
+                                                                    // check if targetDir exists
+                                                                    let checkIfTargetDirExists = () => {
+                                                                        FS.exists(targetDir, (exists) => {
+                                                                            if (exists) {
+                                                                                // yes, continue...
+                                                                                checkIfTargetDirIsDir();
+                                                                            }
+                                                                            else {
+                                                                                // no, try to create
+                                                                                FSExtra.mkdirs(targetDir, function (err) {
+                                                                                    if (err) {
+                                                                                        fileCompleted(err);
+                                                                                        return;
+                                                                                    }
 
-                                                                if (!Path.isAbsolute(targetFile)) {
-                                                                    targetFile = Path.join(vscode.workspace.rootPath, targetFile);
-                                                                }
+                                                                                    checkIfTargetDirIsDir();
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    };
+                                                                    
+                                                                    FS.exists(targetFile, (exists) => {
+                                                                        if (exists) {
+                                                                            try {
+                                                                                FS.lstat(targetFile, (err, stats) => {
+                                                                                    if (err) {
+                                                                                        fileCompleted(err);
+                                                                                        return;
+                                                                                    }
 
-                                                                action();
-                                                            };  // updateTargetFile()
+                                                                                    if (stats.isFile()) {
+                                                                                        FS.unlink(targetFile, (err) => {
+                                                                                            if (err) {
+                                                                                                fileCompleted(err);
+                                                                                                return;
+                                                                                            }
 
-                                                            // check if file is valid
-                                                            validator(validatorArgs).then((isValid) => {
-                                                                if (isValid) {
-                                                                    updateTargetFile(() => {
-                                                                        handleData(file.data);
+                                                                                            checkIfTargetDirExists();
+                                                                                        });
+                                                                                    }
+                                                                                    else {
+                                                                                        fileCompleted(new Error(i18.t('isNo.file', targetFile)));
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            catch (e) {
+                                                                                fileCompleted(e);
+                                                                            }
+                                                                        }
+                                                                        else {
+                                                                            checkIfTargetDirExists();
+                                                                        }
                                                                     });
                                                                 }
                                                                 else {
-                                                                    // no => rejected
-
-                                                                    updateTargetFile(() => {
-                                                                        fileCompleted(new Error(i18.t('host.errors.fileRejected', file.name)));
-                                                                    });
+                                                                    fileCompleted(new Error(i18.t('host.errors.noFilename', 2)));
                                                                 }
-                                                            }).catch((err) => {
-                                                                fileCompleted(err);
-                                                            });
-                                                        }
-                                                        catch (e) {
-                                                            fileCompleted(e);
-                                                        }
-                                                    };  // validateFile
+                                                                // if (file.name) #2
+                                                            }
+                                                            catch (e) {
+                                                                fileCompleted(e);
+                                                            }
+                                                        };  // handleData()
 
-                                                    let untransformTheData = function(data?: Buffer) {
-                                                        if (arguments.length > 0) {
-                                                            file.data = data;
-                                                        }
-
-                                                        try {
-                                                            let transformerCtx: FileDataTransformerContext = {
-                                                                file: file,
+                                                        let validateFile = () => {
+                                                            let validatorCtx: ValidatorContext = {
                                                                 globals: me.deployer.getGlobals(),
                                                                 remote: remoteClient,
-                                                                type: TransformationType.FileData,
+                                                                target: targetFile,
                                                             };
 
-                                                            transformer({
-                                                                context: transformerCtx,
-                                                                data: file.data,
+                                                            let validatorArgs: deploy_contracts.ValidatorArguments<RemoteFile> = {
+                                                                context: validatorCtx,
                                                                 emitGlobal: function() {
                                                                     return me.deployer
-                                                                             .emit
-                                                                             .apply(me.deployer, arguments);
+                                                                            .emit
+                                                                            .apply(me.deployer, arguments);
                                                                 },
                                                                 globals: me.deployer.getGlobals(),
+                                                                options: validatorOpts,
                                                                 require: function(id) {
                                                                     return require(id);
                                                                 },
-                                                                replaceWithValues: (val) => {
-                                                                    return me.deployer.replaceWithValues(val);
-                                                                },
-                                                                mode: deploy_contracts.DataTransformerMode.Restore,
-                                                                options: transformerOpts,
-                                                            }).then((untransformedData) => {
-                                                                file.data = untransformedData;
+                                                                replaceWithValues: (v) => me.deployer.replaceWithValues(v),
+                                                                value: file,
+                                                            };
 
-                                                                validateFile();
-                                                            }).catch((err) => {
-                                                                fileCompleted(err);
-                                                            });
-                                                        }
-                                                        catch (e) {
-                                                            fileCompleted(e);
-                                                        }
-                                                    };  // untransformTheData()
+                                                            try {
+                                                                let updateTargetFile = (action: () => void) => {
+                                                                    let vc: ValidatorContext = validatorArgs.context;
+                                                                    if (vc) {
+                                                                        if (!deploy_helpers.isEmptyString(vc.target)) {
+                                                                            targetFile = vc.target;
+                                                                        }
+                                                                    }
 
-                                                    if (file.isCompressed) {
-                                                        ZLib.gunzip(file.data, (err, uncompressedData) => {
-                                                            if (err) {
-                                                                fileCompleted(err);
-                                                                return;
+                                                                    if (!Path.isAbsolute(targetFile)) {
+                                                                        targetFile = Path.join(vscode.workspace.rootPath, targetFile);
+                                                                    }
+
+                                                                    action();
+                                                                };  // updateTargetFile()
+
+                                                                // check if file is valid
+                                                                validator(validatorArgs).then((isValid) => {
+                                                                    if (isValid) {
+                                                                        updateTargetFile(() => {
+                                                                            handleData(file.data);
+                                                                        });
+                                                                    }
+                                                                    else {
+                                                                        // no => rejected
+
+                                                                        updateTargetFile(() => {
+                                                                            fileCompleted(new Error(i18.t('host.errors.fileRejected', file.name)));
+                                                                        });
+                                                                    }
+                                                                }).catch((err) => {
+                                                                    fileCompleted(err);
+                                                                });
+                                                            }
+                                                            catch (e) {
+                                                                fileCompleted(e);
+                                                            }
+                                                        };  // validateFile
+
+                                                        let untransformTheData = function(data?: Buffer) {
+                                                            if (arguments.length > 0) {
+                                                                file.data = data;
                                                             }
 
-                                                            untransformTheData(uncompressedData);                                                
-                                                        });
+                                                            try {
+                                                                let transformerCtx: FileDataTransformerContext = {
+                                                                    file: file,
+                                                                    globals: me.deployer.getGlobals(),
+                                                                    remote: remoteClient,
+                                                                    type: TransformationType.FileData,
+                                                                };
+
+                                                                let tCtx: deploy_contracts.DataTransformerContext = {
+                                                                    context: transformerCtx,
+                                                                    data: file.data,
+                                                                    emitGlobal: function() {
+                                                                        return me.deployer
+                                                                                .emit
+                                                                                .apply(me.deployer, arguments);
+                                                                    },
+                                                                    globals: me.deployer.getGlobals(),
+                                                                    require: function(id) {
+                                                                        return require(id);
+                                                                    },
+                                                                    replaceWithValues: (val) => {
+                                                                        return me.deployer.replaceWithValues(val);
+                                                                    },
+                                                                    mode: deploy_contracts.DataTransformerMode.Restore,
+                                                                    options: transformerOpts,
+                                                                };
+
+                                                                let tResult = Promise.resolve(transformer(tCtx));
+                                                                tResult.then((untransformedData) => {
+                                                                    file.data = untransformedData;
+
+                                                                    validateFile();
+                                                                }).catch((err) => {
+                                                                    fileCompleted(err);
+                                                                });
+                                                            }
+                                                            catch (e) {
+                                                                fileCompleted(e);
+                                                            }
+                                                        };  // untransformTheData()
+
+                                                        if (file.isCompressed) {
+                                                            ZLib.gunzip(file.data, (err, uncompressedData) => {
+                                                                if (err) {
+                                                                    fileCompleted(err);
+                                                                    return;
+                                                                }
+
+                                                                untransformTheData(uncompressedData);                                                
+                                                            });
+                                                        }
+                                                        else {
+                                                            untransformTheData();
+                                                        }
                                                     }
-                                                    else {
-                                                        untransformTheData();
+                                                    catch (e) {
+                                                        fileCompleted(e);
                                                     }
                                                 }
-                                                catch (e) {
-                                                    fileCompleted(e);
+                                                else {
+                                                    completed(new Error(i18.t('host.errors.noFilename', 1)));
                                                 }
+                                                // if (file.name) #1
                                             }
                                             else {
-                                                completed(new Error(i18.t('host.errors.noFilename', 1)));
+                                                completed(new Error(i18.t('host.errors.noData')));
                                             }
-                                            // if (file.name) #1
+                                            // if (file)
                                         }
-                                        else {
-                                            completed(new Error(i18.t('host.errors.noData')));
+                                        catch (e) {
+                                            completed(e);
                                         }
-                                        // if (file)
-                                    }
-                                    catch (e) {
-                                        completed(e);
-                                    }
-                                }).catch((err) => {
-                                    completed(err);
-                                });
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
                             }).catch((err) => {
                                 me.log(i18.t('errors.withCategory', 'DeployHost.start().createServer(3)', err));
 

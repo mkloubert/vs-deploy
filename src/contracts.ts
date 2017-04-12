@@ -303,9 +303,9 @@ export interface ConditionalItemFilter {
  * 
  * @param {DataTransformerContext} ctx The transformer context.
  * 
- * @return {Promise<Buffer>} The promise.
+ * @return {DataTransformerResult} The result.
  */
-export type DataTransformer = (ctx: DataTransformerContext) => Promise<Buffer>;
+export type DataTransformer = (ctx: DataTransformerContext) => DataTransformerResult;
 
 /**
  * The context of data transformer.
@@ -365,6 +365,11 @@ export interface DataTransformModule {
      */
     transformData?: DataTransformer;
 }
+
+/**
+ * Possible results of a data transformer.
+ */
+export type DataTransformerResult = Promise<Buffer> | Buffer;
 
 /**
  * A quick pick that is based on an action.

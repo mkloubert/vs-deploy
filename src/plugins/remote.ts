@@ -222,7 +222,8 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                 jsonTransformer = (ctx) => {
                     return new Promise<Buffer>((resolve, reject) => {
                         try {
-                            baseJsonTransformer(ctx).then((uncryptedData) => {
+                            let btResult = Promise.resolve(baseJsonTransformer(ctx));
+                            btResult.then((uncryptedData) => {
                                 try {
                                     let cipher = Crypto.createCipher(pwdAlgo, pwd);
 
@@ -276,173 +277,166 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                         return;
                     }
 
-                    let remoteFile: RemoteFile = {
-                        isFirst: 1 == ctx.counter,
-                        isLast: ctx.counter == ctx.totalCount,
-                        name: <string>relativePath,
-                        nr: ctx.counter,
-                        session: ctx.session,
-                        tag: target.tag,
-                        totalCount: ctx.totalCount,
-                    };
+                    try {
+                        let remoteFile: RemoteFile = {
+                            isFirst: 1 === ctx.counter,
+                            isLast: ctx.counter == ctx.totalCount,
+                            name: <string>relativePath,
+                            nr: ctx.counter,
+                            session: ctx.session,
+                            tag: target.tag,
+                            totalCount: ctx.totalCount,
+                        };
 
-                    let transformCtx: FileDataTransformerContext = {
-                        file: file,
-                        globals: me.context.globals(),
-                        remoteFile: remoteFile,
-                    };
+                        let transformCtx: FileDataTransformerContext = {
+                            file: file,
+                            globals: me.context.globals(),
+                            remoteFile: remoteFile,
+                        };
 
-                    transformer({
-                        context: transformCtx,
-                        data: data,
-                        emitGlobal: function() {
-                            return me.context
-                                     .emitGlobal
-                                     .apply(me.context, arguments);
-                        },
-                        globals: me.context.globals(),
-                        mode: deploy_contracts.DataTransformerMode.Transform,
-                        options: target.transformerOptions,
-                        replaceWithValues: (val) => {
-                            return me.context.replaceWithValues(val);
-                        },
-                        require: function(id) {
-                            return me.context.require(id);
-                        },
-                    }).then((transformedFileData) => {
-                        ZLib.gzip(transformedFileData, (err, compressedData) => {
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   transformCtx);
+                        tCtx.data = data;
 
-                            if (deploy_helpers.isNullOrUndefined(transformCtx.compress)) {
-                                // auto compression
-                                remoteFile.isCompressed = compressedData.length < transformedFileData.length;
-                            }
-                            else {
-                                remoteFile.isCompressed = deploy_helpers.toBooleanSafe(transformCtx.compress);
-                            }
+                        let tResult = Promise.resolve(transformer(tCtx));
+                        tResult.then((transformedFileData) => {
+                            ZLib.gzip(transformedFileData, (err, compressedData) => {
+                                if (err) {
+                                    completed(err);
+                                    return;
+                                }
 
-                            let dataToSend = remoteFile.isCompressed ? compressedData : transformedFileData;
+                                if (deploy_helpers.isNullOrUndefined(transformCtx.compress)) {
+                                    // auto compression
+                                    remoteFile.isCompressed = compressedData.length < transformedFileData.length;
+                                }
+                                else {
+                                    remoteFile.isCompressed = deploy_helpers.toBooleanSafe(transformCtx.compress);
+                                }
 
-                            try {
-                                remoteFile.data = dataToSend.toString('base64');
-                            }
-                            catch (e) {
-                                completed(e);
-                                return;
-                            }
+                                let dataToSend = remoteFile.isCompressed ? compressedData : transformedFileData;
 
-                            let json: Buffer;
-                            try {
-                                json = new Buffer(JSON.stringify(remoteFile), 'utf8');
-                            }
-                            catch (e) {
-                                completed(e);
-                                return;
-                            }
+                                try {
+                                    remoteFile.data = dataToSend.toString('base64');
+                                }
+                                catch (e) {
+                                    completed(e);
+                                    return;
+                                }
 
-                            try {
-                                let jsonTransformerCtx: MessageTransformerContext = {
-                                    file: file,
-                                    globals: me.context.globals(),
-                                    remoteFile: remoteFile,
-                                };
+                                let json: Buffer;
+                                try {
+                                    json = new Buffer(JSON.stringify(remoteFile), 'utf8');
+                                }
+                                catch (e) {
+                                    completed(e);
+                                    return;
+                                }
 
-                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
-                                                                           jsonTransformerCtx);
-                                tCtx.data = json;
-                                tCtx.options = deploy_helpers.cloneObject(target.messageTransformerOptions);
-
-                                let tResult = jsonTransformer(tCtx);
-                                Promise.resolve(tResult).then((transformedJsonData) => {
-                                    let hostsTodo = ctx.hosts.map(x => x);
-                                    let deployNext: () => void;
-                                    deployNext = () => {
-                                        if (hostsTodo.length < 1) {
-                                            completed();
-                                            return;
-                                        }
-
-                                        let h = hostsTodo.pop();
-                                        if (!h) {
-                                            completed();
-                                            return;
-                                        }
-
-                                        let hostCompleted = (err?: any) => {
-                                            if (err) {
-                                                allErrors.push(err);
-                                            }
-
-                                            deployNext();
-                                        };
-
-                                        try {
-                                            let addr = h;
-                                            let port = deploy_contracts.DEFAULT_PORT;
-                                            
-                                            let separator = h.indexOf(':');
-                                            if (separator > -1) {
-                                                addr = deploy_helpers.toStringSafe(h.substr(0, separator).toLowerCase().trim(),
-                                                                                deploy_contracts.DEFAULT_HOST);
-
-                                                port = parseInt(deploy_helpers.toStringSafe(h.substr(separator + 1).trim(),
-                                                                                            '' + deploy_contracts.DEFAULT_PORT));
-                                            }
-
-                                            let client = new Net.Socket();
-
-                                            client.on('error', (err) => {
-                                                hostCompleted(err);
-                                            });
-
-                                            client.connect(port, addr, (err) => {
-                                                if (err) {
-                                                    hostCompleted(err);
-                                                    return;
-                                                }
-
-                                                try {
-                                                    let dataLength = Buffer.alloc(4);
-                                                    dataLength.writeUInt32LE(transformedJsonData.length, 0);
-
-                                                    client.write(dataLength);
-                                                    client.write(transformedJsonData);
-
-                                                    try {
-                                                        client.destroy();
-                                                    }
-                                                    catch (e) {
-                                                        me.context.log(i18.t('errors.withCategory',
-                                                                            'RemotePlugin.deployFile().client.connect()', e));
-                                                    }
-
-                                                    hostCompleted();
-                                                }
-                                                catch (e) {
-                                                    hostCompleted(e);
-                                                }
-                                            });
-                                        }
-                                        catch (e) {
-                                            hostCompleted(e);
-                                        }
+                                try {
+                                    let jsonTransformerCtx: MessageTransformerContext = {
+                                        file: file,
+                                        globals: me.context.globals(),
+                                        remoteFile: remoteFile,
                                     };
 
-                                    deployNext();
-                                }).catch((err) => {
-                                    completed(err);  // JSON data transformation failed
-                                });
-                            }
-                            catch (e) {
-                                completed(e);
-                            }
+                                    let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                               jsonTransformerCtx);
+                                    tCtx.data = json;
+                                    tCtx.options = deploy_helpers.cloneObject(target.messageTransformerOptions);
+
+                                    let tResult = jsonTransformer(tCtx);
+                                    Promise.resolve(tResult).then((transformedJsonData) => {
+                                        let hostsTodo = ctx.hosts.map(x => x);
+                                        let deployNext: () => void;
+                                        deployNext = () => {
+                                            if (hostsTodo.length < 1) {
+                                                completed();
+                                                return;
+                                            }
+
+                                            let h = hostsTodo.pop();
+                                            if (!h) {
+                                                completed();
+                                                return;
+                                            }
+
+                                            let hostCompleted = (err?: any) => {
+                                                if (err) {
+                                                    allErrors.push(err);
+                                                }
+
+                                                deployNext();
+                                            };
+
+                                            try {
+                                                let addr = h;
+                                                let port = deploy_contracts.DEFAULT_PORT;
+                                                
+                                                let separator = h.indexOf(':');
+                                                if (separator > -1) {
+                                                    addr = deploy_helpers.toStringSafe(h.substr(0, separator).toLowerCase().trim(),
+                                                                                       deploy_contracts.DEFAULT_HOST);
+
+                                                    port = parseInt(deploy_helpers.toStringSafe(h.substr(separator + 1).trim(),
+                                                                                                '' + deploy_contracts.DEFAULT_PORT));
+                                                }
+
+                                                let client = new Net.Socket();
+
+                                                client.on('error', (err) => {
+                                                    hostCompleted(err);
+                                                });
+
+                                                client.connect(port, addr, (err) => {
+                                                    if (err) {
+                                                        hostCompleted(err);
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        let dataLength = Buffer.alloc(4);
+                                                        dataLength.writeUInt32LE(transformedJsonData.length, 0);
+
+                                                        client.write(dataLength);
+                                                        client.write(transformedJsonData);
+
+                                                        try {
+                                                            client.destroy();
+                                                        }
+                                                        catch (e) {
+                                                            me.context.log(i18.t('errors.withCategory',
+                                                                                 'RemotePlugin.deployFile().client.connect()', e));
+                                                        }
+
+                                                        hostCompleted();
+                                                    }
+                                                    catch (e) {
+                                                        hostCompleted(e);
+                                                    }
+                                                });
+                                            }
+                                            catch (e) {
+                                                hostCompleted(e);
+                                            }
+                                        };
+
+                                        deployNext();
+                                    }).catch((err) => {
+                                        completed(err);  // JSON data transformation failed
+                                    });
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
+                            });
+                        }).catch((err) => {
+                            completed(err);  // file data transformation failed
                         });
-                    }).catch((err) => {
-                        completed(err);  // file data transformation failed
-                    });
+                    }
+                    catch (e) {  // tResult
+                        completed(e);
+                    }
                 });
             }
             catch (e) {
