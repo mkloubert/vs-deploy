@@ -34,7 +34,7 @@ import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetSFTP extends deploy_contracts.DeployTarget {
+interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     hashAlgorithm?: string;
     hashes?: string | string[];
@@ -353,12 +353,25 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         require: function(id) {
                             return me.context.require(id);
                         },
-                    }).then((dataToUpload) => {
-                        ctx.connection.put(dataToUpload, targetFile).then(() => {
-                            completed();
-                        }).catch((e) => {
+                    }).then((data) => {
+                        try {
+                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                            tCtx.data = data;
+
+                            let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                            Promise.resolve(tResult).then((dataToUpload) => {
+                                ctx.connection.put(dataToUpload, targetFile).then(() => {
+                                    completed();
+                                }).catch((e) => {
+                                    completed(e);
+                                });
+                            }).catch((e) => {
+                                completed(e);
+                            });
+                        }
+                        catch (e) {
                             completed(e);
-                        });
+                        }
                     }).catch((err) => {
                         completed(err);
                     });
@@ -485,12 +498,25 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                             deleteTempFile(err);
                                         }
                                         else {
-                                            FS.readFile(tmpFile, (err, data) => {
+                                            FS.readFile(tmpFile, (err, transformedData) => {
                                                 if (err) {
                                                     deleteTempFile(err);
                                                 }
                                                 else {
-                                                    deleteTempFile(null, data);
+                                                    try {
+                                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                                        tCtx.data = transformedData;
+
+                                                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                                        Promise.resolve(tResult).then((untransformedJsonData) => {
+                                                            deleteTempFile(null, untransformedJsonData);
+                                                        }).catch((e) => {
+                                                            deleteTempFile(e);
+                                                        });
+                                                    }
+                                                    catch (e) {
+                                                        deleteTempFile(e);
+                                                    }
                                                 }
                                             });
                                         }
