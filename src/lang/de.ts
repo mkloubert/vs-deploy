@@ -324,6 +324,13 @@ export const translation: Translation = {
         select: 'Bitte wählen Sie ein Ziel aus...',
         selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
+    templates: {
+        placeholder: 'Wählen Sie einen Eintrag aus...',
+        publish: {
+            description: 'Öffnet die GitHub-Seite, wo Beispiele gesammelt werden',
+            label: 'Eigenes Beispiel veröffentlichen...',
+        }
+    },
     warnings: {
         withCategory: '[WARNUNG] {0:trim}: {1}',
     },

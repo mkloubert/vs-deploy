@@ -600,6 +600,19 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     targets?: DeployTarget[];
     /**
+     * A list of template sources.
+     */
+    templates?: {
+        /**
+         * Show default sources or not.
+         */
+        showDefaults?: boolean;
+        /**
+         * List of one or more sources.
+         */
+        sources?: string | string[] | TemplateSource | TemplateSource[];
+    };
+    /**
      * Use 'targets' property of a package instead, if its 'deployOnSave' property is
      * set to (true).
      */
@@ -2059,6 +2072,62 @@ export interface StaticValueWithName extends ValueWithName {
      * Gets the value.
      */
     value: any;
+}
+
+/**
+ * A template category.
+ */
+export interface TemplateCategory extends TemplateItem {
+    /**
+     * One or more child.
+     */
+    children?: TemplateItem | TemplateItem[];
+    /** @inheritdoc */
+    type: "category" | "cat" | "c";
+}
+
+/**
+ * A template file.
+ */
+export interface TemplateFile extends TemplateItem {
+    /**
+     * The source of the file.
+     */
+    source: string;
+    /** @inheritdoc */
+    type?: "" | "f" | "file"
+}
+
+/**
+ * A template item.
+ */
+export interface TemplateItem {
+    /**
+     * A description for the item.
+     */
+    description?: string;
+    /**
+     * A label / (display) name.
+     */
+    name?: string;
+    /**
+     * The type.
+     */
+    type?: string;
+}
+
+/**
+ * A template source.
+ */
+export interface TemplateSource {
+    /**
+     * Options for the source.
+     */
+    options?: any;
+    /**
+     * The source.
+     */
+    source: string;
 }
 
 /**

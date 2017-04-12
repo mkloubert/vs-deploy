@@ -326,6 +326,13 @@ export const translation: Translation = {
         select: 'Select the target to deploy to...',
         selectSource: 'Select the source from where to pull from...',
     },
+    templates: {
+        placeholder: 'Please select an item...',
+        publish: {
+            description: 'Opens the issue, where you can post an example',
+            label: 'Publish an example...',
+        }
+    },
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',
     },

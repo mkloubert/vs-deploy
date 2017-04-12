@@ -32,6 +32,7 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
+import * as deploy_templates from './templates';
 import * as deploy_values from './values';
 import { DeployHost } from './host';
 import * as Events from 'events';
@@ -2657,6 +2658,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         this.hideAfterDeploymentStatusBarItem();
 
         this.outputChannel.show();
+    }
+
+    /**
+     * Opens a template.
+     */
+    public openTemplate() {
+        deploy_templates.openTemplate
+                        .apply(this, arguments);
     }
 
     /**

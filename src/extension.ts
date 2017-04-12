@@ -143,16 +143,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // quick deploy packages
-    let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', () => {
-        try {
-            deployer.quickDeploy();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY QUICK DEPLOY ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
-    });
-
     // open output window after deployment
     let openOutputAfterDeploment = vscode.commands.registerCommand('extension.deploy.openOutputAfterDeploment', () => {
         try {
@@ -160,6 +150,26 @@ export function activate(context: vscode.ExtensionContext) {
         }
         catch (e) {
             vscode.window.showErrorMessage(`[DEPLOY OPEN OUTPUT ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    // open template
+    let openTemplate = vscode.commands.registerCommand('extension.deploy.openTemplate', () => {
+        try {
+            deployer.openTemplate();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY OPEN TEMPLATE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    // quick deploy packages
+    let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', () => {
+        try {
+            deployer.quickDeploy();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[DEPLOY QUICK DEPLOY ERROR]: ${deploy_helpers.toStringSafe(e)}`);
         }
     });
 
@@ -193,8 +203,8 @@ export function activate(context: vscode.ExtensionContext) {
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,
                                pull, pullFileOrFolder,
                                listen,
-                               quickDeploy,
-                               openOutputAfterDeploment);
+                               openOutputAfterDeploment, openTemplate, 
+                               quickDeploy);
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();

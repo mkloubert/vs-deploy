@@ -333,6 +333,13 @@ export interface Translation {
         select?: string;
         selectSource?: string;
     },
+    templates?: {
+        placeholder?: string;
+        publish?: {
+            description?: string;
+            label?: string;
+        }
+    },
     warnings?: {
         withCategory?: string;
     },

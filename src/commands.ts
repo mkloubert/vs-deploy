@@ -29,13 +29,17 @@ import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
 
-interface ScriptCommandWrapper {
+interface ScriptCommandWrapper extends vscode.Disposable {
     button?: vscode.StatusBarItem;
     command: vscode.Disposable;
 }
 
 const _COMMANDS: ScriptCommandWrapper[] = [];
 
+
+/**
+ * Reloads the commands defined in the settings.
+ */
 export function reloadCommands() {
     let me: vs_deploy.Deployer = this;
 
@@ -46,8 +50,7 @@ export function reloadCommands() {
         while (_COMMANDS.length > 0) {
             let oldCmd = _COMMANDS.shift();
 
-            deploy_helpers.tryDispose(oldCmd.command);
-            deploy_helpers.tryDispose(oldCmd.button);
+            deploy_helpers.tryDispose(oldCmd);
         }
 
         if (cfg.commands) {
@@ -207,6 +210,10 @@ export function reloadCommands() {
                                 _COMMANDS.push({
                                     button: btn,
                                     command: cmd,
+                                    dispose: function() {
+                                        deploy_helpers.tryDispose(this.button);
+                                        deploy_helpers.tryDispose(this.command);
+                                    }
                                 });
                             }
                             catch (e) {
