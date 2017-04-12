@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 7.26.0 (April 12th, 2017; data transformation)
+
+* [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
+
 ## 7.25.0 (April 5th, 2017; faster file checks for deploy on save / change)
 
 * added `fastCheckOnChange` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that can define if a "faster" file check should be used for [deploy on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change)

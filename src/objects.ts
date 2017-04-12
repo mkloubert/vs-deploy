@@ -236,16 +236,22 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     /**
      * Loads a data transformer by target.
 
-     * @param {deploy_contracts.TransformableDeployTarget} target The target.
+     * @param {TTarget} target The target.
      * @param {deploy_contracts.DataTransformerMode} mode The mode.
+     * @param {(t: TTarget) => string} [scriptProvider] The custom logic to get the script path.
      * 
      * @returns {deploy_contracts.DataTransformer} The loaded transformer.
      */
-    protected loadDataTransformer(target: deploy_contracts.TransformableDeployTarget,
-                                  mode: deploy_contracts.DataTransformerMode): deploy_contracts.DataTransformer {
+    protected loadDataTransformer<TTarget extends deploy_contracts.TransformableDeployTarget>(target: TTarget,
+                                                                                              mode: deploy_contracts.DataTransformerMode,
+                                                                                              scriptProvider?: (t: TTarget) => string): deploy_contracts.DataTransformer {
+        if (!scriptProvider) {
+            scriptProvider = (t) => t.transformer;  // default
+        }
+        
         let transformer: deploy_contracts.DataTransformer;
 
-        let script = deploy_helpers.toStringSafe(target.transformer);
+        let script = deploy_helpers.toStringSafe(scriptProvider(target));
         script = this.context.replaceWithValues(script);
         if (!deploy_helpers.isEmptyString(script)) {
             let scriptModule = deploy_helpers.loadDataTransformerModule(script);

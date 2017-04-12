@@ -203,20 +203,11 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
         }
         else {
             // data transformer
-            let transformer: deploy_contracts.DataTransformer;
-            if (target.transformer) {
-                let transformerModuleScript = deploy_helpers.toStringSafe(target.transformer);
-                transformerModuleScript = me.context.replaceWithValues(transformerModuleScript);
+            let transformer = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform);
 
-                let transformerModule = deploy_helpers.loadDataTransformerModule(transformerModuleScript);
-                if (transformerModule) {
-                    transformer = transformerModule.transformData ||
-                                  transformerModule.restoreData;
-                }
-            }
-            transformer = deploy_helpers.toDataTransformerSafe(transformer);
-
-            let jsonTransformer = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform);
+            // whole JSON transformer
+            let jsonTransformer = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform,
+                                                         (t) => t.messageTransformer);
 
             let pwd = deploy_helpers.toStringSafe(target.password);
             if ('' !== pwd) {
@@ -362,6 +353,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                                 let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
                                                                            jsonTransformerCtx);
                                 tCtx.data = json;
+                                tCtx.options = deploy_helpers.cloneObject(target.messageTransformerOptions);
 
                                 let tResult = jsonTransformer(tCtx);
                                 Promise.resolve(tResult).then((transformedJsonData) => {

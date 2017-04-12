@@ -32,7 +32,7 @@ import * as i18 from '../i18';
 import * as TMP from 'tmp';
 
 
-interface DeployTargetAzureBlob extends deploy_contracts.DeployTarget {
+interface DeployTargetAzureBlob extends deploy_contracts.TransformableDeployTarget {
     accessKey?: string;
     account?: string;
     container: string;
@@ -170,7 +170,13 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                             publicAccessLevel: accessLevel
                         };
 
-                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        let subCtx = {
+                            file: file,
+                            remoteFile: relativePath,
+                        };
+
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   subCtx);
                         tCtx.data = data;
 
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
@@ -289,7 +295,14 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                 else {
                                     FS.readFile(tmpPath, (e, data) => {
                                         try {
-                                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                            let subCtx = {
+                                                file: file,
+                                                remoteFile: relativePath,
+                                                tempFile: tmpPath,
+                                            };
+
+                                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                                       subCtx);
                                             tCtx.data = data;
 
                                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);

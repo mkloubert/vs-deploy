@@ -63,6 +63,10 @@ export interface DataTransformerContext {
      */
     globals: deploy_contracts.GlobalVariables;
     /**
+     * The path to the remote file.
+     */
+    remoteFile: string;
+    /**
      * The target URL of the HTTP service.
      */
     url: string;
@@ -160,14 +164,15 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                         }
 
                         try {
-                            let dataTransformerCtx: DataTransformerContext = {
+                            let subCtx: DataTransformerContext = {
                                 globals: me.context.globals(),
                                 file: file,
+                                remoteFile: <string>relativePath,
                                 url: url,
                             };
 
                             let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
-                                                                       dataTransformerCtx);
+                                                                       subCtx);
                             tCtx.data = untransformedData;
 
                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);

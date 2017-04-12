@@ -174,7 +174,12 @@ class SqlPlugin extends deploy_objects.DeployPluginWithContextBase<SqlContext> {
                     }
 
                     try {
-                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        let subCtx = {
+                            file: file,
+                        };
+
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   subCtx);
                         tCtx.data = queryData;
 
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);

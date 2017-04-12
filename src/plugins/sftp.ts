@@ -355,7 +355,13 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         },
                     }).then((data) => {
                         try {
-                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                            let subCtx = {
+                                file: file,
+                                remoteFile: relativeFilePath,
+                            };
+
+                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                       subCtx);
                             tCtx.data = data;
 
                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
@@ -504,7 +510,13 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                                 }
                                                 else {
                                                     try {
-                                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                                        let subCtx = {
+                                                            file: file,
+                                                            remoteFile: relativeFilePath,
+                                                        };
+
+                                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                                                   subCtx);
                                                         tCtx.data = transformedData;
 
                                                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);

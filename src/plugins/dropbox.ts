@@ -56,11 +56,6 @@ interface DropboxListFolderResult {
     has_more: boolean;
 }
 
-interface TransformerContext {
-    file: string;
-    globals: deploy_contracts.GlobalVariables;
-}
-
 
 function getDirFromTarget(target: DeployTargetDropbox): string {
     let dir = deploy_helpers.toStringSafe(target.dir).trim();
@@ -433,13 +428,14 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     }
 
                     try {
-                        let transformerCtx: TransformerContext = {
+                        let subCtx = {
                             file: file,
                             globals: me.context.globals(),
+                            remoteFile: relativeFilePath,
                         };
 
                         let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
-                                                                   transformerCtx);
+                                                                   subCtx);
                         tCtx.data = data;
 
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
@@ -533,13 +529,14 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                                 deploy_helpers.readHttpBody(resp).then((data) => {
                                     try {
-                                        let transformerCtx: TransformerContext = {
+                                        let subCtx = {
                                             file: file,
                                             globals: me.context.globals(),
+                                            remoteFile: relativeFilePath,
                                         };
 
                                         let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
-                                                                                   transformerCtx);
+                                                                                   subCtx);
                                         tCtx.data = data;
 
                                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);

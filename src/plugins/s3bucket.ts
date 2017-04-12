@@ -214,7 +214,13 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                     }
 
                     try {
-                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        let subCtx = {
+                            file: file,
+                            remoteFile: relativePath,
+                        };
+
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   subCtx);
                         tCtx.data = data;
 
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
@@ -314,7 +320,13 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         }
                         else {
                             try {
-                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                let subCtx = {
+                                    file: file,
+                                    remoteFile: relativePath,
+                                };
+
+                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                           subCtx);
                                 tCtx.data = <any>data.Body;
 
                                 let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);

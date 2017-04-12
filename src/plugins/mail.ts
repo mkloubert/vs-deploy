@@ -102,7 +102,12 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             compression: 'DEFLATE',
                         }), 'binary');
 
-                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        let subCtx = {
+                            zip: zip,
+                        };
+
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                   subCtx);
                         tCtx.data = zippedData;
 
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
