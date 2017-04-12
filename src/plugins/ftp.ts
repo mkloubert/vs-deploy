@@ -35,7 +35,7 @@ import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetFTP extends deploy_contracts.DeployTarget {
+interface DeployTargetFTP extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     host?: string;
     port?: number;
@@ -675,11 +675,24 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             return;
                         }
 
-                        ctx.connection.put(targetFile, data).then(() => {
-                            completed();
-                        }).catch((err) => {
-                            completed(err);
-                        });
+                        try {
+                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                            tCtx.data = data;
+
+                            let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                            Promise.resolve(tResult).then((transformedData) => {
+                                ctx.connection.put(targetFile, transformedData).then(() => {
+                                    completed();
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
                     }
                 });
             };
@@ -780,7 +793,20 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 }
 
                 ctx.connection.get(targetFile).then((data) => {
-                    completed(null, data);
+                    try {
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                        tCtx.data = data;
+
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                        Promise.resolve(tResult).then((untransformedData) => {
+                            completed(null, untransformedData);
+                        }).catch((err) => {
+                            completed(err);
+                        });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
                 }).catch((err) => {
                     completed(err);
                 });
