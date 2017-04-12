@@ -95,6 +95,38 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         return this._context;
     }
 
+    /**
+     * Creates a basic data transformer context.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target.
+     * @param {deploy_contracts.DataTransformerMode} mode The mode.
+     * @param {TContext} [subCtx] The "sub"" context. 
+     */
+    protected createTransformerContext<TContext>(target: deploy_contracts.DeployTarget,
+                                                 mode: deploy_contracts.DataTransformerMode,
+                                                 subCtx?: TContext): deploy_contracts.DataTransformerContext {
+        let me = this;
+
+        return {
+            context: subCtx,
+            data: undefined,
+            emitGlobal: function() {
+                return me.context
+                         .emitGlobal
+                         .apply(me.context, arguments);
+            },
+            globals: me.context.globals(),
+            mode: mode,
+            options: deploy_helpers.cloneObject(target.transformerOptions),
+            replaceWithValues: (val) => {
+                return me.context.replaceWithValues(val);
+            },
+            require: function(id) {
+                return me.context.require(id);
+            },
+        };
+    }
+
     /** @inheritdoc */
     public abstract deployFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions);
     

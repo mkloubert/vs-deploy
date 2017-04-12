@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "7.25.1",
+  "version": "7.26.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"

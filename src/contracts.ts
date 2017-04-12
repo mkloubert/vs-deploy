@@ -1240,7 +1240,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable, Transformable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -2044,6 +2044,22 @@ export interface StaticValueWithName extends ValueWithName {
      * Gets the value.
      */
     value: any;
+}
+
+/**
+ * An object that can transform (its) data.
+ */
+export interface Transformable {
+    /**
+     * The path to a (script) module that transforms data.
+     * 
+     * s. 'TranformerModule' interface
+     */
+    transformer?: string;
+    /**
+     * The optional options for the transformer script.
+     */
+    transformerOptions?: any;
 }
 
 /**

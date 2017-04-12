@@ -2352,7 +2352,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     getTargetNamesByPackage(pkg).forEach(tn => {
                         let foundTarget = false;
                         for (let i = 0; i < targets.length; i++) {
-                            if (deploy_helpers.normalizeString(targets[i].name) == tn) {
+                            if (deploy_helpers.normalizeString(targets[i].name) === tn) {
                                 foundTarget = true;
                                 break;
                             }
