@@ -169,9 +169,22 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                         completed(err);
                     });
 
-                    req.write(data);
+                    let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                    tCtx.data = data;
 
-                    req.end();
+                    let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                    Promise.resolve(tResult).then((transformedData) => {
+                        try {
+                            req.write(transformedData);
+
+                            req.end();
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
+                    }).catch((err) => {
+                        completed(err);
+                    });
                 }
                 catch (e) {
                     completed(e);
@@ -328,11 +341,19 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
 
                         if (isFile) {
                             deploy_helpers.readHttpBody(res).then((data) => {
-                                if (data) {
-                                    completed(null, data);
+                                try {
+                                    let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                    tCtx.data = data;
+
+                                    let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                    Promise.resolve(tResult).then((untransformedData) => {
+                                        completed(null, untransformedData);
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
                                 }
-                                else {
-                                    completed(new Error("No data!"));  // TODO
+                                catch (e) {
+                                    completed(e);
                                 }
                             }).catch((err) => {
                                 completed(err);

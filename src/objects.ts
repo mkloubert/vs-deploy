@@ -100,11 +100,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
      * 
      * @param {deploy_contracts.DeployTarget} target The target.
      * @param {deploy_contracts.DataTransformerMode} mode The mode.
-     * @param {TContext} [subCtx] The "sub"" context. 
+     * @param {any} [subCtx] The "sub" context. 
      */
-    protected createTransformerContext<TContext>(target: deploy_contracts.DeployTarget,
-                                                 mode: deploy_contracts.DataTransformerMode,
-                                                 subCtx?: TContext): deploy_contracts.DataTransformerContext {
+    protected createDataTransformerContext(target: deploy_contracts.DeployTarget,
+                                           mode: deploy_contracts.DataTransformerMode,
+                                           subCtx: any = {}): deploy_contracts.DataTransformerContext {
         let me = this;
 
         return {
@@ -231,6 +231,43 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     /** @inheritdoc */
     public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
         throw new Error("Not implemented!");
+    }
+
+    /**
+     * Loads a data transformer by target.
+
+     * @param {deploy_contracts.DeployTarget} target The target.
+     * @param {deploy_contracts.DataTransformerMode} mode The mode.
+     * 
+     * @returns {deploy_contracts.DataTransformer} The loaded transformer.
+     */
+    protected loadDataTransformer(target: deploy_contracts.DeployTarget,
+                                  mode: deploy_contracts.DataTransformerMode): deploy_contracts.DataTransformer {
+        let transformer: deploy_contracts.DataTransformer;
+
+        let script = deploy_helpers.toStringSafe(target.transformer);
+        if (!deploy_helpers.isEmptyString(script)) {
+            let scriptModule = deploy_helpers.loadDataTransformerModule(script);
+            if (scriptModule) {
+                switch (mode) {
+                    case deploy_contracts.DataTransformerMode.Restore:
+                        transformer = scriptModule.restoreData;
+                        if (!transformer) {
+                            transformer = scriptModule.transformData;
+                        }
+                        break;
+
+                    case deploy_contracts.DataTransformerMode.Transform:
+                        transformer = scriptModule.transformData;
+                        if (!transformer) {
+                            transformer = scriptModule.restoreData;
+                        }
+                        break;
+                }
+            }
+        }
+
+        return deploy_helpers.toDataTransformerSafe(transformer);
     }
 
     /**
