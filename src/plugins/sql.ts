@@ -32,7 +32,7 @@ import * as i18 from '../i18';
 import * as Path from 'path';
 
 
-interface DeployTargetSql extends deploy_contracts.DeployTarget {
+interface DeployTargetSql extends deploy_contracts.TransformableDeployTarget {
     encoding?: string;
     engine?: string;
     options?: any;
@@ -167,19 +167,32 @@ class SqlPlugin extends deploy_objects.DeployPluginWithContextBase<SqlContext> {
             }
 
             if (isValidFile) {
-                FS.readFile(file, (err, data) => {
+                FS.readFile(file, (err, queryData) => {
                     if (err) {
                         completed(err);
                         return;
                     }
 
                     try {
-                        let query = data.toString(ctx.encoding);
-                        
-                        ctx.connection.query(query).then(() => {
-                            completed();
-                        }).catch((err) => {
-                            completed(err);
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        tCtx.data = queryData;
+
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((data) => {
+                            try {
+                                let query = data.toString(ctx.encoding);
+
+                                ctx.connection.query(query).then(() => {
+                                    completed();
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
+                        }).catch((e) => {
+                            completed(e);
                         });
                     }
                     catch (e) {
