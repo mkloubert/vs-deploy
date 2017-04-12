@@ -81,15 +81,28 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                         zipFileName = Path.join(targetDir,
                                                 deploy_helpers.toStringSafe(zipFileName));
 
-                        FS.readFile(zipFileName, (err, data) => {
+                        FS.readFile(zipFileName, (err, transformedData) => {
                             if (err) {
                                 completed(err);
                             }
                             else {
                                 try {
-                                    let zip = Zip(data, { base64: false });
+                                    let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                    tCtx.data = transformedData;
 
-                                    completed(null, zip);
+                                    let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                    Promise.resolve(tResult).then((untransformedData) => {
+                                        try {
+                                            let zip = Zip(untransformedData, { base64: false });
+
+                                            completed(null, zip);
+                                        }
+                                        catch (e) {
+                                            completed(e);
+                                        }
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
                                 }
                                 catch (e) {
                                     completed(e);
@@ -169,22 +182,30 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             compression: 'DEFLATE',
                         }), 'binary');
 
-                        FS.writeFile(zipFile, zippedData, (err) => {
-                            zippedData = null;
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        tCtx.data = zippedData;
 
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((transformedData) => {
+                            FS.writeFile(zipFile, transformedData, (err) => {
+                                zippedData = null;
 
-                            completed();
+                                if (err) {
+                                    completed(err);
+                                    return;
+                                }
 
-                            if (openAfterCreated) {
-                                deploy_helpers.open(zipFile).catch((err) => {
-                                    me.context.log(i18.t('errors.withCategory',
-                                                         'ZIPPlugin.deployWorkspace()', err));
-                                });
-                            }
+                                completed();
+
+                                if (openAfterCreated) {
+                                    deploy_helpers.open(zipFile).catch((err) => {
+                                        me.context.log(i18.t('errors.withCategory',
+                                                             'ZIPPlugin.deployWorkspace()', err));
+                                    });
+                                }
+                            });
+                        }).catch((err) => {
+                            completed(err);
                         });
                     }
                     catch (e) {
