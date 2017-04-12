@@ -31,7 +31,7 @@ import * as FS from 'fs';
 import * as i18 from '../i18';
 
 
-interface DeployTargetS3Bucket extends deploy_contracts.DeployTarget {
+interface DeployTargetS3Bucket extends deploy_contracts.TransformableDeployTarget {
     acl?: string;
     bucket: string;
     credentials?: {
@@ -213,30 +213,38 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                         return;
                     }
 
-                    ctx.connection.createBucket(() => {
-                        if (ctx.hasCancelled) {
-                            completed();
-                            return;
-                        }
+                    try {
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        tCtx.data = data;
 
-                        let params: any = {
-                            Key: bucketKey,
-                            Body: data,
-                        };
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((transformedJsonData) => {
+                            ctx.connection.createBucket(() => {
+                                if (ctx.hasCancelled) {
+                                    completed();
+                                    return;
+                                }
 
-                        if (!deploy_helpers.isEmptyString(contentType)) {
-                            params['ContentType'] = contentType;
-                        }
+                                let params: any = {
+                                    Key: bucketKey,
+                                    Body: transformedJsonData,
+                                };
 
-                        ctx.connection.putObject(params, (err, data) => {
-                            if (err) {
-                                completed(err);
-                                return;
-                            }
+                                if (!deploy_helpers.isEmptyString(contentType)) {
+                                    params['ContentType'] = contentType;
+                                }
 
-                            completed();
+                                ctx.connection.putObject(params, (err) => {
+                                    completed(err);
+                                });
+                            });
+                        }).catch((e) => {
+                            completed(e);
                         });
-                    });
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
                 });
             }
             catch (e) {
@@ -305,7 +313,20 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                             completed(err);
                         }
                         else {
-                            completed(null, <any>data.Body);
+                            try {
+                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore);
+                                tCtx.data = <any>data.Body;
+
+                                let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                Promise.resolve(tResult).then((untransformedJsonData) => {
+                                    completed(null, untransformedJsonData);
+                                }).catch((e) => {
+                                    completed(e);
+                                });
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
                         }
                     });
                 }
