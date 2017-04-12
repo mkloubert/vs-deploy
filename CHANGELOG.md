@@ -2,7 +2,7 @@
 
 ## 7.26.0 (April 12th, 2017; data transformation)
 
-* [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
+* [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
 
 ## 7.25.0 (April 5th, 2017; faster file checks for deploy on save / change)
 

@@ -8407,6 +8407,13 @@
                         "description": "Empty target directory BEFORE deploy or not.",
                         "default": false
                       },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is saved / after it has been loaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."

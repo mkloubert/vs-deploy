@@ -33,7 +33,7 @@ import * as Path from 'path';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetLocal extends deploy_contracts.DeployTarget {
+interface DeployTargetLocal extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     empty?: boolean;
 }
@@ -89,17 +89,36 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                         });
                     }
 
-                    // copy file...
-                    FSExtra.copy(file, targetFile, {
-                        clobber: true,
-                        preserveTimestamps: true,
-                    }, function (err) {
+                    FS.readFile(file, (err, untransformedData) => {
                         if (err) {
                             completed(err);
-                            return;
                         }
+                        else {
+                            try {
+                                let subCtx = {
+                                    file: file,
+                                    remoteFile: targetFile,
+                                };
 
-                        completed();
+                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform,
+                                                                           subCtx);
+                                tCtx.data = untransformedData;
+
+                                let transfomer = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform);
+
+                                let tResult = Promise.resolve(transfomer(tCtx));
+                                tResult.then((transformedData) => {
+                                    FS.writeFile(targetFile, transformedData, (err) => {
+                                        completed(err);
+                                    });
+                                }).catch((e) => {
+                                    completed(e);
+                                });
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
+                        }
                     });
                 }
                 catch (e) {
@@ -117,10 +136,10 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                     FSExtra.mkdirs(targetDirectory, function (err) {
                         if (err) {
                             completed(err);
-                            return;
                         }
-
-                        deployFile();
+                        else {
+                            deployFile();
+                        }
                     });
                 }
             });
@@ -231,12 +250,33 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                     });
                 }
 
-                FS.readFile(targetFile, (err, data) => {
+                FS.readFile(targetFile, (err, transformedData) => {
                     if (err) {
                         completed(err);
                     }
                     else {
-                        completed(null, data);
+                        try {
+                            let subCtx = {
+                                file: file,
+                                remoteFile: targetFile,
+                            };
+
+                            let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                       subCtx);
+                            tCtx.data = transformedData;
+
+                            let transfomer = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore);
+
+                            let tResult = Promise.resolve(transfomer(tCtx));
+                            tResult.then((untransformedData) => {
+                                completed(null, untransformedData);
+                            }).catch((e) => {
+                                completed(e);
+                            });
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
                     }
                 });
             }
