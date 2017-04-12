@@ -32,7 +32,7 @@ import * as Moment from 'moment';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetMail extends deploy_contracts.DeployTarget {
+interface DeployTargetMail extends deploy_contracts.TransformableDeployTarget {
     from?: string;
     host?: string;
     ignoreTLS?: boolean;
@@ -47,6 +47,8 @@ interface DeployTargetMail extends deploy_contracts.DeployTarget {
 
 class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
     protected deployZipFile(zip: any, target: DeployTargetMail): Promise<any> {
+        let me = this;
+
         let now = Moment();
 
         let from = deploy_helpers.toStringSafe(target.from).trim();
@@ -100,38 +102,46 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             compression: 'DEFLATE',
                         }), 'binary');
 
-                        let mailOpts = {
-                            from: from,
-                            to: to,
-                            subject: 'Deployed files',
-                            text: `Your deployed files (s. attachment).
+                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Transform);
+                        tCtx.data = zippedData;
+
+                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
+                        Promise.resolve(tResult).then((transformedData) => {
+                            let mailOpts = {
+                                from: from,
+                                to: to,
+                                subject: 'Deployed files',
+                                text: `Your deployed files (s. attachment).
 
 
 Send by 'Deploy' (vs-deploy) Visual Studio Code extension:
 https://github.com/mkloubert/vs-deploy`,
-                            attachments: [
-                                {
-                                    filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
-                                    content: zippedData,
-                                }
-                            ]
-                        };
+                                attachments: [
+                                    {
+                                        filename: `workspace_${now.format('YYYYMMDD')}_${now.format('HHmmss')}.zip`,
+                                        content: transformedData,
+                                    }
+                                ]
+                            };
 
-                        let transporter = Mailer.createTransport({
-                            host: host,
-                            port: port,
-                            auth: auth,
-                            secure: isSecure,
-                            ignoreTLS: ignoreTLS,
-                            requireTLS: requireTLS,
-                            tls: {
-                                rejectUnauthorized: rejectUnauthorized,
-                            },
-                        });
+                            let transporter = Mailer.createTransport({
+                                host: host,
+                                port: port,
+                                auth: auth,
+                                secure: isSecure,
+                                ignoreTLS: ignoreTLS,
+                                requireTLS: requireTLS,
+                                tls: {
+                                    rejectUnauthorized: rejectUnauthorized,
+                                },
+                            });
 
-                        transporter.sendMail(mailOpts, (err) => {
-                            zippedData = null;
+                            transporter.sendMail(mailOpts, (err) => {
+                                zippedData = null;
 
+                                completed(err);
+                            });
+                        }).catch((err) => {
                             completed(err);
                         });
                     }
