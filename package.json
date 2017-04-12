@@ -1030,6 +1030,13 @@
                         "type": "string",
                         "description": "The password for basic authentication."
                       },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send / after it has been downloaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
@@ -3136,6 +3143,13 @@
                         "type": "string",
                         "description": "The publib access level of the container.",
                         "default": "blob"
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send / after it has been downloaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
                       },
                       "description": {
                         "type": "string",
@@ -6288,6 +6302,13 @@
                           "ftp",
                           "jsftp"
                         ]
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send / after it has been downloaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
                       },
                       "description": {
                         "type": "string",
@@ -9452,6 +9473,13 @@
                       "user": {
                         "type": "string",
                         "description": "The username."
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
                       },
                       "description": {
                         "type": "string",
@@ -12675,6 +12703,13 @@
                         "description": "The ACL for the target files.",
                         "default": "public-read"
                       },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send / after it has been downloaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
@@ -13782,6 +13817,13 @@
                             "default": "ascii"
                           }
                         }
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is send / after it has been downloaded."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
                       },
                       "description": {
                         "type": "string",
@@ -15864,6 +15906,13 @@
                         "description": "Use 'sql' files only or not.",
                         "default": true
                       },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is executed."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
@@ -17915,6 +17964,13 @@
                         "type": "string",
                         "description": "The target directory of the new ZIP file.",
                         "default": "./"
+                      },
+                      "transformer": {
+                        "type": "string",
+                        "description": "The path to the script that transforms data before it is saved / after it has been extracted."
+                      },
+                      "transformerOptions": {
+                        "description": "Optional data for the transformer script."
                       },
                       "description": {
                         "type": "string",
