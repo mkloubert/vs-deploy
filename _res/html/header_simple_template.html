@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <script type="text/javascript">
+
+var vsDeployTemp;
+
+        </script>
+
+        <style type="text/css">
+
+${vsDeploy-highlightjs-CSS-default}
+
+        </style>
+
+        <style type="text/css">
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+}
+
+#vsdeploy-code {
+    background-color: transparent !important;
+    margin: 0 !important;
+    word-wrap: break-word !important;
+}
+
+        </style>
+
+        <style type="text/css">
+
+${vsDeploy-highlightjs-CSS}
+
+        </style>
+
+        <!-- highlight.js -->
+        <script type="text/javascript">
+
+vsDeployTemp = ${vsDeploy-highlightjs};
+eval(window.atob(vsDeployTemp));
+
+        </script>
+
+        <!-- jQuery -->
+        <script type="text/javascript">
+
+vsDeployTemp = ${vsDeploy-jQuery};
+eval(window.atob(vsDeployTemp));
+
+        </script>
+    </head>
+
+    <body>
+
+        <pre><code class="html" id="vsdeploy-code"></code></pre>
+

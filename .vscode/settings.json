@@ -6,5 +6,63 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    "typescript.tsdk": "./node_modules/typescript/lib" // we want to use the TS server from our node_modules folder to control its version
+    "typescript.tsdk": "./node_modules/typescript/lib", // we want to use the TS server from our node_modules folder to control its version
+
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+
+    "deploy": {
+        "showPopupOnSuccess": false,
+
+        "packages": [
+            {
+                "name": "Embedded CSS",
+                "files": [
+                    "/_res/css/*.css"
+                ],
+
+                "targets": [ "Embedded_CSS" ]
+            },
+            {
+                "name": "Embedded HTML",
+                "files": [
+                    "/_res/html/*.html"
+                ],
+
+                "targets": [ "Embedded_HTML" ]
+            },
+            {
+                "name": "Embedded JavaScript",
+                "files": [
+                    "/_res/javascript/*.js"
+                ],
+
+                "targets": [ "Embedded_JS" ]
+            }
+        ],
+        
+        "targets": [
+            {
+                "name": "Embedded_CSS",
+    
+                "type": "script",
+                "script": "./_res/embedded_resources.js",
+                "options": "css"
+            },
+            {
+                "name": "Embedded_HTML",
+    
+                "type": "script",
+                "script": "./_res/embedded_resources.js",
+                "options": "html"
+            },
+            {
+                "name": "Embedded_JS",
+    
+                "type": "script",
+                "script": "./_res/embedded_resources.js",
+                "options": "js"
+            }
+        ]
+    }
 }

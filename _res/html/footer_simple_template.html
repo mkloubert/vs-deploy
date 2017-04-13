@@ -1,0 +1,21 @@
+
+        <script type="text/javascript">
+
+var vsDeployCode = ${vsDeploy-code};
+
+        </script>
+
+        <script type="text/javascript">
+
+jQuery(function() {
+    var codeBlock = jQuery('#vsdeploy-code');
+    codeBlock.text(window.atob(vsDeployCode));
+
+    codeBlock.each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
+});
+
+        </script>
+    <body>
+</html>

@@ -25,7 +25,12 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_res_css from './resources/css';
+import * as deploy_res_html from './resources/html';
+import * as deploy_res_javascript from './resources/javascript';
+import * as deploy_values from './values';
 import * as FS from 'fs';
+import * as HtmlEntities from 'html-entities';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
@@ -311,24 +316,57 @@ export function openTemplate() {
                                                 else {
                                                     loadFromSource(file.source).then((data) => {
                                                         try {
-                                                            let txt = data.toString('utf8');
+                                                            let htmlEncoder = new HtmlEntities.AllHtmlEntities();
 
-                                                            vscode.workspace.openTextDocument(null).then((doc) => {
-                                                                vscode.window.showTextDocument(doc).then((editor) => {
-                                                                    editor.edit((builder) => {
-                                                                        try {
-                                                                            builder.insert(new vscode.Position(0, 0), txt);
-                                                                        }
-                                                                        catch (e) {
-                                                                            rej(e);
-                                                                        }
-                                                                    });
-                                                                }, (err) => {
-                                                                    rej(err);
-                                                                });
-                                                            }, (e) => {
-                                                                rej(e);
-                                                            });
+                                                            let code = data.toString('utf8');
+                                                            // code = htmlEncoder.encode(code);
+
+                                                            let toBase64 = (str: any): string => {
+                                                                str = deploy_helpers.toStringSafe(str);
+                                                                
+                                                                return (new Buffer(str, 'utf8')).toString('base64');
+                                                            };
+
+                                                            let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
+                                                            let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
+                                                            let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
+                                                            
+                                                            let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
+
+                                                            let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
+                                                            let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
+
+                                                            let html = header + footer;
+
+                                                            let values: deploy_values.ValueBase[] = [];
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-jQuery',
+                                                                value: JSON.stringify(toBase64(jquery)),
+                                                            }));
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-highlightjs-CSS',
+                                                                value: css_highlightJS_css,
+                                                            }));
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-highlightjs-CSS-default',
+                                                                value: css_highlightJS_css_default,
+                                                            }));
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-highlightjs',
+                                                                value: JSON.stringify(toBase64(highlightJS)),
+                                                            }));
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-code',
+                                                                value: JSON.stringify(toBase64(code)),
+                                                            }));
+
+                                                            html = deploy_values.replaceWithValues(values, html);
+
+                                                            FS.writeFileSync(Path.join(vscode.workspace.rootPath, './testxyz.htm'),
+                                                                             html);
+
+                                                            deploy_helpers.openHtmlDocument(me.htmlDocuments,
+                                                                                            html);
                                                         }
                                                         catch (e) {
                                                             rej(e);

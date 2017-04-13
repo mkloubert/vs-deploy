@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_res_javascript from './resources/javascript';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
@@ -57,51 +58,59 @@ export class HtmlTextDocumentContentProvider implements vscode.TextDocumentConte
     /** @inheritdoc */
     public provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Thenable<string> {
         let me = this;
+
+        let func: (uri: vscode.Uri) => string | PromiseLike<string>;
+        let funcThisArgs: any = me;
+        switch (deploy_helpers.normalizeString(uri.authority)) {
+            case 'authority':
+                func = me.getHtmlDoc;
+                break;
+        }
+
+        if (!func) {
+            func = () => null;
+        }
         
-        return new Promise<string>((resolve, reject) => {
-            let completed = deploy_helpers.createSimplePromiseCompletedAction(resolve, reject);
+        return Promise.resolve(func.apply(funcThisArgs,
+                                          [ uri ]));
+    }
 
-            try {
-                let htmlDocs = me.controller.htmlDocuments;
+    protected getHtmlDoc(uri: vscode.Uri): string {
+        let htmlDocs = this.controller.htmlDocuments;
 
-                let doc: deploy_contracts.Document;
+        let doc: deploy_contracts.Document;
 
-                let params = deploy_helpers.uriParamsToObject(uri);
+        let params = deploy_helpers.uriParamsToObject(uri);
 
-                let idValue = decodeURIComponent(deploy_helpers.getUrlParam(params, 'id'));
+        let idValue = decodeURIComponent(deploy_helpers.getUrlParam(params, 'id'));
 
-                if (!deploy_helpers.isEmptyString(idValue)) {
-                    let id = idValue.trim();
-                    
-                    // search for document
-                    for (let i = 0; i < htmlDocs.length; i++) {
-                        let d = htmlDocs[i];
+        if (!deploy_helpers.isEmptyString(idValue)) {
+            let id = idValue.trim();
+            
+            // search for document
+            for (let i = 0; i < htmlDocs.length; i++) {
+                let d = htmlDocs[i];
 
-                        if (deploy_helpers.toStringSafe(d.id).trim() == id) {
-                            doc = d;
-                            break;
-                        }
-                    }
+                if (deploy_helpers.toStringSafe(d.id).trim() == id) {
+                    doc = d;
+                    break;
+                }
+            }
+        }
+
+        let html = '';
+
+        if (doc) {
+            if (doc.body) {
+                let enc = deploy_helpers.normalizeString(doc.encoding);
+                if ('' === enc) {
+                    enc = 'utf8';
                 }
 
-                let html = '';
-
-                if (doc) {
-                    if (doc.body) {
-                        let enc = deploy_helpers.normalizeString(doc.encoding);
-                        if ('' === enc) {
-                            enc = 'utf8';
-                        }
-
-                        html = doc.body.toString(enc);
-                    }
-                }
-
-                completed(null, html);
+                html = doc.body.toString(enc);
             }
-            catch (e) {
-                completed(e);
-            }
-        });
+        }
+
+        return html;
     }
 }

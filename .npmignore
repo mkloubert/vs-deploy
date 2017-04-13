@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+_res/**
 out/test/**
 test/**
 img/**
