@@ -243,6 +243,9 @@ export function openTemplate() {
     try {
         let cfg = me.config;
 
+        let allowUnparsedDocuments: boolean;
+        let footerFile: string;
+        let headerFile: string;
         let showDefaults: boolean;
         let sources: deploy_contracts.TemplateSource[] = [];
 
@@ -262,13 +265,20 @@ export function openTemplate() {
                 return obj;
             }).filter(t => t);
 
+            allowUnparsedDocuments = cfg.templates.allowUnparsedDocuments;
             showDefaults = cfg.templates.showDefaults;
+
+            footerFile = me.replaceWithValues(cfg.templates.footer);
+            headerFile = me.replaceWithValues(cfg.templates.header);
         }
         else {
             sources = [];
         }
 
-        if (deploy_helpers.toBooleanSafe(showDefaults, true)) {
+        allowUnparsedDocuments = deploy_helpers.toBooleanSafe(allowUnparsedDocuments, true);
+        showDefaults = deploy_helpers.toBooleanSafe(showDefaults, true);
+
+        if (showDefaults) {
             sources.unshift({
                 source: 'https://mkloubert.github.io/templates/vs-deploy.json',
             });
@@ -377,53 +387,136 @@ export function openTemplate() {
                                                                 return (new Buffer(str, 'utf8')).toString('base64');
                                                             };
 
-                                                            let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
-                                                            let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
-                                                            let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
-                                                            
-                                                            let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
-
-                                                            let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
-                                                            let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
-
-                                                            let html = header + footer;
-
-                                                            let values: deploy_values.ValueBase[] = [];
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-jQuery',
-                                                                value: JSON.stringify(toBase64(jquery)),
-                                                            }));
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-highlightjs-CSS',
-                                                                value: css_highlightJS_css,
-                                                            }));
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-highlightjs-CSS-default',
-                                                                value: css_highlightJS_css_default,
-                                                            }));
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-highlightjs',
-                                                                value: JSON.stringify(toBase64(highlightJS)),
-                                                            }));
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-code',
-                                                                value: JSON.stringify(toBase64(code)),
-                                                            }));
-                                                            values.push(new deploy_values.StaticValue({
-                                                                name: 'vsDeploy-mime',
-                                                                value: JSON.stringify(detectCodeMime(code)),
-                                                            }));
-
-                                                            html = deploy_values.replaceWithValues(values, html);
-
                                                             let browserTitle = deploy_helpers.toStringSafe(i.name).trim();
                                                             if ('' === browserTitle) {
                                                                 browserTitle = deploy_helpers.toStringSafe(file.source).trim();
                                                             }
 
-                                                            deploy_helpers.openHtmlDocument(me.htmlDocuments,
-                                                                                            html,
-                                                                                            '[vs-deploy] ' + i18.t('templates.browserTitle', browserTitle));
+                                                            let additionalHtmlHeader: string;
+                                                            let additionalHtmlFooter: string;
+
+                                                            let openAction = (): string => {
+                                                                let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
+                                                                let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
+                                                                let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
+                                                                
+                                                                let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
+
+                                                                let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
+                                                                let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
+
+                                                                let html = header + footer;
+
+                                                                let values: deploy_values.ValueBase[] = [];
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-jQuery',
+                                                                    value: JSON.stringify(toBase64(jquery)),
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-highlightjs-CSS',
+                                                                    value: css_highlightJS_css,
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-highlightjs-CSS-default',
+                                                                    value: css_highlightJS_css_default,
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-highlightjs',
+                                                                    value: JSON.stringify(toBase64(highlightJS)),
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-code',
+                                                                    value: JSON.stringify(toBase64(code)),
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-mime',
+                                                                    value: JSON.stringify(detectCodeMime(code)),
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-header',
+                                                                    value: deploy_helpers.toStringSafe(additionalHtmlHeader),
+                                                                }));
+                                                                values.push(new deploy_values.StaticValue({
+                                                                    name: 'vsDeploy-footer',
+                                                                    value: deploy_helpers.toStringSafe(additionalHtmlFooter),
+                                                                }));
+
+                                                                html = deploy_values.replaceWithValues(values, html);
+
+                                                                return html;
+                                                            };
+
+                                                            if ('text/html' === mime) {
+                                                                if (allowUnparsedDocuments) {
+                                                                    if (deploy_helpers.toBooleanSafe(file.isDocument)) {
+                                                                        // handle as unparsed HTML document
+                                                                        openAction = () => code;
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            let openWorkflow = Workflows.create();
+
+                                                            // HTML header
+                                                            openWorkflow.next((ctx) => {
+                                                                return new Promise<any>((res2, rej2) => {
+                                                                    if (deploy_helpers.isNullUndefinedOrEmptyString(headerFile)) {
+                                                                        res2();
+                                                                    }
+                                                                    else {
+                                                                        loadFromSource(headerFile).then((header) => {
+                                                                            try {
+                                                                                res2(header.toString('utf8'));
+                                                                            }
+                                                                            catch (e) {
+                                                                                rej2(e);
+                                                                            }
+                                                                        }).catch((err) => {
+                                                                            rej2(err);
+                                                                        });
+                                                                    }
+                                                                });
+                                                            });
+
+                                                            // HTML footer
+                                                            openWorkflow.next((ctx) => {
+                                                                additionalHtmlHeader = ctx.previousValue;
+
+                                                                return new Promise<any>((res2, rej2) => {
+                                                                    if (deploy_helpers.isNullUndefinedOrEmptyString(footerFile)) {
+                                                                        res2();
+                                                                    }
+                                                                    else {
+                                                                        loadFromSource(footerFile).then((footer) => {
+                                                                            try {
+                                                                                res2(footer.toString('utf8'));
+                                                                            }
+                                                                            catch (e) {
+                                                                                rej2(e);
+                                                                            }
+                                                                        }).catch((err) => {
+                                                                            rej2(err);
+                                                                        });
+                                                                    }
+                                                                });
+                                                            });
+
+                                                            // open browser
+                                                            openWorkflow.next((ctx) => {
+                                                                additionalHtmlFooter = ctx.previousValue;
+
+                                                                let html = openAction();
+
+                                                                return deploy_helpers.openHtmlDocument(me.htmlDocuments,
+                                                                                                       html,
+                                                                                                       '[vs-deploy] ' + i18.t('templates.browserTitle', browserTitle));
+                                                            });
+
+                                                            openWorkflow.start().then(() => {
+                                                                res();
+                                                            }).catch((err) => {
+                                                                rej(err);
+                                                            });
                                                         }
                                                         catch (e) {
                                                             rej(e);

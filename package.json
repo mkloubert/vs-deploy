@@ -20084,6 +20084,19 @@
               "description": "Defines one or more source for templates.",
               "type": "object",
               "properties": {
+                "allowUnparsedDocuments": {
+                  "description": "Allow unparsed (HTML) documents ininternal web browser or not.",
+                  "type": "boolean",
+                  "default": true
+                },
+                "footer": {
+                  "description": "Path or URL to a HTML footer that should be inserted at the beginning inside the BODY tag of each (default) HTML document.",
+                  "type": "string"
+                },
+                "header": {
+                  "description": "Path or URL to a HTML header that should be inserted at the beginning inside the BODY tag of each (default) HTML document.",
+                  "type": "string"
+                },
                 "showDefaults": {
                   "description": "Show default sources or not.",
                   "type": "boolean",

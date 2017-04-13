@@ -604,6 +604,20 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     templates?: {
         /**
+         * Allow unparsed (HTML) documents or not.
+         */
+        allowUnparsedDocuments?: boolean;
+        /**
+         * Path or URL to a HTML footer that should be inserted at the beginning
+         * inside the BODY tag of each (default) HTML document.
+         */
+        footer?: string;
+        /**
+         * Path or URL to a HTML header that should be inserted at the beginning
+         * inside the BODY tag of each (default) HTML document.
+         */
+        header?: string;
+        /**
          * Show default sources or not.
          */
         showDefaults?: boolean;
@@ -2130,6 +2144,10 @@ export interface TemplateFile extends TemplateItem {
      * A description for the item.
      */
     description?: string;
+    /**
+     * Gets if the file in an (HTML) document or not.
+     */
+    isDocument?: boolean;
     /**
      * The source of the file.
      */
