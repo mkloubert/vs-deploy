@@ -330,6 +330,7 @@ export const translation: Translation = {
         selectSource: 'Select the source from where to pull from...',
     },
     templates: {
+        browserTitle: "Template{0:trim,surround,leading_space}",
         noneDefined: "Please define a least one TEMPLATE SOURCE in your 'settings.json'!",
         placeholder: 'Please select an item...',
         publish: {

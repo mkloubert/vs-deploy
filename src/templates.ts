@@ -30,7 +30,6 @@ import * as deploy_res_html from './resources/html';
 import * as deploy_res_javascript from './resources/javascript';
 import * as deploy_values from './values';
 import * as FS from 'fs';
-import * as HtmlEntities from 'html-entities';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
@@ -52,8 +51,60 @@ interface TemplateItemWithName extends deploy_contracts.TemplateItem {
 }
 
 const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
-const REGEX_HTTP_URL = /([\s]*)(http)([s]?)(\:)(\/\/)/gi;
+const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 
+
+function detectCodeMime(code: string): string {
+    code = deploy_helpers.toStringSafe(code);
+
+    let mime: string;
+
+    let mimeActions: (() => any)[] = [];
+
+    // JSON
+    mimeActions.push(() => {
+        let json = JSON.parse(code);
+
+        return 'application/json';
+    });
+
+    // HTML
+    mimeActions.push(() => {
+        let html = code.toLowerCase().trim();
+        if (html.length >= 13) {
+            if (html.substr(0, 6) === '<html>' && html.substring(html.length - 7) === '</html>') {
+                return 'text/html';
+            }
+        }
+    });
+
+    try {
+        while (mimeActions.length > 0) {
+            let action = mimeActions.shift();
+
+            try {
+                let m = action();
+                if (!deploy_helpers.isNullUndefinedOrEmptyString(m)) {
+                    mime = m;
+                    break;
+                }
+            }
+            catch (e) {
+                //TODO: log
+            }
+        }
+    }
+    catch (e) {
+        //TODO: log
+    }
+
+    mime = deploy_helpers.normalizeString(mime);
+    if ('' === mime) {
+        mime = 'text/plain';
+    }
+
+    return mime;
+}
 
 function extractTemplateItems(list: deploy_contracts.TemplateItemList): TemplateItemWithName[] {
     let items: TemplateItemWithName[] = [];
@@ -195,12 +246,6 @@ export function openTemplate() {
         let showDefaults: boolean;
         let sources: deploy_contracts.TemplateSource[] = [];
 
-        if (deploy_helpers.toBooleanSafe(showDefaults, true)) {
-            sources.push({
-                source: 'https://mkloubert.github.io/templates/vs-deploy.json',
-            });
-        }
-
         // normalize to object list
         if (cfg.templates) {
             sources = deploy_helpers.asArray<string | deploy_contracts.TemplateSource>(cfg.templates.sources).map(t => {
@@ -221,6 +266,12 @@ export function openTemplate() {
         }
         else {
             sources = [];
+        }
+
+        if (deploy_helpers.toBooleanSafe(showDefaults, true)) {
+            sources.unshift({
+                source: 'https://mkloubert.github.io/templates/vs-deploy.json',
+            });
         }
 
         if (sources.length > 0) {
@@ -316,10 +367,9 @@ export function openTemplate() {
                                                 else {
                                                     loadFromSource(file.source).then((data) => {
                                                         try {
-                                                            let htmlEncoder = new HtmlEntities.AllHtmlEntities();
-
                                                             let code = data.toString('utf8');
-                                                            // code = htmlEncoder.encode(code);
+
+                                                            let mime = detectCodeMime(code);
 
                                                             let toBase64 = (str: any): string => {
                                                                 str = deploy_helpers.toStringSafe(str);
@@ -359,14 +409,21 @@ export function openTemplate() {
                                                                 name: 'vsDeploy-code',
                                                                 value: JSON.stringify(toBase64(code)),
                                                             }));
+                                                            values.push(new deploy_values.StaticValue({
+                                                                name: 'vsDeploy-mime',
+                                                                value: JSON.stringify(detectCodeMime(code)),
+                                                            }));
 
                                                             html = deploy_values.replaceWithValues(values, html);
 
-                                                            FS.writeFileSync(Path.join(vscode.workspace.rootPath, './testxyz.htm'),
-                                                                             html);
+                                                            let browserTitle = deploy_helpers.toStringSafe(i.name).trim();
+                                                            if ('' === browserTitle) {
+                                                                browserTitle = deploy_helpers.toStringSafe(file.source).trim();
+                                                            }
 
                                                             deploy_helpers.openHtmlDocument(me.htmlDocuments,
-                                                                                            html);
+                                                                                            html,
+                                                                                            '[vs-deploy] ' + i18.t('templates.browserTitle', browserTitle));
                                                         }
                                                         catch (e) {
                                                             rej(e);

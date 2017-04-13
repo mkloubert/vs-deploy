@@ -328,6 +328,7 @@ export const translation: Translation = {
         selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
     templates: {
+        browserTitle: "Vorlage{0:trim,surround,leading_space}",
         noneDefined: "Definieren sie bitte mindestens eine VORLAGEN-QUELLE in Ihrer 'settings.json'-Datei!",
         placeholder: 'Wählen Sie einen Eintrag aus...',
         publish: {

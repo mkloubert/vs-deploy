@@ -2,6 +2,7 @@
         <script type="text/javascript">
 
 var vsDeployCode = ${vsDeploy-code};
+var vsDeployMime = ${vsDeploy-mime};
 
         </script>
 
@@ -9,6 +10,7 @@ var vsDeployCode = ${vsDeploy-code};
 
 jQuery(function() {
     var codeBlock = jQuery('#vsdeploy-code');
+    codeBlock.addClass(vsDeployMime);
     codeBlock.text(window.atob(vsDeployCode));
 
     codeBlock.each(function(i, block) {
