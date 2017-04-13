@@ -334,6 +334,7 @@ export interface Translation {
         selectSource?: string;
     },
     templates?: {
+        noneDefined?: string;
         placeholder?: string;
         publish?: {
             label?: string;

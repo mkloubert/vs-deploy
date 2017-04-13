@@ -2103,6 +2103,22 @@ export interface TemplateFile extends TemplateItem {
 }
 
 /**
+ * A template repository.
+ */
+export interface TemplateRepository extends TemplateItem {
+    /**
+     * A description for the item.
+     */
+    description?: string;
+    /**
+     * The source of the repository.
+     */
+    source: string;
+    /** @inheritdoc */
+    type?: "r" | "repo" | "repository"
+}
+
+/**
  * A template item.
  */
 export interface TemplateItem {

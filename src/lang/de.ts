@@ -325,6 +325,7 @@ export const translation: Translation = {
         selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
     templates: {
+        noneDefined: "Definieren sie bitte mindestens eine VORLAGEN-QUELLE in Ihrer 'settings.json'-Datei!",
         placeholder: 'Wählen Sie einen Eintrag aus...',
         publish: {
             label: 'Eigenes Beispiel veröffentlichen...',

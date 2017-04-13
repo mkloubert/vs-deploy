@@ -327,6 +327,7 @@ export const translation: Translation = {
         selectSource: 'Select the source from where to pull from...',
     },
     templates: {
+        noneDefined: "Please define a least one TEMPLATE SOURCE in your 'settings.json'!",
         placeholder: 'Please select an item...',
         publish: {
             label: 'Publish an example...',

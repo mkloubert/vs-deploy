@@ -73,7 +73,14 @@ function loadFromSource(src: string): Promise<Buffer> {
     src = deploy_helpers.toStringSafe(src);
 
     return new Promise<Buffer>((resolve, reject) => {
+        let completedInvoked = false;
         let completed = (err: any, data?: Buffer) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            
             if (err) {
                 reject(err);
             }
@@ -101,7 +108,9 @@ function loadFromSource(src: string): Promise<Buffer> {
                 };
 
                 let opts: HTTP.RequestOptions = {
-                    protocol: 'http:',
+                    hostname: url.hostname,
+                    path: url.path,
+                    method: 'GET',
                 };
 
                 let requestFactory: (options: HTTP.RequestOptions,
@@ -110,8 +119,9 @@ function loadFromSource(src: string): Promise<Buffer> {
                 switch (deploy_helpers.normalizeString(url.protocol)) {
                     case 'https:':
                         requestFactory = HTTPs.request;
-                        
+
                         opts.protocol = 'https:';
+                        opts.port = 443;
                         break;
 
                     default:
@@ -119,11 +129,20 @@ function loadFromSource(src: string): Promise<Buffer> {
                         requestFactory = HTTP.request;
 
                         opts.protocol = 'http:';
+                        opts.port = 80;
                         break;
+                }
+
+                if (!deploy_helpers.isEmptyString(url.port)) {
+                    opts.port = parseInt(deploy_helpers.toStringSafe(url.port).trim());
                 }
 
                 if (requestFactory) {
                     let request = requestFactory(opts, requestHandler);
+
+                    request.once('error', (err) => {
+                        completed(err);
+                    });
 
                     request.end();
                 }
@@ -159,6 +178,9 @@ function loadFromSource(src: string): Promise<Buffer> {
     });
 }
 
+/**
+ * Opens a template.
+ */
 export function openTemplate() {
     let me: vs_deploy.Deployer = this;
 
@@ -199,10 +221,13 @@ export function openTemplate() {
         if (sources.length > 0) {
             let wf = Workflows.create();
 
+            // create empty list
             wf.next((ctx) => {
                 ctx.result = {};
             });
 
+            // create a merged list
+            // from each source
             sources.forEach(ts => {
                 wf.next((ctx) => {
                     return new Promise<any>((resolve, reject) => {
@@ -215,7 +240,7 @@ export function openTemplate() {
                             completedInvoked = true;
 
                             if (err) {
-                                //TODO: show error message
+                                vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
                             }
 
                             resolve();
@@ -271,7 +296,7 @@ export function openTemplate() {
                             case '':
                             case 'f':
                             case 'file':
-                                icon = 'database';
+                                icon = 'file-code';
                                 detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).source).trim();
                                 qp = {
                                     label: deploy_helpers.toStringSafe(i.name),
@@ -337,6 +362,47 @@ export function openTemplate() {
                                     sortOrder: 0,
                                 };
                                 break;
+
+                            case 'r':
+                            case 'repo':
+                            case 'repository':
+                                icon = 'book';
+                                detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).source).trim();
+                                qp = {
+                                    label: deploy_helpers.toStringSafe(i.name),
+                                    description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).description),
+                                    action: () => {
+                                        let repo = <deploy_contracts.TemplateRepository>i;
+
+                                        return new Promise<any>((res, rej) => {
+                                            try {
+                                                loadFromSource(repo.source).then((data) => {
+                                                    try {
+                                                        let downloadedList: deploy_contracts.TemplateItemList =
+                                                            JSON.parse(data.toString('utf8'));
+
+                                                        let items: TemplateItemWithName[];
+                                                        if (downloadedList) {
+                                                            items = extractTemplateItems(downloadedList);
+                                                        }
+
+                                                        showItems(items);
+                                                    }
+                                                    catch (e) {
+                                                        rej(e);
+                                                    }
+                                                }).catch((err) => {
+                                                    rej(err);
+                                                });
+                                            }
+                                            catch (e) {
+                                                rej(e);
+                                            }
+                                        });
+                                    },
+                                    sortOrder: 1,
+                                };
+                                break;
                         }
 
                         if (qp) {
@@ -395,14 +461,14 @@ export function openTemplate() {
                     vscode.window.showQuickPick(quickPicks, {
                         placeHolder: i18.t('templates.placeholder'),
                     }).then((qp) => {
-                        if (!qp) {
-                            allCompleted(null);
-                            return;
-                        }
+                        if (qp) {
+                            let action = qp.action;
+                            if (!action) {
+                                action = () => { };
+                            }
 
-                        if (qp.action) {
                             try {
-                                Promise.resolve(qp.action()).then(() => {
+                                Promise.resolve(action()).then(() => {
                                     allCompleted(null);
                                 }, (err) => {
                                     allCompleted(err);
@@ -411,6 +477,9 @@ export function openTemplate() {
                             catch (e) {
                                 allCompleted(e);
                             }
+                        }
+                        else {
+                            allCompleted(null);
                         }
                     }, (err) => {
                         allCompleted(err);
@@ -428,11 +497,11 @@ export function openTemplate() {
             });
         }
         else {
-            //TODO: show warning message
+            vscode.window.showWarningMessage(`[vs-deploy]: ${i18.t('templates.noneDefined')}`);
         }
     }
     catch (e) {
-
+        me.log(i18.t('errors.withCategory',
+                     'templates.openTemplate()', e));
     }
 }
-
