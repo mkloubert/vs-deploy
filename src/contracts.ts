@@ -693,6 +693,16 @@ export interface DeployContext extends ConditionalItemFilter, vscode.Disposable,
     once: (event: string | symbol,
            handler: EventHandler) => DeployContext;
     /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    openHtml: (html: string, title?: string, id?: any) => Promise<any>;
+    /**
      * Gets the global output channel.
      */
     outputChannel: () => vscode.OutputChannel;
@@ -1494,6 +1504,32 @@ export interface DeployWorkspaceOptions {
      * The "completed" callback for the a single file.
      */
     onFileCompleted?: FileDeployCompletedEventHandler;
+}
+
+/**
+ * A document.
+ */
+export interface Document {
+    /**
+     * The body / content of the document.
+     */
+    body: Buffer;
+    /**
+     * The encoding.
+     */
+    encoding?: string;
+    /**
+     * The ID.
+     */
+    id?: any;
+    /**
+     * The MIME type.
+     */
+    mime?: string;
+    /**
+     * The title.
+     */
+    title?: string;
 }
 
 /**

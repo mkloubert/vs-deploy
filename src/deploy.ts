@@ -113,6 +113,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _host: DeployHost;
     /**
+     * Stores the current list of HTML documents.
+     */
+    protected _htmlDocs: deploy_contracts.Document[];
+    /**
      * Stores if 'deploy on change' feature is enabled or not.
      */
     protected _isDeployOnChangeEnabled = true;
@@ -2063,6 +2067,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets the list of HTML documents.
+     */
+    public get htmlDocuments(): deploy_contracts.Document[] {
+        return this._htmlDocs;
+    }
+
+    /**
      * Starts listening for files.
      */
     public listen() {
@@ -3825,6 +3836,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
             me._globalScriptOperationState = {};
+            me._htmlDocs = [];
             me._scriptOperationStates = {};
             deploy_values.resetScriptStates();
 
@@ -4146,6 +4158,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         ctx.log = function(msg) {
                             me.log(msg);
                             return this;
+                        };
+                        ctx.openHtml = (html, title?, id?) => {
+                            return deploy_helpers.openHtmlDocument(me.htmlDocuments,
+                                                                   html, title, id);
                         };
                         ctx.outputChannel = () => me.outputChannel;
                         ctx.packageFile = () => me.packageFile;

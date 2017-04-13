@@ -98,6 +98,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
             return this;
         },
+        openHtml: null,
         outputChannel: null,
         packageFile: null,
         packages: null,
@@ -151,6 +152,10 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         ctx.log = function(msg) {
             baseCtx.log(msg);
             return this;
+        };
+        ctx.openHtml = function() {
+            return baseCtx.openHtml
+                          .apply(baseCtx, arguments);
         };
         ctx.outputChannel = () => baseCtx.outputChannel();
         ctx.packageFile = () => baseCtx.packageFile();
