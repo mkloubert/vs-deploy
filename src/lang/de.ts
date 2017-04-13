@@ -201,6 +201,9 @@ export const translation: Translation = {
             notFound: 'Datei nicht gefunden!',
             unknownResponse: 'Unerwartete Antwort {0:trim} ({1:trim}): {2:trim,surround}',
         },
+        each: {
+            description: 'Stellt Dateien mit Hilfe einer Liste von Werten breit',
+        },
         ftp: {
             description: 'Lädt Dateien auf einen FTP-Server',
         },

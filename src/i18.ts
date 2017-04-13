@@ -210,6 +210,9 @@ export interface Translation {
             notFound?: string;
             unknownResponse?: string;
         },
+        each?: {
+            description?: string;
+        },
         ftp?: {
             description?: string;
         },

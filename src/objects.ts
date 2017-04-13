@@ -234,6 +234,78 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 
     /**
+     * Returns the others targets and their plugins.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target for this plugin.
+     * @param {string | string[]} otherTargets The list of names of the "others" targets.
+     * 
+     * @return {deploy_contracts.DeployTargetWithPlugins[]} The targets and their plugins.
+     */
+    protected getTargetsWithPlugins(target: deploy_contracts.DeployTarget, otherTargets: string | string[]): deploy_contracts.DeployTargetWithPlugins[] {
+        let batchTargets: deploy_contracts.DeployTargetWithPlugins[] = [];
+
+        let normalizeString = (val: any): string => {
+            return deploy_helpers.normalizeString(val);
+        };
+
+        let myTargetName = normalizeString(target.name);
+
+        let targetNames = deploy_helpers.asArray(otherTargets)
+                                        .map(x => normalizeString(x))
+                                        .filter(x => x);
+
+        if (targetNames.indexOf(myTargetName) > -1) {
+            // no recurrence!
+            vscode.window.showWarningMessage(i18.t('targets.cannotUseRecurrence', myTargetName));
+        }
+
+        // prevent recurrence
+        targetNames = targetNames.filter(x => x != myTargetName);
+
+        let knownTargets = this.context.targets();
+        let knownPlugins = this.context.plugins();
+
+        // first find targets by name
+        let foundTargets: deploy_contracts.DeployTarget[] = [];
+        targetNames.forEach(tn => {
+            let found = false;
+            knownTargets.forEach(t => {
+                if (normalizeString(t.name) == tn) {
+                    found = true;
+                    foundTargets.push(t);
+                }
+            });
+
+            if (!found) {
+                // we have an unknown target here
+                vscode.window.showWarningMessage(i18.t('targets.notFound', tn));
+            }
+        });
+
+        // now collect plugins for each
+        // found target
+        foundTargets.forEach(t => {
+            let newBatchTarget: deploy_contracts.DeployTargetWithPlugins = {
+                plugins: [],
+                target: t,
+            };
+
+            knownPlugins.forEach(pi => {
+                let pluginType = normalizeString(pi.__type);
+
+                if (!pluginType || (pluginType == normalizeString(t.type))) {
+                    newBatchTarget.plugins
+                                  .push(pi);
+                }
+            });
+
+            batchTargets.push(newBatchTarget);
+        });
+
+        return batchTargets;
+    }
+
+    /**
      * Loads a data transformer by target.
 
      * @param {TTarget} target The target.
@@ -1415,79 +1487,6 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
                 completed(e);
             }
         }
-    }
-
-    /**
-     * Returns the others targets and their plugins.
-     * 
-     * @param {deploy_contracts.DeployTarget} target The target for this plugin.
-     * @param {string | string[]} otherTargets The list of names of the "others" targets.
-     * 
-     * @return {deploy_contracts.DeployTargetWithPlugins[]} The targets and their plugins.
-     */
-    protected getTargetsWithPlugins(target: deploy_contracts.DeployTarget, otherTargets: string | string[]): deploy_contracts.DeployTargetWithPlugins[] {
-        let batchTargets: deploy_contracts.DeployTargetWithPlugins[] = [];
-
-        let normalizeString = (val: any): string => {
-            return deploy_helpers.toStringSafe(val)
-                                 .toLowerCase().trim();
-        };
-
-        let myTargetName = normalizeString(target.name);
-
-        let targetNames = deploy_helpers.asArray(otherTargets)
-                                        .map(x => normalizeString(x))
-                                        .filter(x => x);
-
-        if (targetNames.indexOf(myTargetName) > -1) {
-            // no recurrence!
-            vscode.window.showWarningMessage(i18.t('targets.cannotUseRecurrence', myTargetName));
-        }
-
-        // prevent recurrence
-        targetNames = targetNames.filter(x => x != myTargetName);
-
-        let knownTargets = this.context.targets();
-        let knownPlugins = this.context.plugins();
-
-        // first find targets by name
-        let foundTargets: deploy_contracts.DeployTarget[] = [];
-        targetNames.forEach(tn => {
-            let found = false;
-            knownTargets.forEach(t => {
-                if (normalizeString(t.name) == tn) {
-                    found = true;
-                    foundTargets.push(t);
-                }
-            });
-
-            if (!found) {
-                // we have an unknown target here
-                vscode.window.showWarningMessage(i18.t('targets.notFound', tn));
-            }
-        });
-
-        // now collect plugins for each
-        // found target
-        foundTargets.forEach(t => {
-            let newBatchTarget: deploy_contracts.DeployTargetWithPlugins = {
-                plugins: [],
-                target: t,
-            };
-
-            knownPlugins.forEach(pi => {
-                let pluginType = normalizeString(pi.__type);
-
-                if (!pluginType || (pluginType == normalizeString(t.type))) {
-                    newBatchTarget.plugins
-                                  .push(pi);
-                }
-            });
-
-            batchTargets.push(newBatchTarget);
-        });
-
-        return batchTargets;
     }
 
     /** @inheritdoc */
