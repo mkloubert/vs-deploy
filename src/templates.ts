@@ -190,6 +190,12 @@ export function openTemplate() {
         let showDefaults: boolean;
         let sources: deploy_contracts.TemplateSource[] = [];
 
+        if (deploy_helpers.toBooleanSafe(showDefaults, true)) {
+            sources.push({
+                source: 'https://mkloubert.github.io/templates/vs-deploy.json',
+            });
+        }
+
         // normalize to object list
         if (cfg.templates) {
             sources = deploy_helpers.asArray<string | deploy_contracts.TemplateSource>(cfg.templates.sources).map(t => {
@@ -210,12 +216,6 @@ export function openTemplate() {
         }
         else {
             sources = [];
-        }
-        
-        if (deploy_helpers.toBooleanSafe(showDefaults, true)) {
-            sources.push({
-                source: 'https://mkloubert.github.io/templates/vs-deploy.json',
-            });
         }
 
         if (sources.length > 0) {
