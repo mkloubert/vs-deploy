@@ -99,8 +99,8 @@ export function checkOfficialRepositoryVersions() {
                             openBtn.action = () => {
                                 vscode.commands.executeCommand('extension.deploy.openTemplate').then(() => {
                                 }, (err) => {
-                                    console.log(i18.t('errors.withCategory',
-                                                      'templates.checkOfficialRepositoryVersion(7)', err));
+                                    deploy_helpers.log(i18.t('errors.withCategory',
+                                                             'templates.checkOfficialRepositoryVersion(7)', err));
                                 });
                             };
                             openBtn.title = i18.t('templates.officialRepositories.openTemplates');
@@ -112,12 +112,12 @@ export function checkOfficialRepositoryVersions() {
                                     }
                                 }
                                 catch (e) {
-                                    console.log(i18.t('errors.withCategory',
-                                                      'templates.checkOfficialRepositoryVersion(5)', e));
+                                    deploy_helpers.log(i18.t('errors.withCategory',
+                                                             'templates.checkOfficialRepositoryVersion(5)', e));
                                 }
                             }, (err) => {
-                                console.log(i18.t('errors.withCategory',
-                                                  'templates.checkOfficialRepositoryVersion(4)', err));
+                                deploy_helpers.log(i18.t('errors.withCategory',
+                                                         'templates.checkOfficialRepositoryVersion(4)', err));
                             });
                         }
                     }
@@ -125,8 +125,8 @@ export function checkOfficialRepositoryVersions() {
                         if (updateLastVersion) {
                             me.context.globalState.update(KEY_LAST_KNOWN_VERSION, version).then(() => {
                             }, (err) => {
-                                console.log(i18.t('errors.withCategory',
-                                                  'templates.checkOfficialRepositoryVersion(3)', err));
+                                deploy_helpers.log(i18.t('errors.withCategory',
+                                                         'templates.checkOfficialRepositoryVersion(3)', err));
                             });
                         }
                     }
@@ -134,12 +134,12 @@ export function checkOfficialRepositoryVersions() {
             }
         }
         catch (e) {
-            console.log(i18.t('errors.withCategory',
-                              'templates.checkOfficialRepositoryVersion(2)', e));
+            deploy_helpers.log(i18.t('errors.withCategory',
+                                     'templates.checkOfficialRepositoryVersion(2)', e));
         }
     }).catch((err) => {
-        console.log(i18.t('errors.withCategory',
-                          'templates.checkOfficialRepositoryVersion(1)', err));
+        deploy_helpers.log(i18.t('errors.withCategory',
+                                 'templates.checkOfficialRepositoryVersion(1)', err));
     });
 }
 

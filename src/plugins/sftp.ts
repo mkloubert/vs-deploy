@@ -226,8 +226,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                 finish([ pwd ]);
                             }
                             catch (e) {
-                                console.log(i18.t('errors.withCategory',
-                                                  'plugins.sftp.keyboard-interactive', e));
+                                deploy_helpers.log(i18.t('errors.withCategory',
+                                                         'plugins.sftp.keyboard-interactive', e));
                             }
                         });
                     }

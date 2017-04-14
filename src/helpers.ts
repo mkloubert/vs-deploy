@@ -1454,7 +1454,10 @@ export function readHttpBody(msg: HTTP.IncomingMessage): Promise<Buffer> {
                 try {
                     msg.removeListener('data', dataListener);
                 }
-                catch (e) { /* TODO: log */ }
+                catch (e) { 
+                    log(i18.t('errors.withCategory',
+                              'helpers.readHttpBody()', e));
+                }
             }
 
             if (err) {
