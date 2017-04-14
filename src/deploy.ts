@@ -4343,7 +4343,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             // [BUTTON] show change log
                             let changeLogBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
                             changeLogBtn.action = () => {
-                                deploy_helpers.open('https://github.com/mkloubert/vs-deploy/blob/master/CHANGELOG.md');
+                                deploy_helpers.open('https://goo.gl/Tw9PQh');
                             };
                             changeLogBtn.title = i18.t('popups.newVersion.showChangeLog');
 

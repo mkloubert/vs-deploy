@@ -2177,6 +2177,14 @@ export interface TemplateRepository extends TemplateItem {
  */
 export interface TemplateItem {
     /**
+     * The name of the custom icon.
+     */
+    icon?: string;
+    /**
+     * A custom sort order.
+     */
+    sortOrder?: number;
+    /**
      * The type.
      */
     type?: string;
@@ -2190,7 +2198,23 @@ export type TemplateItemList = {
      * Gets an item by its name.
      */
     [name: string]: TemplateItem;
-};
+}
+
+/**
+ * A template link.
+ */
+export interface TemplateLink {
+    /**
+     * A description for the item.
+     */
+    description?: string;
+    /**
+     * The path or URL to the source.
+     */
+    source: string;
+    /** @inheritdoc */
+    type?: "l" | "link" | "u" | "url";
+}
 
 /**
  * A template source.

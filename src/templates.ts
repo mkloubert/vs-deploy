@@ -45,6 +45,8 @@ import * as Workflows from 'node-workflows';
 
 interface ActionQuickPickItem extends vscode.QuickPickItem {
     action: () => any;
+    icon: string;
+    itemOrder?: any;
     sortOrder: any;
 }
 
@@ -438,7 +440,7 @@ export function openTemplate() {
 
                     let createQuickPick = (i: TemplateItemWithName) => {
                         let qp: ActionQuickPickItem;
-                        let icon: string;
+                        let customIcon = deploy_helpers.toStringSafe(i.icon).trim();
                         let detail: string;
                         let description: string;
 
@@ -455,9 +457,9 @@ export function openTemplate() {
                         switch (type) {
                             case 'f':
                             case 'file':
-                                icon = 'file-code';
                                 detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).source).trim();
                                 qp = {
+                                    icon: '' === customIcon ? 'file-code' : customIcon,
                                     label: deploy_helpers.toStringSafe(i.name),
                                     description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).description),
                                     action: () => {
@@ -616,8 +618,8 @@ export function openTemplate() {
                             case 'c':
                             case 'cat':
                             case 'category':
-                                icon = 'file-directory';
                                 qp = {
+                                    icon: '' === customIcon ? 'file-directory' : customIcon,
                                     label: deploy_helpers.toStringSafe(i.name),
                                     description: '',
                                     action: () => {
@@ -633,11 +635,11 @@ export function openTemplate() {
                             case 'r':
                             case 'repo':
                             case 'repository':
-                                icon = 'book';
-                                detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).source).trim();
+                                detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateRepository>i).source).trim();
                                 qp = {
+                                    icon: '' === customIcon ? 'database' : customIcon,
                                     label: deploy_helpers.toStringSafe(i.name),
-                                    description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateFile>i).description),
+                                    description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateRepository>i).description),
                                     action: () => {
                                         let repo = <deploy_contracts.TemplateRepository>i;
 
@@ -671,6 +673,24 @@ export function openTemplate() {
                                     sortOrder: 1,
                                 };
                                 break;
+
+                            case 'l':
+                            case 'link':
+                            case 'u':
+                            case 'url':
+                                detail = deploy_helpers.toStringSafe((<deploy_contracts.TemplateLink>i).source).trim();
+                                qp = {
+                                    icon: '' === customIcon ? 'link-external' : customIcon,
+                                    label: deploy_helpers.toStringSafe(i.name),
+                                    description: deploy_helpers.toStringSafe((<deploy_contracts.TemplateLink>i).description),
+                                    action: () => {
+                                        let link = <deploy_contracts.TemplateLink>i;
+
+                                        return deploy_helpers.open(deploy_helpers.toStringSafe(link.source));
+                                    },
+                                    sortOrder: 1,
+                                };
+                                break;
                         }
 
                         if (qp) {
@@ -695,9 +715,7 @@ export function openTemplate() {
                                 qp.detail = detail;
                             }
 
-                            if (!deploy_helpers.isEmptyString(icon)) {
-                                qp.label = `$(${icon}) ${qp.label}`;
-                            }
+                            qp.itemOrder = i.sortOrder;
                         }
 
                         return qp;
@@ -712,6 +730,12 @@ export function openTemplate() {
                             return comp0;
                         }
 
+                        // then by item order
+                        let comp1 = deploy_helpers.compareValues(x.itemOrder, y.itemOrder);
+                        if (0 !== comp1) {
+                            return comp1;
+                        }
+
                         // last but not least: by label
                         return deploy_helpers.compareValues(deploy_helpers.normalizeString(x.label),
                                                             deploy_helpers.normalizeString(y.label));
@@ -719,18 +743,22 @@ export function openTemplate() {
 
                     // publish own template
                     quickPicks.push({
-                        label: '$(cloud-upload) ' + i18.t('templates.publishOrRequest.label'),
+                        icon: 'cloud-upload',
+                        itemOrder: Number.MAX_SAFE_INTEGER,
+                        label: i18.t('templates.publishOrRequest.label'),
                         description: '',
                         detail: PUBLISH_URL,
-                        sortOrder: undefined,
+                        sortOrder: Number.MAX_SAFE_INTEGER,
                         action: () => deploy_helpers.open(PUBLISH_URL),
                     });
 
                     if (itemStack.length > 0) {
                         quickPicks.unshift({
+                            icon: undefined,
+                            itemOrder: Number.MAX_SAFE_INTEGER,
                             label: '..',
                             description: '',
-                            sortOrder: undefined,
+                            sortOrder: Number.MIN_SAFE_INTEGER,
                             action: () => {
                                 let stackItem = itemStack.pop();
 
@@ -739,6 +767,13 @@ export function openTemplate() {
                             },
                         });
                     }
+
+                    // apply icons
+                    quickPicks.forEach(qp => {
+                        if (!deploy_helpers.isNullUndefinedOrEmptyString(qp.icon)) {
+                            qp.label = `$(${qp.icon}) ${qp.label}`;
+                        }
+                    });
 
                     vscode.window.showQuickPick(quickPicks, {
                         placeHolder: i18.t('templates.placeholder'),
