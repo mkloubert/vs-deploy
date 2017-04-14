@@ -90,7 +90,7 @@
       },
       {
         "command": "extension.deploy.openTemplate",
-        "title": "Open template",
+        "title": "Open example / template",
         "category": "Deploy"
       },
       {

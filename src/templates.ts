@@ -482,6 +482,21 @@ export function openTemplate() {
                                                         try {
                                                             let mime = downloadResult.mime;
 
+                                                            let fileName = deploy_helpers.toStringSafe(downloadResult.name).trim();
+                                                            if ('' !== fileName) {
+                                                                try {
+                                                                    let ext = Path.extname(fileName);
+                                                                    switch (ext) {
+                                                                        case '.ts':
+                                                                            mime = 'typescript';
+                                                                            break;
+                                                                    }
+                                                                }
+                                                                catch (e) {
+                                                                    //TODO: log
+                                                                }
+                                                            }
+
                                                             let toBase64 = (str: any): string => {
                                                                 str = deploy_helpers.toStringSafe(str);
                                                                 

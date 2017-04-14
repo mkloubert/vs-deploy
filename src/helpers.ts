@@ -1438,26 +1438,62 @@ export function parseTargetType(str: string): string {
  */
 export function readHttpBody(msg: HTTP.IncomingMessage): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
-        let completed = createSimplePromiseCompletedAction(resolve, reject);
+        let buff: Buffer;
+        let completedInvoked = false;
 
-        try {
-            let buff: Buffer = msg.read();
-            if (null === buff) {
-                msg.once('readable', () => {
-                    readHttpBody(msg).then((b) => {
-                        resolve(b);
-                    }, (err) => {
-                        reject(err);
-                    });
-                });
+        let dataListener: (chunk: Buffer | string) => void;
 
-                msg.once('end', (b) => {
-                    resolve(b || Buffer.alloc(0));
-                });
+        let completed = (err: any) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+
+            if (dataListener) {
+                try {
+                    msg.removeListener('data', dataListener);
+                }
+                catch (e) { /* TODO: log */ }
+            }
+
+            if (err) {
+                reject(err);
             }
             else {
                 resolve(buff);
             }
+        };
+
+        dataListener = (chunk: Buffer | string) => {
+            try {
+                if (chunk && chunk.length > 0) {
+                    if ('string' === typeof chunk) {
+                        chunk = new Buffer(chunk);
+                    }
+
+                    buff = Buffer.concat([ buff, chunk ]);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        };
+
+        try {
+            buff = Buffer.alloc(0);
+
+            msg.once('error', (err) => {
+                if (err) {
+                    completed(err);
+                }
+            });
+
+            msg.on('data', dataListener);
+
+            msg.once('end', (b) => {
+                resolve(buff);
+            });
         }
         catch (e) {
             completed(e);
