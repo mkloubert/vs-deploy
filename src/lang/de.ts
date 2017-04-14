@@ -329,6 +329,7 @@ export const translation: Translation = {
     },
     templates: {
         browserTitle: "Vorlage{0:trim,surround,leading_space}",
+        currentPath: 'Aktueller Pfad:{0:trim,leading_space}',
         noneDefined: "Definieren sie bitte mindestens eine VORLAGEN-QUELLE in Ihrer 'settings.json'-Datei!",
         officialRepositories: {
             newAvailable: "Das VORLAGEN-VERZEICHNIS wurde aktualisiert.",

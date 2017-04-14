@@ -469,11 +469,13 @@ export function openTemplate() {
                     items = deploy_helpers.cloneObject(items);
                     items = (items || []).filter(i => i);
 
+                    let newStackItem: TemplateStackItem = {
+                        items: items,
+                        parent: parent,
+                    };
+
                     let appendStackItem = () => {
-                        itemStack.push({
-                            items: items,
-                            parent: parent,
-                        });
+                        itemStack.push(newStackItem);
                     };
 
                     let createQuickPick = (i: TemplateItemWithName) => {
@@ -835,8 +837,23 @@ export function openTemplate() {
                         }
                     });
 
+                    let placeholder = i18.t('templates.placeholder');
+                    
+                    let itemsForPath = itemStack.map(x => x);
+                    if (parent) {
+                        itemsForPath.push(newStackItem);
+                    }
+                    if (itemsForPath.length > 0) {
+                        let currentPath = itemsForPath.filter(x => x.parent)
+                                                      .map(x => x.parent.name)
+                                                      .join(' / ');
+
+                        placeholder = i18.t('templates.currentPath',
+                                            currentPath);
+                    }
+
                     vscode.window.showQuickPick(quickPicks, {
-                        placeHolder: i18.t('templates.placeholder'),
+                        placeHolder: placeholder,
                     }).then((qp) => {
                         if (qp) {
                             let action = qp.action;

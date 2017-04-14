@@ -331,6 +331,7 @@ export const translation: Translation = {
     },
     templates: {
         browserTitle: "Template{0:trim,surround,leading_space}",
+        currentPath: 'Current path:{0:trim,leading_space}',
         noneDefined: "Please define a least one TEMPLATE SOURCE in your 'settings.json'!",
         officialRepositories: {
             newAvailable: "The official TEMPLATE SOURCES have been updated.",

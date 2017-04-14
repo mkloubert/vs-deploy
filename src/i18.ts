@@ -338,6 +338,7 @@ export interface Translation {
     },
     templates?: {
         browserTitle?: string;
+        currentPath?: string;
         noneDefined?: string;
         officialRepositories?: {
             newAvailable?: string;
