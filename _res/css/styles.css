@@ -1,0 +1,48 @@
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+}
+
+a {
+    color: inherit;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+pre code {
+    font-family: Consolas, 'Courier New';
+    font-size: 14pt;
+    margin: 0 !important;
+    word-wrap: break-word !important;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-top: 0;
+    margin-bottom: 16px;
+    margin-right: 8px;
+}
+
+table td, table th {
+    padding: 6px 13px;
+    border: 1px solid #666;
+}
+
+table tr:nth-child(2n) {
+    background-color: #333;
+}
+
+pre, p {
+    margin: 8px 8px 8px 0px;
+}

@@ -27,9 +27,11 @@ import * as ChildProcess from 'child_process';
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_values from './values';
+import * as FileType from 'file-type';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as HTTP from 'http';
+import * as HTTPs from 'https';
 import * as i18 from './i18';
 const IsBinaryFile = require("isbinaryfile");
 const MIME = require('mime');
@@ -37,8 +39,28 @@ import * as Minimatch from 'minimatch';
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as Path from 'path';
+import * as URL from 'url';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
+
+/**
+ * A download result.
+ */
+export interface DownloadResult {
+    /**
+     * The downloaded data.
+     */
+    data: Buffer;
+    /**
+     * The MIME type (if available).
+     */
+    mime?: string;
+    /**
+     * The name (of the file if available).
+     */
+    name?: string;
+}
 
 /**
  * Options for open function.
@@ -68,6 +90,7 @@ export type SimpleCompletedAction<TResult> = (err?: any, result?: TResult) => vo
 
 
 let nextHtmlDocId = -1;
+const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 
 /**
  * Returns a value as array.
@@ -311,8 +334,8 @@ export function detectMimeByFilename(file: string, defValue: any = 'application/
                   'helpers.detectMimeByFilename()', e));
     }
 
-    mime = toStringSafe(mime).toLowerCase().trim();
-    if (!mime) {
+    mime = normalizeString(mime);
+    if ('' === mime) {
         mime = defValue;
     }
 
@@ -868,6 +891,239 @@ export function loadDataTransformerModule(file: string, useCache: boolean = fals
  */
 export function loadDeployScriptOperationModule(file: string, useCache: boolean = false): deploy_contracts.DeployScriptOperationModule {
     return loadModule<deploy_contracts.DeployScriptOperationModule>(file, useCache);
+}
+
+/**
+ * Loads data from a source.
+ * 
+ * @param {string} src The path or URL to the source.
+ * 
+ * @return {Promise<DownloadResult>} The promise.
+ */
+export function loadFrom(src: string): Promise<DownloadResult> {
+    return new Promise<DownloadResult>((resolve, reject) => {
+        let completedInvoked = false;
+        let completed = (err: any, result?: DownloadResult) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(result);
+            }
+        };
+
+        try {
+            src = toStringSafe(src);
+
+            let wf = Workflows.create();
+
+            if (REGEX_HTTP_URL.test(src)) {
+                // web resource
+
+                let url = URL.parse(src);
+
+                let fileName = Path.basename(url.path);
+
+                wf.next((ctx) => {
+                    return new Promise<any>((resolve, reject) => {
+                        try {
+                            let requestOpts: HTTP.RequestOptions = {
+                                hostname: url.hostname,
+                                path: url.path,
+                                method: 'GET',
+                            };
+                            
+                            let requestHandler = (resp: HTTP.IncomingMessage) => {
+                                let mime: string;
+                                if (resp.headers) {
+                                    for (let h in resp.headers) {
+                                        if ('content-type' === normalizeString(h)) {
+                                            mime = normalizeString(resp.headers[h]);
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                readHttpBody(resp).then((data) => {
+                                    resolve({
+                                        data: data,
+                                        fileName: fileName,
+                                        mime: mime,
+                                    });
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            };
+
+                            let requestFactory: (options: HTTP.RequestOptions,
+                                                 callback?: (res: HTTP.IncomingMessage) => void) => HTTP.ClientRequest;
+
+                            switch (normalizeString(url.protocol)) {
+                                case 'https:':
+                                    requestFactory = HTTPs.request;
+
+                                    requestOpts.protocol = 'https:';
+                                    requestOpts.port = 443;
+                                    break;
+
+                                default:
+                                    // http
+                                    requestFactory = HTTP.request;
+
+                                    requestOpts.protocol = 'http:';
+                                    requestOpts.port = 80;
+                                    break;
+                            }
+
+                            if (!isNullUndefinedOrEmptyString(url.port)) {
+                                requestOpts.port = parseInt(toStringSafe(url.port).trim());
+                            }
+
+                            if (requestFactory) {
+                                let request = requestFactory(requestOpts, requestHandler);
+
+                                request.once('error', (err) => {
+                                    reject(err);
+                                });
+
+                                request.end();
+                            }
+                            else {
+                                resolve(null);
+                            }
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    });
+                });
+            }
+            else {
+                // local file
+
+                let filePath = src;
+                if (!Path.isAbsolute(filePath)) {
+                    filePath = Path.join(vscode.workspace.rootPath, filePath);
+                }
+                filePath = Path.resolve(filePath);
+
+                let fileName = Path.basename(filePath);
+
+                wf.next((ctx) => {
+                    return new Promise<any>((resolve, reject) => {
+                        try {
+                            FS.readFile(filePath, (err, data) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    resolve({
+                                        data: data,
+                                        fileName: fileName,
+                                    });
+                                }
+                            });
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    });
+                });
+            }
+
+            // check if binary file
+            wf.next((ctx) => {
+                let data: Buffer = ctx.previousValue.data;
+                if (!data) {
+                    data = Buffer.alloc(0);
+                }
+
+                let fileName: string = ctx.previousValue.fileName;
+                let mime: string = ctx.previousValue.mime;
+
+                return new Promise<any>((resolve, reject) => {
+                    isBinaryContent(data).then((isBinary) => {
+                        resolve({
+                            data: data,
+                            fileName: fileName,
+                            isBinary: isBinary,
+                            mime: mime,
+                        });
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+
+            wf.next((ctx) => {
+                let data: Buffer = ctx.previousValue.data;
+                let fileName: string = ctx.previousValue.fileName;
+                let isBinary: boolean = ctx.previousValue.isBinary;
+
+                let getMimeSafe = (m: any): string => {
+                    m = normalizeString(m);
+                    if ('' === m) {
+                        m = 'application/octet-stream';
+                    }
+
+                    return m;
+                };
+
+                // mime
+                let mime = normalizeString(ctx.previousValue.mime);
+                if ('' === mime) {
+                    // try to detect...
+
+                    if (isBinary) {
+                        try {
+                            let type = FileType(data);
+                            if (type) {
+                                mime = type.mime;
+                            }
+                        }
+                        catch (e) { /* TODO: log */ }
+                    }
+
+                    mime = getMimeSafe(mime);
+                    if ('application/octet-stream' === mime) {
+                        if (!isNullUndefinedOrEmptyString(fileName)) {
+                            try {
+                                mime = detectMimeByFilename(fileName);
+                            }
+                            catch (e) { /* TODO: log */ }
+                        }
+                    }
+                }
+
+                if (mime.indexOf(';') > -1) {
+                    mime = normalizeString(mime.split(';')[0]);
+                }
+
+                let result: DownloadResult = {
+                    data: data,
+                    mime: getMimeSafe(mime),
+                    name: fileName,
+                };
+
+                ctx.result = result;
+            });
+
+            wf.start().then((result: DownloadResult) => {
+                completed(null, result);
+            }).catch((err) => {
+                completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
 }
 
 /**

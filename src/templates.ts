@@ -33,6 +33,7 @@ import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
+import * as Marked from 'marked';
 const MergeDeep = require('merge-deep');
 import * as Path from 'path';
 import * as URL from 'url';
@@ -46,6 +47,8 @@ interface ActionQuickPickItem extends vscode.QuickPickItem {
     sortOrder: any;
 }
 
+type BrowserContentProvider = () => any;
+
 interface TemplateItemWithName extends deploy_contracts.TemplateItem {
     name?: string;
 }
@@ -58,58 +61,6 @@ interface TemplateStackItem {
 const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 
-
-function detectCodeMime(code: string): string {
-    code = deploy_helpers.toStringSafe(code);
-
-    let mime: string;
-
-    let mimeActions: (() => any)[] = [];
-
-    // JSON
-    mimeActions.push(() => {
-        let json = JSON.parse(code);
-
-        return 'application/json';
-    });
-
-    // HTML
-    mimeActions.push(() => {
-        let html = code.toLowerCase().trim();
-        if (html.length >= 13) {
-            if (html.substr(0, 6) === '<html>' && html.substring(html.length - 7) === '</html>') {
-                return 'text/html';
-            }
-        }
-    });
-
-    try {
-        while (mimeActions.length > 0) {
-            let action = mimeActions.shift();
-
-            try {
-                let m = action();
-                if (!deploy_helpers.isNullUndefinedOrEmptyString(m)) {
-                    mime = m;
-                    break;
-                }
-            }
-            catch (e) {
-                //TODO: log
-            }
-        }
-    }
-    catch (e) {
-        //TODO: log
-    }
-
-    mime = deploy_helpers.normalizeString(mime);
-    if ('' === mime) {
-        mime = 'text/plain';
-    }
-
-    return mime;
-}
 
 function extractTemplateItems(list: deploy_contracts.TemplateItemList): TemplateItemWithName[] {
     let items: TemplateItemWithName[] = [];
@@ -130,112 +81,146 @@ function extractTemplateItems(list: deploy_contracts.TemplateItemList): Template
     return items.filter(i => i);
 }
 
-function loadFromSource(src: string): Promise<Buffer> {
-    src = deploy_helpers.toStringSafe(src);
 
-    return new Promise<Buffer>((resolve, reject) => {
-        let completedInvoked = false;
-        let completed = (err: any, data?: Buffer) => {
-            if (completedInvoked) {
-                return;
-            }
+function getMarkdownContentProvider(markdown: string,
+                                    additionalHtmlHeader: string, additionalHtmlFooter: string): BrowserContentProvider {
+    markdown = deploy_helpers.toStringSafe(markdown);
 
-            completedInvoked = true;
-            
-            if (err) {
-                reject(err);
-            }
-            else {
-                if (!data) {
-                    data = Buffer.alloc(0);
-                }
-
-                resolve(data);
-            }
-        };
+    additionalHtmlFooter = deploy_helpers.toStringSafe(additionalHtmlFooter);
+    additionalHtmlHeader = deploy_helpers.toStringSafe(additionalHtmlHeader);
+    
+    return () => {
+        let header = deploy_res_html.getContentSync('header_markdown_template.html').toString('utf8');
+        let footer = deploy_res_html.getContentSync('footer_markdown_template.html').toString('utf8');
+        let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
         
-        try {
-            if (REGEX_HTTP_URL.test(src)) {
-                // web source
+        let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
 
-                let url = URL.parse(src);
+        let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
+        let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
+        let css = deploy_res_css.getContentSync('styles.css').toString('utf8');
 
-                let requestHandler = (resp: HTTP.IncomingMessage) => {
-                    deploy_helpers.readHttpBody(resp).then((data) => {
-                        completed(null, data);
-                    }).catch((err) => {
-                        completed(err);
-                    });
-                };
+        let html = header + footer;
 
-                let opts: HTTP.RequestOptions = {
-                    hostname: url.hostname,
-                    path: url.path,
-                    method: 'GET',
-                };
+        let values: deploy_values.ValueBase[] = [];
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-jQuery',
+            value: JSON.stringify(stringToBase64(jquery)),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-CSS',
+            value: css,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs-CSS',
+            value: css_highlightJS_css,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs-CSS-default',
+            value: css_highlightJS_css_default,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs',
+            value: JSON.stringify(stringToBase64(highlightJS)),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-content',
+            value: Marked(markdown, {
+                breaks: true,
+                tables: true,
+            }),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-header',
+            value: deploy_helpers.toStringSafe(additionalHtmlHeader),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-footer',
+            value: deploy_helpers.toStringSafe(additionalHtmlFooter),
+        }));
 
-                let requestFactory: (options: HTTP.RequestOptions,
-                                     callback?: (res: HTTP.IncomingMessage) => void) => HTTP.ClientRequest;
+        html = deploy_values.replaceWithValues(values, html);
 
-                switch (deploy_helpers.normalizeString(url.protocol)) {
-                    case 'https:':
-                        requestFactory = HTTPs.request;
+        return html;
+    };
+}
 
-                        opts.protocol = 'https:';
-                        opts.port = 443;
-                        break;
+function getSourceCodeContentProvider(code: string, mime?: string,
+                                      additionalHtmlHeader?: string, additionalHtmlFooter?: string): BrowserContentProvider {
+    code = deploy_helpers.toStringSafe(code);
+    
+    mime = deploy_helpers.normalizeString(mime);
+    if ('' === mime) {
+        mime = 'text/plain';
+    }
+    
+    additionalHtmlFooter = deploy_helpers.toStringSafe(additionalHtmlFooter);
+    additionalHtmlHeader = deploy_helpers.toStringSafe(additionalHtmlHeader);
+    
+    return () => {
+        let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
+        let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
+        let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
+        
+        let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
 
-                    default:
-                        // http
-                        requestFactory = HTTP.request;
+        let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
+        let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
+        let css = deploy_res_css.getContentSync('styles.css').toString('utf8');
 
-                        opts.protocol = 'http:';
-                        opts.port = 80;
-                        break;
-                }
+        let html = header + footer;
 
-                if (!deploy_helpers.isEmptyString(url.port)) {
-                    opts.port = parseInt(deploy_helpers.toStringSafe(url.port).trim());
-                }
+        let values: deploy_values.ValueBase[] = [];
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-jQuery',
+            value: JSON.stringify(stringToBase64(jquery)),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-CSS',
+            value: css,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs-CSS',
+            value: css_highlightJS_css,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs-CSS-default',
+            value: css_highlightJS_css_default,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-highlightjs',
+            value: JSON.stringify(stringToBase64(highlightJS)),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-code',
+            value: JSON.stringify(stringToBase64(code)),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-mime',
+            value: JSON.stringify(mime),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-header',
+            value: deploy_helpers.toStringSafe(additionalHtmlHeader),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-footer',
+            value: deploy_helpers.toStringSafe(additionalHtmlFooter),
+        }));
 
-                if (requestFactory) {
-                    let request = requestFactory(opts, requestHandler);
+        html = deploy_values.replaceWithValues(values, html);
 
-                    request.once('error', (err) => {
-                        completed(err);
-                    });
+        return html;
+    };
+}
 
-                    request.end();
-                }
-                else {
-                    completed(null, null);
-                }
-            }
-            else {
-                // (local) file
-
-                let filePath = src;
-                if (deploy_helpers.isEmptyString(filePath)) {
-                    filePath = './templates.json';
-                }
-                if (!Path.isAbsolute(filePath)) {
-                    filePath = Path.join(vscode.workspace.rootPath, filePath);
-                }
-                filePath = Path.resolve(filePath);
-
-                FS.readFile(filePath, (err, data) => {
-                    if (err) {
-                        completed(err);
-                    }
-                    else {
-                        completed(null, data);
-                    }
-                });
-            }
-        }
-        catch (e) {
-            completed(e);
-        }
+function loadFromSource(src: string): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        deploy_helpers.loadFrom(src).then((result) => {
+            resolve(result.data);
+        }).catch((err) => {
+            reject(err);
+        });
     });
 }
 
@@ -399,11 +384,9 @@ export function openTemplate() {
                                                     res();
                                                 }
                                                 else {
-                                                    loadFromSource(file.source).then((data) => {
+                                                    deploy_helpers.loadFrom(file.source).then((downloadResult) => {
                                                         try {
-                                                            let code = data.toString('utf8');
-
-                                                            let mime = detectCodeMime(code);
+                                                            let mime = downloadResult.mime;
 
                                                             let toBase64 = (str: any): string => {
                                                                 str = deploy_helpers.toStringSafe(str);
@@ -419,64 +402,26 @@ export function openTemplate() {
                                                             let additionalHtmlHeader: string;
                                                             let additionalHtmlFooter: string;
 
-                                                            let openAction = (): string => {
-                                                                let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
-                                                                let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
-                                                                let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
-                                                                
-                                                                let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
+                                                            let getBrowserContent: BrowserContentProvider;
 
-                                                                let css_highlightJS_css = deploy_res_css.getContentSync('highlight.darkula.css').toString('utf8');
-                                                                let css_highlightJS_css_default = deploy_res_css.getContentSync('highlight.default.css').toString('utf8');
+                                                            switch (mime) {
+                                                                case 'text/x-markdown':
+                                                                    // markdown
+                                                                    getBrowserContent = getMarkdownContentProvider(downloadResult.data.toString('utf8'),
+                                                                                                                   additionalHtmlHeader, additionalHtmlFooter);
+                                                                    break;
 
-                                                                let html = header + footer;
-
-                                                                let values: deploy_values.ValueBase[] = [];
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-jQuery',
-                                                                    value: JSON.stringify(toBase64(jquery)),
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-highlightjs-CSS',
-                                                                    value: css_highlightJS_css,
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-highlightjs-CSS-default',
-                                                                    value: css_highlightJS_css_default,
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-highlightjs',
-                                                                    value: JSON.stringify(toBase64(highlightJS)),
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-code',
-                                                                    value: JSON.stringify(toBase64(code)),
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-mime',
-                                                                    value: JSON.stringify(detectCodeMime(code)),
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-header',
-                                                                    value: deploy_helpers.toStringSafe(additionalHtmlHeader),
-                                                                }));
-                                                                values.push(new deploy_values.StaticValue({
-                                                                    name: 'vsDeploy-footer',
-                                                                    value: deploy_helpers.toStringSafe(additionalHtmlFooter),
-                                                                }));
-
-                                                                html = deploy_values.replaceWithValues(values, html);
-
-                                                                return html;
-                                                            };
-
-                                                            if ('text/html' === mime) {
-                                                                if (allowUnparsedDocuments) {
-                                                                    if (deploy_helpers.toBooleanSafe(file.isDocument)) {
-                                                                        // handle as unparsed HTML document
-                                                                        openAction = () => code;
+                                                                case 'text/html':
+                                                                    // HTML
+                                                                    if (allowUnparsedDocuments) {
+                                                                        if (deploy_helpers.toBooleanSafe(file.isDocument)) {
+                                                                            // handle as unparsed HTML document
+                                                                            getBrowserContent = () => {
+                                                                                return downloadResult.data.toString('utf8');
+                                                                            };
+                                                                        }
                                                                     }
-                                                                }
+                                                                    break;
                                                             }
 
                                                             let openWorkflow = Workflows.create();
@@ -525,15 +470,40 @@ export function openTemplate() {
                                                                 });
                                                             });
 
-                                                            // open browser
+                                                            // generate content
+                                                            // and open browser
                                                             openWorkflow.next((ctx) => {
                                                                 additionalHtmlFooter = ctx.previousValue;
 
-                                                                let html = openAction();
+                                                                return new Promise<any>((res2, rej2) => {
+                                                                    try {
+                                                                        let bcp = getBrowserContent;
+                                                                        if (!bcp) {
+                                                                            bcp = getSourceCodeContentProvider(downloadResult.data.toString('utf8'),
+                                                                                                               mime,
+                                                                                                               additionalHtmlHeader, additionalHtmlFooter);
+                                                                        }
 
-                                                                return deploy_helpers.openHtmlDocument(me.htmlDocuments,
-                                                                                                       html,
-                                                                                                       '[vs-deploy] ' + i18.t('templates.browserTitle', browserTitle));
+                                                                        Promise.resolve(bcp()).then((h) => {
+                                                                            let html = deploy_helpers.toStringSafe(h);
+
+                                                                            deploy_helpers.openHtmlDocument(me.htmlDocuments,
+                                                                                                            html,
+                                                                                                            '[vs-deploy] ' + i18.t('templates.browserTitle', browserTitle))
+                                                                                          .then(() => {
+                                                                                                    res();
+                                                                                                })
+                                                                                          .catch((err) => {
+                                                                                                     rej2(err);
+                                                                                                 });
+                                                                        }).catch((err) => {
+                                                                            rej2(err);
+                                                                        });
+                                                                    }   
+                                                                    catch (e) {
+                                                                        rej2(e);
+                                                                    }
+                                                                });
                                                             });
 
                                                             openWorkflow.start().then(() => {
@@ -674,7 +644,7 @@ export function openTemplate() {
 
                     if (itemStack.length > 0) {
                         quickPicks.unshift({
-                            label: '$(arrow-up) ..',
+                            label: '..',
                             description: '',
                             sortOrder: undefined,
                             action: () => {
@@ -732,4 +702,10 @@ export function openTemplate() {
         me.log(i18.t('errors.withCategory',
                      'templates.openTemplate()', e));
     }
+}
+
+function stringToBase64(str: any): string {
+    str = deploy_helpers.toStringSafe(str);
+                                                                
+    return (new Buffer(str, 'utf8')).toString('base64');
 }
