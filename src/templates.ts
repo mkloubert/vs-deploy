@@ -358,8 +358,17 @@ export function openTemplate() {
                         let detail: string;
                         let description: string;
 
-                        switch (deploy_helpers.normalizeString(i.type)) {
-                            case '':
+                        let type = deploy_helpers.normalizeString(i.type);
+                        if ('' === type) {
+                            if (!deploy_helpers.isNullOrUndefined(i['children'])) {
+                                type = 'c';  // category
+                            }
+                            else {
+                                type = 'f';  // file
+                            }
+                        }
+
+                        switch (type) {
                             case 'f':
                             case 'file':
                                 icon = 'file-code';
