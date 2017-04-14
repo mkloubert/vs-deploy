@@ -62,7 +62,6 @@ interface TemplateStackItem {
     parent?: TemplateItemWithName;
 }
 
-const OFFICIAL_REPO = 'https://mkloubert.github.io/templates/vs-deploy.json';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 const VERSION_PROPERTY = '$version$';
 
@@ -373,8 +372,10 @@ export function openTemplate() {
         showDefaults = deploy_helpers.toBooleanSafe(showDefaults, true);
 
         if (showDefaults) {
-            sources.unshift({
-                source: OFFICIAL_REPO,
+            deploy_urls.OFFICIAL_TEMPLATE_REPOSITORIES.forEach(u => {
+                sources.unshift({
+                    source: u,
+                });
             });
         }
 

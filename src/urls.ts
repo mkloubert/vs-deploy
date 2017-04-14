@@ -29,6 +29,13 @@
  */
 export const CHANGELOG = 'https://goo.gl/Tw9PQh';
 /**
+ * List of official template repositories.
+ */
+export const OFFICIAL_TEMPLATE_REPOSITORIES = [
+    'https://mkloubert.github.io/templates/vs-deploy.json',
+];
+
+/**
  * Project page: https://github.com/mkloubert/vs-deploy
  */
 export const PROJECT_PAGE = 'https://goo.gl/79hOUK';
