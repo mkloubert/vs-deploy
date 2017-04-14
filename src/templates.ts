@@ -50,6 +50,11 @@ interface TemplateItemWithName extends deploy_contracts.TemplateItem {
     name?: string;
 }
 
+interface TemplateStackItem {
+    items: TemplateItemWithName[];
+    parent?: TemplateItemWithName;
+}
+
 const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 
@@ -346,11 +351,21 @@ export function openTemplate() {
                 }
             };
 
-            let showItems: (items: TemplateItemWithName[]) => void;
-            showItems = (items) => {
+            let itemStack: TemplateStackItem[] = [];
+
+            let showItems: (items: TemplateItemWithName[],
+                            parent?: TemplateItemWithName) => void;
+            showItems = (items, parent?) => {
                 try {
                     items = deploy_helpers.cloneObject(items);
                     items = (items || []).filter(i => i);
+
+                    let appendStackItem = () => {
+                        itemStack.push({
+                            items: items,
+                            parent: parent,
+                        });
+                    };
 
                     let createQuickPick = (i: TemplateItemWithName) => {
                         let qp: ActionQuickPickItem;
@@ -554,7 +569,8 @@ export function openTemplate() {
                                     action: () => {
                                         let cat = <deploy_contracts.TemplateCategory>i;
 
-                                        showItems(extractTemplateItems(cat.children));
+                                        appendStackItem();
+                                        showItems(extractTemplateItems(cat.children), cat);
                                     },
                                     sortOrder: 0,
                                 };
@@ -578,12 +594,13 @@ export function openTemplate() {
                                                         let downloadedList: deploy_contracts.TemplateItemList =
                                                             JSON.parse(data.toString('utf8'));
 
-                                                        let items: TemplateItemWithName[];
+                                                        let downloadedItems: TemplateItemWithName[];
                                                         if (downloadedList) {
-                                                            items = extractTemplateItems(downloadedList);
+                                                            downloadedItems = extractTemplateItems(downloadedList);
                                                         }
 
-                                                        showItems(items);
+                                                        appendStackItem();
+                                                        showItems(downloadedItems, repo);
                                                     }
                                                     catch (e) {
                                                         rej(e);
@@ -654,6 +671,20 @@ export function openTemplate() {
                         sortOrder: undefined,
                         action: () => deploy_helpers.open(PUBLISH_URL),
                     });
+
+                    if (itemStack.length > 0) {
+                        quickPicks.unshift({
+                            label: '$(arrow-up) ..',
+                            description: '',
+                            sortOrder: undefined,
+                            action: () => {
+                                let stackItem = itemStack.pop();
+
+                                showItems(stackItem.items,
+                                          stackItem.parent);
+                            },
+                        });
+                    }
 
                     vscode.window.showQuickPick(quickPicks, {
                         placeHolder: i18.t('templates.placeholder'),
