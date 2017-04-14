@@ -73,7 +73,8 @@ const VERSION_PROPERTY = '$version$';
 export function checkOfficialRepositoryVersions() {
     let me: vs_deploy.Deployer = this;
 
-    loadFromSource(OFFICIAL_REPO).then((data) => {
+    //TODO: check each repo
+    loadFromSource(deploy_urls.OFFICIAL_TEMPLATE_REPOSITORIES[0]).then((data) => {
         try {
             const KEY_LAST_KNOWN_VERSION = 'vsdLastKnownTemplateRepoVersion';
 
