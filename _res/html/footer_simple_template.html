@@ -11,7 +11,7 @@ var vsDeployMime = ${vsDeploy-mime};
 jQuery(function() {
     var codeBlock = jQuery('#vsdeploy-code');
     codeBlock.addClass(vsDeployMime);
-    codeBlock.text(window.atob(vsDeployCode));
+    codeBlock.text(b64DecodeUnicode(vsDeployCode));
 
     codeBlock.each(function(i, block) {
         hljs.highlightBlock(block);

@@ -1,7 +1,11 @@
 
         <script type="text/javascript">
 
+var vsDeployContent = ${vsDeploy-content};
+
 jQuery(function() {
+    jQuery('#vsdeploy-content').html(b64DecodeUnicode(vsDeployContent));
+
     jQuery('pre code').each(function(i, block) {
         hljs.highlightBlock(block);
     });

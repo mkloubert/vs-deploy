@@ -178,6 +178,7 @@ function getMarkdownContentProvider(markdown: string,
         let header = deploy_res_html.getContentSync('header_markdown_template.html').toString('utf8');
         let footer = deploy_res_html.getContentSync('footer_markdown_template.html').toString('utf8');
         let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
+        let script = deploy_res_javascript.getContentSync('script.js').toString('utf8');
         
         let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
 
@@ -210,11 +211,11 @@ function getMarkdownContentProvider(markdown: string,
         }));
         values.push(new deploy_values.StaticValue({
             name: 'vsDeploy-content',
-            value: Marked(markdown, {
+            value: JSON.stringify(stringToBase64(Marked(markdown, {
                 breaks: true,
                 gfm: true,
                 tables: true,
-            }),
+            }))),
         }));
         values.push(new deploy_values.StaticValue({
             name: 'vsDeploy-header',
@@ -227,6 +228,10 @@ function getMarkdownContentProvider(markdown: string,
         values.push(new deploy_values.StaticValue({
             name: 'vsDeploy-project-page',
             value: deploy_urls.PROJECT_PAGE,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-script',
+            value: JSON.stringify(stringToBase64(script)),
         }));
 
         html = deploy_values.replaceWithValues(values, html);
@@ -251,6 +256,7 @@ function getSourceCodeContentProvider(code: string, mime?: string,
         let header = deploy_res_html.getContentSync('header_simple_template.html').toString('utf8');
         let footer = deploy_res_html.getContentSync('footer_simple_template.html').toString('utf8');
         let jquery = deploy_res_javascript.getContentSync('jquery.min.js').toString('utf8');
+        let script = deploy_res_javascript.getContentSync('script.js').toString('utf8');
         
         let highlightJS = deploy_res_javascript.getContentSync('highlight.pack.js').toString('utf8');
 
@@ -300,6 +306,10 @@ function getSourceCodeContentProvider(code: string, mime?: string,
         values.push(new deploy_values.StaticValue({
             name: 'vsDeploy-project-page',
             value: deploy_urls.PROJECT_PAGE,
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-script',
+            value: JSON.stringify(stringToBase64(script)),
         }));
 
         html = deploy_values.replaceWithValues(values, html);
