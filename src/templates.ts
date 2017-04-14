@@ -73,73 +73,91 @@ const VERSION_PROPERTY = '$version$';
 export function checkOfficialRepositoryVersions() {
     let me: vs_deploy.Deployer = this;
 
-    //TODO: check each repo
-    loadFromSource(deploy_urls.OFFICIAL_TEMPLATE_REPOSITORIES[0]).then((data) => {
-        try {
-            const KEY_LAST_KNOWN_VERSION = 'vsdLastKnownTemplateRepoVersion';
+    let lastUrl: string;
+    let logError = (nr: number, err: any): void => {
+        let errCat = `templates.checkOfficialRepositoryVersion(${nr})`;
 
-            let downloadedList: deploy_contracts.TemplateItemList =
-                JSON.parse(data.toString('utf8'));
+        if (!deploy_helpers.isNullUndefinedOrEmptyString(lastUrl)) {
+            errCat += `(${lastUrl})`;
+        }
 
-            if (downloadedList) {
-                let version = deploy_helpers.normalizeString(downloadedList[VERSION_PROPERTY]);
-                if ('' !== version) {
-                    let updateLastVersion = true;
-                    try {
-                        let lastVersion = deploy_helpers.normalizeString(me.context.globalState.get(KEY_LAST_KNOWN_VERSION, ''));
-                        if ('' === lastVersion) {
-                            lastVersion = '0.0.0';
-                        }
+        deploy_helpers.log(i18.t('errors.withCategory',
+                                 errCat, err));
+    };
 
-                        if (deploy_helpers.compareVersions(version, lastVersion) > 0) {
-                            let msg = i18.t('templates.officialRepositories.newAvailable');
+    let wf = Workflows.create();
 
-                            // [BUTTON] open templates
-                            let openBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
-                            openBtn.action = () => {
-                                vscode.commands.executeCommand('extension.deploy.openTemplate').then(() => {
-                                }, (err) => {
-                                    deploy_helpers.log(i18.t('errors.withCategory',
-                                                             'templates.checkOfficialRepositoryVersion(7)', err));
-                                });
-                            };
-                            openBtn.title = i18.t('templates.officialRepositories.openTemplates');
+    deploy_urls.OFFICIAL_TEMPLATE_REPOSITORIES.forEach(u => {
+        wf.next((ctx) => {
+            lastUrl = u;
 
-                            vscode.window.showInformationMessage('[vs-deploy] ' + msg, openBtn).then((btn) => {
-                                try {
-                                    if (btn) {
-                                        btn.action();
-                                    }
+            return loadFromSource(deploy_urls.OFFICIAL_TEMPLATE_REPOSITORIES[0]).then((data) => {
+                try {
+                    const KEY_LAST_KNOWN_VERSION = 'vsdLastKnownTemplateRepoVersion';
+
+                    let downloadedList: deploy_contracts.TemplateItemList =
+                        JSON.parse(data.toString('utf8'));
+
+                    if (downloadedList) {
+                        let version = deploy_helpers.normalizeString(downloadedList[VERSION_PROPERTY]);
+                        if ('' !== version) {
+                            let updateLastVersion = true;
+                            try {
+                                let lastVersion = deploy_helpers.normalizeString(me.context.globalState.get(KEY_LAST_KNOWN_VERSION, ''));
+                                if ('' === lastVersion) {
+                                    lastVersion = '0.0.0';
                                 }
-                                catch (e) {
-                                    deploy_helpers.log(i18.t('errors.withCategory',
-                                                             'templates.checkOfficialRepositoryVersion(5)', e));
+
+                                if (deploy_helpers.compareVersions(version, lastVersion) > 0) {
+                                    ctx.finish();
+
+                                    let msg = i18.t('templates.officialRepositories.newAvailable');
+
+                                    // [BUTTON] open templates
+                                    let openBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                                    openBtn.action = () => {
+                                        vscode.commands.executeCommand('extension.deploy.openTemplate').then(() => {
+                                        }, (err) => {
+                                            logError(6, err);  // could not open list of templates
+                                        });
+                                    };
+                                    openBtn.title = i18.t('templates.officialRepositories.openTemplates');
+
+                                    vscode.window.showInformationMessage('[vs-deploy] ' + msg, openBtn).then((btn) => {
+                                        try {
+                                            if (btn) {
+                                                btn.action();
+                                            }
+                                        }
+                                        catch (e) {
+                                            logError(5, e);  // button action failed
+                                        }
+                                    }, (err) => {
+                                        logError(4, err);  // could not show popup
+                                    });
                                 }
-                            }, (err) => {
-                                deploy_helpers.log(i18.t('errors.withCategory',
-                                                         'templates.checkOfficialRepositoryVersion(4)', err));
-                            });
-                        }
-                    }
-                    finally {
-                        if (updateLastVersion) {
-                            me.context.globalState.update(KEY_LAST_KNOWN_VERSION, version).then(() => {
-                            }, (err) => {
-                                deploy_helpers.log(i18.t('errors.withCategory',
-                                                         'templates.checkOfficialRepositoryVersion(3)', err));
-                            });
+                            }
+                            finally {
+                                if (updateLastVersion) {
+                                    me.context.globalState.update(KEY_LAST_KNOWN_VERSION, version).then(() => {
+                                    }, (err) => {
+                                        logError(3, err);  // update error
+                                    });
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-        catch (e) {
-            deploy_helpers.log(i18.t('errors.withCategory',
-                                     'templates.checkOfficialRepositoryVersion(2)', e));
-        }
+                catch (e) {
+                    logError(2, e);  // could not load memento value
+                }
+            });
+        });
+    });
+
+    wf.start().then(() => {
     }).catch((err) => {
-        deploy_helpers.log(i18.t('errors.withCategory',
-                                 'templates.checkOfficialRepositoryVersion(1)', err));
+        logError(1, err);  // "global" error
     });
 }
 
