@@ -29,6 +29,7 @@ import * as deploy_objects from './objects';
 import * as deploy_res_css from './resources/css';
 import * as deploy_res_html from './resources/html';
 import * as deploy_res_javascript from './resources/javascript';
+import * as deploy_urls from './urls';
 import * as deploy_values from './values';
 import * as FS from 'fs';
 import * as HTTP from 'http';
@@ -62,7 +63,6 @@ interface TemplateStackItem {
 }
 
 const OFFICIAL_REPO = 'https://mkloubert.github.io/templates/vs-deploy.json';
-const PUBLISH_URL = 'https://goo.gl/79hOUK';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 const VERSION_PROPERTY = '$version$';
 
@@ -224,6 +224,10 @@ function getMarkdownContentProvider(markdown: string,
             name: 'vsDeploy-footer',
             value: deploy_helpers.toStringSafe(additionalHtmlFooter),
         }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-project-page',
+            value: deploy_urls.PROJECT_PAGE,
+        }));
 
         html = deploy_values.replaceWithValues(values, html);
 
@@ -292,6 +296,10 @@ function getSourceCodeContentProvider(code: string, mime?: string,
         values.push(new deploy_values.StaticValue({
             name: 'vsDeploy-footer',
             value: deploy_helpers.toStringSafe(additionalHtmlFooter),
+        }));
+        values.push(new deploy_values.StaticValue({
+            name: 'vsDeploy-project-page',
+            value: deploy_urls.PROJECT_PAGE,
         }));
 
         html = deploy_values.replaceWithValues(values, html);
@@ -747,9 +755,9 @@ export function openTemplate() {
                         itemOrder: Number.MAX_SAFE_INTEGER,
                         label: i18.t('templates.publishOrRequest.label'),
                         description: '',
-                        detail: PUBLISH_URL,
+                        detail: deploy_urls.PUBLISH_TEMPLATE,
                         sortOrder: Number.MAX_SAFE_INTEGER,
-                        action: () => deploy_helpers.open(PUBLISH_URL),
+                        action: () => deploy_helpers.open(deploy_urls.PUBLISH_TEMPLATE),
                     });
 
                     if (itemStack.length > 0) {

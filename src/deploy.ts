@@ -33,6 +33,7 @@ import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_plugins from './plugins';
 import * as deploy_templates from './templates';
+import * as deploy_urls from './urls';
 import * as deploy_values from './values';
 import { DeployHost } from './host';
 import * as Events from 'events';
@@ -4343,7 +4344,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             // [BUTTON] show change log
                             let changeLogBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
                             changeLogBtn.action = () => {
-                                deploy_helpers.open('https://goo.gl/Tw9PQh');
+                                deploy_helpers.open(deploy_urls.CHANGELOG);
                             };
                             changeLogBtn.title = i18.t('popups.newVersion.showChangeLog');
 
