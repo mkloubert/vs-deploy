@@ -106,8 +106,6 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
                         completed(err);
                     }
                     else {
-                        completed(null, data);
-
                         try {
                             let subCtx = {
                                 file: file,
