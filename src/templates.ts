@@ -756,15 +756,22 @@ export function openTemplate() {
 
                     let quickPicks = items.map(i => createQuickPick(i)).filter(qp => qp);
 
+                    let compareBySortableValue = (x: any, y: any): any => {
+                        x = deploy_helpers.isNullOrUndefined(x) ? 0 : x;
+                        y = deploy_helpers.isNullOrUndefined(y) ? 0 : y;
+
+                        return deploy_helpers.compareValues(x, y);
+                    };
+
                     quickPicks = quickPicks.sort((x, y) => {
                         // first sort by 'sortOrder'
-                        let comp0 = deploy_helpers.compareValues(x.sortOrder, y.sortOrder);
+                        let comp0 = compareBySortableValue(x.sortOrder, y.sortOrder);
                         if (0 !== comp0) {
                             return comp0;
                         }
 
                         // then by item order
-                        let comp1 = deploy_helpers.compareValues(x.itemOrder, y.itemOrder);
+                        let comp1 = compareBySortableValue(x.itemOrder, y.itemOrder);
                         if (0 !== comp1) {
                             return comp1;
                         }

@@ -20085,7 +20085,7 @@
               "type": "object",
               "properties": {
                 "allowUnparsedDocuments": {
-                  "description": "Allow unparsed (HTML) documents ininternal web browser or not.",
+                  "description": "Allow unparsed (HTML) documents in internal web browser or not.",
                   "type": "boolean",
                   "default": false
                 },
