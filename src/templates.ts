@@ -60,7 +60,7 @@ interface TemplateStackItem {
 }
 
 const OFFICIAL_REPO = 'https://mkloubert.github.io/templates/vs-deploy.json';
-const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
+const PUBLISH_URL = 'https://goo.gl/79hOUK';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 const VERSION_PROPERTY = '$version$';
 

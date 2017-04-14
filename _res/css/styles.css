@@ -93,4 +93,9 @@ li {
     border: 0px none transparent;
     height: 20px;
     margin-left: 8px;
+    text-decoration: none;
+}
+
+#vsdeploy-footer .vsdeploy-donate-btns a {
+    text-decoration: none;
 }
