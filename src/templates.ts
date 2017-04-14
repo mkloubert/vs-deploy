@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_objects from './objects';
 import * as deploy_res_css from './resources/css';
 import * as deploy_res_html from './resources/html';
 import * as deploy_res_javascript from './resources/javascript';
@@ -58,15 +59,97 @@ interface TemplateStackItem {
     parent?: TemplateItemWithName;
 }
 
+const OFFICIAL_REPO = 'https://mkloubert.github.io/templates/vs-deploy.json';
 const PUBLISH_URL = 'https://github.com/mkloubert/vs-deploy/issues';
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
+const VERSION_PROPERTY = '$version$';
 
+
+/**
+ * Checks for new versions
+ * of the official template repositories.
+ */
+export function checkOfficialRepositoryVersions() {
+    let me: vs_deploy.Deployer = this;
+
+    loadFromSource(OFFICIAL_REPO).then((data) => {
+        try {
+            const KEY_LAST_KNOWN_VERSION = 'vsdLastKnownTemplateRepoVersion';
+
+            let downloadedList: deploy_contracts.TemplateItemList =
+                JSON.parse(data.toString('utf8'));
+
+            if (downloadedList) {
+                let version = deploy_helpers.normalizeString(downloadedList[VERSION_PROPERTY]);
+                if ('' !== version) {
+                    let updateLastVersion = true;
+                    try {
+                        let lastVersion = deploy_helpers.normalizeString(me.context.globalState.get(KEY_LAST_KNOWN_VERSION, ''));
+                        if ('' === lastVersion) {
+                            lastVersion = '0.0.0';
+                        }
+
+                        if (deploy_helpers.compareVersions(version, lastVersion) > 0) {
+                            let msg = i18.t('templates.officialRepositories.newAvailable');
+
+                            // [BUTTON] open templates
+                            let openBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                            openBtn.action = () => {
+                                vscode.commands.executeCommand('extension.deploy.openTemplate').then(() => {
+                                }, (err) => {
+                                    console.log(i18.t('errors.withCategory',
+                                                      'templates.checkOfficialRepositoryVersion(7)', err));
+                                });
+                            };
+                            openBtn.title = i18.t('templates.officialRepositories.openTemplates');
+
+                            vscode.window.showInformationMessage('[vs-deploy] ' + msg, openBtn).then((btn) => {
+                                try {
+                                    if (btn) {
+                                        btn.action();
+                                    }
+                                }
+                                catch (e) {
+                                    console.log(i18.t('errors.withCategory',
+                                                      'templates.checkOfficialRepositoryVersion(5)', e));
+                                }
+                            }, (err) => {
+                                console.log(i18.t('errors.withCategory',
+                                                  'templates.checkOfficialRepositoryVersion(4)', err));
+                            });
+                        }
+                    }
+                    finally {
+                        if (updateLastVersion) {
+                            me.context.globalState.update(KEY_LAST_KNOWN_VERSION, version).then(() => {
+                            }, (err) => {
+                                console.log(i18.t('errors.withCategory',
+                                                  'templates.checkOfficialRepositoryVersion(3)', err));
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch (e) {
+            console.log(i18.t('errors.withCategory',
+                              'templates.checkOfficialRepositoryVersion(2)', e));
+        }
+    }).catch((err) => {
+        console.log(i18.t('errors.withCategory',
+                          'templates.checkOfficialRepositoryVersion(1)', err));
+    });
+}
 
 function extractTemplateItems(list: deploy_contracts.TemplateItemList): TemplateItemWithName[] {
     let items: TemplateItemWithName[] = [];
 
     if (list) {
         for (let name in list) {
+            if (VERSION_PROPERTY === name) {
+                continue;  // ignore
+            }
+
             let i = list[name];
             let iwn: TemplateItemWithName = deploy_helpers.cloneObject(i);
 
@@ -127,6 +210,7 @@ function getMarkdownContentProvider(markdown: string,
             name: 'vsDeploy-content',
             value: Marked(markdown, {
                 breaks: true,
+                gfm: true,
                 tables: true,
             }),
         }));
@@ -265,12 +349,12 @@ export function openTemplate() {
             sources = [];
         }
 
-        allowUnparsedDocuments = deploy_helpers.toBooleanSafe(allowUnparsedDocuments, true);
+        allowUnparsedDocuments = deploy_helpers.toBooleanSafe(allowUnparsedDocuments);
         showDefaults = deploy_helpers.toBooleanSafe(showDefaults, true);
 
         if (showDefaults) {
             sources.unshift({
-                source: 'https://mkloubert.github.io/templates/vs-deploy.json',
+                source: OFFICIAL_REPO,
             });
         }
 

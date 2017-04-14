@@ -19,6 +19,16 @@ a:hover {
     text-decoration: underline;
 }
 
+h1, h2 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
 pre code {
     font-family: Consolas, 'Courier New';
     font-size: 14pt;
@@ -39,10 +49,48 @@ table td, table th {
     border: 1px solid #666;
 }
 
+table th {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+}
+
 table tr:nth-child(2n) {
     background-color: #333;
 }
 
 pre, p {
     margin: 8px 8px 8px 0px;
+}
+
+ul {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+}
+
+li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+}
+
+#vsdeploy-footer {
+    margin-top: 32px;
+}
+
+#vsdeploy-footer p {
+    clear: both !important;
+    display: block !important;
+    float: right;
+    margin-bottom: 8px;
+}
+
+#vsdeploy-footer .vsdeploy-donate-btns img {
+    border: 0px none transparent;
+    height: 20px;
+    margin-left: 8px;
 }

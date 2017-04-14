@@ -24,6 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as ChildProcess from 'child_process';
+const CompareVersion = require('compare-versions');
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_values from './values';
@@ -144,6 +145,26 @@ export function compareValues<T>(x: T, y: T): number {
     }
 
     return 0;
+}
+
+/**
+ * Compares two versions.
+ * 
+ * @param {any} current The current value.
+ * @param {any} other The other value.
+ *  
+ * @returns {number} The sort value. 
+ */
+export function compareVersions(current: any, other: any): number {
+    if (!isNullOrUndefined(current)) {
+        current = toStringSafe(current).trim();
+    }
+
+    if (!isNullOrUndefined(other)) {
+        other = toStringSafe(other).trim();
+    }
+
+    return CompareVersion(current, other);
 }
 
 /**
@@ -934,6 +955,9 @@ export function loadFrom(src: string): Promise<DownloadResult> {
                     return new Promise<any>((resolve, reject) => {
                         try {
                             let requestOpts: HTTP.RequestOptions = {
+                                headers: {
+                                    'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0',
+                                },
                                 hostname: url.hostname,
                                 path: url.path,
                                 method: 'GET',

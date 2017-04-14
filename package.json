@@ -20087,7 +20087,7 @@
                 "allowUnparsedDocuments": {
                   "description": "Allow unparsed (HTML) documents ininternal web browser or not.",
                   "type": "boolean",
-                  "default": true
+                  "default": false
                 },
                 "footer": {
                   "description": "Path or URL to a HTML footer that should be inserted at the beginning inside the BODY tag of each (default) HTML document.",
@@ -20352,6 +20352,7 @@
   "dependencies": {
     "aws-sdk": "^2.7.19",
     "azure-storage": "^1.4.0",
+    "compare-versions": "^3.0.1",
     "file-type": "^4.1.0",
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",

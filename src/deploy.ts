@@ -3764,6 +3764,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
         let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
+            let showDefaultTemplateRepos = true;
+            if (cfg.templates) {
+                showDefaultTemplateRepos = deploy_helpers.toBooleanSafe(cfg.templates.showDefaults, true);
+            }
+
             me.displayNetworkInfo();
             me.showExtensionInfoPopups();
             me.clearOutputOrNot();
@@ -3817,6 +3822,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         autoStartCompleted(e);
                     }
                 }
+            }
+
+            if (showDefaultTemplateRepos) {
+                // check official repo version
+                deploy_templates.checkOfficialRepositoryVersions
+                                .apply(me, []);
             }
         };
 

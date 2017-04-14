@@ -339,6 +339,10 @@ export interface Translation {
     templates?: {
         browserTitle?: string;
         noneDefined?: string;
+        officialRepositories?: {
+            newAvailable?: string;
+            openTemplates?: string;
+        },
         placeholder?: string;
         publish?: {
             label?: string;

@@ -2185,7 +2185,12 @@ export interface TemplateItem {
 /**
  * An object with a list of template items.
  */
-export type TemplateItemList = { [name: string]: TemplateItem };
+export type TemplateItemList = {
+    /**
+     * Gets an item by its name.
+     */
+    [name: string]: TemplateItem;
+};
 
 /**
  * A template source.
