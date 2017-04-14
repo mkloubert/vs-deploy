@@ -335,8 +335,8 @@ export const translation: Translation = {
             openTemplates: "Vorlagen öffnen...",
         },
         placeholder: 'Wählen Sie einen Eintrag aus...',
-        publish: {
-            label: 'Eigenes Beispiel veröffentlichen...',
+        publishOrRequest: {
+            label: 'Eigenes Beispiel veröffentlichen oder anfragen...',
         }
     },
     warnings: {

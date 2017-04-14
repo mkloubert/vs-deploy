@@ -337,8 +337,8 @@ export const translation: Translation = {
             openTemplates: "Open templates...",
         },
         placeholder: 'Please select an item...',
-        publish: {
-            label: 'Publish an example...',
+        publishOrRequest: {
+            label: 'Publish or request an example...',
         }
     },
     warnings: {

@@ -344,7 +344,7 @@ export interface Translation {
             openTemplates?: string;
         },
         placeholder?: string;
-        publish?: {
+        publishOrRequest?: {
             label?: string;
         }
     },

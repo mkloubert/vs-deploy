@@ -719,7 +719,7 @@ export function openTemplate() {
 
                     // publish own template
                     quickPicks.push({
-                        label: '$(cloud-upload) ' + i18.t('templates.publish.label'),
+                        label: '$(cloud-upload) ' + i18.t('templates.publishOrRequest.label'),
                         description: '',
                         detail: PUBLISH_URL,
                         sortOrder: undefined,
