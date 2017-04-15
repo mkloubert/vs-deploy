@@ -1220,6 +1220,16 @@ export interface DeployScriptOperationArguments extends ScriptArguments, FileDep
      */
     kind: DeployOperationKind;
     /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    openHtml: (html: string, title?: string, id?: any) => Promise<any>;
+    /**
      * The addtional options.
      */
     options?: any;
@@ -1643,6 +1653,16 @@ export interface EventModuleExecutorArguments extends ScriptArguments {
      */
     readonly name: string;
     /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    readonly openHtml: (html: string, title?: string, id?: any) => Promise<any>;
+    /**
      * Data / options for the execution.
      */
     readonly options?: any;
@@ -1991,6 +2011,16 @@ export interface ScriptCommandExecutorArguments extends ScriptArguments, FileDep
      * and is available for ALL commands defined by that extension.
      */
     globalState?: any;
+    /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    openHtml: (html: string, title?: string, id?: any) => Promise<any>;
     /**
      * The options.
      */

@@ -38,7 +38,7 @@ export const OFFICIAL_TEMPLATE_REPOSITORIES = [
 /**
  * Project page: https://github.com/mkloubert/vs-deploy
  */
-export const PROJECT_PAGE = 'https://goo.gl/79hOUK';
+export const PROJECT_PAGE = 'https://goo.gl/Cbu1Cr';
 /**
  * Publish (or request) template: https://github.com/mkloubert/vs-deploy/issues/56
  */

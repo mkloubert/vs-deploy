@@ -1428,7 +1428,6 @@ export function parseTargetType(str: string): string {
     return str;
 }
 
-
 /**
  * Reads the content of the HTTP request body.
  * 
@@ -1494,7 +1493,7 @@ export function readHttpBody(msg: HTTP.IncomingMessage): Promise<Buffer> {
 
             msg.on('data', dataListener);
 
-            msg.once('end', (b) => {
+            msg.once('end', () => {
                 resolve(buff);
             });
         }
@@ -1660,6 +1659,31 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[],
                            return compareValues(x.index, y.index);
                        })
                   .map(x => x.value);
+}
+
+/**
+ * Returns an array like object as new array.
+ * 
+ * @param {ArrayLike<T>} arr The input object. 
+ * @param {boolean} [normalize] Returns an empty array, if input object is (null) / undefined.
+ * 
+ * @return {T[]} The input object as array. 
+ */
+export function toArray<T>(arr: ArrayLike<T>, normalize = true): T[] {
+    if (isNullOrUndefined(arr)) {
+        if (toBooleanSafe(normalize)) {
+            return [];
+        }
+        
+        return <any>arr;
+    }
+
+    let newArray: T[] = [];
+    for (let i = 0; i < arr.length; i++) {
+        newArray.push(arr[i]);
+    }
+
+    return newArray;
 }
 
 /**

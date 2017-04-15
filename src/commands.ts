@@ -123,6 +123,13 @@ export function reloadCommands() {
                                                              .apply(me, arguments);
                                                 },
                                                 globals: me.getGlobals(),
+                                                openHtml: function() {
+                                                    let funcArgs = [ <any>me.htmlDocuments ];
+                                                    funcArgs = funcArgs.concat(deploy_helpers.toArray(arguments));
+
+                                                    return deploy_helpers.openHtmlDocument
+                                                                         .apply(null, funcArgs);
+                                                },
                                                 options: deploy_helpers.cloneObject(x.options),
                                                 require: function(id) {
                                                     return require(id);

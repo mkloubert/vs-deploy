@@ -61,6 +61,16 @@ export interface DeployArguments extends deploy_contracts.ScriptArguments {
      */
     globalState?: Object;
     /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    openHtml: (html: string, title?: string, id?: any) => Promise<any>;
+    /**
      * Handles a value as string and replaces placeholders.
      * 
      * @param {any} val The value to parse.
@@ -246,6 +256,10 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                         file: file,
                         globals: me.context.globals(),
+                        openHtml: function() {
+                            return me.context.openHtml
+                                             .apply(me.context, arguments);
+                        },
                         replaceWithValues: (v) => me.context.replaceWithValues(v),
                         require: function(id) {
                             return me.context.require(id);
@@ -369,6 +383,10 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                             },
                             files: files,
                             globals: me.context.globals(),
+                            openHtml: function() {
+                                return me.context.openHtml
+                                                 .apply(me.context, arguments);
+                            },
                             replaceWithValues: (v) => me.context.replaceWithValues(v),
                             require: function(id) {
                                 return me.context.require(id);

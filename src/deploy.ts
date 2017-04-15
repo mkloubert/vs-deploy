@@ -1954,6 +1954,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 files: files,
                                 globals: me.getGlobals(),
                                 kind: kind,
+                                openHtml: function() {
+                                    return me.openHtml
+                                             .apply(me, arguments);
+                                },
                                 options: deploy_helpers.cloneObject(scriptOpts.options),
                                 replaceWithValues: (v) => me.replaceWithValues(v),
                                 require: function(id) {
@@ -2661,6 +2665,20 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me.log(i18.t('errors.withCategory',
                          'Deployer.openFiles(1)', e));
         }
+    }
+
+    /**
+     * Opens a HTML document in a new tab.
+     * 
+     * @param {string} html The HTML document (source code).
+     * @param {string} [title] The custom title for the tab.
+     * @param {any} [id] The custom ID for the document in the storage.
+     * 
+     * @returns {Promise<any>} The promise.
+     */
+    public openHtml(html: string, title?: string, id?: any): Promise<any> {
+        return deploy_helpers.openHtmlDocument(this.htmlDocuments,
+                                               html, title, id);
     }
 
     /**
@@ -3992,6 +4010,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     globals: me.getGlobals(),
                                     globalState: undefined,
                                     name: e.name,
+                                    openHtml: function() {
+                                        return me.openHtml
+                                                 .apply(me, arguments);
+                                    },
                                     options: deploy_helpers.cloneObject(e.options),
                                     remove: function() {
                                         if (isNaN(entry.index)) {
@@ -4171,9 +4193,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             me.log(msg);
                             return this;
                         };
-                        ctx.openHtml = (html, title?, id?) => {
-                            return deploy_helpers.openHtmlDocument(me.htmlDocuments,
-                                                                   html, title, id);
+                        ctx.openHtml = function() {
+                            return me.openHtml
+                                     .apply(me, arguments);
                         };
                         ctx.outputChannel = () => me.outputChannel;
                         ctx.packageFile = () => me.packageFile;
