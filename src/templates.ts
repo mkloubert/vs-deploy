@@ -525,7 +525,8 @@ export function openTemplate() {
                                                                     }
                                                                 }
                                                                 catch (e) {
-                                                                    //TODO: log
+                                                                    deploy_helpers.log(i18.t('errors.withCategory',
+                                                                                             'templates.openTemplate.showItems(1)', e));
                                                                 }
                                                             }
 

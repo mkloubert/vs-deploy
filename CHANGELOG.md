@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 8.0.0 (April 15th, 2017; examples and new 'each')
+
+* can access repositories of [examples and templates](https://github.com/mkloubert/vs-deploy/wiki/templates) from editor now, by pressing `F1` and selecting the command `Deploy: Open example / template` ... you can post and share own examples in [that issue](https://github.com/mkloubert/vs-deploy/issues/56)
+* added [each](https://github.com/mkloubert/vs-deploy/wiki/target_each) target type
+
 ## 7.26.0 (April 12th, 2017; data transformation)
 
 * [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
