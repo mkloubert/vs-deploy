@@ -203,9 +203,9 @@ export interface PugCompilerResult extends CompilerResult {
  * 
  * @param {ScriptCompilerArguments} args Arguments for the compilation.
  * 
- * @returns {Promise<ScriptCompilerResult>} The result.
+ * @returns {ScriptCompilerResult|Promise<ScriptCompilerResult>} The result.
  */
-export type ScriptCompiler = (args: ScriptCompilerArguments) => Promise<ScriptCompilerResult>;
+export type ScriptCompiler = (args: ScriptCompilerArguments) => void | ScriptCompilerResult | Promise<ScriptCompilerResult>;
 
 /**
  * Arguments for the compilation.
@@ -807,7 +807,7 @@ export function compileScript(cfg: deploy_contracts.DeployConfiguration,
                             },
                         };
 
-                        compilerModule.compile(args).then((result) => {
+                        Promise.resolve(<any>compilerModule.compile(args)).then((result: ScriptCompilerResult) => {
                             completed(null, result || args.result);
                         }).catch((err) => {
                             completed(err);

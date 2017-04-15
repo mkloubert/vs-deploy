@@ -4,6 +4,8 @@
 
 * implementation of [deploy scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/target_script#implement-own-scripts)
 * implementation of [pipes](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline#implement-a-pipe)
+* implementation of [target operation scripts](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script--1) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script--1)
+* implementation of [compiler scripts](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script-) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script-)
 * each [canceled](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html#canceled) property of [DeployArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html) and [PipeArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_pipeline_.pipearguments.html) interfaces is set automatically now
 * added `onBeforeDeploy()` method for [DeployFileArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployfilearguments.html) interface
 * added `onBeforeDeployFile()` and `onFileCompleted()` methods for [DeployWorkspaceArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployworkspacearguments.html) interface
