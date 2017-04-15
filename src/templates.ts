@@ -63,8 +63,24 @@ interface TemplateStackItem {
 }
 
 const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
-const VERSION_PROPERTY = '$version$';
+const REGEX_SPECIAL_PROPERTY = new RegExp("^(\\$)(.*)(\\$)$", 'i');
 
+
+function checkForExtensionVersion(requiredVersion: string,
+                                  packageFile: deploy_contracts.PackageFile): boolean {
+    requiredVersion = deploy_helpers.toStringSafe(requiredVersion).trim();
+    if ('' !== requiredVersion) {
+        if (packageFile) {
+            // packageFile.version >= requiredVersion
+            return deploy_helpers.compareVersions(packageFile.version,
+                                                  requiredVersion) >= 0;
+        }
+        
+        return false;
+    }
+
+    return true;
+}
 
 /**
  * Checks for new versions
@@ -99,7 +115,7 @@ export function checkOfficialRepositoryVersions() {
                         JSON.parse(data.toString('utf8'));
 
                     if (downloadedList) {
-                        let version = deploy_helpers.normalizeString(downloadedList[VERSION_PROPERTY]);
+                        let version = deploy_helpers.normalizeString(downloadedList['$version$']);
                         if ('' !== version) {
                             let updateLastVersion = true;
                             try {
@@ -161,29 +177,33 @@ export function checkOfficialRepositoryVersions() {
     });
 }
 
-function extractTemplateItems(list: deploy_contracts.TemplateItemList): TemplateItemWithName[] {
+function extractTemplateItems(list: deploy_contracts.TemplateItemList,
+                              packageFile: deploy_contracts.PackageFile): TemplateItemWithName[] {
     let items: TemplateItemWithName[] = [];
 
     if (list) {
-        for (let name in list) {
-            if (VERSION_PROPERTY === name) {
-                continue;  // ignore
-            }
+        if (checkForExtensionVersion(list['$requires$'], packageFile)) {
+            for (let name in list) {
+                if (REGEX_SPECIAL_PROPERTY.test(name)) {
+                    continue;  // ignore
+                }
 
-            let i = list[name];
-            let iwn: TemplateItemWithName = deploy_helpers.cloneObject(i);
+                let i = list[name];
+                let iwn: TemplateItemWithName = deploy_helpers.cloneObject(i);
 
-            if (iwn) {
-                iwn.name = deploy_helpers.toStringSafe(name).trim();
+                if (iwn) {
+                    iwn.name = deploy_helpers.toStringSafe(name).trim();
 
-                items.push(iwn);
+                    items.push(iwn);
+                }
             }
         }
     }
 
-    return items.filter(i => i);
+    return items.filter(i => i).filter(i => {
+        return checkForExtensionVersion(i.requires, packageFile);
+    });
 }
-
 
 function getMarkdownContentProvider(markdown: string,
                                     additionalHtmlHeader: string, additionalHtmlFooter: string): BrowserContentProvider {
@@ -682,7 +702,7 @@ export function openTemplate() {
                                         let cat = <deploy_contracts.TemplateCategory>i;
 
                                         appendStackItem();
-                                        showItems(extractTemplateItems(cat.children), cat);
+                                        showItems(extractTemplateItems(cat.children, me.packageFile), cat);
                                     },
                                     sortOrder: 0,
                                 };
@@ -708,7 +728,7 @@ export function openTemplate() {
 
                                                         let downloadedItems: TemplateItemWithName[];
                                                         if (downloadedList) {
-                                                            downloadedItems = extractTemplateItems(downloadedList);
+                                                            downloadedItems = extractTemplateItems(downloadedList, me.packageFile);
                                                         }
 
                                                         appendStackItem();
@@ -884,7 +904,42 @@ export function openTemplate() {
             };
 
             wf.start().then((list: deploy_contracts.TemplateItemList) => {
-                showItems(extractTemplateItems(list));
+                if (checkForExtensionVersion(list['$requires$'], me.packageFile)) {
+                    showItems(extractTemplateItems(list, me.packageFile));
+                }
+                else {
+                    let logError = (nr: number, err: any): void => {
+                        let errCat = `templates.checkOfficialRepositoryVersion(${nr})`;
+
+                        me.log(i18.t('errors.withCategory',
+                                     errCat, err));
+                    };
+
+                    let msg = i18.t('extension.updateRequired');
+
+                    // [BUTTON] open market place
+                    let openBtn: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+                    openBtn.action = () => {
+                        deploy_helpers.open(deploy_urls.MARKET_PLACE).then(() => {
+                        }).catch((err) => {
+                            logError(3, err);
+                        });
+                    };
+                    openBtn.title = i18.t('extension.update');
+
+                    vscode.window.showWarningMessage('[vs-deploy] ' + msg, openBtn).then((btn) => {
+                        try {
+                            if (btn) {
+                                btn.action();
+                            }
+                        }
+                        catch (e) {
+                            logError(2, e);    
+                        }
+                    }, (err) => {
+                        logError(1, err);
+                    });
+                }
             }).catch((err) => {
                 vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
             });

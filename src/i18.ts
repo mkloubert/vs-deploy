@@ -138,6 +138,10 @@ export interface Translation {
         countable?: string;
         withCategory?: string;
     },
+    extension?: {
+        update?: string;
+        updateRequired?: string;
+    },
     extensions?: {
         notInstalled?: string;
     },
@@ -347,7 +351,7 @@ export interface Translation {
         placeholder?: string;
         publishOrRequest?: {
             label?: string;
-        }
+        },
     },
     warnings?: {
         withCategory?: string;

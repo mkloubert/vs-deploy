@@ -29,12 +29,15 @@
  */
 export const CHANGELOG = 'https://goo.gl/Tw9PQh';
 /**
+ * Visual Studio Marketplace: https://marketplace.visualstudio.com/items?itemName=mkloubert.vs-deploy
+ */
+export const MARKET_PLACE = 'https://goo.gl/gXSRmI';
+/**
  * List of official template repositories.
  */
 export const OFFICIAL_TEMPLATE_REPOSITORIES = [
     'https://mkloubert.github.io/templates/vs-deploy.json',
 ];
-
 /**
  * Project page: https://github.com/mkloubert/vs-deploy
  */

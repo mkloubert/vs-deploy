@@ -131,6 +131,10 @@ export const translation: Translation = {
         countable: 'ERROR #{0:trim}: {1}',
         withCategory: '[ERROR] {0:trim}: {1}',
     },
+    extension: {
+        update: "Update...",
+        updateRequired: "The extension requires an update!",
+    },
     extensions: {
         notInstalled: 'The extension {0:trim,surround} is NOT installed.',
     },

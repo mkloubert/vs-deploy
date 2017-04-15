@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.4.0 (April 16th, 2017; required extension version for example / template files and items)
+
+* can define a minimum extension version, that is required to display [template / example items](https://github.com/mkloubert/vs-deploy/wiki/templates#sources--repositories)
+
 ## 8.3.0 (April 15th, 2017; scripts can be implemented much easier now)
 
 * implementation of [deploy scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/target_script#implement-own-scripts)

@@ -131,6 +131,10 @@ export const translation: Translation = {
         countable: 'FEHLER #{0:trim}: {1}',
         withCategory: '[FEHLER] {0:trim}: {1}',
     },
+    extension: {
+        update: "Aktualisieren...",
+        updateRequired: "Die Erweiterung muss aktualisiert werden!",
+    },
     extensions: {
         notInstalled: 'Die Erweiterung {0:trim,surround} ist NICHT installiert.',
     },

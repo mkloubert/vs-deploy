@@ -2187,22 +2187,6 @@ export interface TemplateFile extends TemplateItem {
 }
 
 /**
- * A template repository.
- */
-export interface TemplateRepository extends TemplateItem {
-    /**
-     * A description for the item.
-     */
-    description?: string;
-    /**
-     * The source of the repository.
-     */
-    source: string;
-    /** @inheritdoc */
-    type?: "r" | "repo" | "repository"
-}
-
-/**
  * A template item.
  */
 export interface TemplateItem {
@@ -2210,6 +2194,11 @@ export interface TemplateItem {
      * The name of the custom icon.
      */
     icon?: string;
+    /**
+     * The minimum version of that extension
+     * that is required to display the item.
+     */
+    requires?: string;
     /**
      * A custom sort order.
      */
@@ -2225,9 +2214,35 @@ export interface TemplateItem {
  */
 export type TemplateItemList = {
     /**
+     * The minimum version of that extension
+     * that is required to display the items
+     * of that list.
+     */
+    '$requires$'?: string;
+    /**
+     * The version of that list.
+     */
+    '$version$'?: string;
+    /**
      * Gets an item by its name.
      */
     [name: string]: TemplateItem;
+}
+
+/**
+ * A template repository.
+ */
+export interface TemplateRepository extends TemplateItem {
+    /**
+     * A description for the item.
+     */
+    description?: string;
+    /**
+     * The source of the repository.
+     */
+    source: string;
+    /** @inheritdoc */
+    type?: "r" | "repo" | "repository"
 }
 
 /**
