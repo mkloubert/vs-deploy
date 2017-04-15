@@ -37,6 +37,8 @@ import * as deploy_globals from './globals';
 import * as vs_deploy from './deploy';
 
 
+type GetTargetsCallback = (err: any, targets?: vs_contracts.DeployTarget[]) => void;
+
 
 let deployer: vs_deploy.Deployer;
 
@@ -49,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
         pkgFile = JSON.parse(FS.readFileSync(Path.join(__dirname, '../../package.json'), 'utf8'));
     }
     catch (e) {
-        deploy_helpers.log(`[ERROR] extension.activate(): ${deploy_helpers.toStringSafe(e)}`);
+        deploy_helpers.log(`[ERROR] extension.activate().packageFile: ${deploy_helpers.toStringSafe(e)}`);
     }
 
     let outputChannel = vscode.window.createOutputChannel("Deploy");
@@ -74,151 +76,133 @@ export function activate(context: vscode.ExtensionContext) {
 
     // deploy workspace
     let deploy = vscode.commands.registerCommand('extension.deploy', () => {
-        deployer.deployWorkspace().then((code) => {
-            //TODO
-        }).catch((e) => {
-            vscode.window.showErrorMessage(`[DEPLOY WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        return new Promise<number>((resolve, reject) => {
+            deployer.deployWorkspace().then((code) => {
+                resolve(code);
+            }).catch((e) => {
+                reject(e);
+            });
         });
     });
 
     // compare local file with remote
     let compareFiles = vscode.commands.registerCommand('extension.deploy.compareFiles', (u?) => {
-        try {
-            deployer.compareFiles(u).then(() => {
+        return new Promise<any>((resolve, reject) => {
+            deployer.compareFiles(u).then((r) => {
+                resolve(r);
             }).catch((err) => {
-                vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
+                reject(err);
             });
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[COMPARE FILE ERROR.1]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        });
     });
 
     // deploy open file or selected folder
-    let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?: any) => {
-        try {
-            deployer.deployFileOrFolder(u);
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+    let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?) => {
+        deployer.deployFileOrFolder(u);
     });
 
     // deploys files using global events
     let deployFilesTo = vscode.commands.registerCommand('extension.deploy.filesTo', (files: string | string[],
                                                                                      targets: vs_contracts.DeployTargetList) => {
-        try {
-            let sym = Symbol('extension.deploy.filesTo');
+        return new Promise<boolean>((resolve, reject) => {
+            try {
+                let sym = Symbol('extension.deploy.filesTo');
 
-            deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
-                                       files, targets, sym);
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY FILES TO ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+                resolve(deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
+                                                   files, targets, sym));
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
     });
 
     // returns deploy targets
-    let getTargets = vscode.commands.registerCommand('extension.deploy.getTargets', (cb: (err: any, targets?: vs_contracts.DeployTarget[]) => void) => {
-        try {
-            if (cb) {
-                try {
-                    cb(null, deployer.getTargets());
+    let getTargets = vscode.commands.registerCommand('extension.deploy.getTargets', (cb?: GetTargetsCallback) => {
+        return new Promise<vs_contracts.DeployTarget[]>((resolve, reject) => {
+            try {
+                let targets = deployer.getTargets();
+                
+                if (cb) {
+                    try {
+                        cb(null, targets);
+                    }
+                    catch (e) {
+                        cb(e);
+                    }
                 }
-                catch (e) {
-                    cb(e);
-                }
+
+                resolve(targets);
             }
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY GET TARGETS ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+            catch (e) {
+                reject(e);
+            }
+        });
     });
 
     // listen for files
     let listen = vscode.commands.registerCommand('extension.deploy.listen', () => {
-        try {
-            deployer.listen();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY LISTEN ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.listen();
     });
 
     // open HTML document
     let openHtmlDoc = vscode.commands.registerCommand('extension.deploy.openHtmlDoc', (doc: deploy_contracts.Document) => {
-        try {
-            let htmlDocs = deployer.htmlDocuments;
+        return new Promise<boolean>((resolve, reject) => {
+            let completed = (err: any, result?: boolean) => {
+                deploy_helpers.removeDocuments(doc, deployer.htmlDocuments);
 
-            let url = vscode.Uri.parse(`vs-deploy-html://authority/?id=${encodeURIComponent(deploy_helpers.toStringSafe(doc.id))}` + 
-                                       `&x=${encodeURIComponent(deploy_helpers.toStringSafe(new Date().getTime()))}`);
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(result);
+                }
+            };
 
-            let title = deploy_helpers.toStringSafe(doc.title).trim();
-            if (!title) {
-                title = `[vs-deploy] HTML document #${deploy_helpers.toStringSafe(doc.id)}`;
+            try {
+                let url = vscode.Uri.parse(`vs-deploy-html://authority/?id=${encodeURIComponent(deploy_helpers.toStringSafe(doc.id))}` + 
+                                           `&x=${encodeURIComponent(deploy_helpers.toStringSafe(new Date().getTime()))}`);
+
+                let title = deploy_helpers.toStringSafe(doc.title).trim();
+                if (!title) {
+                    title = `[vs-deploy] HTML document #${deploy_helpers.toStringSafe(doc.id)}`;
+                }
+
+                vscode.commands.executeCommand('vscode.previewHtml', url, vscode.ViewColumn.One, title).then((success: boolean) => {
+                    completed(null, success);
+                }, (err) => {
+                    completed(err);
+                });
             }
-
-            vscode.commands.executeCommand('vscode.previewHtml', url, vscode.ViewColumn.One, title).then((success) => {
-                deploy_helpers.removeDocuments(doc, htmlDocs);
-            }, (err) => {
-                deploy_helpers.removeDocuments(doc, htmlDocs);
-
-                deploy_helpers.log(`[ERROR] extension.deploy.openHtmlDoc(2): ${err}`);
-            });
-        }
-        catch (e) {
-            deploy_helpers.log(`[ERROR] extension.deploy.openHtmlDoc(1): ${e}`);
-        }
+            catch (e) {
+                completed(e);
+            }
+        });
     });
 
     // open output window after deployment
     let openOutputAfterDeploment = vscode.commands.registerCommand('extension.deploy.openOutputAfterDeploment', () => {
-        try {
-            deployer.openOutputAfterDeploment();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY OPEN OUTPUT ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.openOutputAfterDeploment();
     });
 
     // open template
     let openTemplate = vscode.commands.registerCommand('extension.deploy.openTemplate', () => {
-        try {
-            deployer.openTemplate();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY OPEN TEMPLATE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.openTemplate();
     });
 
     // quick deploy packages
     let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', () => {
-        try {
-            deployer.quickDeploy();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[DEPLOY QUICK DEPLOY ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.quickDeploy();
     });
 
     // pull workspace
     let pull = vscode.commands.registerCommand('extension.deploy.pullWorkspace', () => {
-        try {
-            deployer.pullWorkspace();
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[PULL WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.pullWorkspace();
     });
 
     // pull open file or selected folder
     let pullFileOrFolder = vscode.commands.registerCommand('extension.deploy.pullFile', (u?: any) => {
-        try {
-            deployer.pullFileOrFolder(u);
-        }
-        catch (e) {
-            vscode.window.showErrorMessage(`[PULL FILE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
-        }
+        deployer.pullFileOrFolder(u);
     });
 
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',

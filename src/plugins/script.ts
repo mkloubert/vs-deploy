@@ -477,7 +477,7 @@ export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contra
 function getScriptFile(target: DeployTargetScript, plugin: ScriptPlugin): string {
     let scriptFile = deploy_helpers.toStringSafe(target.script);
     scriptFile = plugin.context.replaceWithValues(scriptFile);
-    if (!scriptFile) {
+    if ('' === scriptFile.trim()) {
         scriptFile = './deploy.js';
     }
 

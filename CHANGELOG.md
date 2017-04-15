@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.2.0 (April 15th, 2017; code improvements)
+
+* improved execution of (internal) deploy commands
+
 ## 8.1.0 (April 15th, 2017; open HTML documents from scripts)
 
 * added `openHtml()` methods to [EventModuleExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.eventmoduleexecutorarguments.html) ([global events](https://github.com/mkloubert/vs-deploy/wiki/events)), [PipeArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_pipeline_.pipearguments.html) ([pipelines](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline)), [DeployArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html) ([scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script)), [DeployScriptOperationArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.deployscriptoperationarguments.html) ([deploy operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#script--1)) and [ScriptCommandExecutorArguments](https://mkloubert.github.io/vs-deploy/interfaces/_contracts_.scriptcommandexecutorarguments.html) ([commands](https://github.com/mkloubert/vs-deploy/wiki/commands)) interfaces

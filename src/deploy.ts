@@ -3956,8 +3956,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         // sort
         allEvents = allEvents.sort((x, y) => {
-            return deploy_helpers.compareValues(deploy_helpers.getSortValue(x, () => me.name),
-                                                deploy_helpers.getSortValue(y, () => me.name));
+            return deploy_helpers.compareValuesBy(x, y,
+                                                  t => deploy_helpers.getSortValue(t, () => myName));
         });
 
         let globalEventState = {};

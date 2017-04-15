@@ -121,8 +121,8 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             const REGEX = /^(workspace_)(\d{8})(_)((\d{6}))(\.)(zip)$/i;
 
                             files = files.filter(x => REGEX.test(x)).sort((x, y) => {
-                                return deploy_helpers.compareValues(deploy_helpers.normalizeString(y),
-                                                                    deploy_helpers.normalizeString(x));
+                                return deploy_helpers.compareValuesBy(y, x,
+                                                                      t => deploy_helpers.normalizeString(t));
                             });
 
                             let zipFileName: string;

@@ -780,10 +780,8 @@ export function openTemplate() {
                     let quickPicks = items.map(i => createQuickPick(i)).filter(qp => qp);
 
                     let compareBySortableValue = (x: any, y: any): any => {
-                        x = deploy_helpers.isNullOrUndefined(x) ? 0 : x;
-                        y = deploy_helpers.isNullOrUndefined(y) ? 0 : y;
-
-                        return deploy_helpers.compareValues(x, y);
+                        return deploy_helpers.compareValuesBy(x, y,
+                                                              t => deploy_helpers.isNullOrUndefined(t) ? 0 : t);
                     };
 
                     quickPicks = quickPicks.sort((x, y) => {
@@ -800,8 +798,8 @@ export function openTemplate() {
                         }
 
                         // last but not least: by label
-                        return deploy_helpers.compareValues(deploy_helpers.normalizeString(x.label),
-                                                            deploy_helpers.normalizeString(y.label));
+                        return deploy_helpers.compareValuesBy(x, y,
+                                                              t => t.label);
                     });
 
                     // publish own template

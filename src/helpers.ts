@@ -148,6 +148,25 @@ export function compareValues<T>(x: T, y: T): number {
 }
 
 /**
+ * Compares values by using a selector.
+ * 
+ * @param {T} x The left value. 
+ * @param {T} y The right value.
+ * @param {Function} selector The selector.
+ * 
+ * @return {number} The "sort value".
+ */
+export function compareValuesBy<T, U>(x: T, y: T,
+                                      selector: (t: T) => U): number {
+    if (!selector) {
+        selector = (t) => <any>t;
+    }
+
+    return compareValues<U>(selector(x),
+                            selector(y));
+}
+
+/**
  * Compares two versions.
  * 
  * @param {any} current The current value.
@@ -955,9 +974,6 @@ export function loadFrom(src: string): Promise<DownloadResult> {
                     return new Promise<any>((resolve, reject) => {
                         try {
                             let requestOpts: HTTP.RequestOptions = {
-                                headers: {
-                                    'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0',
-                                },
                                 hostname: url.hostname,
                                 path: url.path,
                                 method: 'GET',
@@ -1420,12 +1436,7 @@ export function openHtmlDocument(storage: deploy_contracts.Document[],
  * @returns {string} The output value.
  */
 export function parseTargetType(str: string): string {
-    if (!str) {
-        str = '';
-    }
-    str = ('' + str).toLowerCase().trim();
-
-    return str;
+    return normalizeString(str);
 }
 
 /**
@@ -1607,17 +1618,20 @@ export function sortPackages(pkgs: deploy_contracts.DeployPackage[],
                         };
                     })
                .sort((x, y) => {
-                   let comp0 = compareValues(x.level0, y.level0);
-                   if (0 != comp0) {
+                   let comp0 = compareValuesBy(x, y,
+                                               t => t.level0);
+                   if (0 !== comp0) {
                        return comp0;
                    }
 
-                   let comp1 = compareValues(x.level1, y.level1);
-                   if (0 != comp1) {
+                   let comp1 = compareValuesBy(x, y,
+                                               t => t.level1);
+                   if (0 !== comp1) {
                        return comp1;
                    }
 
-                   return compareValues(x.index, y.index);
+                   return compareValuesBy(x, y,
+                                          t => t.index);
                })
                .map(x => x.value);
 }
@@ -1646,17 +1660,20 @@ export function sortTargets(targets: deploy_contracts.DeployTarget[],
                            };
                        })
                   .sort((x, y) => {
-                           let comp0 = compareValues(x.level0, y.level0);
-                           if (0 != comp0) {
-                               return comp0;
-                           }
+                            let comp0 = compareValuesBy(x, y,
+                                                        t => t.level0);
+                            if (0 !== comp0) {
+                                return comp0;
+                            }
 
-                           let comp1 = compareValues(x.level1, y.level1);
-                           if (0 != comp1) {
-                               return comp1;
-                           }
+                            let comp1 = compareValuesBy(x, y,
+                                                        t => t.level1);
+                            if (0 !== comp1) {
+                                return comp1;
+                            }
 
-                           return compareValues(x.index, y.index);
+                            return compareValuesBy(x, y,
+                                                   t => t.index);
                        })
                   .map(x => x.value);
 }
