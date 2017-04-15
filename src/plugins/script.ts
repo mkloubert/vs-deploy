@@ -105,6 +105,15 @@ export interface DeployFileArguments extends DeployArguments {
      * The file to deploy.
      */
     file: string;
+    /**
+     * Tells the extension that the underlying file
+     * IS BEING to be deployed.
+
+     * @param {string} [destination] An optional string, like a path or URL, where the file will be deployed.
+     * 
+     * @return {boolean} Event has been raised or not.
+     */
+    readonly onBeforeDeploy: (destination?: string) => boolean;
 }
 
 /**
@@ -129,6 +138,26 @@ export interface DeployWorkspaceArguments extends DeployArguments {
      * The list of files to deploy.
      */
     files: string[];
+    /**
+     * Tells the extension that one of the files
+     * IS BEING to be deployed.
+     * 
+     * @param {string} file The file name or its index inside 'files' property.
+     * @param {string} [destination] An optional string, like a path or URL, where the file will be deployed.
+     * 
+     * @return {boolean} Event has been raised or not.
+     */
+    readonly onBeforeDeployFile: (file: string | number, destination?: string) => boolean;
+    /**
+     * Tells the extension that one of the files
+     * HAS BEEN deployed or failed.
+     * 
+     * @param {string} file The file name or its index inside 'files' property.
+     * @param {any} [err] The error (if occurred).
+     * 
+     * @return {boolean} Event has been raised or not.
+     */
+    readonly onFileCompleted: (file: string | number, err?: any) => boolean;
 }
 
 /**
@@ -140,33 +169,33 @@ export interface ScriptModule {
      * 
      * @param {DeployFileArguments} args Arguments for the execution.
      * 
-     * @return {Promise<DeployFileArguments>} The promise.
+     * @return {void|Promise<DeployFileArguments>} The result.
      */
-    deployFile?: (args: DeployFileArguments) => Promise<DeployFileArguments>;
+    deployFile?: (args: DeployFileArguments) => void | Promise<DeployFileArguments>;
     /**
      * Deploys the workspace.
      * 
      * @param {DeployWorkspaceArguments} args Arguments for the execution.
      * 
-     * @return {Promise<any>} The promise.
+     * @return {void|Promise<DeployWorkspaceArguments>} The result.
      */
-    deployWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
+    deployWorkspace?: (args: DeployWorkspaceArguments) => void | Promise<DeployWorkspaceArguments>;
     /**
      * Pulls a file to the workspace.
      * 
      * @param {DeployFileArguments} args Arguments for the execution.
      * 
-     * @return {Promise<DeployFileArguments>} The promise.
+     * @return {void|Promise<DeployFileArguments>} The result.
      */
-    pullFile?: (args: DeployFileArguments) => Promise<DeployFileArguments>;
+    pullFile?: (args: DeployFileArguments) => void | Promise<DeployFileArguments>;
     /**
      * Pulls files to the workspace.
      * 
      * @param {DeployWorkspaceArguments} args Arguments for the execution.
      * 
-     * @return {Promise<any>} The promise.
+     * @return {void|Promise<DeployWorkspaceArguments>} The result.
      */
-    pullWorkspace?: (args: DeployWorkspaceArguments) => Promise<DeployWorkspaceArguments>;
+    pullWorkspace?: (args: DeployWorkspaceArguments) => void | Promise<DeployWorkspaceArguments>;
 }
 
 
@@ -246,6 +275,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                     let allStates = me._scriptStates;
 
                     let args: DeployFileArguments = {
+                        canceled: me.context.isCancelling(),
                         context: me.context,
                         deployOptions: opts,
                         direction: direction,
@@ -256,6 +286,19 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                         file: file,
                         globals: me.context.globals(),
+                        onBeforeDeploy: (destination?) => {
+                            if (opts.onBeforeDeploy) {
+                                opts.onBeforeDeploy(me, {
+                                    destination: destination,
+                                    file: file,
+                                    target: target,
+                                });
+
+                                return true;
+                            }
+
+                            return false;
+                        },
                         openHtml: function() {
                             return me.context.openHtml
                                              .apply(me.context, arguments);
@@ -288,7 +331,13 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                     });
 
-                    scriptFunction(args).then((a) => {
+                    args.context.once('deploy.cancel', function() {
+                        if (false === args.canceled) {
+                            args.canceled = true;
+                        }
+                    });
+
+                    Promise.resolve(scriptFunction(args)).then((a: DeployFileArguments) => {
                         hasCancelled = (a || args).canceled;
                         completed(null, a || args);
                     }).catch((err) => {
@@ -373,6 +422,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         let allStates = me._scriptStates;
 
                         let args: DeployWorkspaceArguments = {
+                            canceled: me.context.isCancelling(),
                             context: me.context,
                             deployOptions: opts,
                             direction: direction,
@@ -383,6 +433,51 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                             },
                             files: files,
                             globals: me.context.globals(),
+                            onBeforeDeployFile: function(fileOrIndex, destination?) {
+                                if (opts.onBeforeDeployFile) {
+                                    if (deploy_helpers.isNullOrUndefined(fileOrIndex)) {
+                                        fileOrIndex = 0;
+                                    }
+
+                                    if ('string' !== typeof fileOrIndex) {
+                                        fileOrIndex = parseInt(deploy_helpers.toStringSafe(fileOrIndex).trim());
+                                        fileOrIndex = args.files[fileOrIndex];
+                                    }
+
+                                    opts.onBeforeDeployFile(me, {
+                                        destination: destination,
+                                        file: fileOrIndex,
+                                        target: target,
+                                    });
+
+                                    return true;
+                                }
+
+                                return false;
+                            },
+                            onFileCompleted: function(fileOrIndex, err?) {
+                                if (opts.onFileCompleted) {
+                                    if (deploy_helpers.isNullOrUndefined(fileOrIndex)) {
+                                        fileOrIndex = 0;
+                                    }
+
+                                    if ('string' !== typeof fileOrIndex) {
+                                        fileOrIndex = parseInt(deploy_helpers.toStringSafe(fileOrIndex).trim());
+                                        fileOrIndex = args.files[fileOrIndex];
+                                    }
+
+                                    opts.onFileCompleted(me, {
+                                        canceled: args.canceled,
+                                        error: err,
+                                        file: fileOrIndex,
+                                        target: target,
+                                    });
+
+                                    return true;
+                                }
+
+                                return false;
+                            },
                             openHtml: function() {
                                 return me.context.openHtml
                                                  .apply(me.context, arguments);
@@ -415,7 +510,13 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                             },
                         });
 
-                        scriptFunction(args).then((a) => {
+                        args.context.once('deploy.cancel', function() {
+                            if (false === args.canceled) {
+                                args.canceled = true;
+                            }
+                        });
+
+                        Promise.resolve(scriptFunction(args)).then((a: DeployWorkspaceArguments) => {
                             hasCancelled = (a || args).canceled;
                             completed(null, a || args);
                         }).catch((err) => {
