@@ -129,17 +129,17 @@ export interface PipelineModule {
      * @param {PipeArguments} args The arguments.
      * @param {any} [err] The error from the target, if occurred.
      * 
-     * @return {Promise<PipeArguments>} The promise.
+     * @return {void|Promise<PipeArguments>} The promise.
      */
-    onPipeCompleted?: (args: PipeArguments, err?: any) => Promise<PipeArguments>;
+    onPipeCompleted?: (args: PipeArguments, err?: any) => void | Promise<PipeArguments>;
     /**
      * Pipes a list of source files.
      * 
      * @param {PipeArguments} args The arguments.
      * 
-     * @return {Promise<PipeArguments>} The promise.
+     * @return {void|Promise<PipeArguments>} The result.
      */
-    pipe: (args: PipeArguments) => Promise<PipeArguments>;
+    pipe: (args: PipeArguments) => void | Promise<PipeArguments>;
 }
 
 
@@ -194,6 +194,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
                 let args: PipeArguments = {
                     baseDirectory: opts.baseDirectory,
+                    canceled: me.context.isCancelling(),
                     context: me.context,
                     deployOptions: opts,
                     emitGlobal: function() {
@@ -235,7 +236,13 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
                     },
                 });
 
-                scriptModule.pipe(args).then((a) => {
+                args.context.once('deploy.cancel', function() {
+                    if (false === args.canceled) {
+                        args.canceled = true;
+                    }
+                });
+
+                Promise.resolve(<any>scriptModule.pipe(args)).then((a) => {
                     if (ctx.hasCancelled) {
                         completed();
                         return;
@@ -268,7 +275,7 @@ class PipelinePlugin extends deploy_objects.MultiTargetDeployPluginBase {
 
                                                   try {
                                                       if (scriptModule.onPipeCompleted) {
-                                                          scriptModule.onPipeCompleted(a, e.error).then(() => {
+                                                          Promise.resolve(<any>scriptModule.onPipeCompleted(a, e.error)).then(() => {
                                                               pipeCompleted();
                                                           }).catch((err) => {
                                                               me.context.log(i18.t('errors.withCategory', 'PipelinePlugin.deployWorkspace(2)', err));

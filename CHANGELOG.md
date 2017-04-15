@@ -3,7 +3,8 @@
 ## 8.3.0 (April 15th, 2017; scripts can be implemented much easier now)
 
 * implementation of [deploy scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/target_script#implement-own-scripts)
-* each [canceled](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html#canceled) property of [DeployArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html) interface is set automatically now
+* implementation of [pipes](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline) is much easier now, s. [example](https://github.com/mkloubert/vs-deploy/wiki/target_pipeline#implement-a-pipe)
+* each [canceled](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html#canceled) property of [DeployArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployarguments.html) and [PipeArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_pipeline_.pipearguments.html) interfaces is set automatically now
 * added `onBeforeDeploy()` method for [DeployFileArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployfilearguments.html) interface
 * added `onBeforeDeployFile()` and `onFileCompleted()` methods for [DeployWorkspaceArguments](https://mkloubert.github.io/vs-deploy/interfaces/_plugins_script_.deployworkspacearguments.html) interface
 * [deploy scripts](https://github.com/mkloubert/vs-deploy/wiki/target_script) do not need to return a [Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) anymore
