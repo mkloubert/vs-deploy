@@ -1985,7 +1985,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 },
                             });
 
-                            scriptExecutor(scriptArgs).then(() => {
+                            Promise.resolve(<any>scriptExecutor(scriptArgs)).then(() => {
                                 completed();
                             }).catch((err) => {
                                 completed(err);
@@ -4056,19 +4056,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     }
                                 });
 
-                                let eventResult = scriptModule.raiseEvent(args);
-                                if ('object' === typeof eventResult) {
-                                    // seems to be a promise
-
-                                    eventResult.then((ec) => {
-                                        eventCompleted(null, ec);
-                                    }).catch((err) => {
-                                        eventCompleted(err);
-                                    });
-                                }
-                                else {
-                                    eventCompleted(null, <number>eventResult);  // sync execution
-                                }
+                                Promise.resolve(<any>scriptModule.raiseEvent(args)).then((ec) => {
+                                    eventCompleted(null, ec);
+                                }).catch((err) => {
+                                    eventCompleted(err);
+                                });
                             }
                         }
                     }

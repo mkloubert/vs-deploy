@@ -1257,9 +1257,9 @@ export interface DeployScriptOperationArguments extends ScriptArguments, FileDep
  * 
  * @param {DeployScriptOperationArguments} args The arguments for the execution.
  * 
- * @return The promise.
+ * @return {void|Promise<any>} The result.
  */
-export type DeployScriptOperationExecutor = (args: DeployScriptOperationArguments) => Promise<any>;
+export type DeployScriptOperationExecutor = (args: DeployScriptOperationArguments) => void | Promise<any>;
 
 /**
  * A module for a script operation.
