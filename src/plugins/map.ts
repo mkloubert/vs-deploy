@@ -34,16 +34,39 @@ import * as Workflows from 'node-workflows';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetEach extends deploy_contracts.DeployTarget {
-    from: string | any[];
-    'to': string | string[];
+interface DeployTargetMap extends deploy_contracts.DeployTarget {
+    from: Object | Object[];
     targets: string | string[];
     usePlaceholders?: boolean;
 }
 
 
-class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
-    public deployWorkspace(files: string[], target: DeployTargetEach, opts?: deploy_contracts.DeployWorkspaceOptions): void {
+function parsePlaceHolders(v: any, usePlaceHolders: boolean, context: deploy_contracts.DeployContext,
+                           level = 0, maxDepth = 64): any {
+    v = deploy_helpers.cloneObject(v);
+
+    if (level < maxDepth) {
+        usePlaceHolders = deploy_helpers.toBooleanSafe(usePlaceHolders);
+        if (usePlaceHolders) {
+            if ('object' === typeof v) {
+                for (let p in v) {
+                    v[p] = parsePlaceHolders(v[p], usePlaceHolders, context,
+                                             level + 1, maxDepth);
+                }
+            }
+            else {
+                if ('string' === typeof v) {
+                    v = context.replaceWithValues(v);
+                }
+            }
+        }
+    }
+
+    return v;
+}
+
+class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
+    public deployWorkspace(files: string[], target: DeployTargetMap, opts?: deploy_contracts.DeployWorkspaceOptions): void {
         let hasCancelled = false;
         let completedInvoked = false;
         let completed = (err: any) => {
@@ -79,46 +102,10 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                         .filter(t => '' !== t);
             targets = deploy_helpers.distinctArray(targets);
 
-            // target.to
-            let properties = deploy_helpers.asArray(target['to'])
-                                           .map(p => deploy_helpers.toStringSafe(p).trim())
-                                           .filter(p => '' !== p);
-            properties = deploy_helpers.distinctArray(properties);
-
             // target.from
-            let values: any[];
-            if (!deploy_helpers.isNullOrUndefined(target.from)) {
-                if (Array.isArray(target.from)) {
-                    values = deploy_helpers.asArray(target.from);
-                }
-                else {
-                    // from file
-
-                    let filePath = deploy_helpers.toStringSafe(target.from);
-                    filePath = me.context.replaceWithValues(filePath);
-                    if (!Path.isAbsolute(filePath)) {
-                        filePath = Path.join()
-                    }
-                    filePath = Path.resolve(filePath);
-
-                    let loadedValues = JSON.parse(FS.readFileSync(filePath).toString('utf8'));
-                    if (!deploy_helpers.isNullOrUndefined(loadedValues)) {
-                        values = deploy_helpers.asArray(loadedValues);
-                    }
-                }
-            }
-
-            values = deploy_helpers.asArray(deploy_helpers.isNullOrUndefined(values) ? [] : values);
-
-            values = values.map(v => {
-                if (deploy_helpers.toBooleanSafe(target.usePlaceholders)) {
-                    if ('string' === typeof v) {
-                        v = me.context.replaceWithValues(v);
-                    }
-                }
-                
-                return v;
-            });
+            let values = deploy_helpers.asArray(target.from)
+                                       .filter(v => v)
+                                       .map(v => parsePlaceHolders(v, target.usePlaceholders, me.context));
 
             let wfTargets = Workflows.create();
 
@@ -131,9 +118,9 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                     // fill properties with value
                     wfTargets.next((ctx) => {
-                        properties.forEach(p => {
-                            clonedTarget[p] = deploy_helpers.cloneObject(v);
-                        });
+                        for (let p in v) {
+                            clonedTarget[p] = deploy_helpers.cloneObject(v[p]);
+                        }
                     });
 
                     // deploy
@@ -217,7 +204,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
     public info(): deploy_contracts.DeployPluginInfo {
         return {
-            description: i18.t('plugins.each.description'),
+            description: i18.t('plugins.map.description'),
         };
     }
 }
@@ -230,5 +217,5 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
  * @returns {deploy_contracts.DeployPlugin} The new instance.
  */
 export function createPlugin(ctx: deploy_contracts.DeployContext): deploy_contracts.DeployPlugin {
-    return new EachPlugin(ctx);
+    return new MapPlugin(ctx);
 }

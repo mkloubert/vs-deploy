@@ -227,6 +227,9 @@ export const translation: Translation = {
             },
             description: 'Sendet Dateien als ZIP-Datei-Anhang an eine oder mehrere E-Mail-Adressen',
         },
+        map: {
+            description: 'Stellt Dateien mit Hilfe einer Liste von Werten breit',
+        },
         pipeline: {
             description: 'Leitet eine Liste von Quelldateien über ein Skript an einen anderen Ort und übermittelt die neuen Dateien an eine Liste von Zielen',
             noPipeFunction: "{0:trim,surround} implementiert keine 'pipe()' Funktion!",

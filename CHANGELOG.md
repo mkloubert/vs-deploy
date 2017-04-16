@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.7.0 (April 16th, 2017; map target)
+
+* added [map](https://github.com/mkloubert/vs-deploy/wiki/target_map) target, which is similar to [each](https://github.com/mkloubert/vs-deploy/wiki/target_each), but with other value handling
+
 ## 8.6.0 (April 16th, 2017; ignore files for deployment)
 
 * added optional global `ignore` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define a list of pattern of files which should NOT be deployed, even if a deployment is trying to be started for them

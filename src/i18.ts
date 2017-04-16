@@ -236,6 +236,9 @@ export interface Translation {
             };
             description?: string;
         },
+        map?: {
+            description?: string;
+        },
         pipeline?: {
             description?: string;
             noPipeFunction?: string;
