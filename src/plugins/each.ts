@@ -132,7 +132,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                         let clonedTarget: Object = deploy_helpers.cloneObject(tp.target);
 
                         // fill properties with value
-                        wfTargets.next((ctx) => {
+                        wfTargets.next(() => {
                             properties.forEach(p => {
                                 clonedTarget[p] = deploy_helpers.cloneObject(v);
                             });

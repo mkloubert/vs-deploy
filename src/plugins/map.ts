@@ -146,7 +146,7 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
             let wf = Workflows.create();
 
             // collect values
-            wf.next(async (ctx) => {
+            wf.next(async () => {
                 // targets.from
                 return deploy_helpers.asArray(await flattenMapItem(target.from, me.context))
                                      .map(v => parsePlaceHolders(v, target.usePlaceholders, me.context));
