@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.7.0",
+  "version": "8.8.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -6282,7 +6282,7 @@
                       "from": {
                         "oneOf": [
                           {
-                            "description": "The path to the JSON file that contains the array with data.",
+                            "description": "The path or URL to the JSON file that contains the array with data.",
                             "type": "string"
                           },
                           {
@@ -11616,20 +11616,7 @@
                         "description": "Iterates over a list of objects that contain properties (and their values) and deploys for each of them."
                       },
                       "from": {
-                        "oneOf": [
-                          {
-                            "description": "The object that contains the properties and their values for the 'real' targets.",
-                            "type": "object"
-                          },
-                          {
-                            "description": "The list of objects and their values.",
-                            "type": "array",
-                            "items": {
-                              "description": "The object that contains the properties and their values for the 'real' targets.",
-                              "type": "object"
-                            }
-                          }
-                        ]
+                        "description": "The objects (and/or sources -as path or URL- to them) that contain the properties and their values for the 'real' targets."
                       },
                       "targets": {
                         "oneOf": [

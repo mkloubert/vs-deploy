@@ -85,66 +85,67 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                            .filter(p => '' !== p);
             properties = deploy_helpers.distinctArray(properties);
 
-            // target.from
-            let values: any[];
-            if (!deploy_helpers.isNullOrUndefined(target.from)) {
-                if (Array.isArray(target.from)) {
-                    values = deploy_helpers.asArray(target.from);
-                }
-                else {
-                    // from file
+            let wf = Workflows.create();
 
-                    let filePath = deploy_helpers.toStringSafe(target.from);
-                    filePath = me.context.replaceWithValues(filePath);
-                    if (!Path.isAbsolute(filePath)) {
-                        filePath = Path.join()
+            wf.next(async () => {
+                // target.from
+                let values: any[];
+                if (!deploy_helpers.isNullOrUndefined(target.from)) {
+                    if (Array.isArray(target.from)) {
+                        values = deploy_helpers.asArray(target.from);
                     }
-                    filePath = Path.resolve(filePath);
+                    else {
+                        // from file
 
-                    let loadedValues = JSON.parse(FS.readFileSync(filePath).toString('utf8'));
-                    if (!deploy_helpers.isNullOrUndefined(loadedValues)) {
-                        values = deploy_helpers.asArray(loadedValues);
-                    }
-                }
-            }
+                        let src = deploy_helpers.toStringSafe(target.from);
 
-            values = deploy_helpers.asArray(deploy_helpers.isNullOrUndefined(values) ? [] : values);
-
-            values = values.map(v => {
-                if (deploy_helpers.toBooleanSafe(target.usePlaceholders)) {
-                    if ('string' === typeof v) {
-                        v = me.context.replaceWithValues(v);
+                        let loadedValues = JSON.parse( (await deploy_helpers.loadFrom(src)).data.toString('utf8') );
+                        if (!deploy_helpers.isNullOrUndefined(loadedValues)) {
+                            values = deploy_helpers.asArray(loadedValues);
+                        }
                     }
                 }
-                
-                return v;
+
+                values = deploy_helpers.asArray(deploy_helpers.isNullOrUndefined(values) ? [] : values);
+
+                return values.map(v => {
+                    if (deploy_helpers.toBooleanSafe(target.usePlaceholders)) {
+                        if ('string' === typeof v) {
+                            v = me.context.replaceWithValues(v);
+                        }
+                    }
+                    
+                    return v;
+                });
             });
 
-            let wfTargets = Workflows.create();
+            wf.next(async (ctx) => {
+                let values = ctx.previousValue;
 
-            // collect targets
-            me.getTargetsWithPlugins(target, targets).forEach(tp => {
-                // deploy to current target
-                // for each value
-                values.forEach(v => {
-                    let clonedTarget: Object = deploy_helpers.cloneObject(tp.target);
+                let wfTargets = Workflows.create();
 
-                    // fill properties with value
-                    wfTargets.next((ctx) => {
-                        properties.forEach(p => {
-                            clonedTarget[p] = deploy_helpers.cloneObject(v);
+                // collect targets
+                me.getTargetsWithPlugins(target, targets).forEach(tp => {
+                    // deploy to current target
+                    // for each value
+                    values.forEach(v => {
+                        let clonedTarget: Object = deploy_helpers.cloneObject(tp.target);
+
+                        // fill properties with value
+                        wfTargets.next((ctx) => {
+                            properties.forEach(p => {
+                                clonedTarget[p] = deploy_helpers.cloneObject(v);
+                            });
                         });
-                    });
 
-                    // deploy
-                    wfTargets.next((ctx) => {
-                        return new Promise<any>((resolve, reject) => {
+                        // deploy
+                        wfTargets.next(async () => {
                             let wfPlugins = Workflows.create();
 
                             // to each underlying plugin
                             tp.plugins.forEach(p => {
-                                wfPlugins.next((ctx2) => {
-                                    return new Promise<any>((resolve2, reject2) => {
+                                wfPlugins.next(() => {
+                                    return new Promise<any>((resolve, reject) => {
                                         try {
                                             p.deployWorkspace(files, clonedTarget, {
                                                 baseDirectory: opts.baseDirectory,
@@ -162,10 +163,10 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                                 
                                                 onCompleted: (sender, e) => {
                                                     if (e.error) {
-                                                        reject2(e.error);
+                                                        reject(e.error);
                                                     }
                                                     else {
-                                                        resolve2();
+                                                        resolve();
                                                     }
                                                 },
 
@@ -182,7 +183,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                             });
                                         }
                                         catch (e) {
-                                            reject2(e);
+                                            reject(e);
                                         }
                                     });
                                 });
@@ -191,20 +192,18 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                             wfPlugins.on('action.after',
                                          afterWorkflowsAction);
 
-                            wfPlugins.start().then(() => {
-                                resolve();
-                            }).catch((err) => {
-                                reject(err);
-                            });
+                            return wfPlugins.start();
                         });
                     });
                 });
+
+                wfTargets.on('action.after',
+                             afterWorkflowsAction);
+
+                return wfTargets.start();
             });
 
-            wfTargets.on('action.after',
-                         afterWorkflowsAction);
-
-            wfTargets.start().then(() => {
+            wf.start().then(() => {
                 completed(null);
             }).catch((err) => {
                 completed(err);

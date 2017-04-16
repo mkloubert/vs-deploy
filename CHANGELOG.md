@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.8.0 (April 16th, 2017; additional possible sources for iterator targets)
+
+* can also use sources like `ftp://` or `sftp://` for [each](https://github.com/mkloubert/vs-deploy/wiki/target_each) and [map](https://github.com/mkloubert/vs-deploy/wiki/target_map) targets now
+
 ## 8.7.0 (April 16th, 2017; map target)
 
 * added [map](https://github.com/mkloubert/vs-deploy/wiki/target_map) target, which is similar to [each](https://github.com/mkloubert/vs-deploy/wiki/target_each), but with other value handling

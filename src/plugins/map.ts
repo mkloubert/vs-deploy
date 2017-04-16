@@ -35,11 +35,49 @@ import * as vscode from 'vscode';
 
 
 interface DeployTargetMap extends deploy_contracts.DeployTarget {
-    from: Object | Object[];
+    from: MapItem | MapItem[];
     targets: string | string[];
     usePlaceholders?: boolean;
 }
 
+type MapItem = string | Object;
+
+
+async function flattenMapItem(items: MapItem | MapItem[], context: deploy_contracts.DeployContext,
+                              level = 0, maxDepth = 64): Promise<Object[]> {
+    let objs: Object[] = [];
+
+    if (level < maxDepth) {
+        let itemList = deploy_helpers.asArray(items).filter(mi => {
+            if ('object' !== typeof mi) {
+                return !deploy_helpers.isEmptyString(mi);
+            }    
+
+            return !deploy_helpers.isNullOrUndefined(mi);
+        });
+
+        for (let i = 0; i < itemList.length; i++) {
+            let mi = itemList[i];
+
+            if ('object' !== typeof mi) {
+                let src = deploy_helpers.toStringSafe(mi);
+
+                let json = JSON.parse( (await deploy_helpers.loadFrom(src)).data.toString('utf8') );
+                if (json) {
+                    let subObjs = await flattenMapItem(json, context,
+                                                       level + 1, maxDepth);
+
+                    objs = objs.concat(subObjs);
+                }
+            }
+            else {
+                objs.push(mi);
+            }
+        }
+    }
+
+    return objs;
+}
 
 function parsePlaceHolders(v: any, usePlaceHolders: boolean, context: deploy_contracts.DeployContext,
                            level = 0, maxDepth = 64): any {
@@ -60,6 +98,9 @@ function parsePlaceHolders(v: any, usePlaceHolders: boolean, context: deploy_con
                 }
             }
         }
+    }
+    else {
+        context.log(`[WARNING] map.parsePlaceHolders(): Maximum reached: ${level}`);
     }
 
     return v;
@@ -102,36 +143,42 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                         .filter(t => '' !== t);
             targets = deploy_helpers.distinctArray(targets);
 
-            // target.from
-            let values = deploy_helpers.asArray(target.from)
-                                       .filter(v => v)
-                                       .map(v => parsePlaceHolders(v, target.usePlaceholders, me.context));
+            let wf = Workflows.create();
 
-            let wfTargets = Workflows.create();
+            // collect values
+            wf.next(async (ctx) => {
+                // targets.from
+                return deploy_helpers.asArray(await flattenMapItem(target.from, me.context))
+                                     .map(v => parsePlaceHolders(v, target.usePlaceholders, me.context));
+            });
 
-            // collect targets
-            me.getTargetsWithPlugins(target, targets).forEach(tp => {
-                // deploy to current target
-                // for each value
-                values.forEach(v => {
-                    let clonedTarget: Object = deploy_helpers.cloneObject(tp.target);
+            wf.next(async (ctx) => {
+                let values: Object[] = ctx.previousValue;
 
-                    // fill properties with value
-                    wfTargets.next((ctx) => {
-                        for (let p in v) {
-                            clonedTarget[p] = deploy_helpers.cloneObject(v[p]);
-                        }
-                    });
+                let wfTargets = Workflows.create();
 
-                    // deploy
-                    wfTargets.next((ctx) => {
-                        return new Promise<any>((resolve, reject) => {
+                // collect targets
+                me.getTargetsWithPlugins(target, targets).forEach(tp => {
+                    // deploy to current target
+                    // for each value
+                    values.forEach(async v => {
+                        let clonedTarget: Object = deploy_helpers.cloneObject(tp.target);
+
+                        // fill properties with value
+                        wfTargets.next(() => {
+                            for (let p in v) {
+                                clonedTarget[p] = deploy_helpers.cloneObject(v[p]);
+                            }
+                        });
+
+                        // deploy
+                        wfTargets.next(async () => {
                             let wfPlugins = Workflows.create();
 
                             // to each underlying plugin
                             tp.plugins.forEach(p => {
-                                wfPlugins.next((ctx2) => {
-                                    return new Promise<any>((resolve2, reject2) => {
+                                wfPlugins.next(() => {
+                                    return new Promise<any>((resolve, reject) => {
                                         try {
                                             p.deployWorkspace(files, clonedTarget, {
                                                 baseDirectory: opts.baseDirectory,
@@ -149,10 +196,10 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                                 
                                                 onCompleted: (sender, e) => {
                                                     if (e.error) {
-                                                        reject2(e.error);
+                                                        reject(e.error);
                                                     }
                                                     else {
-                                                        resolve2();
+                                                        resolve();
                                                     }
                                                 },
 
@@ -169,7 +216,7 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                             });
                                         }
                                         catch (e) {
-                                            reject2(e);
+                                            reject(e);
                                         }
                                     });
                                 });
@@ -178,20 +225,18 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
                             wfPlugins.on('action.after',
                                          afterWorkflowsAction);
 
-                            wfPlugins.start().then(() => {
-                                resolve();
-                            }).catch((err) => {
-                                reject(err);
-                            });
+                            return wfPlugins.start();
                         });
                     });
                 });
+
+                wfTargets.on('action.after',
+                             afterWorkflowsAction);
+
+                return wfTargets.start();
             });
 
-            wfTargets.on('action.after',
-                         afterWorkflowsAction);
-
-            wfTargets.start().then(() => {
+            wf.start().then(() => {
                 completed(null);
             }).catch((err) => {
                 completed(err);
