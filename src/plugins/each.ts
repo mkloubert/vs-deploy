@@ -192,7 +192,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                             wfPlugins.on('action.after',
                                          afterWorkflowsAction);
 
-                            return wfPlugins.start();
+                            await wfPlugins.start();
                         });
                     });
                 });
@@ -200,7 +200,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 wfTargets.on('action.after',
                              afterWorkflowsAction);
 
-                return wfTargets.start();
+                await wfTargets.start();
             });
 
             wf.start().then(() => {
