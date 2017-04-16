@@ -457,6 +457,11 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     events?: Event | Event[];
     /**
+     * Indicates if a "fast" file check should be
+     * used for the list of ignored files (s. 'ignores').
+     */
+    fastCheckForIgnores?: boolean;
+    /**
      * Default value that indicates if a "fast" file check
      * should be used for "deploy on change" feature or not.
      */
@@ -536,11 +541,16 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
          * The optional options for the "validator" script.
          */
         validatorOptions?: any;
-    },
+    };
+    /**
+     * One or more pattern of files that should be ignored
+     * even if a deployment is started for them. 
+     */
+    ignore?: string | string[];
     /**
      * A list of imports.
      */
-    imports?: ImportType | ImportType[],
+    imports?: ImportType | ImportType[];
     /**
      * The ID of the language to use (e.g. 'en', 'de')
      */
@@ -577,6 +587,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * Indicates if an info popup / notification should be displayed after a successful deployment or not.
      */
     showPopupOnSuccess?: boolean;
+    /**
+     * Show a warning message if a (single) file has been ignored.
+     */
+    showWarningIfIgnored?: boolean;
     /**
      * Indicates if a warning popup / notification should be displayed if targets do not exist.
      */

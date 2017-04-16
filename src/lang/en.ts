@@ -70,6 +70,7 @@ export const translation: Translation = {
             deploying: 'Deploying file {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Deploying file {0:trim,surround} to {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Could not deploy file {0:trim,surround}: {1}',
+            isIgnored: "The file {0:trim,surround} has been ignored!",
             succeeded: 'File {0:trim,surround} has been successfully deployed.',
             succeededWithTarget: 'File {0:trim,surround} has been successfully deployed to {1:trim,surround}.',
         },

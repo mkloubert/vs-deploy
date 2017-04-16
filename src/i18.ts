@@ -77,6 +77,7 @@ export interface Translation {
             deploying?: string;
             deployingWithDestination?: string;
             failed?: string;
+            isIgnored?: string;
             succeeded?: string;
             succeededWithTarget?: string;
         },

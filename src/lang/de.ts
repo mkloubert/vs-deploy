@@ -70,6 +70,7 @@ export const translation: Translation = {
             deploying: 'Stelle Datei {0:trim,surround}{1:trim,leading_space} bereit... ',
             deployingWithDestination: 'Stelle Datei {0:trim,surround} in {1:trim,surround}{2:trim,leading_space} bereit... ',
             failed: 'Die Datei {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
+            isIgnored: "Die Datei {0:trim,surround} wurde ignoriert!",
             succeeded: 'Die Datei {0:trim,surround} wurde erfolgreich bereitgestellt.',
             succeededWithTarget: 'Die Datei {0:trim,surround} wurde erfolgreich in {1:trim,surround} bereitgestellt.',
         },

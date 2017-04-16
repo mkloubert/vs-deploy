@@ -731,6 +731,19 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
+            if (me.isFileIgnored(file)) {
+                if (deploy_helpers.toBooleanSafe(me.config.showWarningIfIgnored, true)) {
+                    // show warning
+                    
+                    vscode.window.showWarningMessage(i18.t('deploy.file.isIgnored',
+                                                           file));
+                }
+                
+                hasCancelled = true;
+                completed(null);
+                return;
+            }
+
             me.onCancelling(() => hasCancelled = true);
 
             try {
@@ -1244,6 +1257,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected deployWorkspaceTo(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
         let nameOfTarget = deploy_helpers.normalizeString(target.name);
+
+        if (files) {
+            files = files.filter(f => !me.isFileIgnored(f));
+        }
 
         return new Promise<boolean>((resolve, reject) => {
             let hasCancelled = false;
@@ -2166,6 +2183,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 vscode.window.showErrorMessage(i18.t('host.errors.cannotListen', err));
             });
         }
+    }
+
+    /**
+     * Checks if a file (or directory) path is ignored.
+     * 
+     * @param {string} fileOrDir The file / directory to check.
+     * 
+     * @return {boolean} Is ignored or not. 
+     */
+    public isFileIgnored(fileOrDir: string): boolean {
+        return deploy_helpers.isFileIgnored(fileOrDir,
+                                            this.config.ignore, this.config.fastCheckForIgnores);
     }
 
     /**

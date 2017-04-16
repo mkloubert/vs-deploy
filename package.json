@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.5.0",
+  "version": "8.6.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -415,6 +415,11 @@
                 ]
               }
             },
+            "fastCheckForIgnores": {
+              "type": "boolean",
+              "description": "Indicates if a 'fast' file check should be used for the list of ignored files.",
+              "default": true
+            },
             "fastCheckOnChange": {
               "type": "boolean",
               "description": "Indicates if a 'fast' file check should be used for 'deploy on change' for packages by default or not.",
@@ -499,6 +504,22 @@
                   "description": "The data for the 'validator', if needed."
                 }
               }
+            },
+            "ignore": {
+              "oneOf": [
+                {
+                  "description": "The pattern of files that should be ignored even if a deploy is started for them.",
+                  "type": "string"
+                },
+                {
+                  "description": "One or more pattern of files that should be ignored even if a deploy is started for them.",
+                  "type": "array",
+                  "items": {
+                    "description": "The pattern of files that should be ignored even if a deploy is started for them.",
+                    "type": "string"
+                  }
+                }
+              ]
             },
             "imports": {
               "description": "One or more settings to import.",
@@ -932,6 +953,11 @@
             "showPopupOnSuccess": {
               "type": "boolean",
               "description": "Indicates if an info popup / notification should be displayed after a successful deployment or not.",
+              "default": true
+            },
+            "showWarningIfIgnored": {
+              "type": "boolean",
+              "description": "Show a warning message if a (single) file has been ignored.",
               "default": true
             },
             "showWarningsForNonExistingTargets": {
@@ -6251,7 +6277,7 @@
                           "each"
                         ],
                         "type": "string",
-                        "description": "A loop that writes a list of values to the properties of exiting targets."
+                        "description": "A loop that writes a list of values to the properties of existing targets."
                       },
                       "from": {
                         "oneOf": [

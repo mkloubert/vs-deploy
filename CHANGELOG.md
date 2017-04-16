@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.6.0 (April 16th, 2017; ignore files for deployment)
+
+* added optional global `ignore` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) that can define a list of pattern of files which should NOT be deployed, even if a deployment is trying to be started for them
+
 ## 8.5.0 (April 16th, 2017; templates and examples from (S)FTP)
 
 * can load [templates and examples](https://github.com/mkloubert/vs-deploy/wiki/templates) from `ftp://` and `sftp://` now

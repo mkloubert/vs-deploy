@@ -888,6 +888,67 @@ export function isEmptyString(val: any): boolean {
 }
 
 /**
+ * Checks if a file (or directory) path is ignored.
+ * 
+ * @param {string} fileOrDir The file / directory to check.
+ * @param {string|string[]} patterns One or more (glob) pattern to use.
+ * @param {boolean} {fastCheck} Use 'minimatch' instead of 'node.glob'.
+ * 
+ * @return {boolean} Is ignored or not. 
+ */
+export function isFileIgnored(file: string, patterns: string | string[],
+                              fastCheck?: boolean): boolean {
+    file = toStringSafe(file);
+    if ('' === file.trim()) {
+        return true;
+    }
+
+    if (!Path.isAbsolute(file)) {
+        file = Path.join(vscode.workspace.rootPath, file);
+    }
+    file = Path.resolve(file);
+    file = replaceAllStrings(file, Path.sep, '/');
+    
+    patterns = asArray(patterns).map(p => toStringSafe(p))
+                                .filter(p => '' !== p.trim());
+    patterns = distinctArray(patterns);
+
+    fastCheck = toBooleanSafe(fastCheck);
+
+    while (patterns.length > 0) {
+        let p = patterns.shift();
+
+        let isMatching = false;
+        if (fastCheck) {
+            // use minimatch
+
+            isMatching = Minimatch(file, p, {
+                dot: true,
+                nonegate: true,
+                nocomment: true,
+            });
+        }
+        else {
+            let matchingFiles: string[] = Glob.sync(p, {
+                absolute: true,
+                cwd: vscode.workspace.rootPath,
+                dot: true,
+                nodir: true,
+                root: vscode.workspace.rootPath,
+            });
+
+            isMatching = matchingFiles.indexOf(file) > -1;
+        }
+
+        if (isMatching) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Checks if a value is (null) or (undefined).
  * 
  * @param {any} val The value to check.
