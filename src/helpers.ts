@@ -30,6 +30,7 @@ import * as deploy_globals from './globals';
 import * as deploy_values from './values';
 import * as FileType from 'file-type';
 import * as FS from 'fs';
+const FTP = require('jsftp');
 const Glob = require('glob');
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
@@ -40,6 +41,8 @@ import * as Minimatch from 'minimatch';
 import * as Moment from 'moment';
 import * as Net from 'net';
 import * as Path from 'path';
+import * as SFTP from 'ssh2-sftp-client';
+import * as TMP from 'tmp';
 import * as URL from 'url';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
@@ -91,7 +94,6 @@ export type SimpleCompletedAction<TResult> = (err?: any, result?: TResult) => vo
 
 
 let nextHtmlDocId = -1;
-const REGEX_HTTP_URL = new RegExp("^([\\s]*)(https?:\\/\\/)", 'i');
 
 /**
  * Returns a value as array.
@@ -961,91 +963,400 @@ export function loadFrom(src: string): Promise<DownloadResult> {
         try {
             src = toStringSafe(src);
 
+            let url: URL.Url;
+            try {
+                url = URL.parse(src);
+            }
+            catch (e) {
+                url = null;
+            }
+
             let wf = Workflows.create();
 
-            if (REGEX_HTTP_URL.test(src)) {
-                // web resource
+            let isLocal = true;
 
-                let url = URL.parse(src);
+            if (url) {
+                isLocal = false;
 
                 let fileName = Path.basename(url.path);
+                let protocol = normalizeString(url.protocol);
 
-                wf.next((ctx) => {
-                    return new Promise<any>((resolve, reject) => {
-                        try {
-                            let requestOpts: HTTP.RequestOptions = {
-                                hostname: url.hostname,
-                                path: url.path,
-                                method: 'GET',
-                            };
-                            
-                            let requestHandler = (resp: HTTP.IncomingMessage) => {
-                                let mime: string;
-                                if (resp.headers) {
-                                    for (let h in resp.headers) {
-                                        if ('content-type' === normalizeString(h)) {
-                                            mime = normalizeString(resp.headers[h]);
-                                            break;
+                let getUserAndPassword = () => {
+                    let user: string;
+                    let pwd: string;
+                    if (!isNullUndefinedOrEmptyString(url.auth)) {
+                        let auth = url.auth;
+                        if (auth.indexOf(':') > -1) {
+                            let parts = auth.split(':');
+
+                            user = parts[0];
+                            if ('' === user) {
+                                user = undefined;
+                            }
+
+                            pwd = parts.filter((x, i) => i > 0).join(':');
+                            if ('' === pwd) {
+                                pwd = undefined;
+                            }
+                        }
+                        else {
+                            user = auth;
+                        }
+                    }
+
+                    return {
+                        password: pwd,
+                        user: user,
+                    };
+                };
+
+                switch (protocol) {
+                    case 'ftp:':
+                        // FTP server
+                        {
+                            wf.next((ctx) => {
+                                return new Promise<any>((res, rej) => {
+                                    try {
+                                        let port = 21;
+                                        if (!isNullUndefinedOrEmptyString(url.port)) {
+                                            port = parseInt(toStringSafe(url.port).trim());
+                                        }
+
+                                        // authorization
+                                        let auth = getUserAndPassword();
+
+                                        // open connection
+                                        let conn = new FTP({
+                                            host: url.hostname,
+                                            port: port,
+                                            user: auth.user, 
+                                            pass: auth.password,
+                                        });
+
+                                        conn.get(url.path, (err: any, socket: Net.Socket) => {
+                                            if (err) {
+                                                rej(err);  // could not get file from FTP
+                                            }
+                                            else {
+                                                try {
+                                                    let result: Buffer = Buffer.alloc(0);
+
+                                                    socket.on("data", function(data: Buffer) {
+                                                        try {
+                                                            if (data) {
+                                                                result = Buffer.concat([result, data]);
+                                                            }
+                                                        }
+                                                        catch (e) {
+                                                            rej(e);
+                                                        }
+                                                    });
+
+                                                    socket.once("close", function(hadErr: boolean) {
+                                                        if (hadErr) {
+                                                            rej(new Error('FTP error!'));
+                                                        }
+                                                        else {
+                                                            res({
+                                                                data: result,
+                                                                fileName: fileName,
+                                                            });
+                                                        }
+                                                    });
+
+                                                    socket.resume();
+                                                }
+                                                catch (e) {
+                                                    rej(e);  // socket error
+                                                }
+                                            }
+                                        });
+                                    }
+                                    catch (e) {
+                                        rej(e);  // global FTP error
+                                    }
+                                });
+                            });
+                        }
+                        break;
+
+                    case 'sftp:':
+                        // SFTP server
+                        {
+                            // start connection
+                            wf.next((ctx) => {
+                                return new Promise<SFTP.Client>((res, rej) => {
+                                    try {
+                                        let port = 22;
+                                        if (!isNullUndefinedOrEmptyString(url.port)) {
+                                            port = parseInt(toStringSafe(url.port).trim());
+                                        }
+
+                                        // authorization
+                                        let auth = getUserAndPassword();
+
+                                        let conn = new SFTP();
+
+                                        conn.connect({
+                                            host: url.hostname,
+                                            port: port,
+                                            username: auth.user,
+                                            password: auth.password,
+                                        }).then(() => {
+                                            res(conn);
+                                        }).catch((err) => {
+                                            rej(err);
+                                        });
+                                    }
+                                    catch (e) {
+                                        rej(e);
+                                    }
+                                });
+                            });
+
+                            // start reading file
+                            wf.next((ctx) => {
+                                let conn: SFTP.Client = ctx.previousValue;
+
+                                return new Promise<NodeJS.ReadableStream>((res, rej) => {
+                                    conn.get(url.path).then((stream) => {
+                                        try {
+                                            res(stream);
+                                        }
+                                        catch (e) {
+                                            rej(e);
+                                        }
+                                    }).catch((err) => {
+                                        rej(err);
+                                    });
+                                });
+                            });
+
+                            // create temp file
+                            wf.next((ctx) => {
+                                let stream: NodeJS.ReadableStream = ctx.previousValue;
+
+                                return new Promise<any>((res, rej) => {
+                                    TMP.tmpName({
+                                        keep: true,
+                                    }, (err, tempFile) => {
+                                        if (err) {
+                                            rej(err);
+                                        }
+                                        else {
+                                            res({
+                                                deleteTempFile: () => {
+                                                    return new Promise<any>((res2, rej2) => {
+                                                        FS.exists(tempFile, (exists) => {
+                                                            if (exists) {
+                                                                FS.unlink(tempFile, (err) => {
+                                                                    if (err) {
+                                                                        rej2(err);
+                                                                    }
+                                                                    else {
+                                                                        res2();
+                                                                    }
+                                                                });
+                                                            }
+                                                            else {
+                                                                res2();
+                                                            }
+                                                        });
+                                                    });
+                                                },
+                                                tempFile: tempFile,
+                                                stream: stream,
+                                            });
+                                        }
+                                    });
+                                });
+                            });
+
+                            // write to temp file
+                            wf.next((ctx) => {
+                                let deleteTempFile: () => Promise<any> = ctx.previousValue.deleteTempFile;
+                                let stream: NodeJS.ReadableStream = ctx.previousValue.stream;
+                                let tempFile: string = ctx.previousValue.tempFile;
+
+                                return new Promise<any>((res, rej) => {
+                                    let downloadCompleted = (err: any) => {
+                                        if (err) {
+                                            deleteTempFile().then(() => {
+                                                rej(err);
+                                            }).catch((e) => {
+                                                //TODO: log
+
+                                                rej(err);
+                                            });
+                                        }
+                                        else {
+                                            res({
+                                                deleteTempFile: deleteTempFile,
+                                                tempFile: tempFile,
+                                            });
+                                        }
+                                    };
+                                    
+                                    try {
+                                        stream.once('error', (err) => {
+                                            if (err) {
+                                                downloadCompleted(err);
+                                            }
+                                        });
+
+                                        let pipe = stream.pipe(FS.createWriteStream(tempFile));
+
+                                        pipe.once('error', (err) => {;
+                                            if (err) {
+                                                downloadCompleted(err);
+                                            }
+                                        });
+
+                                        stream.once('end', () => {
+                                            downloadCompleted(null);
+                                        });
+                                    }
+                                    catch (e) {
+                                        downloadCompleted(e);
+                                    }
+                                });
+                            });
+
+                            wf.next((ctx) => {
+                                let deleteTempFile: () => Promise<any> = ctx.previousValue.deleteTempFile;
+                                let tempFile: string = ctx.previousValue.tempFile;
+                                
+                                return new Promise<any>((res, rej) => {
+                                    let readCompleted = (err: any, d?: Buffer) => {
+                                        if (err) {
+                                            rej(err);
+                                        }
+                                        else {
+                                            res({
+                                                data: d,
+                                                fileName: fileName,
+                                            });
+                                        }
+                                    };
+                                    
+                                    FS.readFile(tempFile, (err, data) => {
+                                        deleteTempFile().then(() => {
+                                            readCompleted(err, data);
+                                        }).catch((e) => {
+                                            //TODO: log
+
+                                            readCompleted(err, data);
+                                        });
+                                    });
+                                });
+                            });
+                        }
+                        break;
+
+                    case 'http:':
+                    case 'https:':
+                        // web resource
+                        {
+                            wf.next((ctx) => {
+                                return new Promise<any>((resolve, reject) => {
+                                    try {
+                                        let requestOpts: HTTP.RequestOptions = {
+                                            hostname: url.hostname,
+                                            path: url.path,
+                                            method: 'GET',
+                                        };
+
+                                        let setHeader = (name: string, value: string) => {
+                                            if (isNullOrUndefined(requestOpts.headers)) {
+                                                requestOpts.headers = {};
+                                            }
+
+                                            requestOpts.headers[name] = value;
+                                        };
+
+                                        // authorization?
+                                        if (!isNullUndefinedOrEmptyString(url.auth)) {
+                                            let b64Auth = (new Buffer(toStringSafe(url.auth))).toString('base64');
+
+                                            setHeader('Authorization', 'Basic ' + b64Auth);
+                                        }
+                                        
+                                        let requestHandler = (resp: HTTP.IncomingMessage) => {
+                                            let mime: string;
+                                            if (resp.headers) {
+                                                for (let h in resp.headers) {
+                                                    if ('content-type' === normalizeString(h)) {
+                                                        mime = normalizeString(resp.headers[h]);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            readHttpBody(resp).then((data) => {
+                                                resolve({
+                                                    data: data,
+                                                    fileName: fileName,
+                                                    mime: mime,
+                                                });
+                                            }).catch((err) => {
+                                                reject(err);
+                                            });
+                                        };
+
+                                        let requestFactory: (options: HTTP.RequestOptions,
+                                                             callback?: (res: HTTP.IncomingMessage) => void) => HTTP.ClientRequest;
+
+                                        switch (protocol) {
+                                            case 'https:':
+                                                requestFactory = HTTPs.request;
+
+                                                requestOpts.protocol = 'https:';
+                                                requestOpts.port = 443;
+                                                break;
+
+                                            default:
+                                                // http
+                                                requestFactory = HTTP.request;
+
+                                                requestOpts.protocol = 'http:';
+                                                requestOpts.port = 80;
+                                                break;
+                                        }
+
+                                        if (!isNullUndefinedOrEmptyString(url.port)) {
+                                            requestOpts.port = parseInt(toStringSafe(url.port).trim());
+                                        }
+
+                                        if (requestFactory) {
+                                            let request = requestFactory(requestOpts, requestHandler);
+
+                                            request.once('error', (err) => {
+                                                reject(err);
+                                            });
+
+                                            request.end();
+                                        }
+                                        else {
+                                            resolve(null);
                                         }
                                     }
-                                }
-
-                                readHttpBody(resp).then((data) => {
-                                    resolve({
-                                        data: data,
-                                        fileName: fileName,
-                                        mime: mime,
-                                    });
-                                }).catch((err) => {
-                                    reject(err);
+                                    catch (e) {
+                                        reject(e);
+                                    }
                                 });
-                            };
-
-                            let requestFactory: (options: HTTP.RequestOptions,
-                                                 callback?: (res: HTTP.IncomingMessage) => void) => HTTP.ClientRequest;
-
-                            switch (normalizeString(url.protocol)) {
-                                case 'https:':
-                                    requestFactory = HTTPs.request;
-
-                                    requestOpts.protocol = 'https:';
-                                    requestOpts.port = 443;
-                                    break;
-
-                                default:
-                                    // http
-                                    requestFactory = HTTP.request;
-
-                                    requestOpts.protocol = 'http:';
-                                    requestOpts.port = 80;
-                                    break;
-                            }
-
-                            if (!isNullUndefinedOrEmptyString(url.port)) {
-                                requestOpts.port = parseInt(toStringSafe(url.port).trim());
-                            }
-
-                            if (requestFactory) {
-                                let request = requestFactory(requestOpts, requestHandler);
-
-                                request.once('error', (err) => {
-                                    reject(err);
-                                });
-
-                                request.end();
-                            }
-                            else {
-                                resolve(null);
-                            }
+                            });
                         }
-                        catch (e) {
-                            reject(e);
-                        }
-                    });
-                });
+                        break;
+
+                    case 'file:':
+                    default:
+                        isLocal = true;
+                        break;
+                }
             }
-            else {
-                // local file
+
+            if (isLocal) {
+                // handle as local file
 
                 let filePath = src;
                 if (!Path.isAbsolute(filePath)) {

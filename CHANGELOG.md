@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 8.5.0 (April 16th, 2017; templates and examples from (S)FTP)
+
+* can load [templates and examples](https://github.com/mkloubert/vs-deploy/wiki/templates) from `ftp://` and `sftp://` now
+* can use credentials in urls now
+
 ## 8.4.0 (April 16th, 2017; required extension version for example / template files and items)
 
 * can define a minimum extension version, that is required to display [template / example items](https://github.com/mkloubert/vs-deploy/wiki/templates#sources--repositories)
