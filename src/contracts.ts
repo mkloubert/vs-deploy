@@ -826,6 +826,10 @@ export enum DeployDirection {
      * Download from target
      */
     Download = 3,
+    /**
+     * Get information about a file.
+     */
+    FileInfo = 4,
 }
 
 /**
@@ -1101,9 +1105,23 @@ export interface DeployPlugin {
     __type?: string;
 
     /**
+     * Indicates if plugin is able to get information about remote files or not.
+     */
+    canGetFileInfo?: boolean;
+    /**
      * Indicates if plugin can pull files or not.
      */
     canPull?: boolean;
+    /**
+     * Compares the a local file with a remote one.
+     * 
+     * @param {string} file The file to download.
+     * @param {DeployTarget} target The source from where to download the file from.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {PromiseLike<FileCompareResult>|FileCompareResult} The result.
+     */
+    compareFiles?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => PromiseLike<FileCompareResult> | FileCompareResult;
     /**
      * Deploys a file.
      * 
@@ -1134,6 +1152,16 @@ export interface DeployPlugin {
      * @return {Promise<Buffer>} The promise.
      */
     downloadFile?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => Promise<Buffer> | Buffer;
+    /**
+     * Gets information about a file from target.
+     * 
+     * @param {string} file The file to download.
+     * @param {DeployTarget} target The source from where to download the file from.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {PromiseLike<FileInfo>|FileInfo} The result.
+     */
+    getFileInfo?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => PromiseLike<FileInfo> | FileInfo;
     /**
      * Return information of the plugin.
      * 
@@ -1394,6 +1422,16 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
      * The target.
      */
     target: DeployTarget;
+}
+
+/**
+ * A target that can check files.
+ */
+export interface DeployTargetWithFileCheck extends DeployTarget {
+    /**
+     * Check files or not.
+     */
+    checkFiles?: boolean;
 }
 
 /**
@@ -1701,6 +1739,20 @@ export interface EventModuleExecutorArguments extends ScriptArguments {
 }
 
 /**
+ * Result of a file comparison.
+ */
+export interface FileCompareResult {
+    /**
+     * Information about the "left" file.
+     */
+    left: FileInfo;
+    /**
+     * Information about the "right" file.
+     */
+    right: FileInfo;
+}
+
+/**
  * Arguments for a "file deployed completed" event.
  */
 export interface FileDeployCompletedEventArguments extends DeployEventArguments {
@@ -1755,6 +1807,36 @@ export interface FileFilter {
      * Files to include.
      */
     files?: string | string[];
+}
+
+/**
+ * Information about a file.
+ */
+export interface FileInfo {
+    /**
+     * Files exists or not.
+     */
+    exists: boolean;
+    /**
+     * Is remote file or not.
+     */
+    isRemote: boolean;
+    /**
+     * The time the file has been modified.
+     */
+    modifyTime?: Date;
+    /**
+     * The "real" name.
+     */
+    name?: string;
+    /**
+     * The path.
+     */
+    path?: string;
+    /**
+     * The size.
+     */
+    size?: number;
 }
 
 /**

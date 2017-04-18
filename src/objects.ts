@@ -28,7 +28,9 @@ import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 import * as i18 from './i18';
+import * as Path from 'path';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 const Zip = require('node-zip');
 
 
@@ -84,8 +86,90 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 
     /** @inheritdoc */
+    public get canGetFileInfo(): boolean {
+        return false;
+    }
+
+    /** @inheritdoc */
     public get canPull(): boolean {
         return false;
+    }
+
+    /** @inheritdoc */
+    public async compareFiles(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileCompareResult> {
+        let me = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+
+        let wf = Workflows.create();
+
+        // get info about REMOTE file
+        wf.next(async (ctx) => {
+            return await me.getFileInfo(file, target, opts);
+        });
+
+        // check if local file exists
+        wf.next((ctx) => {
+            let right: deploy_contracts.FileInfo = ctx.previousValue;
+
+            return new Promise<any>((resolve, reject) => {
+                try {
+                    let left: deploy_contracts.FileInfo = {
+                        exists: undefined,
+                        isRemote: false,  
+                    };
+
+                    FS.exists(file, (exists) => {
+                        left.exists = exists;
+
+                        if (!left.exists) {
+                            ctx.finish();  // no need to get local file info
+                        }
+
+                        let result: deploy_contracts.FileCompareResult = {
+                            left: left,
+                            right: right,
+                        };
+
+                        ctx.result = result;
+                        resolve(result);
+                    });
+                }
+                catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        // get local file info
+        wf.next((ctx) => {
+            let result: deploy_contracts.FileCompareResult = ctx.previousValue;
+
+            return new Promise<any>((resolve, reject) => {
+                FS.lstat(file, (err, stat) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        try {
+                            result.left.name = Path.basename(file);
+                            result.left.path = Path.dirname(file);
+                            result.left.modifyTime = stat.ctime;
+                            result.left.size = stat.size;
+
+                            resolve(result);
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        return await wf.start();
     }
 
     /**
@@ -230,6 +314,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
 
     /** @inheritdoc */
     public downloadFile(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+        throw new Error("Not implemented!");
+    }
+
+    /** @inheritdoc */
+    public getFileInfo(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): PromiseLike<deploy_contracts.FileInfo> | deploy_contracts.FileInfo {
         throw new Error("Not implemented!");
     }
 
@@ -912,9 +1001,95 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * @param {string} file The path of the local file.
      * @param {DeployTarget} target The target.
      * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {Promise<Buffer>|Buffer} The result.
      */
     protected downloadFileWithContext(ctx: TContext,
                                       file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> | Buffer {
+        throw new Error("Not implemented!");
+    }
+
+    /** @inheritdoc */
+    public getFileInfo(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
+
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_contracts.FileInfo>(resolve, reject);
+
+            let wf = Workflows.create();
+            
+            let wrapper: DeployPluginContextWrapper<TContext>;
+            wf.once('end', (err: any, wcnt: number, info?: deploy_contracts.FileInfo) => {
+                if (wrapper) {
+                    if (wrapper.destroy) {
+                        try {
+                            Promise.resolve(wrapper.destroy()).then(() => {
+                                completed(err, info);
+                            }).catch((e) => {
+                                me.context.log(i18.t('errors.withCategory',
+                                                     'DeployPluginWithContextBase.getFileInfo(2)', e));
+
+                                completed(err, info);
+                            });
+                        }
+                        catch (e) {
+                            me.context.log(i18.t('errors.withCategory',
+                                                 'DeployPluginWithContextBase.getFileInfo(1)', e));
+
+                            completed(err, info);
+                        }
+                    }
+                    else {
+                        completed(err, info);
+                    }
+                }
+                else {
+                    completed(err, info);
+                }
+            });
+
+            // create context
+            wf.next(async (ctx) => {
+                return await me.createContext(target, [ file ], opts, deploy_contracts.DeployDirection.FileInfo);
+            });
+
+            // get file info
+            wf.next(async (ctx) => {
+                wrapper = ctx.previousValue;
+
+                return await me.getFileInfoWithContext(wrapper.context,
+                                                       file, target, opts);
+            });
+
+            // write result
+            wf.next((ctx) => {
+                ctx.result = ctx.previousValue;
+            });
+
+            wf.start().then(() => {
+                // is done by 'end' event
+            }).catch((err) => {
+                // is done by 'end' event
+            });
+        });
+    }
+
+    /**
+     * Gets the info of a file by using a context.
+     * 
+     * @param {TContext} ctx The context to use.
+     * @param {string} file The path of the local file.
+     * @param {DeployTarget} target The target.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {Promise<deploy_contracts.FileInfo>|deploy_contracts.FileInfo} The result.
+     */
+    protected getFileInfoWithContext(ctx: TContext,
+                                     file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> | deploy_contracts.FileInfo {
         throw new Error("Not implemented!");
     }
 

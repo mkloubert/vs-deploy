@@ -32,9 +32,11 @@ import * as Path from 'path';
 const SFTP = require('ssh2-sftp-client');
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
 
-interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetSFTP extends deploy_contracts.DeployTargetWithFileCheck,
+                                   deploy_contracts.TransformableDeployTarget {
     dir?: string;
     hashAlgorithm?: string;
     hashes?: string | string[];
@@ -562,6 +564,85 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 });
             }
         });
+    }
+
+    protected async getFileInfoWithContext(ctx: SFTPContext,
+                                           file: string, target: DeployTargetSFTP, opts: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+        
+        let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+        if (false === relativeFilePath) {
+            throw new Error(i18.t('relativePaths.couldNotResolve', file));
+        }
+
+        let dir = getDirFromTarget(target);
+
+        let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
+        let targetDirectory = toSFTPPath(Path.dirname(targetFile));
+
+        let fileName = Path.basename(targetFile);
+
+        let wf = Workflows.create();
+
+        wf.on('action.after', function(err, wfCtx: Workflows.WorkflowActionContext) {
+            if (ctx.hasCancelled) {
+                wfCtx.finish();
+            }
+        });
+
+        wf.next(async () => {
+            let info: deploy_contracts.FileInfo = {
+                exists: false,
+                isRemote: true,
+            };
+
+            try {
+                let files = await ctx.connection.list(targetDirectory);
+
+                let remoteInfo: any;
+                for (let i = 0; i < files.length; i++) {
+                    let ri = files[i];
+                    if (ri.name === fileName) {
+                        remoteInfo = ri;
+                        break;
+                    }
+                }
+
+                if (remoteInfo) {
+                    info.exists = true;
+
+                    info.name = remoteInfo.name;
+                    info.path = targetDirectory;
+                    info.size = remoteInfo.size;
+
+                    try {
+                        if (!isNaN(remoteInfo.modifyTime)) {
+                            info.modifyTime = new Date(remoteInfo.modifyTime);
+                        }
+                    }
+                    catch (e) {
+                        me.context.log(i18.t('errors.withCategory',
+                                             'SFtpPlugin.getFileInfoWithContext(modifyTime)', e));
+                    }
+                }
+            }
+            catch (e) {
+                // does not exist here
+            }
+
+            return info;
+        });
+
+        // write to result
+        wf.next((wfCtx) => {
+            let info: deploy_contracts.FileInfo = wfCtx.previousValue;
+
+            wfCtx.result = info;
+        });
+
+        if (!ctx.hasCancelled) {
+            return await wf.start();
+        }
     }
 
     public info(): deploy_contracts.DeployPluginInfo {
