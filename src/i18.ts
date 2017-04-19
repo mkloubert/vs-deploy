@@ -91,6 +91,18 @@ export interface Translation {
             failed?: string;
             selectTarget?: string;
         },
+        newerFiles?: {
+            deploy?: string;
+            localFile?: string;
+            message?: string;
+            modifyTime?: string;
+            pull?: string;
+            remoteFile?: string;
+            show?: string;
+            size?: string;
+            title?: string;
+            titleNoTarget?: string;
+        },
         noFiles?: string;
         noPlugins?: string;
         noPluginsForType?: string;
@@ -147,6 +159,9 @@ export interface Translation {
         notInstalled?: string;
     },
     failed?: string;
+    format?: {
+        dateTime?: string;
+    },
     host?: {
         button?: {
             text?: string;

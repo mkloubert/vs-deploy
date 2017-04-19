@@ -84,6 +84,18 @@ export const translation: Translation = {
             failed: 'Could not deploy folder {0:trim,surround}: {1}',
             selectTarget: 'Select the target to deploy the folder to...',
         },
+        newerFiles: {
+            deploy: 'Deploy',
+            localFile: 'Local file',
+            message: "{0} newer file(s) was/were found!",
+            modifyTime: 'Last modification',
+            pull: 'Pull',
+            remoteFile: 'Remote file',
+            show: 'Show files',
+            size: 'Size',
+            title: 'Newer files in {0:trim,surround}',
+            titleNoTarget: 'Newer files',
+        },
         noFiles: 'There are no files to deploy!',
         noPlugins: 'No plugin(s) found!',
         noPluginsForType: 'No matching plugin(s) found for {0:trim,surround}!',
@@ -140,6 +152,9 @@ export const translation: Translation = {
         notInstalled: 'The extension {0:trim,surround} is NOT installed.',
     },
     failed: '[FAILED: {0}]',
+    format: {
+        dateTime: 'YYYY-MM-DD HH:mm:ss',
+    },
     host: {
         button: {
             text: 'Waiting for files...',

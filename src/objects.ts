@@ -28,6 +28,7 @@ import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 import * as i18 from './i18';
+import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
@@ -156,7 +157,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                         try {
                             result.left.name = Path.basename(file);
                             result.left.path = Path.dirname(file);
-                            result.left.modifyTime = stat.ctime;
+                            result.left.modifyTime = Moment(stat.ctime);
                             result.left.size = stat.size;
 
                             resolve(result);

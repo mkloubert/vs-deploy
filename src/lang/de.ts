@@ -84,6 +84,18 @@ export const translation: Translation = {
             failed: 'Das Verzeichnis {0:trim,surround} konnte nicht bereitgestellt werden: {1}',
             selectTarget: 'Wählen Sie das Ziel in welches das Verzeichnis bereitgestellt werden soll...',
         },
+        newerFiles: {
+            deploy: 'Bereitstellen',
+            localFile: 'Lokale Datei',
+            message: "{0} neuere Datei(en) wurde(n) gefunden!",
+            modifyTime: 'Letzte Änderung',
+            pull: 'Herunterladen',
+            remoteFile: 'Zieldatei',
+            show: 'Anzeigen',
+            size: 'Größe',
+            title: 'Neuere Dateien in {0:trim,surround}',
+            titleNoTarget: 'Neuere Dateien',
+        },
         noFiles: 'Es gibt keine Dateien zum Bereitstellen!',
         noPlugins: 'Keine passenden PlugIns gefunden!',
         noPluginsForType: 'Keine passenden PlugIns gefunden für {0:trim,surround}!',
@@ -140,6 +152,9 @@ export const translation: Translation = {
         notInstalled: 'Die Erweiterung {0:trim,surround} ist NICHT installiert.',
     },
     failed: '[FEHLGESCHLAGEN: {0}]',
+    format: {
+        dateTime: 'DD.MM.YYYY HH:mm:ss',
+    },
     host: {
         button: {
             text: 'Warte auf Dateien...',

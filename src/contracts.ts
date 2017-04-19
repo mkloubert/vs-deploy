@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as Moment from 'moment';
 import * as vscode from 'vscode';
 
 
@@ -1341,6 +1342,10 @@ export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, Pl
      */
     beforeDeploy?: BeforeDeployOpenOperation | BeforeDeployOpenOperation[];
     /**
+     * Checks for newer files before a deployment starts.
+     */
+    checkBeforeDeploy?: boolean;
+    /**
      * List of operations that should be invoked AFTER
      * ALL files have been deployed.
      */
@@ -1422,16 +1427,6 @@ export interface DeployTargetQuickPickItem extends DeployQuickPickItem {
      * The target.
      */
     target: DeployTarget;
-}
-
-/**
- * A target that can check files.
- */
-export interface DeployTargetWithFileCheck extends DeployTarget {
-    /**
-     * Check files or not.
-     */
-    checkFiles?: boolean;
 }
 
 /**
@@ -1824,7 +1819,7 @@ export interface FileInfo {
     /**
      * The time the file has been modified.
      */
-    modifyTime?: Date;
+    modifyTime?: Moment.Moment;
     /**
      * The "real" name.
      */

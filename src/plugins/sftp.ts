@@ -28,6 +28,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as i18 from '../i18';
+import * as Moment from 'moment';
 import * as Path from 'path';
 const SFTP = require('ssh2-sftp-client');
 import * as TMP from 'tmp';
@@ -35,8 +36,7 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
-interface DeployTargetSFTP extends deploy_contracts.DeployTargetWithFileCheck,
-                                   deploy_contracts.TransformableDeployTarget {
+interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     hashAlgorithm?: string;
     hashes?: string | string[];
@@ -86,6 +86,10 @@ function toSFTPPath(path: string): string {
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext> {
     public get canPull(): boolean {
+        return true;
+    }
+
+    public get canGetFileInfo(): boolean {
         return true;
     }
 
@@ -617,7 +621,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
                     try {
                         if (!isNaN(remoteInfo.modifyTime)) {
-                            info.modifyTime = new Date(remoteInfo.modifyTime);
+                            info.modifyTime = Moment(new Date(remoteInfo.modifyTime));
                         }
                     }
                     catch (e) {
