@@ -52,6 +52,7 @@ If you would like to add another translation, please read [that issue](https://g
    * [Deploy on save](#deploy-on-save-)
    * [Download / pull from SFTP](#download--pull-from-sftp-)
    * [Compare files](#compare-files-)
+   * [Check for newer files](#check-for-newer-files-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
 2. [Install](#install-)
@@ -78,6 +79,10 @@ If you would like to add another translation, please read [that issue](https://g
 ### Compare files [[&uarr;](#demos-)]
 
 ![Demo compare files](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo7.gif)
+
+### Check for newer files [[&uarr;](#demos-)]
+
+![Demo check for newer files](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo9.gif)
 
 ### Deploy to ZIP file [[&uarr;](#demos-)]
 
@@ -164,6 +169,8 @@ Add the subsection `targets` and add one or more entry:
                 "dir": "/my_package_files",
                 "host": "localhost", "port": 22,
                 "user": "tester", "password": "password",
+
+                "checkBeforeDeploy": true,
 
                 "mappings": [
                     {
