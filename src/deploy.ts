@@ -1533,6 +1533,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     deployPlugin();
                                 }
                             };
+
+                            checkForNewer();
                         };
 
                         deployNextPlugin();
