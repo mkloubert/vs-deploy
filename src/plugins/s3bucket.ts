@@ -29,6 +29,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as i18 from '../i18';
+import * as Moment from 'moment';
 
 
 interface DeployTargetS3Bucket extends deploy_contracts.TransformableDeployTarget {
@@ -64,6 +65,10 @@ const KNOWN_CREDENTIAL_CLASSES = {
 
 class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
     public get canPull(): boolean {
+        return true;
+    }
+
+    public get canGetFileInfo(): boolean {
         return true;
     }
 
@@ -345,6 +350,71 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                 catch (e) {
                     completed(e);
                 }
+            }
+        });
+    }
+
+    protected getFileInfoWithContext(ctx: S3Context,
+                                     file: string, target: DeployTargetS3Bucket, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+        
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = (err: any, data?: deploy_contracts.FileInfo) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            };
+
+            try {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                // remove leading '/' chars
+                let bucketKey = relativePath;
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
+                }
+                while (0 == bucketKey.indexOf('/')) {
+                    bucketKey = bucketKey.substr(1);
+                }
+
+                let params: any = {
+                    Key: bucketKey,
+                };
+
+                ctx.connection.getObject(params, (err, data) => {
+                    let result: deploy_contracts.FileInfo = {
+                        exists: false,
+                        isRemote: true,
+                    };
+
+                    if (!err && data) {
+                        result.exists = true;
+                        result.size = data.ContentLength;
+                        result.name = target.bucket;
+                        result.path = bucketKey;
+
+                        if (data.LastModified) {
+                            try {
+                                result.modifyTime = Moment(data.LastModified);
+                            }
+                            catch (e) {
+                                //TODO: log
+                            }
+                        }
+                    }
+
+                    completed(null, result);
+                });
+            }
+            catch (e) {
+                completed(e);
             }
         });
     }
