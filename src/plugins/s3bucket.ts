@@ -64,11 +64,11 @@ const KNOWN_CREDENTIAL_CLASSES = {
 };
 
 class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Context> {
-    public get canPull(): boolean {
+    public get canGetFileInfo(): boolean {
         return true;
     }
-
-    public get canGetFileInfo(): boolean {
+    
+    public get canPull(): boolean {
         return true;
     }
 

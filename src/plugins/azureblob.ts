@@ -29,6 +29,8 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as i18 from '../i18';
+import * as Moment from 'moment';
+import * as Path from 'path';
 import * as TMP from 'tmp';
 
 
@@ -51,6 +53,10 @@ interface AzureBlobContext {
 }
 
 class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBlobContext> {
+    public get canGetFileInfo(): boolean {
+        return true;
+    }
+    
     public get canPull(): boolean {
         return true;
     }
@@ -318,6 +324,82 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                     });
                                 }
                             });
+                        }
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }
+        });
+    }
+
+    protected getFileInfoWithContext(ctx: AzureBlobContext,
+                                     file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = (err: any, info?: deploy_contracts.FileInfo) => {
+                if (!info) {
+                    info = {
+                        exists: false,
+                        isRemote: true,
+                    };
+                }
+
+                resolve(info);
+            };
+
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                try {
+                    let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                    if (false === relativePath) {
+                        completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                        return;
+                    }
+
+                    // remove leading '/' chars
+                    let blob = relativePath;
+                    while (0 == blob.indexOf('/')) {
+                        blob = blob.substr(1);
+                    }
+                    blob = ctx.dir + blob;
+                    while (0 == blob.indexOf('/')) {
+                        blob = blob.substr(1);
+                    }
+
+                    ctx.service.getBlobProperties(ctx.container, blob, (err, result) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            let info: deploy_contracts.FileInfo = {
+                                exists: true,
+                                isRemote: true,
+                                name: Path.basename(<string>relativePath),
+                                path: Path.dirname(<string>relativePath),
+                            };
+
+                            if (!deploy_helpers.isNullUndefinedOrEmptyString(result.lastModified)) {
+                                try {
+                                    info.modifyTime = Moment(result.lastModified);
+                                }
+                                catch (e) {
+                                }
+                            }
+
+                            if (!deploy_helpers.isNullUndefinedOrEmptyString(result.contentLength)) {
+                                try {
+                                    info.size = parseInt(deploy_helpers.toStringSafe(result.contentLength).trim());
+                                }
+                                catch (e) {
+                                }
+                            }
+
+                            completed(err, info);
                         }
                     });
                 }

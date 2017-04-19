@@ -85,11 +85,11 @@ function toSFTPPath(path: string): string {
 
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext> {
-    public get canPull(): boolean {
+    public get canGetFileInfo(): boolean {
         return true;
     }
-
-    public get canGetFileInfo(): boolean {
+    
+    public get canPull(): boolean {
         return true;
     }
 

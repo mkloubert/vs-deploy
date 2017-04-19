@@ -37,11 +37,11 @@ interface DeployTargetTest extends deploy_contracts.TransformableDeployTarget {
 }
 
 class TestPlugin extends deploy_objects.DeployPluginBase {
-    public get canPull(): boolean {
+    public get canGetFileInfo(): boolean {
         return true;
     }
-
-    public get canGetFileInfo(): boolean {
+    
+    public get canPull(): boolean {
         return true;
     }
     
