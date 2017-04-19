@@ -31,6 +31,7 @@ import * as FTP from 'ftp';
 import * as i18 from '../i18';
 const jsFTP = require('jsftp');
 import * as Moment from 'moment';
+const ParseListening = require("parse-listing");
 import * as Path from 'path';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
@@ -559,7 +560,69 @@ class JsFTPClient extends FtpClientBase {
     }
 
     public getFileInfo(file: string): Promise<deploy_contracts.FileInfo> {
-        return Promise.reject(new Error('Not supported!'));
+        let me = this;
+        
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = (err, info?: deploy_contracts.FileInfo) => {
+                if (!info) {
+                    info = {
+                        exists: false,
+                        isRemote: true,
+                    };
+                }
+
+                resolve(info);
+            };
+
+            try {
+                let dir = Path.dirname(file);
+                
+                me.connection.list(file, (err, result) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        ParseListening.parseEntries(result, function(err, list) {
+                            if (err) {
+                                completed(err);
+                            }
+                            else {
+                                let info: deploy_contracts.FileInfo = {
+                                    exists: false,
+                                    isRemote: true,
+                                };
+
+                                if (list) {
+                                    for (let i = 0; i < list.length; i++) {
+                                        let f = list[i];
+                                        if (f.name !== Path.basename(file)) {
+                                            continue;
+                                        }
+
+                                        info.exists = true;
+
+                                        info.size = parseInt(deploy_helpers.toStringSafe(f.size).trim());
+                                        info.name = f.name;
+                                        info.path = dir;
+
+                                        if (!deploy_helpers.isNullUndefinedOrEmptyString(f.time)) {
+                                            info.modifyTime = Moment(f.time);
+                                        }
+
+                                        break;
+                                    }
+                                }
+
+                                completed(null, info);
+                            }
+                        });
+                    }
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
     }
 
     public mkdir(dir: string): Promise<string> {
