@@ -29,8 +29,10 @@ import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as FSExtra from 'fs-extra';
 import * as i18 from '../i18';
+import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
 
 interface DeployTargetLocal extends deploy_contracts.TransformableDeployTarget {
@@ -40,6 +42,10 @@ interface DeployTargetLocal extends deploy_contracts.TransformableDeployTarget {
 
 class LocalPlugin extends deploy_objects.DeployPluginBase {
     public get canPull(): boolean {
+        return true;
+    }
+
+    public get canGetFileInfo(): boolean {
         return true;
     }
 
@@ -281,6 +287,76 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                 });
             }
         });
+    }
+
+    public async getFileInfo(file: string, target: DeployTargetLocal, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+        if (false === relativeTargetFilePath) {
+            throw new Error(i18.t('relativePaths.couldNotResolve', file));
+        }
+
+        let dir = getFullDirPathFromTarget(target, me);
+
+        let targetFile = Path.join(dir, <string>relativeTargetFilePath);
+        let targetDirectory = Path.dirname(targetFile);
+        
+        let wf = Workflows.create();
+
+        // check if exist
+        wf.next((ctx) => {
+            let result: deploy_contracts.FileInfo = {
+                exists: undefined,
+                isRemote: true,
+            };
+
+            ctx.result = result;
+
+            return new Promise<any>((resolve, reject) => {
+                FS.exists(targetFile, (exists) => {
+                    result.exists = exists
+
+                    if (!result.exists) {
+                        ctx.finish();  // no file, no info
+                    }
+
+                    resolve();
+                });
+            });
+        });
+
+        // get file info?
+        wf.next((ctx) => {
+            let result: deploy_contracts.FileInfo = ctx.result;
+
+            return new Promise<any>((resolve, reject) => {
+                FS.lstat(targetFile, (err, stat) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        try {
+                            result.name = Path.basename(targetFile);
+                            result.path = targetDirectory;
+                            result.modifyTime = Moment(stat.ctime);
+                            result.size = stat.size;
+
+                            resolve();
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        return wf.start();
     }
 
     public info(): deploy_contracts.DeployPluginInfo {
