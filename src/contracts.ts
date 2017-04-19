@@ -1342,7 +1342,7 @@ export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, Pl
      */
     beforeDeploy?: BeforeDeployOpenOperation | BeforeDeployOpenOperation[];
     /**
-     * Checks for newer files before a deployment starts.
+     * Check for newer files before a deployment starts or not.
      */
     checkBeforeDeploy?: boolean;
     /**

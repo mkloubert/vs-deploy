@@ -3152,6 +3152,11 @@
                         "type": "string",
                         "description": "The name of the storage account."
                       },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
+                      },
                       "container": {
                         "type": "string",
                         "description": "The name of the container inside the storage."
@@ -5237,6 +5242,11 @@
                         ],
                         "type": "string",
                         "description": "Deploys to a DropBox folder."
+                      },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
                       },
                       "dir": {
                         "type": "string",
@@ -7351,6 +7361,11 @@
                         ],
                         "type": "string",
                         "description": "Deploys to a FTP server."
+                      },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
                       },
                       "dir": {
                         "type": "string",
@@ -9504,6 +9519,11 @@
                         ],
                         "type": "string",
                         "description": "Deploys to a local folder or a shared folder (like SMB) inside your LAN."
+                      },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
                       },
                       "dir": {
                         "type": "string",
@@ -14761,6 +14781,11 @@
                         "type": "string",
                         "description": "The name of the target bucket."
                       },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
+                      },
                       "contentType": {
                         "type": "string",
                         "description": "Defines the content type for files explicit."
@@ -15900,6 +15925,11 @@
                         "description": "Set to (true) to use OpenSSH agent forwarding (auth-agent@openssh.com) for the life of the connection. 'agent' property must also be set to use this feature.",
                         "default": false
                       },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
+                      },
                       "dir": {
                         "type": "string",
                         "description": "The remote directory on the server.",
@@ -17005,6 +17035,11 @@
                         ],
                         "type": "string",
                         "description": "Deploys via a JS script."
+                      },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
                       },
                       "options": {
                         "description": "Optional value or object for the execution."
@@ -19094,6 +19129,11 @@
                         "type": "string",
                         "description": "A mock deployer that only checks what files will be deployed."
                       },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
+                      },
                       "transformer": {
                         "type": "string",
                         "description": "The path to the script that transforms data before it is handled."
@@ -20119,6 +20159,11 @@
                         ],
                         "type": "string",
                         "description": "Deploys to a ZIP file."
+                      },
+                      "checkBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Check for newer files before a deployment starts or not.",
+                        "default": true
                       },
                       "fileName": {
                         "type": "string",

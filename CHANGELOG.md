@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.9.0 (April 19th, 2017; check for newer files before deploy)
+
+* added `checkBeforeDeploy` setting for [azureblob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [dropbox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [script](https://github.com/mkloubert/vs-deploy/wiki/target_script), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets, which will check for newer files BEFORE a deployment starts (if set `(true)`) 
+
 ## 8.8.0 (April 16th, 2017; additional possible sources for iterator targets)
 
 * can also use sources like `ftp://` or `sftp://` for [each](https://github.com/mkloubert/vs-deploy/wiki/target_each) and [map](https://github.com/mkloubert/vs-deploy/wiki/target_map) targets now
