@@ -29,6 +29,7 @@ import * as deploy_objects from '../objects';
 import * as FS from 'fs';
 import * as HTTPs from 'https';
 import * as i18 from '../i18';
+import * as Moment from 'moment';
 import * as Path from 'path';
 
 
@@ -93,6 +94,10 @@ function toDropboxPath(path: string): string {
 
 
 class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxContext> {
+    public get canGetFileInfo(): boolean {
+        return true;
+    }
+
     public get canPull(): boolean {
         return true;
     }
@@ -551,6 +556,121 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                     }
                                 }).catch((err) => {
                                     completed(err);
+                                });
+                                break;
+
+                            case 404:
+                                // not found
+                                err = new Error(i18.t('plugins.dropbox.notFound'));
+                                break;
+
+                            default:
+                                err = new Error(i18.t('plugins.dropbox.unknownResponse',
+                                                      resp.statusCode, 2, resp.statusMessage));
+                                break;
+                        }
+
+                        if (next) {
+                            next();
+                        }
+                    });
+
+                    req.once('error', (err) => {
+                        if (err) {
+                            completed(err);
+                        }
+                    });
+
+                    req.end();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }
+        });
+    }
+
+    protected getFileInfoWithContext(ctx: DropboxContext,
+                                      file: string, target: DeployTargetDropbox, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+        
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = (err: any, info?: deploy_contracts.FileInfo) => {
+                if (!info) {
+                    info = {
+                        exists: false,
+                        isRemote: true,
+                    }
+                }
+
+                resolve(info);
+            };
+
+            if (ctx.hasCancelled) {
+                completed(null);  // cancellation requested
+            }
+            else {
+                let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativeFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                let targetFile = toDropboxPath(Path.join(ctx.dir, relativeFilePath));
+                let targetDirectory = toDropboxPath(Path.dirname(targetFile));
+
+                try {
+                    let headersToSubmit = {
+                        'Authorization': `Bearer ${ctx.token}`,
+                    };
+
+                    // start the request
+                    let req = HTTPs.request({
+                        headers: headersToSubmit,
+                        host: 'api.dropboxapi.com',
+                        method: 'POST',
+                        path: '/1/metadata/auto' + targetFile,
+                        port: 443,
+                        protocol: 'https:',
+                    }, (resp) => {
+                        let err: Error;
+
+                        let info: deploy_contracts.FileInfo = {
+                            exists: false,
+                            isRemote: true,        
+                        };
+
+                        let next = () => {
+                            completed(err);
+                        };
+
+                        switch (resp.statusCode) {
+                            case 200:
+                                next = null;
+
+                                info.exists = true;
+
+                                deploy_helpers.readHttpBody(resp).then((data) => {
+                                    try {
+                                        let json: any = JSON.parse(data.toString('utf8'));
+                                        if (json) {
+                                            info.size = json.bytes;
+                                            info.name = Path.basename(json.path);
+                                            info.path = Path.dirname(json.path);
+
+                                            try {
+                                                info.modifyTime = Moment(json.modified);
+                                            }
+                                            catch (e) {
+                                            }
+                                        }
+                                    }
+                                    catch (e) {
+                                    }
+
+                                    completed(null, info);
+                                }).catch((err) => {
+                                    completed(err, info);
                                 });
                                 break;
 
