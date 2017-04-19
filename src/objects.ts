@@ -1318,6 +1318,11 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
  */
 export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBase<any> {
     /** @inheritdoc */
+    public get canGetFileInfo(): boolean {
+        return true;
+    }
+
+    /** @inheritdoc */
     protected createContext(target: deploy_contracts.DeployTarget,
                             files: string[], opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
                             direction: deploy_contracts.DeployDirection): Promise<DeployPluginContextWrapper<any>> {
@@ -1515,6 +1520,185 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             });
         }
         
+        if (err) {
+            throw err;
+        }
+
+        return result;
+    }
+
+    /** @inheritdoc */
+    public getFileInfo(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
+
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_contracts.FileInfo>(resolve, reject);
+
+            let wf = Workflows.create();
+            
+            let wrapper: DeployPluginContextWrapper<any>;
+            let destroyContext = (err: any, info?: deploy_contracts.FileInfo) => {
+                if (!info) {
+                    info = {
+                        exists: false,
+                        isRemote: true,
+                    };
+                }
+
+                if (wrapper) {
+                    if (wrapper.destroy) {
+                        try {
+                            Promise.resolve(wrapper.destroy()).then(() => {
+                                completed(null, info);
+                            }).catch((e) => {
+                                me.context.log(i18.t('errors.withCategory',
+                                                     'ZipFileDeployPluginBase.getFileInfo(2)', e));
+
+                                completed(null, info);
+                            });
+                        }
+                        catch (e) {
+                            me.context.log(i18.t('errors.withCategory',
+                                                 'ZipFileDeployPluginBase.getFileInfo(1)', e));
+
+                            completed(null, info);
+                        }
+                    }
+                    else {
+                        completed(null, info);
+                    }
+                }
+                else {
+                    completed(null, info);
+                }
+            };
+
+            // create context
+            wf.next(async (ctx) => {
+                return await me.createContext(target, [ file ], opts, deploy_contracts.DeployDirection.FileInfo);
+            });
+
+            // get file info
+            wf.next(async (ctx) => {
+                wrapper = ctx.previousValue;
+
+                return await me.getFileInfoWithContext(wrapper.context,
+                                                       file, target, opts);
+            });
+
+            // write result
+            wf.next((ctx) => {
+                ctx.result = ctx.previousValue;
+            });
+
+            wf.start().then((info) => {
+                destroyContext(null, info);
+            }).catch((err) => {
+                destroyContext(err);
+            });
+        });
+    }
+
+    /** @inheritdoc */
+    protected getFileInfoWithContext(zipFile: any,
+                                     file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): deploy_contracts.FileInfo {
+        if (!opts) {
+            opts = {};
+        }
+
+        let me = this;
+
+        me.getFileInfo
+
+        let hasCancelled = false;
+        let result: deploy_contracts.FileInfo = {
+            exists: false,
+            isRemote: true,
+        };
+
+        me.onCancelling(() => hasCancelled = true);
+
+        let err: any;
+        try {
+            if (!hasCancelled) {
+                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativePath) {
+                    relativePath = file;
+                }
+
+                let zipEntry = (<string>relativePath).trim();
+                while (0 === zipEntry.indexOf('/')) {
+                    zipEntry = zipEntry.substr(1);
+                }
+
+                if (zipFile.files && zipFile.files[zipEntry]) {
+                    let f = zipFile.files[zipEntry];
+                    if (f) {
+                        result.exists = true;
+
+                        // last change date
+                        if (!deploy_helpers.isNullUndefinedOrEmptyString(f.date)) {
+                            try {
+                                result.modifyTime = Moment(f.date);
+                            }
+                            catch (e) {
+                                // TODO: log
+                            }
+                        }
+
+                        // file size
+                        try {
+                            let data: Buffer = f.asNodeBuffer();
+                            if (data) {
+                                result.size = data.length;
+                            }
+                        }
+                        catch (e) {
+                            // TODO: log
+                        }
+
+                        if (!deploy_helpers.isNullUndefinedOrEmptyString(f.name)) {
+                            try {
+
+                            }
+                            catch (e) {
+
+                            }
+                        }
+
+                        // filename
+                        try {
+                            result.name = Path.basename(relativePath);
+                        }
+                        catch (e) {
+                            result.name = deploy_helpers.toStringSafe(f.name);
+                        }
+
+                        // path
+                        try {
+                            result.path = Path.dirname(relativePath);
+                        }
+                        catch (e) {
+                            result.path = relativePath;
+                        }
+                    }
+                    else {
+                        throw i18.t('plugins.zip.fileNotFound');
+                    }
+                }
+                else {
+                    throw i18.t('plugins.zip.fileNotFound');
+                }
+            }
+        }
+        catch (e) {
+            err = e;
+        }
+
         if (err) {
             throw err;
         }
