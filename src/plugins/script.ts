@@ -106,6 +106,10 @@ export interface DeployFileArguments extends DeployArguments {
      */
     file: string;
     /**
+     * The property where to write the file info to.
+     */
+    info: deploy_contracts.FileInfo;
+    /**
      * Tells the extension that the underlying file
      * IS BEING to be deployed.
 
@@ -203,6 +207,10 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
     protected _globalState: Object = {};
     protected _scriptStates: Object = {};
 
+    public get canGetFileInfo(): boolean {
+        return true;
+    }
+
     public get canPull(): boolean {
         return true;
     }
@@ -274,6 +282,14 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
 
                     let allStates = me._scriptStates;
 
+                    let info: deploy_contracts.FileInfo;
+                    if (deploy_contracts.DeployDirection.Pull === direction) {
+                        info = {
+                            exists: false,
+                            isRemote: true,
+                        };
+                    }
+
                     let args: DeployFileArguments = {
                         canceled: me.context.isCancelling(),
                         context: me.context,
@@ -286,6 +302,7 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         },
                         file: file,
                         globals: me.context.globals(),
+                        info: info,
                         onBeforeDeploy: (destination?) => {
                             if (opts.onBeforeDeploy) {
                                 opts.onBeforeDeploy(me, {
@@ -546,6 +563,21 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
         return new Promise<Buffer>((resolve, reject) => {
             me.deployOrPullFile(deploy_contracts.DeployDirection.Pull, file, target, opts).then((args) => {
                 resolve(args.data);
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    public getFileInfo(file: string, target: DeployTargetScript, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+        
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            me.deployOrPullFile(deploy_contracts.DeployDirection.FileInfo, file, target, opts).then((args) => {
+                resolve(args.info || {
+                    exists: false,
+                    isRemote: true,
+                });
             }).catch((err) => {
                 reject(err);
             });
