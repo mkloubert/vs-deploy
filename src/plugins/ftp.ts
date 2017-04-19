@@ -30,6 +30,7 @@ import * as FS from 'fs';
 import * as FTP from 'ftp';
 import * as i18 from '../i18';
 const jsFTP = require('jsftp');
+import * as Moment from 'moment';
 import * as Path from 'path';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
@@ -76,6 +77,8 @@ abstract class FtpClientBase {
     public abstract end(): Promise<boolean>;
 
     public abstract get(file: string): Promise<Buffer>;
+
+    public abstract getFileInfo(file: string): Promise<deploy_contracts.FileInfo>;
 
     public abstract mkdir(dir: string): Promise<string>;
 
@@ -296,6 +299,60 @@ class FtpClient extends FtpClientBase {
         });
     }
 
+    public getFileInfo(file: string): Promise<deploy_contracts.FileInfo> {
+        let me = this;
+
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = (err, info?: deploy_contracts.FileInfo) => {
+                if (!info) {
+                    info = {
+                        exists: false,
+                        isRemote: true,
+                    };
+                }
+
+                resolve(info);
+            };
+
+            let dir = Path.dirname(file);
+            
+            me.connection.list(dir, (err, list) => {
+                if (err) {
+                    completed(err);
+                }
+                else {
+                    let info: deploy_contracts.FileInfo = {
+                        exists: false,
+                        isRemote: true,
+                    };
+
+                    if (list) {
+                        for (let i = 0; i < list.length; i++) {
+                            let f = list[i];
+                            if (f.name !== Path.basename(file)) {
+                                continue;
+                            }
+
+                            info.exists = true;
+
+                            info.size = parseInt(deploy_helpers.toStringSafe(f.size).trim());
+                            info.name = f.name;
+                            info.path = dir;
+
+                            if (f.date) {
+                                info.modifyTime = Moment(f.date);
+                            }
+
+                            break;
+                        }
+                    }
+
+                    completed(null, info);
+                }
+            });
+        });
+    }
+
     public mkdir(dir: string): Promise<string> {
         let me = this;
 
@@ -501,6 +558,10 @@ class JsFTPClient extends FtpClientBase {
         });
     }
 
+    public getFileInfo(file: string): Promise<deploy_contracts.FileInfo> {
+        return Promise.reject(new Error('Not supported!'));
+    }
+
     public mkdir(dir: string): Promise<string> {
         let me = this;
 
@@ -551,6 +612,10 @@ class JsFTPClient extends FtpClientBase {
 }
 
 class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
+    public get canGetFileInfo(): boolean {
+        return true;
+    }
+    
     public get canPull(): boolean {
         return true;
     }
@@ -822,6 +887,34 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 }).catch((err) => {
                     completed(err);
                 });
+            }
+        });
+    }
+
+    protected getFileInfoWithContext(ctx: FTPContext,
+                                     file: string, target: DeployTargetFTP, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
+        return new Promise<deploy_contracts.FileInfo>((resolve, reject) => {
+            let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_contracts.FileInfo>(resolve, reject);
+            
+            try {
+                let relativeFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                if (false === relativeFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                    return;
+                }
+
+                let dir = getDirFromTarget(target);
+                
+                let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
+
+                ctx.connection.getFileInfo(targetFile).then((info) => {
+                    completed(null, info);
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
+            catch (e) {
+                completed(e);
             }
         });
     }
