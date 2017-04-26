@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.10.0 (April 26th, 2017; placeholder support for SFTP agents)
+
+* added [placeholder](https://github.com/mkloubert/vs-deploy/wiki/values) support for `agent` setting of [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) target
+
 ## 8.9.0 (April 19th, 2017; check for newer files before deploy)
 
 * added `checkBeforeDeploy` setting for [azureblob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [dropbox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [s3bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [script](https://github.com/mkloubert/vs-deploy/wiki/target_script), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets, which will check for newer files BEFORE a deployment starts (if set `(true)`) 
