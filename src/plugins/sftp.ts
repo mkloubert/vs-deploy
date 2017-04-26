@@ -202,6 +202,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             }
 
             let agent = deploy_helpers.toStringSafe(target.agent);
+            agent = me.context.replaceWithValues(agent);
             if ('' === agent.trim()) {
                 agent = undefined;
             }
