@@ -1346,6 +1346,10 @@ export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, Pl
      */
     checkBeforeDeploy?: boolean;
     /**
+     * Check for newer files BEFORE a document is being saved.
+     */
+    checkBeforeSave?: boolean;
+    /**
      * List of operations that should be invoked AFTER
      * ALL files have been deployed.
      */

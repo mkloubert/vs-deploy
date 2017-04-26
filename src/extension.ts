@@ -27,14 +27,15 @@
 
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
+import * as deploy_onSave from './onSave';
 import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
-import * as vscode from 'vscode';
 import * as vs_contracts from './contracts';
-import * as deploy_globals from './globals';
 import * as vs_deploy from './deploy';
+import * as vscode from 'vscode';
 
 
 type GetTargetsCallback = (err: any, targets?: vs_contracts.DeployTarget[]) => void;
@@ -212,6 +213,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
+    // notifiy on document s being to be saved
+    context.subscriptions.push(vscode.workspace.onWillSaveTextDocument(deploy_onSave.onWillSaveTextDocument, deployer));
 
     context.subscriptions.push(deployer,
                                compareFiles,

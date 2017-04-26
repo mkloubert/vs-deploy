@@ -819,7 +819,7 @@ export function openTemplate() {
 
                         // last but not least: by label
                         return deploy_helpers.compareValuesBy(x, y,
-                                                              t => t.label);
+                                                              t => deploy_helpers.normalizeString(t.label));
                     });
 
                     // publish own template
