@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.10.1",
+  "version": "8.11.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -16016,6 +16016,28 @@
                       },
                       "transformerOptions": {
                         "description": "Optional data for the transformer script."
+                      },
+                      "modes": {
+                        "oneOf": [
+                          {
+                            "description": "The (octal) 'chmod' access permission value for all files.",
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 777
+                          },
+                          {
+                            "type": "object",
+                            "description": "One or more regular expressions with their 'chmod' access permission values.",
+                            "patternProperties": {
+                              ".*": {
+                                "description": "The (octal) 'chmod' access permission value for the maching files files.",
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 777
+                              }
+                            }
+                          }
+                        ]
                       },
                       "description": {
                         "type": "string",
