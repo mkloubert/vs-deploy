@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_values from '../values';
 import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Moment from 'moment';
@@ -55,6 +56,14 @@ interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
     tryKeyboard?: boolean;
     readyTimeout?: number;
     modes?: Object | number | string;
+    beforeUpload?: string | string[];
+    uploaded?: string | string[];
+}
+
+interface FileToUpload {
+    localPath: string;
+    stats: FS.Stats;
+    values: deploy_values.ValueBase[];
 }
 
 interface SFTPContext {
@@ -64,6 +73,9 @@ interface SFTPContext {
     dataTransformerOptions?: any;
     hasCancelled: boolean;
 }
+
+const MODE_PAD = '000';
+const TOUCH_TIME_FORMAT = 'YYYYMMDDHHmm.ss';
 
 function getDirFromTarget(target: DeployTargetSFTP): string {
     let dir = deploy_helpers.toStringSafe(target.dir);
@@ -403,7 +415,175 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
                                 let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                                 Promise.resolve(tResult).then((dataToUpload) => {
-                                    ctx.connection.put(dataToUpload, targetFile, putOpts).then(() => {
+                                    let putWorkflow = Workflows.create();
+
+                                    // get information of the local file
+                                    putWorkflow.next((wfCtx) => {
+                                        return new Promise<any>((resolve, reject) => {
+                                            FS.lstat(file, (err, stats) => {
+                                                if (err) {
+                                                    reject(err);
+                                                }
+                                                else {
+                                                    let ftu: FileToUpload = {
+                                                        localPath: file,
+                                                        stats: stats,
+                                                        values: [],
+                                                    };
+
+                                                    wfCtx.value = ftu;
+
+                                                    resolve();
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                    // "time" values
+                                    putWorkflow.next((wfCtx) => {
+                                        let ftu: FileToUpload = wfCtx.value;
+
+                                        let timeProperties = [ 'ctime', 'atime', 'mtime', 'birthtime' ];
+                                        timeProperties.forEach(tp => {
+                                            let timeValue: Date = ftu.stats[tp];
+                                            if (!timeValue) {
+                                                return;
+                                            }
+
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_iso',
+                                                value: Moment(timeValue).toISOString(),
+                                            }));
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_iso_utc',
+                                                value: Moment(timeValue).utc().toISOString(),
+                                            }));
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_touch',
+                                                value: Moment(timeValue).format(TOUCH_TIME_FORMAT),
+                                            }));
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_touch_utc',
+                                                value: Moment(timeValue).utc().format(TOUCH_TIME_FORMAT),
+                                            }));
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_unix',
+                                                value: Moment(timeValue).unix(),
+                                            }));
+                                            ftu.values.push(new deploy_values.StaticValue({
+                                                name: tp + '_unix_utc',
+                                                value: Moment(timeValue).utc().unix(),
+                                            }));
+                                        });
+
+                                        // GID & UID
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'gid',
+                                            value: ftu.stats.gid,
+                                        }));
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'uid',
+                                            value: ftu.stats.uid,
+                                        }));
+
+                                        // file & directory
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'remote_file',
+                                            value: targetFile,
+                                        }));
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'remote_dir',
+                                            value: targetDirectory,
+                                        }));
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'remote_name',
+                                            value: Path.basename(targetFile),
+                                        }));
+
+                                        let modeFull = ftu.stats.mode.toString(8);
+                                        let modeDec = ftu.stats.mode.toString();
+
+                                        let modeSmall = modeFull;
+                                        modeSmall = MODE_PAD.substring(0, MODE_PAD.length - modeSmall.length) + modeSmall;
+                                        if (modeSmall.length >= 3) {
+                                            modeSmall = modeSmall.substr(-3, 3);
+                                        }
+
+                                        // mode
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'mode',
+                                            value: modeSmall,
+                                        }));
+                                        // mode_full
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'mode_full',
+                                            value: modeFull,
+                                        }));
+                                        // mode_decimal
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'mode_decimal',
+                                            value: modeDec,
+                                        }));
+                                    });
+
+                                    let applyExecActions = (commands: string | string[]) => {
+                                        commands = deploy_helpers.asArray(commands)
+                                                                 .map(x => deploy_helpers.toStringSafe(x))
+                                                                 .filter(x => '' !== x.trim());
+
+                                        commands.forEach(uc => {
+                                            putWorkflow.next((wfCtx) => {
+                                                let ftu: FileToUpload = wfCtx.value;
+
+                                                let cmd = uc;
+                                                cmd = me.context.replaceWithValues(cmd);
+                                                cmd = deploy_values.replaceWithValues(ftu.values, cmd);
+
+                                                return new Promise<any>((resolve, reject) => {
+                                                    try {
+                                                        let client = ctx.connection.client;
+                                                        let e: Function = client['exec'];
+
+                                                        let args = [
+                                                            cmd,
+                                                            (err: any, stream) => {
+                                                                if (err) {
+                                                                    reject(err);
+                                                                }
+                                                                else {
+                                                                    resolve();
+                                                                }
+                                                            },
+                                                        ];
+
+                                                        e.apply(client, args);
+                                                    }
+                                                    catch (e) {
+                                                        reject(e);
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    };
+
+                                    // commands to execute BEFORE the upload
+                                    applyExecActions(target.beforeUpload);
+
+                                    // upload
+                                    putWorkflow.next(() => {
+                                        return new Promise<any>((resolve, reject) => {
+                                            ctx.connection.put(dataToUpload, targetFile, putOpts).then(() => {
+                                                resolve();
+                                            }).catch((e) => {
+                                                reject(e);
+                                            });
+                                        });
+                                    });
+
+                                    // commands to execute AFTER the upload
+                                    applyExecActions(target.uploaded);
+
+                                    putWorkflow.start().then(() => {
                                         completed();
                                     }).catch((e) => {
                                         completed(e);
