@@ -218,7 +218,7 @@ export function createFileQuickPick(file: string, target: deploy_contracts.Deplo
 export function createPackageQuickPick(pkg: deploy_contracts.DeployPackage, index: number,
                                        values?: deploy_values.ValueBase[]): deploy_contracts.DeployPackageQuickPickItem {
     let name = toStringSafe(pkg.name).trim();
-    if (!name) {
+    if ('' === name) {
         name = i18.t('packages.defaultName', index + 1);
     }
 
