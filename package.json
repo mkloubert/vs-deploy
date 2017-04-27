@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.11.0",
+  "version": "8.12.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -16035,6 +16035,40 @@
                                 "minimum": 0,
                                 "maximum": 777
                               }
+                            }
+                          }
+                        ]
+                      },
+                      "beforeUpload": {
+                        "description": "One or more command that should be executed on the server BEFORE a file is uploaded.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The command to execute."
+                          },
+                          {
+                            "description": "The commands to execute.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "The command to execute."
+                            }
+                          }
+                        ]
+                      },
+                      "uploaded": {
+                        "description": "One or more command that should be executed on the server AFTER a file has been uploaded.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The command to execute."
+                          },
+                          {
+                            "description": "The commands to execute.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "The command to execute."
                             }
                           }
                         ]

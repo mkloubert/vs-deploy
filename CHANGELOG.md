@@ -1,8 +1,12 @@
 # Change Log (vs-deploy)
 
+## 8.12.0 (April 27th, 2017; execute commands on SFTP server)
+
+* added `beforeUpload` and `uploaded` for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, which can execute commands on a server (s. [Execute commands on server](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#execute-commands-on-server))
+
 ## 8.11.0 (April 27th, 2017; custom permissions for SFTP uploaded files)
 
-* added `modes` setting for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, that can define one or more [chmod](https://en.wikipedia.org/wiki/Chmod) access permission values target files on the server
+* added `modes` setting for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, that can define one or more [chmod](https://en.wikipedia.org/wiki/Chmod) access permission values for target files on the server
 
 ## 8.10.0 (April 26th, 2017; placeholder support for SFTP agents)
 
