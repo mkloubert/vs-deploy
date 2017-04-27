@@ -54,6 +54,7 @@ interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
     agentForward?: boolean;
     tryKeyboard?: boolean;
     readyTimeout?: number;
+    modes?: Object | number | string;
 }
 
 interface SFTPContext {
@@ -324,6 +325,41 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
             let targetDirectory = toSFTPPath(Path.dirname(targetFile));
 
+            let putOpts: any = {};
+            if (!deploy_helpers.isNullOrUndefined(target.modes)) {
+                let mode: number;
+
+                let asOctalNumber = (val: any): number => {
+                    if (deploy_helpers.isNullUndefinedOrEmptyString(val)) {
+                        return;
+                    }
+
+                    return parseInt(deploy_helpers.toStringSafe(val).trim(),
+                                    8);
+                };
+                
+                if ('object' === typeof target.modes) {
+                    for (let p in target.modes) {
+                        let r = new RegExp(p);
+
+                        if (r.test(targetFile)) {
+                            mode = asOctalNumber(target.modes[p]);
+                        }
+                    }
+                }
+                else {
+                    // handle as string or number
+                    mode = asOctalNumber(target.modes);
+                }
+
+                if (deploy_helpers.isNullUndefinedOrEmptyString(mode)) {
+                    putOpts = undefined;
+                }
+                else {
+                    putOpts['mode'] = mode;
+                }
+            }
+
             // upload the file
             let uploadFile = (initDirCache?: boolean) => {
                 if (ctx.hasCancelled) {
@@ -367,7 +403,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
                                 let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                                 Promise.resolve(tResult).then((dataToUpload) => {
-                                    ctx.connection.put(dataToUpload, targetFile).then(() => {
+                                    ctx.connection.put(dataToUpload, targetFile, putOpts).then(() => {
                                         completed();
                                     }).catch((e) => {
                                         completed(e);
