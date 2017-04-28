@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 8.15.0 (April 27th, 2017; execute commands on FTP server)
+## 8.15.0 (April 29th, 2017; execute commands on FTP server)
 
 * added `beforeUpload`, `closing`, `connected` and `uploaded` for [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) targets, which can execute commands on a server (s. [Execute commands on server](https://github.com/mkloubert/vs-deploy/wiki/target_ftp#execute-commands-on-server))
 
