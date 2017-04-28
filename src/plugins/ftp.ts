@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_values from '../values';
 import * as FS from 'fs';
 import * as FTP from 'ftp';
 import * as i18 from '../i18';
@@ -35,6 +36,7 @@ const ParseListening = require("parse-listing");
 import * as Path from 'path';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
 
 interface DeployTargetFTP extends deploy_contracts.TransformableDeployTarget {
@@ -49,17 +51,52 @@ interface DeployTargetFTP extends deploy_contracts.TransformableDeployTarget {
     pasvTimeout?: number;
     keepalive?: number;
     engine?: string;
+    beforeUpload?: FTPCommands;
+    closing?: FTPCommands;
+    connected?: FTPCommands;
+    uploaded?: FTPCommands;
 }
+
+type FTPCommands = string | string[];
 
 interface FTPContext {
     cachedRemoteDirectories: any;
     connection: FtpClientBase;
     hasCancelled: boolean;
+    user: string;
+}
+
+const FTP_TIME_FORMAT = 'YYYYMMDDHHmmss';
+const FTP_FULL_TIME_FORMAT = 'YYYYMMDDHHmmss.SSS';
+const MODE_PAD = '000';
+
+function appendTimeValues(values: deploy_values.ValueBase[],
+                          name: string, timeValue: Date) {
+    if (!timeValue) {
+        return;
+    }
+                              
+    values.push(new deploy_values.StaticValue({
+        name: name,
+        value: Moment(timeValue).format(FTP_TIME_FORMAT),
+    }));
+    values.push(new deploy_values.StaticValue({
+        name: name + '_utc',
+        value: Moment(timeValue).utc().format(FTP_TIME_FORMAT),
+    }));
+    values.push(new deploy_values.StaticValue({
+        name: name + '_full',
+        value: Moment(timeValue).format(FTP_FULL_TIME_FORMAT),
+    }));
+    values.push(new deploy_values.StaticValue({
+        name: name + '_full_utc',
+        value: Moment(timeValue).utc().format(FTP_FULL_TIME_FORMAT),
+    }));
 }
 
 function getDirFromTarget(target: DeployTargetFTP): string {
     let dir = deploy_helpers.toStringSafe(target.dir);
-    if (!dir) {
+    if ('' === dir) {
         dir = '/';
     }
 
@@ -71,11 +108,54 @@ function toFTPPath(path: string): string {
 }
 
 abstract class FtpClientBase {
+    protected _context: deploy_contracts.DeployContext;
+    
+    constructor(context: deploy_contracts.DeployContext) {
+        this._context = context;
+    }
+
     public abstract connect(target: DeployTargetFTP): Promise<boolean>;
+
+    public get context(): deploy_contracts.DeployContext {
+        return this._context;
+    }
 
     public abstract cwd(dir: string): Promise<string>;
 
     public abstract end(): Promise<boolean>;
+
+    public abstract execute(cmd: string): Promise<any>;
+
+    public executeCommands(commands: FTPCommands,
+                           values?: deploy_values.ValueBase | deploy_values.ValueBase[]): Promise<any> {
+        let me = this;
+        
+        commands = deploy_helpers.asArray(commands)
+                                 .map(c => {
+                                          c = deploy_helpers.toStringSafe(c);
+                                          c = me.context.replaceWithValues(c);
+                                          c = deploy_values.replaceWithValues(values, c);
+
+                                          return c;
+                                      })
+                                 .filter(c => '' !== c.trim());
+
+        let wf = Workflows.create();
+
+        commands.forEach(c => {
+            wf.next(async () => {
+                return await me.execute(c);
+            });
+        });
+
+        return new Promise<any>((resolve, reject) => {
+            wf.start().then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
 
     public abstract get(file: string): Promise<Buffer>;
 
@@ -223,6 +303,34 @@ class FtpClient extends FtpClientBase {
             }
             catch (e) {
                 completed(e);
+            }
+        });
+    }
+
+    public execute(cmd: string): Promise<any> {
+        let me = this;
+        
+        return new Promise<any>((resolve, reject) => {
+            try {
+                let sendFunc: Function = me.connection['_send'];
+
+                let sendArgs = [
+                    cmd,
+                    (err, respTxt, respCode) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve();
+                        }
+                    }
+                ];
+
+                sendFunc.apply(me.connection,
+                               sendArgs);
+            }
+            catch (e) {
+                reject(e);
             }
         });
     }
@@ -510,6 +618,37 @@ class JsFTPClient extends FtpClientBase {
         });
     }
 
+    public execute(cmd: string): Promise<any> {
+        let me = this;
+        
+        return new Promise<any>((resolve, reject) => {
+            try {
+                let parts = deploy_helpers.toStringSafe(cmd)
+                                          .split(' ')
+                                          .filter(x => '' !== x.trim());
+
+                let c: string;
+                if (parts.length > 0) {
+                    c = parts[0];
+                }
+
+                let args = parts.filter((a, i) => i > 0);
+
+                me.connection.raw(c, args, (err, data) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
+
     public get(file: string): Promise<Buffer> {
         let me = this;
 
@@ -689,6 +828,9 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
         let me = this;
 
         return new Promise<deploy_objects.DeployPluginContextWrapper<FTPContext>>((resolve, reject) => {
+            let connectionValues: deploy_values.ValueBase[] = [];
+     
+
             let completed = (err: any, conn?: FtpClientBase) => {
                 if (err) {
                     reject(err);
@@ -698,7 +840,14 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                         cachedRemoteDirectories: {},
                         connection: conn,
                         hasCancelled: false,
+                        user: deploy_helpers.toStringSafe(target.user, 'anonymous'),
                     };
+
+                    // user
+                    connectionValues.push(new deploy_values.StaticValue({
+                        name: 'user',
+                        value: ctx.user,
+                    }));
 
                     me.onCancelling(() => {
                         ctx.hasCancelled = true;
@@ -714,10 +863,18 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             return new Promise<any>((resolve2, reject2) => {
                                 delete ctx.cachedRemoteDirectories;
 
-                                conn.end().then(() => {
-                                    resolve2(conn);
-                                }).catch((e) => {
-                                    reject2(e);
+                                appendTimeValues(connectionValues,
+                                                 'close_time', new Date());
+
+                                // execute commands BEFORE close connection
+                                conn.executeCommands(target.closing, connectionValues).then(() => {
+                                    conn.end().then(() => {
+                                        resolve2(conn);
+                                    }).catch((e) => {
+                                        reject2(e);
+                                    });
+                                }).catch((err) => {
+                                    reject2(err);
                                 });
                             });
                         },
@@ -732,17 +889,26 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             switch (engine) {
                 case '':
                 case 'ftp':
-                    client = new FtpClient();
+                    client = new FtpClient(me.context);
                     break;
 
                 case 'jsftp':
-                    client = new JsFTPClient();
+                    client = new JsFTPClient(me.context);
                     break;
             }
 
             if (client) {
                 client.connect(target).then(() => {
-                    completed(null, client);
+                    appendTimeValues(connectionValues,
+                                     'connected_time', new Date());
+
+                    // execute commands AFTER
+                    // connection has been established
+                    client.executeCommands(target.connected, connectionValues).then(() => {
+                        completed(null, client);
+                    }).catch((err) => {
+                        completed(err);
+                    });
                 }).catch((err) => {
                     completed(err);
                 });
@@ -783,7 +949,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             let targetFile = toFTPPath(Path.join(dir, relativeFilePath));
             let targetDirectory = toFTPPath(Path.dirname(targetFile));
 
-            let uploadFile = (initDirCache?: boolean) => {
+            let uploadFile = (stats: FS.Stats, initDirCache: boolean) => {
                 if (ctx.hasCancelled) {
                     completed();  // cancellation requested
                     return;
@@ -813,10 +979,73 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                                                                        subCtx);
                             tCtx.data = data;
 
+                            let putValues: deploy_values.ValueBase[] = [];
+
+                            let timeProperties = [ 'ctime', 'atime', 'mtime', 'birthtime' ];
+                            timeProperties.forEach(tp => {
+                                appendTimeValues(putValues,
+                                                 tp, stats[tp]);
+                            });
+
+                            // directory and file
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'remote_dir',
+                                value: targetDirectory,
+                            }));
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'remote_file',
+                                value: targetFile,
+                            }));
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'remote_name',
+                                value: Path.basename(targetFile),
+                            }));
+
+                            let modeFull = stats.mode.toString(8);
+                            let modeDec = stats.mode.toString();
+
+                            let modeSmall = modeFull;
+                            modeSmall = MODE_PAD.substring(0, MODE_PAD.length - modeSmall.length) + modeSmall;
+                            if (modeSmall.length >= 3) {
+                                modeSmall = modeSmall.substr(-3, 3);
+                            }
+
+                            // mode
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'mode',
+                                value: modeSmall,
+                            }));
+                            // mode_full
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'mode_full',
+                                value: modeFull,
+                            }));
+                            // mode_decimal
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'mode_decimal',
+                                value: modeDec,
+                            }));
+
+                            // user
+                            putValues.push(new deploy_values.StaticValue({
+                                name: 'user',
+                                value: ctx.user,
+                            }));
+
                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                             Promise.resolve(tResult).then((transformedData) => {
-                                ctx.connection.put(targetFile, transformedData).then(() => {
-                                    completed();
+                                // first execute commands BEFORE upload
+                                ctx.connection.executeCommands(target.beforeUpload, putValues).then(() => {
+                                    ctx.connection.put(targetFile, transformedData).then(() => {
+                                        // then execute commands AFTER uploaded
+                                        ctx.connection.executeCommands(target.uploaded, putValues).then(() => {
+                                            completed();
+                                        }).catch((err) => {
+                                            completed(err);
+                                        });
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
                                 }).catch((err) => {
                                     completed(err);
                                 });
@@ -839,6 +1068,17 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 });
             }
 
+            let getFileStats = (initDirCache?: boolean) => {
+                FS.lstat(file, (err, stats) => {
+                    if (err) {
+                        completed(err);
+                    }
+                    else {
+                        uploadFile(stats, initDirCache);
+                    }
+                });
+            };
+
             if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
                 // first check if directory exists ...
                 ctx.connection.cwd(targetDirectory).then(() => {
@@ -846,7 +1086,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                         completed();  // cancellation requested
                     }
                     else {
-                        uploadFile(true);
+                        getFileStats(true);
                     }
                 }).catch((err) => {
                     if (ctx.hasCancelled) {
@@ -857,19 +1097,19 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             // does not exist => try to create
 
                             ctx.connection.mkdir(targetDirectory).then(() => {
-                                uploadFile(true);
+                                getFileStats(true);
                             }).catch((err) => {
                                 completed(err);
                             });
                         }
                         else {
-                            uploadFile(true);
+                            getFileStats(true);
                         }
                     }
                 });
             }
             else {
-                uploadFile();
+                getFileStats();
             }
         }
     }
