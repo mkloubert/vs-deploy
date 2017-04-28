@@ -208,10 +208,12 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             }
 
             let privateKeyFile = deploy_helpers.toStringSafe(target.privateKey);
-            if (privateKeyFile) {
+            if ('' !== privateKeyFile.trim()) {
                 if (!Path.isAbsolute(privateKeyFile)) {
                     privateKeyFile = Path.join(vscode.workspace.rootPath, privateKeyFile);
                 }
+
+                privateKeyFile = me.context.replaceWithValues(privateKeyFile);
             }
 
             let agent = deploy_helpers.toStringSafe(target.agent);
@@ -284,7 +286,10 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     });
                 };
 
-                if (privateKeyFile) {
+                if (deploy_helpers.isNullUndefinedOrEmptyString(privateKeyFile)) {
+                    openConnection();
+                }
+                else {
                     // try read private key
 
                     FS.readFile(privateKeyFile, (err, data) => {
@@ -296,9 +301,6 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         privateKey = data;
                         openConnection();
                     });
-                }
-                else {
-                    openConnection();
                 }
             }
             catch (e) {
