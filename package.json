@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.13.2",
+  "version": "8.14.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -16058,6 +16058,40 @@
                       },
                       "uploaded": {
                         "description": "One or more command that should be executed on the server AFTER a file has been uploaded.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The command to execute."
+                          },
+                          {
+                            "description": "The commands to execute.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "The command to execute."
+                            }
+                          }
+                        ]
+                      },
+                      "connected": {
+                        "description": "One or more command that should be executed on the server AFTER a connection has been established.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The command to execute."
+                          },
+                          {
+                            "description": "The commands to execute.",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "The command to execute."
+                            }
+                          }
+                        ]
+                      },
+                      "closing": {
+                        "description": "One or more command that should be executed on the server BEFORE a connection will be closed.",
                         "oneOf": [
                           {
                             "type": "string",
