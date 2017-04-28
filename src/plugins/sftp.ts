@@ -56,8 +56,10 @@ interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
     tryKeyboard?: boolean;
     readyTimeout?: number;
     modes?: Object | number | string;
-    beforeUpload?: string | string[];
-    uploaded?: string | string[];
+    beforeUpload?: SSHCommands;
+    uploaded?: SSHCommands;
+    connected?: SSHCommands;
+    closing?: SSHCommands;
 }
 
 interface FileToUpload {
@@ -72,14 +74,17 @@ interface SFTPContext {
     dataTransformer: deploy_contracts.DataTransformer;
     dataTransformerOptions?: any;
     hasCancelled: boolean;
+    user: string;
 }
+
+type SSHCommands = string | string[];
 
 const MODE_PAD = '000';
 const TOUCH_TIME_FORMAT = 'YYYYMMDDHHmm.ss';
 
 function getDirFromTarget(target: DeployTargetSFTP): string {
     let dir = deploy_helpers.toStringSafe(target.dir);
-    if (!dir) {
+    if ('' === dir) {
         dir = '/';
     }
 
@@ -87,9 +92,7 @@ function getDirFromTarget(target: DeployTargetSFTP): string {
 }
 
 function toHashSafe(hash: string): string {
-    return deploy_helpers.toStringSafe(hash)
-                         .toLowerCase()
-                         .trim();
+    return deploy_helpers.normalizeString(hash);
 }
 
 function toSFTPPath(path: string): string {
@@ -98,6 +101,49 @@ function toSFTPPath(path: string): string {
 
 
 class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext> {
+    protected applyExecActionsToWorkflow(ctx: SFTPContext,
+                                         wf: Workflows.Workflow,
+                                         commands: SSHCommands,
+                                         values?: deploy_values.ValueBase | deploy_values.ValueBase[]) {
+        let me = this;
+
+        commands = deploy_helpers.asArray(commands)
+                                 .map(x => deploy_helpers.toStringSafe(x))
+                                 .filter(x => '' !== x.trim());
+
+        commands.forEach(uc => {
+            wf.next(() => {
+                let cmd = me.context.replaceWithValues(uc);
+                cmd = deploy_values.replaceWithValues(values, cmd);
+
+                return new Promise<any>((resolve, reject) => {
+                    try {
+                        let client = ctx.connection.client;
+
+                        let execFunc: Function = client['exec'];
+                        let execArgs = [
+                            cmd,
+                            (err: any) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    resolve();
+                                }
+                            },
+                        ];
+
+                        execFunc.apply(client,
+                                       execArgs);
+                    }
+                    catch (e) {
+                        reject(e);
+                    }
+                });
+            });
+        });
+    }
+
     public get canGetFileInfo(): boolean {
         return true;
     }
@@ -120,8 +166,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     let dataTransformer: deploy_contracts.DataTransformer;
                     if (target.unix) {
                         if (deploy_helpers.toBooleanSafe(target.unix.convertCRLF)) {
-                            let textEnc = deploy_helpers.toStringSafe(target.unix.encoding).toLowerCase().trim();
-                            if (!textEnc) {
+                            let textEnc = deploy_helpers.normalizeString(target.unix.encoding);
+                            if ('' === textEnc) {
                                 textEnc = 'ascii';
                             }
 
@@ -157,53 +203,126 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         connection: conn,
                         dataTransformer: deploy_helpers.toDataTransformerSafe(dataTransformer),
                         hasCancelled: false,
+                        user: user,
                     };
 
                     me.onCancelling(() => ctx.hasCancelled = true, opts);
 
-                    let wrapper: deploy_objects.DeployPluginContextWrapper<SFTPContext> = {
-                        context: ctx,
-                        destroy: function(): Promise<any> {
-                            return new Promise<any>((resolve2, reject2) => {
-                                delete ctx.cachedRemoteDirectories;
+                    let connectionEstablishWorkflow = Workflows.create();
 
-                                try {
-                                    conn.end();
+                    let connectionValues: deploy_values.ValueBase[] = [];
 
-                                    resolve2(conn);
-                                }
-                                catch (e) {
-                                    reject2(e);
-                                }
-                            });
-                        },
+                    // user
+                    connectionValues.push(new deploy_values.StaticValue({
+                        name: 'user',
+                        value: ctx.user,
+                    }));
+
+                    let appendTimeValue = (name: string, timeValue: Date) => {
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_iso',
+                            value: Moment(timeValue).toISOString(),
+                        }));
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_iso_utc',
+                            value: Moment(timeValue).utc().toISOString(),
+                        }));
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_touch',
+                            value: Moment(timeValue).format(TOUCH_TIME_FORMAT),
+                        }));
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_touch_utc',
+                            value: Moment(timeValue).utc().format(TOUCH_TIME_FORMAT),
+                        }));
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_unix',
+                            value: Moment(timeValue).unix(),
+                        }));
+                        connectionValues.push(new deploy_values.StaticValue({
+                            name: name + '_unix_utc',
+                            value: Moment(timeValue).utc().unix(),
+                        }));
                     };
 
-                    resolve(wrapper);
+                    connectionEstablishWorkflow.next((cewfCtx) => {
+                        let wrapper: deploy_objects.DeployPluginContextWrapper<SFTPContext> = {
+                            context: ctx,
+                            destroy: function(): Promise<any> {
+                                return new Promise<any>((resolve2, reject2) => {
+                                    delete ctx.cachedRemoteDirectories;
+                                    
+                                    let closingConnectionWorkflow = Workflows.create();
+
+                                    // setup "close" time
+                                    connectionEstablishWorkflow.next(() => {
+                                        appendTimeValue('close_time', new Date());
+                                    });
+
+                                    // commands to execute BEFORE connection is closed
+                                    me.applyExecActionsToWorkflow(ctx,
+                                                                  closingConnectionWorkflow,
+                                                                  target.closing,
+                                                                  connectionValues);
+
+                                    closingConnectionWorkflow.next(() => {
+                                        conn.end();
+                                    });
+
+                                    closingConnectionWorkflow.start().then(() => {
+                                        resolve2(conn);
+                                    }).catch((e) => {
+                                        reject2(e);
+                                    });
+                                });
+                            },
+                        };
+
+                        cewfCtx.result = wrapper;
+                    });
+
+                    // setup "connection" time
+                    connectionEstablishWorkflow.next(() => {
+                        appendTimeValue('connected_time', new Date());
+                    });
+
+                    // commands to execute after
+                    // connection has been established
+                    me.applyExecActionsToWorkflow(ctx,
+                                                  connectionEstablishWorkflow,
+                                                  target.connected,
+                                                  connectionValues);
+
+                    connectionEstablishWorkflow.start().then((wrapper: deploy_objects.DeployPluginContextWrapper<SFTPContext>) => {
+                        resolve(wrapper);
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 }
             };
 
+            // host & TCP port
             let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
             let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
+            // username and password
             let user = deploy_helpers.toStringSafe(target.user);
-            if (!user) {
+            if ('' === user) {
                 user = undefined;
             }
             let pwd = deploy_helpers.toStringSafe(target.password);
-            if (!pwd) {
+            if ('' === pwd) {
                 pwd = undefined;
             }
 
+            // supported hashes
             let hashes = deploy_helpers.asArray(target.hashes)
                                        .map(x => toHashSafe(x))
-                                       .filter(x => x);
-            hashes = hashes = deploy_helpers.distinctArray(hashes);
+                                       .filter(x => '' !== x);
+            hashes = deploy_helpers.distinctArray(hashes);
 
-            let hashAlgo = deploy_helpers.toStringSafe(target.hashAlgorithm)
-                                         .toLowerCase()
-                                         .trim();
-            if (!hashAlgo) {
+            let hashAlgo = toHashSafe(target.hashAlgorithm);
+            if ('' === hashAlgo) {
                 hashAlgo = 'md5';
             }
 
@@ -418,6 +537,8 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                 Promise.resolve(tResult).then((dataToUpload) => {
                                     let putWorkflow = Workflows.create();
 
+                                    let putValues: deploy_values.ValueBase[] = [];
+
                                     // get information of the local file
                                     putWorkflow.next((wfCtx) => {
                                         return new Promise<any>((resolve, reject) => {
@@ -429,7 +550,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                                     let ftu: FileToUpload = {
                                                         localPath: file,
                                                         stats: stats,
-                                                        values: [],
+                                                        values: putValues,
                                                     };
 
                                                     wfCtx.value = ftu;
@@ -525,46 +646,19 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                             name: 'mode_decimal',
                                             value: modeDec,
                                         }));
+
+                                        // user
+                                        ftu.values.push(new deploy_values.StaticValue({
+                                            name: 'user',
+                                            value: ctx.user,
+                                        }));
                                     });
 
                                     let applyExecActions = (commands: string | string[]) => {
-                                        commands = deploy_helpers.asArray(commands)
-                                                                 .map(x => deploy_helpers.toStringSafe(x))
-                                                                 .filter(x => '' !== x.trim());
-
-                                        commands.forEach(uc => {
-                                            putWorkflow.next((wfCtx) => {
-                                                let ftu: FileToUpload = wfCtx.value;
-
-                                                let cmd = uc;
-                                                cmd = me.context.replaceWithValues(cmd);
-                                                cmd = deploy_values.replaceWithValues(ftu.values, cmd);
-
-                                                return new Promise<any>((resolve, reject) => {
-                                                    try {
-                                                        let client = ctx.connection.client;
-                                                        let e: Function = client['exec'];
-
-                                                        let args = [
-                                                            cmd,
-                                                            (err: any, stream) => {
-                                                                if (err) {
-                                                                    reject(err);
-                                                                }
-                                                                else {
-                                                                    resolve();
-                                                                }
-                                                            },
-                                                        ];
-
-                                                        e.apply(client, args);
-                                                    }
-                                                    catch (e) {
-                                                        reject(e);
-                                                    }
-                                                });
-                                            });
-                                        });
+                                        me.applyExecActionsToWorkflow(ctx,
+                                                                      putWorkflow,
+                                                                      commands,
+                                                                      putValues);
                                     };
 
                                     // commands to execute BEFORE the upload

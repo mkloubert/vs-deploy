@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.14.0 (April 28th, 2017; execute commands on SFTP server)
+
+* added `closing` and `connected` for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, which can execute commands on a server (s. [Execute commands on server](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#execute-commands-on-server))
+
 ## 8.13.0 (April 28th, 2017; placeholder support for SFTP private key file paths)
 
 * added [placeholder](https://github.com/mkloubert/vs-deploy/wiki/values) support for `privateKey` setting of [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets
