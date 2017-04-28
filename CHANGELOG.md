@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.13.0 (April 28th, 2017; placeholder support for SFTP private key file paths)
+
+* added [placeholder](https://github.com/mkloubert/vs-deploy/wiki/values) support for `privateKey` setting of [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets
+
 ## 8.12.0 (April 27th, 2017; execute commands on SFTP server)
 
 * added `beforeUpload` and `uploaded` for [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, which can execute commands on a server (s. [Execute commands on server](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#execute-commands-on-server))
@@ -10,7 +14,7 @@
 
 ## 8.10.0 (April 26th, 2017; placeholder support for SFTP agents)
 
-* added [placeholder](https://github.com/mkloubert/vs-deploy/wiki/values) support for `agent` setting of [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) target
+* added [placeholder](https://github.com/mkloubert/vs-deploy/wiki/values) support for `agent` setting of [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets
 
 ## 8.9.0 (April 19th, 2017; check for newer files before deploy)
 
