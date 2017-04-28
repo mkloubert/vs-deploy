@@ -209,11 +209,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
 
             let privateKeyFile = deploy_helpers.toStringSafe(target.privateKey);
             if ('' !== privateKeyFile.trim()) {
+                privateKeyFile = me.context.replaceWithValues(privateKeyFile);
+
                 if (!Path.isAbsolute(privateKeyFile)) {
                     privateKeyFile = Path.join(vscode.workspace.rootPath, privateKeyFile);
                 }
-
-                privateKeyFile = me.context.replaceWithValues(privateKeyFile);
             }
 
             let agent = deploy_helpers.toStringSafe(target.agent);
