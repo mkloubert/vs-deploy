@@ -143,8 +143,14 @@ abstract class FtpClientBase {
         let wf = Workflows.create();
 
         commands.forEach(c => {
-            wf.next(async () => {
-                return await me.execute(c);
+            wf.next(() => {
+                return new Promise<any>((resolve, reject) => {
+                    me.execute(c).then(() => {
+                        resolve();
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
             });
         });
 
