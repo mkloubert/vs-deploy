@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.16.0 (April 29th, 2017; apply values to packages and targets)
+
+* added `applyValuesTo` settings for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that define objects with lists of property names and their values that should be applied to the underlying setting object
+
 ## 8.15.0 (April 29th, 2017; execute commands on FTP server)
 
 * added `beforeUpload`, `closing`, `connected` and `uploaded` for [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) targets, which can execute commands on a server (s. [Execute commands on server](https://github.com/mkloubert/vs-deploy/wiki/target_ftp#execute-commands-on-server))

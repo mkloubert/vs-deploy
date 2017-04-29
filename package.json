@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.15.1",
+  "version": "8.16.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -941,6 +941,16 @@
                     "type": "boolean",
                     "description": "Indicates if a 'fast' file check should be used for 'deploy on save' for this package or not.",
                     "default": false
+                  },
+                  "applyValuesTo": {
+                    "description": "A list of property names and their values that should be applied to that package.",
+                    "type": "object",
+                    "patternProperties": {
+                      ".*": {
+                        "description": "The value (with optional placeholders) that should be applied to the property.",
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -1194,6 +1204,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -2247,6 +2267,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -3314,6 +3344,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -4346,6 +4386,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -5392,6 +5442,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -6460,6 +6520,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -7624,6 +7694,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -8692,6 +8772,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -9732,6 +9822,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -10807,6 +10907,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -11850,6 +11960,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -12884,6 +13004,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -13948,6 +14078,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -15087,6 +15227,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -16298,6 +16448,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -17329,6 +17489,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -18391,6 +18561,16 @@
                         ],
                         "default": 0
                       },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "deployed": {
                         "type": "array",
                         "items": {
@@ -19421,6 +19601,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",
@@ -20466,6 +20656,16 @@
                           }
                         ],
                         "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
                       },
                       "deployed": {
                         "type": "array",

@@ -95,6 +95,43 @@ export type SimpleCompletedAction<TResult> = (err?: any, result?: TResult) => vo
 
 let nextHtmlDocId = -1;
 
+
+/**
+ * Applies values to an object.
+ * 
+ * @param {T} obj The object to apply the values to. 
+ * @param {deploy_values.ValueBase|deploy_values.ValueBase[]} values The values to apply.
+ * @param {boolean} [cloneObj] Clone object or not.
+ * 
+ * @return {T} The object with the applied values.
+ */
+export function applyValues<T extends deploy_contracts.Applyable>(obj: T,
+                                                                  values: deploy_values.ValueBase | deploy_values.ValueBase[],
+                                                                  cloneObj = true): T {
+    values = asArray(values).filter(v => v);
+    
+    if (toBooleanSafe(cloneObj)) {
+        obj = cloneObject(obj);
+    }
+
+    if (obj) {
+        let applyTo = cloneObject(obj.applyValuesTo);
+
+        if (applyTo) {
+            for (let p in applyTo) {
+                let valueToSet = applyTo[p];
+                if (values.length > 0) {
+                    valueToSet = deploy_values.replaceWithValues(values, valueToSet);
+                }
+
+                obj[p] = valueToSet;
+            }
+        }
+    }
+
+    return obj;
+}
+
 /**
  * Returns a value as array.
  * 

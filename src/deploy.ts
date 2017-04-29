@@ -1817,10 +1817,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public getPackages(): deploy_contracts.DeployPackage[] {
         let me = this;
 
-        let packages = this.config.packages;
-        if (!packages) {
-            packages = [];
-        }
+        let packages = this.config.packages || [];
 
         let myName = this.name;
         packages = deploy_helpers.sortPackages(packages, () => myName);
@@ -1844,7 +1841,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         // if
         packages = me.filterConditionalItems(packages);
 
-        return packages;
+        return packages.map(p => {
+            return deploy_helpers.applyValues(p, me.getValues());
+        });
     }
 
     /**
@@ -1855,10 +1854,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public getTargets(): deploy_contracts.DeployTarget[] {
         let me = this;
 
-        let targets = this.config.targets;
-        if (!targets) {
-            targets = [];
-        }
+        let targets = this.config.targets || [];
 
         let myName = this.name;
         targets = deploy_helpers.sortTargets(targets, () => myName);
@@ -1882,7 +1878,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         // if
         targets = me.filterConditionalItems(targets);
 
-        return targets;
+        return targets.map(t => {
+            return deploy_helpers.applyValues(t, me.getValues());
+        });
     }
 
     /**
