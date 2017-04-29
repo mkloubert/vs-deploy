@@ -174,6 +174,18 @@ export interface AfterDeployedWebDeployOperation extends AfterDeployedOperation,
 }
 
 /**
+ * An object that can apply to (its) properties by using
+ * generated values by placeholders.
+ */
+export interface Applyable {
+    /**
+     * A list of property names and their values
+     * that should be applied to that object.
+     */
+    applyValuesTo?: { [prop: string]: any };
+}
+
+/**
  * Describes an event handler that is raised BEFORE a file starts to be deployed.
  * 
  * @param {any} sender The sending object.
@@ -974,7 +986,7 @@ export enum DeployOperationKind {
 /**
  * A package.
  */
-export interface DeployPackage extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployPackage extends Applyable, ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
     /**
      * Settings for a "package button".
      */
@@ -1335,7 +1347,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployTarget extends Applyable, ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
