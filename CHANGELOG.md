@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 8.17.0 (May 3rd, 2017; environment variables / settings for VSCode process)
+
+* added `env` [setting](https://github.com/mkloubert/vs-deploy/wiki/environment_settings), which can define settings for the environment of the current process, like additional environment variables, now
+
 ## 8.16.0 (April 29th, 2017; apply values to packages and targets)
 
 * added `applyValuesTo` settings for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that define objects with lists of property names and their values that should be applied to the underlying setting object

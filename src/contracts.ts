@@ -466,6 +466,23 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     displayNetworkInfo?: boolean;
     /**
+     * Settings for the process's environment.
+     */
+    env?: {
+        /**
+         * Automatically import environment variables as placesholders / values.
+         */
+        importVarsAsPlaceholders?: boolean;
+        /**
+         * A list of variables that should NOT use placeholders / values.
+         */
+        noPlaceholdersForTheseVars?: string | string[] | boolean;
+        /**
+         * One or more variable for the process to define.
+         */
+        vars?: { [name: string]: any };
+    };
+    /**
      * One or more global events.
      */
     events?: Event | Event[];

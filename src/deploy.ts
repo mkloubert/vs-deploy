@@ -74,6 +74,11 @@ let nextCancelDeployWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelPullFileCommandId = Number.MAX_SAFE_INTEGER;
 let nextCancelPullWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
 
+interface EnvVarEntry {
+    name: string;
+    value: any;
+}
+
 interface EventEntry {
     event: deploy_contracts.Event;
     index: number;
@@ -86,6 +91,10 @@ interface EventEntry {
  * Deployer class.
  */
 export class Deployer extends Events.EventEmitter implements vscode.Disposable {
+    /**
+     * Additional values.
+     */
+    protected _additionalValues: deploy_values.ValueBase[];
     /**
      * Information button that is shown after a deployment has been finished.
      */
@@ -136,6 +145,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * the deploy result button in the status bar.
      */
     protected _lastAfterDeploymentButtonDisapearTimeout: NodeJS.Timer;
+    /**
+     * Stores the last list of environment vars.
+     */
+    protected _oldEnvVars: EnvVarEntry[];
     /**
      * Stores the global output channel.
      */
@@ -3923,6 +3936,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let next = (cfg: deploy_contracts.DeployConfiguration) => {
             me._config = cfg;
 
+            deploy_values.reloadAdditionalValues
+                         .apply(me, []);
+
+            me.reloadEnvironmentVars();
+
             me.reloadEvents();
             me.reloadPlugins();
             me.reloadCommands();
@@ -3938,6 +3956,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me._globalScriptOperationState = {};
             me._htmlDocs = [];
             me._scriptOperationStates = {};
+
             deploy_values.resetScriptStates();
 
             me._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
@@ -3980,6 +3999,79 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             applyCfg(loadedCfg);
         });
+    }
+
+    /**
+     * Reloads the list of variables for the current process.
+     */
+    protected reloadEnvironmentVars() {
+        let me = this;
+
+        try {
+            let oev = this._oldEnvVars;
+
+            // restore old values...
+            if (oev) {
+                oev.forEach(x => {
+                    process[x.name] = x.value;
+                });
+            }
+
+            oev = null;
+
+            let cfg = this.config;
+            
+            if (cfg.env) {
+                let noPlaceholdersForTheseVars = cfg.env.noPlaceholdersForTheseVars;
+                if (false !== noPlaceholdersForTheseVars && true !== noPlaceholdersForTheseVars) {
+                    noPlaceholdersForTheseVars = deploy_helpers.asArray(<string | string[]>cfg.env.noPlaceholdersForTheseVars)
+                                                               .map(x => deploy_helpers.toStringSafe(x).trim())
+                                                               .filter(x => '' !== x);
+                }
+
+                if (cfg.env.vars) {
+                    // now set additional variables
+                    // for this process
+                    oev = [];
+
+                    for (let p in cfg.env.vars) {
+                        let name = deploy_helpers.toStringSafe(p).trim();
+
+                        let oldValue: EnvVarEntry = {
+                            name: name,
+                            value: cfg.env.vars[p],
+                        };
+
+                        let value = deploy_helpers.toStringSafe(oldValue.value);
+                        let usePlaceholders = true;
+
+                        if (Array.isArray(noPlaceholdersForTheseVars)) {
+                            usePlaceholders = noPlaceholdersForTheseVars.indexOf(name) < 0;
+                        }
+                        else {
+                            usePlaceholders = !deploy_helpers.toBooleanSafe(noPlaceholdersForTheseVars);
+                        }
+
+                        if (usePlaceholders) {
+                            value = me.replaceWithValues(value);  // use placeholders
+                        }
+
+                        if ('' === value) {
+                            value = undefined;
+                        }
+                        
+                        process.env[name] = value;
+                        oev.push(oldValue);
+                    }
+                }
+            }
+
+            this._oldEnvVars = oev;
+        }
+        catch (e) {
+            me.log(i18.t('errors.withCategory',
+                         `Deployer.reloadEnvironmentVars()`, e));
+        }
     }
 
     /**
