@@ -120,7 +120,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
             });
 
             wf.next(async (ctx) => {
-                let values = ctx.previousValue;
+                let values: any[] = ctx.previousValue;
 
                 let wfTargets = Workflows.create();
 

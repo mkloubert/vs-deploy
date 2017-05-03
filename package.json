@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.16.1",
+  "version": "8.17.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -320,6 +320,46 @@
               "type": "boolean",
               "description": "Display network information in output window or not.",
               "default": true
+            },
+            "env": {
+              "description": "Settings for the environment of the current process.",
+              "type": "object",
+              "properties": {
+                "importVarsAsPlaceholders": {
+                  "description": "Automatically import environment variables as placesholders / values or not.",
+                  "type": "boolean",
+                  "default": false
+                },
+                "noPlaceholdersForTheseVars": {
+                  "description": "A list of variables that should NOT use placeholders.",
+                  "oneOf": [
+                    {
+                      "description": "The name of the variable that should NOT use placeholders / values.",
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "description": "The list of variables that should NOT use placeholders / values.",
+                      "items": {
+                        "description": "The name of the variable that should NOT use placeholders / values.",
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "description": "Defines if placeholders should be DEactivated for ALL variables or not.",
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "vars": {
+                  "description": "One or more variable for the process to define.",
+                  "patternProperties": {
+                    ".*": {
+                      "description": "The variable to define."
+                    }
+                  }
+                }
+              }
             },
             "events": {
               "description": "One or more global events.",

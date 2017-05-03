@@ -33,10 +33,6 @@ import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
 
-let globalScriptValueState: Object;
-let scriptValueStates: Object;
-
-
 /**
  * A basic value.
  */
@@ -429,6 +425,11 @@ export class StaticValue extends ValueBase {
     }
 }
 
+
+let additionalValues: ValueBase[];
+let globalScriptValueState: Object;
+let scriptValueStates: Object;
+
 /**
  * Returns a list of "build-in" values.
  * 
@@ -497,9 +498,36 @@ export function getValues(): ValueBase[] {
     values = deploy_helpers.filterPlatformItems(values);
 
     let objs = toValueObjects(values, me.config);
+    objs = objs.concat(additionalValues || []);
     objs = objs.concat(getBuildInValues());
 
     return objs;
+}
+
+/**
+ * Reloads the list of additional values.
+ */
+export function reloadAdditionalValues() {
+    let me: vs_deploy.Deployer = this;
+    let cfg = me.config;
+
+    let av = [];
+    
+    if (cfg.env) {
+        if (deploy_helpers.toBooleanSafe(cfg.env.importVarsAsPlaceholders)) {
+            // automatically import environment variables as
+            // placeholders / values
+
+            for (let p in process.env) {
+                av.push(new EnvValue({
+                    name: p,
+                    type: 'env',
+                }));
+            }
+        }    
+    }
+
+    additionalValues = av;
 }
 
 /**
