@@ -655,13 +655,17 @@ export function formatArray(formatStr: any, args: any[]): string {
  * Returns the list of files by a filter that should be deployed.
  * 
  * @param {deploy_contracts.FileFilter} filter The filter.
+ * @param {boolean} useGitIgnoreStylePatterns Also check directory patterns, like in .gitignore files, or not.
  * 
  * @return {string[]} The list of files.
  */
-export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] {
+export function getFilesByFilter(filter: deploy_contracts.FileFilter,
+                                 useGitIgnoreStylePatterns: boolean): string[] {
     if (!filter) {
         return [];
     }
+
+    useGitIgnoreStylePatterns = toBooleanSafe(useGitIgnoreStylePatterns);
 
     // files in include
     let allFilePatterns: string[] = [];
@@ -705,10 +709,12 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter): string[] 
  * Returns the list of files of a package that should be deployed.
  * 
  * @param {deploy_contracts.DeployPackage} pkg The package.
+ * @param {boolean} useGitIgnoreStylePatterns Also check directory patterns, like in .gitignore files, or not.
  * 
  * @return {string[]} The list of files.
  */
-export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[] {
+export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage,
+                                  useGitIgnoreStylePatterns: boolean): string[] {
     pkg = cloneObject(pkg);
     if (pkg) {
         if (!pkg.exclude) {
@@ -720,7 +726,7 @@ export function getFilesOfPackage(pkg: deploy_contracts.DeployPackage): string[]
         }
     }
     
-    return getFilesByFilter(pkg);
+    return getFilesByFilter(pkg, useGitIgnoreStylePatterns);
 }
 
 /**
@@ -929,12 +935,16 @@ export function isEmptyString(val: any): boolean {
  * 
  * @param {string} fileOrDir The file / directory to check.
  * @param {string|string[]} patterns One or more (glob) pattern to use.
+ * @param {boolean} useGitIgnoreStylePatterns Also check directory patterns, like in .gitignore files, or not.
  * @param {boolean} {fastCheck} Use 'minimatch' instead of 'node.glob'.
  * 
  * @return {boolean} Is ignored or not. 
  */
 export function isFileIgnored(file: string, patterns: string | string[],
+                              useGitIgnoreStylePatterns: boolean,
                               fastCheck?: boolean): boolean {
+    useGitIgnoreStylePatterns = toBooleanSafe(useGitIgnoreStylePatterns);
+
     file = toStringSafe(file);
     if ('' === file.trim()) {
         return true;

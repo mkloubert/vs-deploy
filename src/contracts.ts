@@ -671,6 +671,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         sources?: string | string[] | TemplateSource | TemplateSource[];
     };
     /**
+     * Also check directory patterns, like in '.gitignore' files, in all packages by default or not.
+     */
+    useGitIgnoreStylePatterns?: boolean;
+    /**
      * Use 'targets' property of a package instead, if its 'deployOnSave' property is
      * set to (true).
      */
@@ -1831,6 +1835,10 @@ export interface FileFilter {
      * Files to include.
      */
     files?: string | string[];
+    /**
+     * Also check directory patterns, like in '.gitignore' files, in that filter or not.
+     */
+    useGitIgnoreStylePatterns?: boolean;
 }
 
 /**

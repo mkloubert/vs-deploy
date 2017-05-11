@@ -2,3 +2,4 @@ out
 node_modules
 /pushall.sh
 /typedoc.cmd
+/update_npm_packages.cmd

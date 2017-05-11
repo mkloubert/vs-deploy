@@ -122,6 +122,13 @@ export function compile(ctx: OperationContext<deploy_contracts.DeployCompileOper
             let compiler: deploy_compilers.Compiler;
             let compilerArgs: any[];
             switch (compilerName) {
+                case 'htmlminifier':
+                    updateFilesProperty();
+
+                    compiler = deploy_compilers.Compiler.HtmlMinifier;
+                    compilerArgs = [ compileOp.options ];
+                    break;
+
                 case 'less':
                     updateFilesProperty();
 

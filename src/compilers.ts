@@ -27,46 +27,15 @@ import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as FS from 'fs';
 const Glob = require('glob');
+import * as HtmlMinifier from 'html-minifier';
 import * as i18 from './i18';
-let LESS: any;
+import * as LESS from 'less';
 import * as Path from 'path';
-let Pug: any;
-let TypeScript: any;
-let UglifyJS: any;
+import * as Pug from 'pug';
+const TypeScript = require('typescript');
+import * as UglifyJS from 'uglify-js';
 import * as vscode from 'vscode';
 
-
-// try load Less module
-try {
-    LESS = require('less');
-}
-catch (e) {
-    deploy_helpers.log(`Could not load LESS module: ${deploy_helpers.toStringSafe(e)}`);
-}
-
-// try load Pug module
-try {
-    Pug = require('pug');
-}
-catch (e) {
-    deploy_helpers.log(`Could not load Pug module: ${deploy_helpers.toStringSafe(e)}`);
-}
-
-// try load TypeScript module
-try {
-    TypeScript = require('typescript');
-}
-catch (e) {
-    deploy_helpers.log(`Could not load TypeScript module: ${deploy_helpers.toStringSafe(e)}`);
-}
-
-// try load UglifyJS module
-try {
-    UglifyJS = require('uglify-js');
-}
-catch (e) {
-    deploy_helpers.log(`Could not load UglifyJS module: ${deploy_helpers.toStringSafe(e)}`);
-}
 
 /**
  * List of known compilers.
@@ -92,6 +61,10 @@ export enum Compiler {
      * Pug
      */
     Pug = 4,
+    /**
+     * Html Minifier
+     */
+    HtmlMinifier = 5,
 }
 
 /**
@@ -134,6 +107,34 @@ export interface CompilerResult {
      * The files for the compilation.
      */
     files: string[];
+}
+
+/**
+ * A Html Minifier compiler error entry.
+ */
+export interface HtmlMinifierCompilerError extends CompilerError {
+}
+
+/**
+ * Html Minifier compiler options.
+ */
+export interface HtmlMinifierCompilerOptions extends TextCompilerOptions {
+    /**
+     * Delete the source file(s) on success or not.
+     */
+    deleteSources?: boolean;
+    /**
+     * The extension to use for the output files.
+     */
+    extension?: string;
+}
+
+/**
+ * A Html Minifier compiler result.
+ */
+export interface HtmlMinifierCompilerResult extends CompilerResult {
+    /** @inheritdoc */
+    errors: HtmlMinifierCompilerError[];
 }
 
 /**
@@ -434,6 +435,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
         let func: Function;
 
         switch (compiler) {
+            case Compiler.HtmlMinifier:
+                // Html Minifier
+                func = compileHtmlMinifier;
+                break;
+
             case Compiler.Less:
                 // LESS
                 func = compileLess;
@@ -479,6 +485,134 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
 }
 
 /**
+ * Compiles JavaScript files with UglifyJS.
+ * 
+ * @param {HtmlMinifierCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<HtmlMinifierCompilerResult> The promise.
+ */
+export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise<HtmlMinifierCompilerResult> {
+    if (!opts) {
+        opts = {};
+    }
+
+    let enc = deploy_helpers.normalizeString(opts.encoding);
+    if (!enc) {
+        enc = 'utf8';
+    }
+
+    let outExt = deploy_helpers.toStringSafe(opts.extension);
+    if (deploy_helpers.isEmptyString(opts.extension)) {
+        outExt = 'min.html';
+    }
+
+    let deleteOnSuccess = deploy_helpers.toBooleanSafe(opts.deleteSources);
+
+    return new Promise<HtmlMinifierCompilerResult>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<HtmlMinifierCompilerResult>(resolve, reject);
+
+        try {
+            collectCompilerFiles({
+                files: "/**/*.html",
+            }, opts).then((filesToCompile) => {
+                try {
+                    let result: HtmlMinifierCompilerResult = {
+                        errors: [],
+                        files: filesToCompile.map(x => x),  // create copy
+                    };
+
+                    let htmlMiniOpts = deploy_helpers.cloneObject(opts);
+                    delete htmlMiniOpts['deleteSources'];
+                    delete htmlMiniOpts['files'];
+                    delete htmlMiniOpts['exclude'];
+                    delete htmlMiniOpts['encoding'];
+                    delete htmlMiniOpts['extension'];
+                    
+                    let nextFile: () => void;
+
+                    let addError = (err: any) => {
+                        result.errors.push(err);
+
+                        nextFile();
+                    };
+
+                    nextFile = () => {
+                        if (filesToCompile.length < 1) {
+                            completed(null, result);
+                            return;
+                        }
+
+                        let f = filesToCompile.shift();
+
+                        try {
+                            let outDir = Path.dirname(f);
+                            let ext = Path.extname(f);
+                            let fileName = Path.basename(f, ext);
+
+                            let outputFile = Path.join(outDir,
+                                                       fileName + '.' + outExt);
+
+                            let deleteSourceFile = () => {
+                                if (deleteOnSuccess) {
+                                    FS.unlink(f, (err) => {
+                                        if (err) {
+                                            addError(err);
+                                        }
+                                        else {
+                                            nextFile();
+                                        }
+                                    });
+                                }
+                                else {
+                                    nextFile();
+                                }
+                            };
+
+                            FS.readFile(f, (err, data) => {
+                                if (err) {
+                                    addError(err);
+                                }
+                                else {
+                                    try {
+                                        let code = data.toString(enc);
+                                        let ugliCode = HtmlMinifier.minify(code, htmlMiniOpts);
+
+                                        FS.writeFile(outputFile, new Buffer(ugliCode, enc), (err) => {
+                                            if (err) {
+                                                addError(err);
+                                            }
+                                            else {
+                                                deleteSourceFile();
+                                            }
+                                        });
+                                    }
+                                    catch (e) {
+                                        addError(err);
+                                    }
+                                }
+                            });
+                        }
+                        catch (e) {
+                            addError(e);
+                        }
+                    };
+
+                    nextFile();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }).catch((err) => {
+                completed(err);
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
  * Compiles LESS files.
  * 
  * @param {LessCompilerOptions} [opts] The options.
@@ -509,11 +643,6 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
 
     return new Promise<LessCompilerResult>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<LessCompilerResult>(resolve, reject);
-        
-        if (!LESS) {
-            completed(new Error('No LESS compiler found!'));
-            return;
-        }
 
         try {
             collectCompilerFiles({
@@ -675,11 +804,6 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
 
     return new Promise<PugCompilerResult>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<PugCompilerResult>(resolve, reject);
-
-        if (!Pug) {
-            completed(new Error('No Pug compiler found!'));
-            return;
-        }
 
         try {
             collectCompilerFiles({
@@ -844,11 +968,6 @@ export function compileTypeScript(opts?: TypeScriptCompilerOptions): Promise<Typ
 
     return new Promise<TypeScriptCompilerResult>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<TypeScriptCompilerResult>(resolve, reject);
-        
-        if (!TypeScript) {
-            completed(new Error('No TypeScript compiler found!'));
-            return;
-        }
 
         try {
             collectCompilerFiles({
@@ -917,11 +1036,6 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
 
     return new Promise<UglifyJSCompilerResult>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<UglifyJSCompilerResult>(resolve, reject);
-
-        if (!UglifyJS) {
-            completed(new Error('No UglifyJS compiler found!'));
-            return;
-        }
 
         try {
             collectCompilerFiles({

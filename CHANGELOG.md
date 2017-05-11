@@ -1,5 +1,23 @@
 # Change Log (vs-deploy)
 
+## 9.0.0 (May 11th, 2017; glob patterns, compilers and package updates)
+
+* [glob patterns](https://github.com/isaacs/node-glob) are also used for directories in [settings](https://github.com/mkloubert/vs-deploy/wiki#settings--), [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), [open on startup](https://github.com/mkloubert/vs-deploy/wiki/open_on_startup) and [deploy on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change) now ... this can be changed by setting `useGitIgnoreStylePatterns` property to `(false)`
+* added [compiler support](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) for [html-minifier](https://www.npmjs.com/package/html-minifier)
+* replaced [node-uuid](https://www.npmjs.com/package/node-uuid) with [uuid](https://www.npmjs.com/package/uuid)
+* updated [aws-sdk](https://www.npmjs.com/package/aws-sdk) to `2.49.0`
+* updated [file-type](https://www.npmjs.com/package/file-type) to `4.3.0`
+* updated [html-entities](https://www.npmjs.com/package/html-entities) to `1.2.1`
+* updated [i18next](https://www.npmjs.com/package/i18next) to `4.2.0`
+* updated [mime](https://www.npmjs.com/package/mime) to `1.3.5`
+* updated [minimatch](https://www.npmjs.com/package/minimatch) to `3.0.4`
+* updated [moment](https://www.npmjs.com/package/moment) to `2.18.1`
+* updated [mysql](https://www.npmjs.com/package/mysql) to `2.13.0`
+* updated [nodemailer](https://www.npmjs.com/package/nodemailer) to `2.7.2`
+* updated [pug](https://www.npmjs.com/package/pug) to `2.0.0-rc.1`
+* updated [typescript](https://www.npmjs.com/package/typescript) to `2.3.2`
+* updated [uglify-js](https://www.npmjs.com/package/) to `2.8.23`
+
 ## 8.17.0 (May 3rd, 2017; environment variables / settings for VSCode process)
 
 * added `env` [setting](https://github.com/mkloubert/vs-deploy/wiki/environment_settings), which can define settings for the environment of the current process, like additional environment variables, now

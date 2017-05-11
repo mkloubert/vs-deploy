@@ -11,3 +11,4 @@ src/**
 tsconfig.json
 pushall.sh
 typedoc.cmd
+update_npm_packages.cmd

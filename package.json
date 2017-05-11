@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "8.17.0",
+  "version": "9.0.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -730,6 +730,11 @@
                             }
                           }
                         ]
+                      },
+                      "useGitIgnoreStylePatterns": {
+                        "type": "boolean",
+                        "description": "Also check directory patterns, like in '.gitignore' files, or not.",
+                        "default": true
                       }
                     }
                   }
@@ -838,6 +843,11 @@
                             "type": "boolean",
                             "description": "Use 'targets' property of this package instead, otherwise use the settings 'deployOnSave'.",
                             "default": false
+                          },
+                          "useGitIgnoreStylePatterns": {
+                            "type": "boolean",
+                            "description": "Also check directory patterns, like in '.gitignore' files, or not.",
+                            "default": true
                           }
                         }
                       }
@@ -991,6 +1001,11 @@
                         "type": "string"
                       }
                     }
+                  },
+                  "useGitIgnoreStylePatterns": {
+                    "type": "boolean",
+                    "description": "Also check directory patterns, like in '.gitignore' files, in that package or not.",
+                    "default": true
                   }
                 }
               }
@@ -1280,6 +1295,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -1722,6 +1744,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -2346,6 +2375,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -2785,6 +2821,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -3422,6 +3465,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -3861,6 +3911,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -4465,6 +4522,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -4904,6 +4968,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -5521,6 +5592,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -5960,6 +6038,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -6599,6 +6684,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -7038,6 +7130,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -7772,6 +7871,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -8211,6 +8317,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -8850,6 +8963,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -9289,6 +9409,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -9901,6 +10028,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -10340,6 +10474,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -10985,6 +11126,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -11424,6 +11572,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -12038,6 +12193,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -12477,6 +12639,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -13083,6 +13252,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -13522,6 +13698,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -14157,6 +14340,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -14596,6 +14786,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -15306,6 +15503,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -15745,6 +15949,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -16526,6 +16737,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -16965,6 +17183,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -17568,6 +17793,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -18007,6 +18239,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -18639,6 +18878,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -19078,6 +19324,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -19680,6 +19933,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -20119,6 +20379,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -20735,6 +21002,13 @@
                                     {
                                       "type": "string",
                                       "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
                                         "less"
                                       ],
                                       "description": "LESS compiler"
@@ -21174,6 +21448,13 @@
                                 "compiler": {
                                   "description": "The compiler to use.",
                                   "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
                                     {
                                       "type": "string",
                                       "enum": [
@@ -21645,6 +21926,11 @@
                 }
               }
             },
+            "useGitIgnoreStylePatterns": {
+              "type": "boolean",
+              "description": "Also check directory patterns, like in '.gitignore' files, in all packages by default or not.",
+              "default": true
+            },
             "useTargetListForDeployOnSave": {
               "type": "boolean",
               "description": "Use 'targets' property of a package instead, if its 'deployOnSave' property is set to (true).",
@@ -21836,19 +22122,20 @@
   },
   "devDependencies": {
     "@types/file-type": "0.0.2",
-    "@types/fs-extra": "^2.0.0",
+    "@types/fs-extra": "^2.1.0",
     "@types/ftp": "^0.3.29",
     "@types/glob": "^5.0.30",
     "@types/html-entities": "^1.2.15",
-    "@types/i18next": "^2.3.35",
+    "@types/html-minifier": "^1.1.30",
+    "@types/i18next": "^2.3.38",
     "@types/marked": "0.0.28",
     "@types/mime": "0.0.29",
     "@types/minimatch": "^2.0.29",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/node-uuid": "0.0.28",
     "@types/ssh2-sftp-client": "^1.0.5",
     "@types/tmp": "0.0.32",
+    "@types/uuid": "^2.0.29",
     "mocha": "^2.3.3",
     "typescript": "^2.0.3",
     "vscode": "^1.0.0"
@@ -21866,34 +22153,35 @@
   },
   "readmeFilename": "README.md",
   "dependencies": {
-    "aws-sdk": "^2.7.19",
+    "aws-sdk": "^2.49.0",
     "azure-storage": "^1.4.0",
     "compare-versions": "^3.0.1",
-    "file-type": "^4.1.0",
+    "file-type": "^4.3.0",
     "fs-extra": "^1.0.0",
     "ftp": "^0.3.10",
     "glob": "^7.1.1",
-    "html-entities": "^1.2.0",
-    "i18next": "^4.1.4",
+    "html-entities": "^1.2.1",
+    "html-minifier": "^3.4.4",
+    "i18next": "^4.2.0",
     "isbinaryfile": "^3.0.2",
     "jsftp": "^1.5.5",
     "less": "^2.7.2",
     "marked": "^0.3.6",
     "merge-deep": "^3.0.0",
-    "mime": "^1.3.4",
-    "minimatch": "^3.0.3",
-    "moment": "^2.17.1",
+    "mime": "^1.3.5",
+    "minimatch": "^3.0.4",
+    "moment": "^2.18.1",
     "mssql": "^3.3.0",
-    "mysql": "^2.12.0",
-    "node-uuid": "^1.4.7",
+    "mysql": "^2.13.0",
     "node-workflows": "^1.3.1",
     "node-zip": "^1.1.1",
-    "nodemailer": "^2.7.0",
+    "nodemailer": "^2.7.2",
     "parse-listing": "^1.1.3",
-    "pug": "^2.0.0-beta11",
+    "pug": "^2.0.0-rc.1",
     "ssh2-sftp-client": "^1.0.5",
     "tmp": "0.0.31",
-    "typescript": "^2.1.5",
-    "uglify-js": "^2.7.5"
+    "typescript": "^2.3.2",
+    "uglify-js": "^2.8.23",
+    "uuid": "^3.0.1"
   }
 }

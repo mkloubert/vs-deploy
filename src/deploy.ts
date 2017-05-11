@@ -1145,7 +1145,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                 let packageName = deploy_helpers.toStringSafe(pkg.name);
 
-                let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);
+                let filesToDeploy = deploy_helpers.getFilesOfPackage(pkg,
+                                                                     me.useGitIgnoreStylePatternsInFilter(pkg));
 
                 let deploy = (t: deploy_contracts.DeployTarget) => {
                     try {
@@ -1178,7 +1179,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 return;
                             }
 
-                            filesToDeploy = deploy_helpers.getFilesOfPackage(pkg);  // now update file list
+                            filesToDeploy = deploy_helpers.getFilesOfPackage(pkg,
+                                                                             me.useGitIgnoreStylePatternsInFilter(pkg));  // now update file list
                             if (filesToDeploy.length < 1) {
                                 vscode.window.showWarningMessage(i18.t('deploy.noFiles'));
 
@@ -2247,8 +2249,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @return {boolean} Is ignored or not. 
      */
     public isFileIgnored(fileOrDir: string): boolean {
-        return deploy_helpers.isFileIgnored(fileOrDir,
-                                            this.config.ignore, this.config.fastCheckForIgnores);
+        return deploy_helpers.isFileIgnored(fileOrDir, this.config.ignore,
+                                            this.config.useGitIgnoreStylePatterns,
+                                            this.config.fastCheckForIgnores);
     }
 
     /**
@@ -2429,7 +2432,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         return deploy_helpers.doesFileMatchByFilter(docFile, x);
                     }
 
-                    return deploy_helpers.getFilesOfPackage(x)
+                    return deploy_helpers.getFilesOfPackage(x,
+                                                            me.useGitIgnoreStylePatternsInFilter(x))
                                          .indexOf(docFile) > -1;
                 });
             }
@@ -2594,10 +2598,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                             let matchingFiles: string[];
                             if (true === pkg.deployOnChange) {
-                                matchingFiles = deploy_helpers.getFilesOfPackage(pkg);
+                                matchingFiles = deploy_helpers.getFilesOfPackage(pkg,
+                                                                                 me.useGitIgnoreStylePatternsInFilter(pkg));
                             }
                             else {
-                                matchingFiles = deploy_helpers.getFilesByFilter(pkg.deployOnChange)
+                                matchingFiles = deploy_helpers.getFilesByFilter(pkg.deployOnChange,
+                                                                                me.useGitIgnoreStylePatternsInFilter(pkg.deployOnChange))
                                                               .filter(x => Path.resolve(x));
                             }
 
@@ -3205,7 +3211,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             let packageName = deploy_helpers.toStringSafe(pkg.name);
 
-            let filesToPull = deploy_helpers.getFilesOfPackage(pkg);
+            let filesToPull = deploy_helpers.getFilesOfPackage(pkg,
+                                                               me.useGitIgnoreStylePatternsInFilter(pkg));
 
             let pull = (t: deploy_contracts.DeployTarget) => {
                 try {
@@ -3669,7 +3676,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     let currentPackage = packagesToDeploy.shift();
                     try {
-                        let files = deploy_helpers.getFilesOfPackage(currentPackage);
+                        let files = deploy_helpers.getFilesOfPackage(currentPackage,
+                                                                     me.useGitIgnoreStylePatternsInFilter(currentPackage));
 
                         let targets = me.getTargetsFromPackage(currentPackage);
                         let deployNextTarget: () => void;
@@ -3688,7 +3696,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                             try {
                                 me.beforeDeploy(files, currentTarget).then(() => {
                                     // update package files
-                                    files = deploy_helpers.getFilesOfPackage(currentPackage);
+                                    files = deploy_helpers.getFilesOfPackage(currentPackage,
+                                                                             me.useGitIgnoreStylePatternsInFilter(currentPackage));
 
                                     me.deployWorkspaceTo(files, currentTarget).then(() => {
                                         deployNextTarget();
@@ -4801,5 +4810,32 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 reject(err);
             });
         });
+    }
+
+    /**
+     * Gets if a file filter should also use patterns for directories
+     * like in .gitignore files or not.
+     * 
+     * @param {deploy_contracts.FileFilter} filter The filter to check.
+     * @param {boolean} [defaultValue] The default value.
+     * 
+     * @return {boolean} Also use directory patterns or not.
+     */
+    public useGitIgnoreStylePatternsInFilter(filter: deploy_contracts.FileFilter,
+                                             defaultValue = true): boolean {
+        let cfg = this.config;
+
+        // global setting
+        let useGitIgnoreStylePatterns = deploy_helpers.toBooleanSafe(cfg.useGitIgnoreStylePatterns,
+                                                                     deploy_helpers.toBooleanSafe(defaultValue));
+        
+        if (filter) {
+            // now check filter
+
+            useGitIgnoreStylePatterns = deploy_helpers.toBooleanSafe(filter.useGitIgnoreStylePatterns,
+                                                                     useGitIgnoreStylePatterns);
+        }
+
+        return useGitIgnoreStylePatterns;
     }
 }
