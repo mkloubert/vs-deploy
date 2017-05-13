@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_values from '../values';
 import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
@@ -39,12 +40,14 @@ import * as URL from 'url';
 const DATE_RFC2822_UTC = "ddd, DD MMM YYYY HH:mm:ss [GMT]";
 
 interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget {
+    encodeUrlValues?: boolean;
     headers?: { [key: string]: any };
     method?: string;
     password?: string;
     submitContentLength?: boolean;
     submitContentType?: boolean;
     submitDate?: boolean;
+    submitFile?: boolean;
     submitFileHeader?: boolean;
     user?: string;
     url?: string;
@@ -178,35 +181,69 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                             Promise.resolve(tResult).then((dataToSend) => {
                                 try {
-                                    let parsePlaceHolders = (str: string, transformer?: (val: any) => string): string => {
-                                        if (!transformer) {
-                                            transformer = (s) => deploy_helpers.toStringSafe(s);
-                                        }
+                                    let parsePlaceHolders = (str: string, transformer: (val: any) => string): string => {
+                                        let values = deploy_values.getBuildInValues();
 
-                                        str = deploy_helpers.toStringSafe(str);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-Date',
+                                            value: transformer(now.format(DATE_RFC2822_UTC))
+                                        }));
 
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-date)(\})/i, transformer(now.format(DATE_RFC2822_UTC)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file)(\})/i, transformer(<string>relativePath));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-mime)(\})/i, transformer(contentType));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-name)(\})/i, transformer(Path.basename(file)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-size)(\})/i, transformer(dataToSend.length));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-changed)(\})/i, transformer(lastWriteTime.format(DATE_RFC2822_UTC)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-created)(\})/i, transformer(creationTime.format(DATE_RFC2822_UTC)));
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File',
+                                            value: transformer(<string>relativePath)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Mime',
+                                            value: transformer(contentType)
+                                        }));
+
+                                        let basename = Path.basename(file);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Name',
+                                            value: transformer(basename)
+                                        }));
+
+                                        let extname = Path.extname(file);
+                                        let rootname = basename.substr(0, basename.length - extname.length);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Root',
+                                            value: transformer(rootname)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Size',
+                                            value: transformer(dataToSend.length)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Time-Changed',
+                                            value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Time-Created',
+                                            value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
+                                        }));
+
+                                        str = deploy_values.replaceWithValues(values, str);
 
                                         return deploy_helpers.toStringSafe(str);
                                     };
 
-                                    let targetUrl = URL.parse(parsePlaceHolders(url, (str) => {
-                                        return encodeURIComponent(str);
-                                    }));
+                                    let encodeUrlValues = deploy_helpers.toBooleanSafe(target.encodeUrlValues, true);
+                                    let targetUrl = URL.parse(parsePlaceHolders(url, encodeUrlValues ? encodeURIComponent : deploy_helpers.toStringSafe));
+
+                                    let submitFile = deploy_helpers.toBooleanSafe(target.submitFile, true);
 
                                     let submitContentLength = deploy_helpers.toBooleanSafe(target.submitContentLength, true);
-                                    if (submitContentLength) {
+                                    if (submitFile && submitContentLength) {
                                         headers['Content-length'] = deploy_helpers.toStringSafe(dataToSend.length, '0');
                                     }
 
                                     let submitContentType = deploy_helpers.toBooleanSafe(target.submitContentType, true);
-                                    if (submitContentType) {
+                                    if (submitFile && submitContentType) {
                                         headers['Content-type'] = contentType;
                                     }
 
@@ -217,7 +254,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
                                     let headersToSubmit = {};
                                     for (let p in headers) {
-                                        headersToSubmit[p] = parsePlaceHolders(headers[p]);
+                                        headersToSubmit[p] = parsePlaceHolders(headers[p], deploy_helpers.toStringSafe);
                                     }
 
                                     let protocol = deploy_helpers.toStringSafe(targetUrl.protocol).toLowerCase().trim();
@@ -289,8 +326,10 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                         }
                                     });
 
-                                    // send file content
-                                    req.write(dataToSend);
+                                    if (submitFile) {
+                                        // send file content
+                                        req.write(dataToSend);
+                                    }
 
                                     req.end();
                                 }
