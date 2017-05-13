@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+# 9.1.0 (May 13th, 2017; extended HTTP target)
+
+* thanks to [owenfarrell](https://github.com/owenfarrell), who added new `encodeUrlValues` and `submitFile` settings to [http target](https://github.com/mkloubert/vs-deploy/wiki/target_http) to control the submission of a file and its contents
+
 ## 9.0.0 (May 11th, 2017; glob patterns, compilers and package updates)
 
 * [glob patterns](https://github.com/isaacs/node-glob) are also used for directories in [settings](https://github.com/mkloubert/vs-deploy/wiki#settings--), [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), [open on startup](https://github.com/mkloubert/vs-deploy/wiki/open_on_startup) and [deploy on change](https://github.com/mkloubert/vs-deploy/wiki/deploy_on_change) now ... this can be changed by setting `useGitIgnoreStylePatterns` property to `(false)`
