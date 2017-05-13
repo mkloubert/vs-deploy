@@ -40,6 +40,7 @@ import * as URL from 'url';
 const DATE_RFC2822_UTC = "ddd, DD MMM YYYY HH:mm:ss [GMT]";
 
 interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget {
+    encodeUrlValues?: boolean;
     headers?: { [key: string]: any };
     method?: string;
     password?: string;
@@ -220,7 +221,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                             name: 'VSDeploy-File-Time-Changed',
                                             value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
                                         }));
-                                        
+
                                         values.push(new deploy_values.StaticValue({
                                             name: 'VSDeploy-File-Time-Created',
                                             value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
@@ -231,9 +232,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                         return deploy_helpers.toStringSafe(str);
                                     };
 
-                                    let targetUrl = URL.parse(parsePlaceHolders(url, (str) => {
-                                        return encodeURIComponent(str);
-                                    }));
+                                    let encodeUrlValues = deploy_helpers.toBooleanSafe(target.encodeUrlValues, true);
+                                    let targetUrl = URL.parse(parsePlaceHolders(url, encodeUrlValues ? encodeURIComponent : deploy_helpers.toStringSafe));
 
                                     let submitFile = deploy_helpers.toBooleanSafe(target.submitFile, true);
 
@@ -254,7 +254,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
                                     let headersToSubmit = {};
                                     for (let p in headers) {
-                                        headersToSubmit[p] = parsePlaceHolders(headers[p]);
+                                        headersToSubmit[p] = parsePlaceHolders(headers[p], deploy_helpers.toStringSafe);
                                     }
 
                                     let protocol = deploy_helpers.toStringSafe(targetUrl.protocol).toLowerCase().trim();
