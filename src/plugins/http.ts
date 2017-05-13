@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_values from '../values';
 import * as FS from 'fs';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
@@ -179,20 +180,53 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                             Promise.resolve(tResult).then((dataToSend) => {
                                 try {
-                                    let parsePlaceHolders = (str: string, transformer?: (val: any) => string): string => {
-                                        if (!transformer) {
-                                            transformer = (s) => deploy_helpers.toStringSafe(s);
-                                        }
+                                    let parsePlaceHolders = (str: string, transformer: (val: any) => string): string => {
+                                        let values = deploy_values.getBuildInValues();
 
-                                        str = deploy_helpers.toStringSafe(str);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-Date',
+                                            value: transformer(now.format(DATE_RFC2822_UTC))
+                                        }));
 
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-date)(\})/i, transformer(now.format(DATE_RFC2822_UTC)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file)(\})/i, transformer(<string>relativePath));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-mime)(\})/i, transformer(contentType));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-name)(\})/i, transformer(Path.basename(file)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-size)(\})/i, transformer(dataToSend.length));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-changed)(\})/i, transformer(lastWriteTime.format(DATE_RFC2822_UTC)));
-                                        str = str.replace(/(\$)(\{)(vsdeploy\-file\-time-created)(\})/i, transformer(creationTime.format(DATE_RFC2822_UTC)));
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File',
+                                            value: transformer(<string>relativePath)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Mime',
+                                            value: transformer(contentType)
+                                        }));
+
+                                        let basename = Path.basename(file);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Name',
+                                            value: transformer(basename)
+                                        }));
+
+                                        let extname = Path.extname(file);
+                                        let rootname = basename.substr(0, basename.length - extname.length);
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Root',
+                                            value: transformer(rootname)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Size',
+                                            value: transformer(dataToSend.length)
+                                        }));
+
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Time-Changed',
+                                            value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
+                                        }));
+                                        
+                                        values.push(new deploy_values.StaticValue({
+                                            name: 'VSDeploy-File-Time-Created',
+                                            value: transformer(lastWriteTime.format(DATE_RFC2822_UTC))
+                                        }));
+
+                                        str = deploy_values.replaceWithValues(values, str);
 
                                         return deploy_helpers.toStringSafe(str);
                                     };
