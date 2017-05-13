@@ -182,7 +182,15 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             Promise.resolve(tResult).then((dataToSend) => {
                                 try {
                                     let parsePlaceHolders = (str: string, transformer: (val: any) => string): string => {
-                                        let values = deploy_values.getBuildInValues();
+                                        let values = deploy_values.getBuildInValues().map(x => {
+                                            let wv = new deploy_values.StaticValue({
+                                                name: x.name,
+                                                value: transformer(x.value),
+                                            });
+                                            wv.id = x.id;
+
+                                            return wv;
+                                        });
 
                                         values.push(new deploy_values.StaticValue({
                                             name: 'VSDeploy-Date',

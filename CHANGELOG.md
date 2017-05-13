@@ -1,8 +1,9 @@
 # Change Log (vs-deploy)
 
-# 9.1.0 (May 13th, 2017; extended HTTP target)
+# 9.1.1 (May 13th, 2017; extended HTTP target)
 
 * thanks to [owenfarrell](https://github.com/owenfarrell), who added new `encodeUrlValues` and `submitFile` settings to [http target](https://github.com/mkloubert/vs-deploy/wiki/target_http) to control the submission of a file and its contents
+* bigfixes
 
 ## 9.0.0 (May 11th, 2017; glob patterns, compilers and package updates)
 
