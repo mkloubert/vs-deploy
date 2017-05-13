@@ -45,6 +45,7 @@ interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget {
     submitContentLength?: boolean;
     submitContentType?: boolean;
     submitDate?: boolean;
+    submitFile?: boolean;
     submitFileHeader?: boolean;
     user?: string;
     url?: string;
@@ -200,13 +201,15 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                         return encodeURIComponent(str);
                                     }));
 
+                                    let submitFile = deploy_helpers.toBooleanSafe(target.submitFile, true);
+
                                     let submitContentLength = deploy_helpers.toBooleanSafe(target.submitContentLength, true);
-                                    if (submitContentLength) {
+                                    if (submitFile && submitContentLength) {
                                         headers['Content-length'] = deploy_helpers.toStringSafe(dataToSend.length, '0');
                                     }
 
                                     let submitContentType = deploy_helpers.toBooleanSafe(target.submitContentType, true);
-                                    if (submitContentType) {
+                                    if (submitFile && submitContentType) {
                                         headers['Content-type'] = contentType;
                                     }
 
@@ -289,8 +292,10 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                         }
                                     });
 
-                                    // send file content
-                                    req.write(dataToSend);
+                                    if (submitFile) {
+                                        // send file content
+                                        req.write(dataToSend);
+                                    }
 
                                     req.end();
                                 }
