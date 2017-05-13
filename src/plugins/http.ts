@@ -183,13 +183,13 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                 try {
                                     let parsePlaceHolders = (str: string, transformer: (val: any) => string): string => {
                                         let values = deploy_values.getBuildInValues().map(x => {
-                                            let wv = new deploy_values.StaticValue({
+                                            let sv = new deploy_values.StaticValue({
                                                 name: x.name,
                                                 value: transformer(x.value),
                                             });
-                                            wv.id = x.id;
+                                            sv.id = x.id;
 
-                                            return wv;
+                                            return sv;
                                         });
 
                                         values.push(new deploy_values.StaticValue({
