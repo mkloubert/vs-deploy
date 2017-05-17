@@ -1661,15 +1661,6 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                             // TODO: log
                         }
 
-                        if (!deploy_helpers.isNullUndefinedOrEmptyString(f.name)) {
-                            try {
-
-                            }
-                            catch (e) {
-
-                            }
-                        }
-
                         // filename
                         try {
                             result.name = Path.basename(relativePath);

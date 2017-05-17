@@ -2946,6 +2946,19 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
+            if (me.isFileIgnored(file)) {
+                if (deploy_helpers.toBooleanSafe(me.config.showWarningIfIgnored, true)) {
+                    // show warning
+                    
+                    vscode.window.showWarningMessage(i18.t('deploy.file.isIgnored',
+                                                           file));
+                }
+                
+                hasCancelled = true;
+                completed(null);
+                return;
+            }
+
             me.onCancelling(() => hasCancelled = true);
 
             try {
@@ -3325,6 +3338,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected pullWorkspaceFrom(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
         let me = this;
         let nameOfTarget = deploy_helpers.normalizeString(target.name);
+
+        if (files) {
+            files = files.filter(f => !me.isFileIgnored(f));
+        }
 
         return new Promise<boolean>((resolve, reject) => {
             let hasCancelled = false;

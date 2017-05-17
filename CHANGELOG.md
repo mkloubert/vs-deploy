@@ -1,9 +1,13 @@
 # Change Log (vs-deploy)
 
+# 9.2.0 (May 17th, 2017; ignore files)
+
+* files that are part of `ignore` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) will not be pulled anymore
+
 # 9.1.1 (May 13th, 2017; extended HTTP target)
 
 * thanks to [owenfarrell](https://github.com/owenfarrell), who added new `encodeUrlValues` and `submitFile` settings to [http target](https://github.com/mkloubert/vs-deploy/wiki/target_http) to control the submission of a file and its contents
-* bigfixes
+* bugfixes
 
 ## 9.0.0 (May 11th, 2017; glob patterns, compilers and package updates)
 
