@@ -70,6 +70,7 @@ export const translation: Translation = {
             deploying: 'Развёртывание файла {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Развёртывание файла {0:trim,surround} в {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Не могу развернуть файл {0:trim,surround}: {1}',
+            isIgnored: "Файл {0:trim,surround} был проигнорирован!",
             succeeded: 'Файл {0:trim,surround} был успешно развёрнут.',
             succeededWithTarget: 'Файл {0:trim,surround} был успешно развёрнут в {1:trim,surround}.',
         },
@@ -82,6 +83,18 @@ export const translation: Translation = {
         folder: {
             failed: 'Не могу развернуть каталог {0:trim,surround}: {1}',
             selectTarget: 'Выберите назначение, в которое следует развернуть каталог...',
+        },
+        newerFiles: {
+            deploy: 'Разворачивание',
+            localFile: 'Локальные файлы',
+            message: "{0} новых файла(ов) было(и) обнаружено!",
+            modifyTime: 'Последнее изменение',
+            pull: 'Стянуть',
+            remoteFile: 'Удаленный(внешний) файл',
+            show: 'Показать файлы',
+            size: 'Размер',
+            title: 'Новые файлы в {0:trim,surround}',
+            titleNoTarget: 'Новые файлы',
         },
         noFiles: 'Нет файлов для развёртывания!',
         noPlugins: 'Модули не найдены!',
@@ -102,6 +115,7 @@ export const translation: Translation = {
             unknownSqlEngine: 'Неизвестный SQL engine {0:trim,surround}!',
             unknownType: 'НЕИЗВЕСТНЫЙ ТИП: {0:trim,surround}',
         },
+        startQuestion: 'Начать разворачивание?',
         workspace: {
             allFailed: 'Файлы не могут быть развёрнуты: {0}',
             allFailedWithTarget: 'Файлы не могут быть развёрнуты в {0:trim,surround}: {1}',
@@ -130,7 +144,17 @@ export const translation: Translation = {
         countable: 'ОШИБКА #{0:trim}: {1}',
         withCategory: '[ОШИБКА] {0:trim}: {1}',
     },
+    extension: {
+        update: "Обновить...",
+        updateRequired: "Расширение требует обновления!",
+    },
+    extensions: {
+        notInstalled: 'Расширение {0:trim,surround} НЕ установлено.',
+    },
     failed: '[НЕУДАЧНО: {0}]',
+    format: {
+        dateTime: 'YYYY.MM.DD HH:mm:ss',
+    },
     host: {
         button: {
             text: 'Ожидание файлов ...',
@@ -151,6 +175,7 @@ export const translation: Translation = {
         started: 'Запущено deploy host на порту {0:trim} в каталоге {1:trim,surround}.',
         stopped: 'Deploy host был остановлен.',
     },
+    install: 'Установить',
     isNo: {
         directory: "{0:trim,surround} это не каталог!",
         file: "{0:trim,surround} это не файл!",
@@ -198,6 +223,9 @@ export const translation: Translation = {
             notFound: 'Файл не найден!',
             unknownResponse: 'Необжиданный ответ {0:trim} ({1:trim}): {2:trim,surround}',
         },
+        each: {
+            description: 'Разворачивает файлы используя список значений',
+        },
         ftp: {
             description: 'Разворачивает на FTP сервер',
         },
@@ -215,6 +243,9 @@ export const translation: Translation = {
                 prompt: 'Один или больше email адресов (разделенных запятой) для отправки...',
             },
             description: 'Разворачивает в ZIP архив и отправляет как вложение почты через SMTP',
+        },
+        map: {
+            description: 'Разворачивает файлы используя список значений',
         },
         pipeline: {
             description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target',
@@ -320,6 +351,19 @@ export const translation: Translation = {
         notFound: 'Не могу найти назначение {0:trim,surround}!',
         select: 'Выберите назначение для развёртывания...',
         selectSource: 'Укажите источник откуда следует выполнить стягивание(pull)...',
+    },
+    templates: {
+        browserTitle: "Шаблон{0:trim,surround,leading_space}",
+        currentPath: 'Текущий путь:{0:trim,leading_space}',
+        noneDefined: "Пожалуйста определите по крайней мере один ШАБЛОН ИСТОЧНИКА в вашем 'settings.json'!",
+        officialRepositories: {
+            newAvailable: "Официальный ШАБЛОН ИСТОЧНИКА был обновлен.",
+            openTemplates: "Открыть шаблон...",
+        },
+        placeholder: 'Пожалуйста выберита элемент...',
+        publishOrRequest: {
+            label: 'Опубликовать или запросить пример...',
+        }
     },
     warnings: {
         withCategory: '[ВНИМАНИЕ] {0:trim}: {1}',
