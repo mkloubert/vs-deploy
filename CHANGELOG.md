@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+# 9.4.0 (May 17th, 2017; russian translation)
+
+* [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
+
 # 9.3.0 (May 17th, 2017; package settings)
 
 * added `showForDeploy` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that defines if underlying package is visible in GUI when user wants to deploy files
