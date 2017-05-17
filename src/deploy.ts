@@ -1110,7 +1110,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 // so read packages from config
 
                 packages = me.getPackages()
-                            .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+                             .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden) &&
+                                          deploy_helpers.toBooleanSafe(x.showForDeploy, true));
             }
             if (packages.length < 1) {
                 vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
@@ -3201,7 +3202,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let me = this;
 
         let packages = this.getPackages()
-                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
+                           .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden) &&
+                                        deploy_helpers.toBooleanSafe(x.showForPull, true));
         if (packages.length < 1) {
             vscode.window.showWarningMessage(i18.t('packages.noneDefined'));
             return;

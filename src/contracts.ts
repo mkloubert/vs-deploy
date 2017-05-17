@@ -1055,6 +1055,14 @@ export interface DeployPackage extends Applyable, ConditionalItem, Hideable, Mac
      */
     noNodeModules?: boolean;
     /**
+     * Show this package for deploying or not.
+     */
+    showForDeploy?: boolean;
+    /**
+     * Show this package for pulling or not.
+     */
+    showForPull?: boolean;
+    /**
      * One or more explicit targets to deploy to.
      */
     targets?: string | string[];

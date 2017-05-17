@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+# 9.3.0 (May 17th, 2017; package settings)
+
+* added `showForDeploy` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that defines if underlying package is visible in GUI when user wants to deploy files
+* added `showForPull` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that defines if underlying package is visible in GUI when user wants to pull files
+
 # 9.2.0 (May 17th, 2017; ignore files)
 
 * files that are part of `ignore` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) will not be pulled anymore
