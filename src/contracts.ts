@@ -1007,7 +1007,7 @@ export enum DeployOperationKind {
 /**
  * A package.
  */
-export interface DeployPackage extends Applyable, ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployPackage extends Applyable, ConditionalItem, Hideable, Inheritable, MachineItem, PlatformItem, Sortable {
     /**
      * Settings for a "package button".
      */
@@ -1376,7 +1376,7 @@ export interface DeploySqlOperation extends DeployOperation {
 /**
  * A target.
  */
-export interface DeployTarget extends Applyable, ConditionalItem, Hideable, MachineItem, PlatformItem, Sortable {
+export interface DeployTarget extends Applyable, ConditionalItem, Hideable, Inheritable, MachineItem, PlatformItem, Sortable {
     /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
@@ -1940,6 +1940,20 @@ export interface Import extends MachineItem, PlatformItem, Sortable {
  * Import types.
  */
 export type ImportType = string | Import;
+
+/**
+ * An object with a name that can inherit from other objects.
+ */
+export interface Inheritable {
+    /**
+     * One or more names of objects from where to inherit from.
+     */
+    inheritFrom?: string | string[];
+    /**
+     * The name of the object.
+     */
+    name?: string;
+}
 
 /**
  * An item for a specific machine.

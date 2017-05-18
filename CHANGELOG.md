@@ -1,19 +1,23 @@
 # Change Log (vs-deploy)
 
-# 9.4.0 (May 17th, 2017; russian translation)
+## 9.5.0 (May 18th, 2017; inherit settings)
+
+* added `inheritFrom` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that can define the name(s) of one or more other items from where to inherit settings from
+
+## 9.4.0 (May 18th, 2017; russian translation)
 
 * [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
 
-# 9.3.0 (May 17th, 2017; package settings)
+## 9.3.0 (May 17th, 2017; package settings)
 
 * added `showForDeploy` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that defines if underlying package is visible in GUI when user wants to deploy files
 * added `showForPull` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-), that defines if underlying package is visible in GUI when user wants to pull files
 
-# 9.2.0 (May 17th, 2017; ignore files)
+## 9.2.0 (May 17th, 2017; ignore files)
 
 * files that are part of `ignore` [setting](https://github.com/mkloubert/vs-deploy/wiki#settings--) will not be pulled anymore
 
-# 9.1.1 (May 13th, 2017; extended HTTP target)
+## 9.1.1 (May 13th, 2017; extended HTTP target)
 
 * thanks to [owenfarrell](https://github.com/owenfarrell), who added new `encodeUrlValues` and `submitFile` settings to [http target](https://github.com/mkloubert/vs-deploy/wiki/target_http) to control the submission of a file and its contents
 * bugfixes
@@ -119,7 +123,7 @@
 
 ## 7.26.0 (April 12th, 2017; data transformation)
 
-* [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
+* [api](https://github.com/mkloubert/vs-deploy/wiki/target_api), [azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [ftp](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [local](https://github.com/mkloubert/vs-deploy/wiki/target_local), [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail), [s3 bucket](https://github.com/mkloubert/vs-deploy/wiki/target_s3bucket), [sftp](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), [sql](https://github.com/mkloubert/vs-deploy/wiki/target_sql), [test](https://github.com/mkloubert/vs-deploy/wiki/target_test) and [zip](https://github.com/mkloubert/vs-deploy/wiki/target_zip) targets now support [data transformation](https://github.com/mkloubert/vs-deploy/wiki/transform_data)
 
 ## 7.25.0 (April 5th, 2017; faster file checks for deploy on save / change)
 

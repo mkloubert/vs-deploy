@@ -1835,6 +1835,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let packages = this.config.packages || [];
 
+        // inherit and merge
+        packages = deploy_helpers.mergeInheritables(packages);
+
         let myName = this.name;
         packages = deploy_helpers.sortPackages(packages, () => myName);
 
@@ -1871,6 +1874,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let me = this;
 
         let targets = this.config.targets || [];
+
+        // inherit and merge
+        targets = deploy_helpers.mergeInheritables(targets);
 
         let myName = this.name;
         targets = deploy_helpers.sortTargets(targets, () => myName);

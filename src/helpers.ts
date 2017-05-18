@@ -1648,6 +1648,36 @@ export function log(msg: any) {
 }
 
 /**
+ * Merge inheritable objects.
+ * 
+ * @param {T|T[]} objs The objects to merge.
+ * 
+ * @return {T[]} The new and normalized list of merged objects. 
+ */
+export function mergeInheritables<T extends deploy_contracts.Inheritable>(objs: T | T[]): T[] {
+    let clonedObjects = asArray(objs).filter(o => o)
+                                     .map(o => cloneObject(o));
+
+    return clonedObjects.map(o => {
+        let inheritFrom = asArray(o.inheritFrom).map(on => normalizeString(on));
+        delete o['inheritFrom'];
+
+        if (inheritFrom.length > 0) {
+            clonedObjects.filter(baseObj => baseObj !== o).forEach(baseObj => {
+                if (inheritFrom.indexOf(normalizeString(baseObj.name)) > -1) {
+                    // merge current with base
+
+                    o = cloneObject(Object.assign(cloneObject(baseObj),
+                                                  cloneObject(o)));
+                }
+            });
+        }
+
+        return o;
+    });
+}
+
+/**
  * Normalizes a value as string so that is comparable.
  * 
  * @param {any} val The value to convert.
