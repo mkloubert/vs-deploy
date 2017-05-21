@@ -498,7 +498,7 @@ export function distinctArray<T>(arr: T[]): T[] {
     }
 
     return arr.filter((x, i) => {
-        return arr.indexOf(x) == i;
+        return arr.indexOf(x) === i;
     });
 }
 
@@ -1842,7 +1842,7 @@ export function openHtmlDocument(storage: deploy_contracts.Document[],
         try {
             let body: Buffer;
             let enc = 'utf8';
-            if (html) {
+            if (!isNullOrUndefined(html)) {
                 body = new Buffer(toStringSafe(html), enc);
             }
 

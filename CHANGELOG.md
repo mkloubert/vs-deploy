@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.6.0 (May 21st, 2017; french translation)
+
+* [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)
+
 ## 9.5.0 (May 18th, 2017; inherit settings)
 
 * added `inheritFrom` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), that can define the name(s) of one or more other items from where to inherit settings from
