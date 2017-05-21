@@ -43,6 +43,8 @@ export const translation: Translation = {
     compare: {
         noPlugins: 'Aucun plugin trouvé!',
         noPluginsForType: 'Aucun plugin correspondant pour {0:trim,surround}!',
+        failed : 'Impossible de récupérer le fichier {0:trim,surround}: {1}',
+        selectSource: 'Choisissez la source de récupération...',
     },
     deploy: {
         after: {
@@ -68,6 +70,7 @@ export const translation: Translation = {
             deploying: 'Déploiement du fichier {0:trim,surround}{1:trim,leading_space}... ',
             deployingWithDestination: 'Déploiement du fichier {0:trim,surround} vers {1:trim,surround}{2:trim,leading_space}... ',
             failed: 'Impossible de déployer le fichier {0:trim,surround}: {1}',
+            isIgnored:'Le fichier {0:trim,surround} a été ignoré!',
             succeeded: 'Fichier {0:trim,surround} déployé avec succès.',
             succeededWithTarget: 'Fichier {0:trim,surround} déployé avec succès vers {1:trim,surround}.',
         },
@@ -80,6 +83,18 @@ export const translation: Translation = {
         folder: {
             failed: 'Impossible de déployer le dossier {0:trim,surround}: {1}',
             selectTarget: 'Sélectionnez la cible de déploiement du dossier...',
+        },
+        newerFiles: {
+            deploy: 'Déployer',
+            localFile: 'Fichiers locaux',
+            message: "{0} nouveaux fichiers(s) trouvés!",
+            modifyTime: 'Dernière modification',
+            pull: 'Récupérer',
+            remoteFile: 'Fichier distant',
+            show: 'Afficher fichiers',
+            size: 'Taille',
+            title: 'Nouveaux fichiers dans {0:trim,surround}',
+            titleNoTarget: 'Nouveaux fichiers',
         },
         noFiles: 'Aucun fichier à déployer!',
         noPlugins: 'Aucun plugin trouvé!',
@@ -100,6 +115,7 @@ export const translation: Translation = {
             unknownSqlEngine: 'SGBD (Moteur SQL) inconnu {0:trim,surround}!',
             unknownType: 'TYPE INCONNU: {0:trim,surround}',
         },
+        startQuestion: 'Lancer le déploiement?',
         workspace: {
             allFailed: 'Aucun fichier ne peut être déployé: {0}',
             allFailedWithTarget: 'Aucun fichier ne peut être déployé vers {0:trim,surround}: {1}',
@@ -115,6 +131,7 @@ export const translation: Translation = {
             nothingDeployed: 'Aucun fichier déployé!',
             nothingDeployedWithTarget: 'Aucun fichier déployé vers {0:trim,surround}!',
             selectPackage: 'Sélectionnez un paquetage...',
+            selectTarget : 'Sélectionnez une destination...',
             someFailed: '{0:trim} de {1:trim} fichiers n\'a pas pu être déployé!',
             someFailedWithTarget: '{0:trim} de {1:trim} fichiers n\'a pas pu être déployé vers {2:trim,surround}!',
             status: 'Déploiement {0:trim,surround}... ',
@@ -127,7 +144,17 @@ export const translation: Translation = {
         countable: 'ERREUR #{0:trim}: {1}',
         withCategory: '[ERREUR] {0:trim}: {1}',
     },
+    extension: {
+        update: "Mettre à jour...",
+        updateRequired: "L'extension nécessite d'être mise à jour!",
+    },
+    extensions: {
+        notInstalled: 'L\'extension {0:trim,surround} n\'est PAS installée.',
+    },
     failed: '[ÉCHEC: {0}]',
+    format: {
+        dateTime: 'YYYY-MM-DD HH:mm:ss',
+    },
     host: {
         button: {
             text: 'En attente de fichiers...',
@@ -148,6 +175,7 @@ export const translation: Translation = {
         started: 'Hôte de déploiement démarré sur le port {0:trim} dans le dossier {1:trim,surround}.',
         stopped: 'L\'hôte de déploiement arrêté.',
     },
+    install: 'Installer',
     isNo: {
         directory: "{0:trim,surround} n'est pas un répertoire!",
         file: "{0:trim,surround} n'est pas un fichier!",
@@ -172,6 +200,7 @@ export const translation: Translation = {
         api: {
             clientErrors: {
                 noPermissions: "Permissions en écriture non définies!",
+                notFound: 'Fichier non trouvé!',
                 unauthorized: "Utilisateur non autorisé!",
                 unknown: "Erreur client inconnue: {0:trim} {2:trim,surround}",
             },
@@ -191,7 +220,11 @@ export const translation: Translation = {
         },
         dropbox: {
             description: 'Déploie dans dossier Dropbox.',
+            notFound: 'Fichier non trouvé!',
             unknownResponse: 'Réponse inattendue {0:trim} ({1:trim}): {2:trim,surround}',
+        },
+        each: {
+            description: 'Déploie les fichiers en utilisant une liste de valeurs',
         },
         ftp: {
             description: 'Déploie vers un serveur FTP',
@@ -210,6 +243,9 @@ export const translation: Translation = {
                 prompt: 'Une ou plusieurs adresse(s) email (séparées par une virgule) pour déployer vers...',
             },
             description: 'Déploie les fichiers dans ZIP et l\'ajoute en tant que pièce jointe dans un email envoyé par SMTP',
+        },
+        map: {
+            description: 'Déploie les fichiers en utilisant une liste de valeurs',
         },
         pipeline: {
             description: 'Place une liste de fichiers sources dans un \'pipe\' vers une nouvelle destination, en utilisant un script et envoie la liste des nouveaux fichiers vers la cible',
@@ -242,6 +278,8 @@ export const translation: Translation = {
         zip: {
             description: 'Déploie dans un fichier ZIP',
             fileAlreadyExists: 'Le fichier {0:trim,surround} existe déjà! Veuillez rééssayer...',
+            fileNotFound: 'Fichier introuvable!',
+            noFileFound: "Aucun fichier ZIP trouvé!",
         }
     },
     popups: {
@@ -253,17 +291,47 @@ export const translation: Translation = {
     pull: {
         button: {
             cancelling: 'Annulation...',
+            prepareText: 'Préparation de la récupération...',
+            text: 'Récupération...',
+            tooltip: 'Cliquez ici pour annuler la récupération...',
         },
         canceled: 'Annulé.',
         canceledWithErrors: 'Annulé avec erreurs!',
+        file: {
+            failed: 'Impossible de récupérer le fichier {0:trim,surround}: {1}',
+            pulling: 'Récupération du fichier {0:trim,surround}{1:trim,leading_space}... ',
+            pullingWithDestination: 'Récupération du fichier {0:trim,surround} depuis {1:trim,surround}{2:trim,leading_space}... ',
+            succeeded: 'Fichier {0:trim,surround} récupéré avec succès.',
+            succeededWithTarget: 'File {0:trim,surround} récupéré avec succès depuis {1:trim,surround}.',
+        },
+        fileOrFolder: {
+            failed: "Impossible de récupérer le fichier / dossier {0:trim,surround}: {1}",
+        },
         finished2: 'Terminé',
         finishedWithErrors: 'Terminé avec erreurs!',
         noPlugins: 'Aucun plugin trouvé!',
         noPluginsForType: 'Aucun plugin correspondant pour {0:trim,surround}!',
         workspace: {
+            allFailed: 'Aucun fichier récupéré: {0}',
+            allFailedWithTarget: 'Aucun fichier récupéré depuis {0:trim,surround}: {1}',
+            allSucceeded: 'Tous les {0:trim} fichier(s) récupéré(s) avec succès.',
+            allSucceededWithTarget: 'Tous les {0:trim} fichier(s) récupéré(s) avec succès depuis {1:trim,surround}.',
+            alreadyStarted: 'Vous avez déjà une opération en cours pour {0:trim,surround}! Voulez-vous vraiment lancer cette opération?',
             clickToCancel: 'cliquez ici pour annuler',
+            failed: 'Impossible de récupérer les fichiers: {0}',
+            failedWithCategory: 'Impossible de récupérer les fichiers ({0:trim}): {1}',
+            failedWithTarget: 'Impossible de récupérer les fichiers depuis {0:trim,surround}: {1}',
+            nothingPulled: 'Aucun fichier récupéré!',
+            nothingPulledWithTarget: 'Acuun fichier récupéré depuis {0:trim,surround}!',
+            pulling: 'Récupération du paquetage {0:trim,surround,leading_space}...',
+            pullingWithTarget: 'Récupération du paquetage {0:trim,surround,leading_space} depuis {1:trim,surround}...',
             selectPackage: 'Sélectionnez un paquetage...',
-            virtualTargetName: 'Cible du lot virtuel pour le paquetage courant',
+            selectSource: 'Sélectionnez une source...',
+            someFailed: '{0:trim} des {1:trim} fichiers(s) ne peuvent pas être récupérés!',
+            someFailedWithTarget: '{0:trim} de {1:trim} fichiers(s) ne peuvent pas être récupérés depuis {2:trim,surround}!',
+            status: 'Récupération de {0:trim,surround}... ',
+            statusWithDestination: 'Récupération de {0:trim,surround} depuis {1:trim,surround}... ',
+            virtualTargetName: 'Cible du lot virtuel pour le paquetage courant',          
             virtualTargetNameWithPackage: 'Cible du lot virtuel pour le paquetage {0:trim,surround}',
         }
     },
@@ -281,7 +349,20 @@ export const translation: Translation = {
         defaultName: '(Cible #{0:trim})',
         noneDefined: "Merci de définir au moins une CIBLE dans votre 'settings.json'!",
         notFound: 'Impossible de trouver la cible {0:trim,surround}!',
-        select: 'Sélectionnez la cible de déploiement...',
+        select: 'Sélectionnez la cible de déploiement...', selectSource: 'Select the source from where to pull from...',
+    },
+    templates: {
+        browserTitle: "Template{0:trim,surround,leading_space}",
+        currentPath: 'Chemin actuel:{0:trim,leading_space}',
+        noneDefined: "Merci de définir au moins une SOURCE de TEMPLATE dans votre 'settings.json'!",
+        officialRepositories: {
+            newAvailable: "Les SOURCES de TEMPLATE ont été mises à jour.",
+            openTemplates: "Ouvrir les templates...",
+        },
+        placeholder: 'Merci de sélectionner un élément...',
+        publishOrRequest: {
+            label: 'Publier ou demander un exemple...',
+        }
     },
     warnings: {
         withCategory: '[ATTENTION] {0:trim}: {1}',
