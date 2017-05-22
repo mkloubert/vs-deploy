@@ -1155,15 +1155,25 @@ export interface DeployPlugin {
      */
     canPull?: boolean;
     /**
-     * Compares the a local file with a remote one.
+     * Compares a local file with a remote one.
      * 
-     * @param {string} file The file to download.
+     * @param {string} file The file to compare.
      * @param {DeployTarget} target The source from where to download the file from.
      * @param {DeployFileOptions} [opts] Additional options.
      * 
      * @return {PromiseLike<FileCompareResult>|FileCompareResult} The result.
      */
     compareFiles?: (file: string, target: DeployTarget, opts?: DeployFileOptions) => PromiseLike<FileCompareResult> | FileCompareResult;
+    /**
+     * Compares local files with a remote ones.
+     * 
+     * @param {string[]} files The files to compare.
+     * @param {DeployTarget} target The source from where to download the file from.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {PromiseLike<FileCompareResult[]>|FileCompareResult[]} The result.
+     */
+    compareWorkspace?: (files: string[], target: DeployTarget, opts?: DeployFileOptions) => PromiseLike<FileCompareResult[]> | FileCompareResult[];
     /**
      * Deploys a file.
      * 

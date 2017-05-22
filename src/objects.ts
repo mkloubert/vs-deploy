@@ -173,6 +173,28 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         return await wf.start();
     }
 
+    /** @inheritdoc */
+    public async compareWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileCompareResult[]> {
+        let me = this;
+        
+        let wf = Workflows.create();
+
+        wf.next((ctx) => {
+            ctx.result = [];
+        });
+
+        files.forEach(f => {
+            wf.next(async (ctx) => {
+                let compareResult = await me.compareFiles(f, target, opts);
+                ctx.result.push(compareResult);
+
+                return compareResult;
+            });
+        });
+
+        return await wf.start();
+    }
+
     /**
      * Gets the underlying deploy context.
      */

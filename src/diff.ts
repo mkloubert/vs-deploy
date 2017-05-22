@@ -68,12 +68,12 @@ export interface FileInfo extends deploy_contracts.FileInfo {
  */
 export async function checkFiles(files: string[], target: deploy_contracts.DeployTarget,
                                  plugin: deploy_contracts.DeployPlugin): Promise<false | null | FileCompareResult[]> {
-    if (!plugin.canGetFileInfo || !plugin.compareFiles) {
-        return false;
+    if (!plugin.compareFiles && !plugin.compareWorkspace) {
+        return false;  // not supported
     }
 
     if (!plugin.canGetFileInfo) {
-        return null;
+        return null;  // no file info support
     }
 
     let wf = Workflows.create();
@@ -82,16 +82,31 @@ export async function checkFiles(files: string[], target: deploy_contracts.Deplo
         ctx.result = [];
     });
 
-    files.forEach(f => {
+    if (plugin.compareWorkspace) {
         wf.next(async (ctx) => {
             let results: FileCompareResult[] = ctx.result;
 
-            let compareRes = await plugin.compareFiles(f, target);
-            results.push(compareRes);
+            let compareRes = await plugin.compareWorkspace(files, target);
+            results.push
+                   .apply(results, compareRes);
 
             return compareRes;
         });
-    });
+    }
+    else {
+        // use compareFiles() instead
+
+        files.forEach(f => {
+            wf.next(async (ctx) => {
+                let results: FileCompareResult[] = ctx.result;
+
+                let compareRes = await plugin.compareFiles(f, target);
+                results.push(compareRes);
+
+                return compareRes;
+            });
+        });
+    }
 
     return await wf.start();
 }
