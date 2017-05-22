@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.7.0 (May 22nd, 2017; speed up check for newer files)
+
+* improved speed of checking for newer files
+
 ## 9.6.0 (May 21st, 2017; french translation)
 
 * [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)

@@ -785,6 +785,195 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
  * file operations which uses a context, like a network connection (s. deployFileWithContext() method).
  */
 export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDeployPluginBase {
+    /** @inheritdoc */
+    public compareFiles(file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileCompareResult> {
+        let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
+        
+        return new Promise<deploy_contracts.FileCompareResult>((resolve, reject) => {
+            let wrapper: DeployPluginContextWrapper<TContext>;
+            let completed = (err: any, result?: deploy_contracts.FileCompareResult) => {
+                let finished = () => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(result);
+                    }
+                };
+
+                me.destroyContext(wrapper).then(() => {
+                    finished();
+                }).catch(() => {
+                    finished();
+                });
+            };
+            
+            let wf = Workflows.create();
+
+            // create context
+            wf.next(async (wfCtx) => {
+                wrapper = await me.createContext(target, [ file ], opts,
+                                                 deploy_contracts.DeployDirection.FileInfo);
+            });
+
+            // compare file
+            wf.next(async (wfCtx) => {
+                wfCtx.result = await me.compareFilesWithContext(wrapper.context,
+                                                                file, target, opts);
+            });
+
+            wf.start().then((result: deploy_contracts.FileCompareResult) => {
+                completed(null, result);
+            }).catch((err) => {
+                completed(err);
+            });
+        });
+    }
+
+    /**
+     * Compares a local file with a remote one by using a context.
+     * 
+     * @param {TContext} ctx The context.
+     * @param {string} file The file to compare.
+     * @param {DeployTarget} target The source from where to download the file from.
+     * @param {DeployFileOptions} [opts] Additional options.
+     * 
+     * @return {Promise<FileCompareResult>} The result.
+     */
+    protected async compareFilesWithContext(ctx: TContext,
+                                            file: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileCompareResult> {
+        let me = this;
+
+        let wf = Workflows.create();
+
+        // get info about REMOTE file
+        wf.next(async () => {
+            return await me.getFileInfoWithContext(ctx,
+                                                   file, target, opts);
+        });
+
+        // check if local file exists
+        wf.next((ctx) => {
+            let right: deploy_contracts.FileInfo = ctx.previousValue;
+
+            return new Promise<any>((resolve, reject) => {
+                try {
+                    let left: deploy_contracts.FileInfo = {
+                        exists: undefined,
+                        isRemote: false,  
+                    };
+
+                    FS.exists(file, (exists) => {
+                        left.exists = exists;
+
+                        if (!left.exists) {
+                            ctx.finish();  // no need to get local file info
+                        }
+
+                        let result: deploy_contracts.FileCompareResult = {
+                            left: left,
+                            right: right,
+                        };
+
+                        ctx.result = result;
+                        resolve(result);
+                    });
+                }
+                catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        // get local file info
+        wf.next((ctx) => {
+            let result: deploy_contracts.FileCompareResult = ctx.previousValue;
+
+            return new Promise<any>((resolve, reject) => {
+                FS.lstat(file, (err, stat) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        try {
+                            result.left.name = Path.basename(file);
+                            result.left.path = Path.dirname(file);
+                            result.left.modifyTime = Moment(stat.ctime);
+                            result.left.size = stat.size;
+
+                            resolve(result);
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        return await wf.start();
+    }
+
+    /** @inheritdoc */
+    public compareWorkspace(files: string[], target: deploy_contracts.DeployTarget, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileCompareResult[]> {
+        let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
+        
+        return new Promise<deploy_contracts.FileCompareResult[]>((resolve, reject) => {
+            let wrapper: DeployPluginContextWrapper<TContext>;
+            let completed = (err: any, result?: deploy_contracts.FileCompareResult[]) => {
+                let finished = () => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(result);
+                    }
+                };
+
+                me.destroyContext(wrapper).then(() => {
+                    finished();
+                }).catch(() => {
+                    finished();
+                });
+            };
+            
+            let wf = Workflows.create();
+
+            // create context
+            wf.next(async (ctx) => {
+                wrapper = await me.createContext(target, files, opts,
+                                                 deploy_contracts.DeployDirection.FileInfo);
+
+                ctx.result = [];
+            });
+
+            // check files
+            files.forEach(f => {
+                wf.next(async (ctx) => {
+                    let compareResult = await me.compareFilesWithContext(wrapper.context,
+                                                                         f, target, opts);
+                    ctx.result.push(compareResult);
+
+                    return compareResult;
+                });
+            });
+
+            wf.start().then((result: deploy_contracts.FileCompareResult[]) => {
+                completed(null, result);
+            }).catch((err) => {
+                completed(err);
+            });
+        });
+    }
+
     /**
      * Creates a new context for a target.
      * 
@@ -937,6 +1126,21 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
             }
             catch (e) {
                 completed(e);  // global error
+            }
+        }
+    }
+
+    /**
+     * Destroys a context.
+     * 
+     * @param {DeployPluginContextWrapper<TContext>} wrapper The wrapper with the context.
+     * 
+     * @return {Promise<TContext>} The promise.
+     */
+    protected async destroyContext(wrapper: DeployPluginContextWrapper<TContext>): Promise<TContext> {
+        if (wrapper) {
+            if (wrapper.destroy) {
+                return await wrapper.destroy();
             }
         }
     }
