@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.8.0 (May 28th, 2017; environment variables)
+
+* can define environment variables for [app targets](https://github.com/mkloubert/vs-deploy/wiki/target_app), [open operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) and [webdeploy operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy-) now
+
 ## 9.7.0 (May 22nd, 2017; speed up check for newer files)
 
 * improved speed of checking for newer files

@@ -311,6 +311,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
 
                 deploy_helpers.open(operationTarget, {
                     app: openArgs,
+                    env: deploy_helpers.makeEnvVarsForProcess(openOperation, me.getValues()),
                     wait: waitForExit,
                 }).then(function() {
                     ctx.outputChannel.appendLine(i18.t('ok'));
@@ -502,6 +503,8 @@ export function wait(ctx: OperationContext<deploy_contracts.DeployWaitOperation>
  * @returns {Promise<boolean>} The promise.
  */
 export function webdeploy(ctx: OperationContext<deploy_contracts.DeployWebDeployOperation>): Promise<boolean> {
+    let me: vs_deploy.Deployer = this;
+
     return new Promise<boolean>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
 
@@ -573,6 +576,7 @@ export function webdeploy(ctx: OperationContext<deploy_contracts.DeployWebDeploy
                                      .map(x => deploy_helpers.toStringSafe(x))
                                      .filter(x => x),
                     cwd: webDeployOp.dir,
+                    env: deploy_helpers.makeEnvVarsForProcess(webDeployOp, me.getValues()),
                     wait: deploy_helpers.toBooleanSafe(webDeployOp.wait, true),
                 };
 

@@ -953,7 +953,7 @@ export interface DeployOnChangeFileFilter extends FileFilter {
 /**
  * An operation that opens something like an URI.
  */
-export interface DeployOpenOperation extends DeployOperation {
+export interface DeployOpenOperation extends DeployOperation, ProcessObject {
     /**
      * List of arguments to send to the target.
      */
@@ -1549,7 +1549,7 @@ export interface DeployWaitOperation extends DeployOperation {
 /**
  * An operation that starts Web Deploy (msdeploy).
  */
-export interface DeployWebDeployOperation extends DeployOperation {
+export interface DeployWebDeployOperation extends DeployOperation, ProcessObject {
     // s. https://technet.microsoft.com/en-us/library/d860fa74-738a-4f09-87f6-66c6705145f9
     allowUntrusted?: boolean;
     appHostConfigDir?: string;
@@ -2057,6 +2057,26 @@ export interface PopupButton extends vscode.MessageItem {
  * A popup button action.
  */
 export type PopupButtonAction = () => void;
+
+/**
+ * An object that creates or handles a process
+ * of an operating system.
+ */
+export interface ProcessObject {
+    /**
+     * A list of optional environment variables to use.
+     */
+    envVars?: { [name: string]: any };
+    /**
+     * A list of variables that should NOT use placeholders / values.
+     */
+    noPlaceholdersForTheseVars?: string | string[] | boolean;
+    /**
+     * Also use environment variables of the process of
+     * current workspace or not.
+     */
+    useEnvVarsOfWorkspace?: boolean;
+}
 
 /**
  * Arguments that be used script or something like that.

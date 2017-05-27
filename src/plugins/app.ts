@@ -26,12 +26,13 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_values from '../values';
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetApp extends deploy_contracts.DeployTarget {
+interface DeployTargetApp extends deploy_contracts.DeployTarget, deploy_contracts.ProcessObject {
     app?: string;
     arguments?: string | string[];
     separator?: string;
@@ -169,6 +170,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
             deploy_helpers.open(firstAppArg, {
                 app: appOpts,
+                env: deploy_helpers.makeEnvVarsForProcess(target, <deploy_values.ValueBase[]>me.context.values()),
                 wait: waitForApp,
             }).then(() => {
                 completed();

@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.7.0",
+  "version": "9.8.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -1432,6 +1432,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -1754,6 +1789,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -1881,6 +1951,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -2203,6 +2308,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -2254,6 +2394,41 @@
                       "wait": {
                         "type": "boolean",
                         "description": "Wait for app has been executed or not.",
+                        "default": false
+                      },
+                      "noPlaceholdersForTheseVars": {
+                        "description": "A list of environment variables that should NOT use placeholders.",
+                        "oneOf": [
+                          {
+                            "description": "The name of the environment variable that should NOT use placeholders / values.",
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "description": "The list of environment variables that should NOT use placeholders / values.",
+                            "items": {
+                              "description": "The name of the environment variable that should NOT use placeholders / values.",
+                              "type": "string"
+                            }
+                          },
+                          {
+                            "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                            "type": "boolean"
+                          }
+                        ]
+                      },
+                      "envVars": {
+                        "description": "An object that defines environment variables for the new process by properties.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The variable to define."
+                          }
+                        }
+                      },
+                      "useEnvVarsOfWorkspace": {
+                        "description": "Also use environment variables of the process of current workspace or not.",
+                        "type": "boolean",
                         "default": false
                       },
                       "description": {
@@ -2525,6 +2700,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -2847,6 +3057,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -2974,6 +3219,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -3296,6 +3576,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -3631,6 +3946,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -3953,6 +4303,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -4080,6 +4465,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -4402,6 +4822,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -4704,6 +5159,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -5026,6 +5516,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -5153,6 +5678,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -5475,6 +6035,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -5790,6 +6385,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -6112,6 +6742,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -6239,6 +6904,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -6561,6 +7261,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -6898,6 +7633,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -7220,6 +7990,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -7347,6 +8152,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -7669,6 +8509,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -8101,6 +8976,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -8423,6 +9333,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -8550,6 +9495,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -8872,6 +9852,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -9219,6 +10234,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -9541,6 +10591,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -9668,6 +10753,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -9990,6 +11110,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -10300,6 +11455,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -10622,6 +11812,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -10749,6 +11974,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -11071,6 +12331,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -11414,6 +12709,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -11736,6 +13066,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -11863,6 +13228,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -12185,6 +13585,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -12497,6 +13932,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -12819,6 +14289,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -12946,6 +14451,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -13268,6 +14808,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -13572,6 +15147,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -13894,6 +15504,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -14021,6 +15666,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -14343,6 +16023,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -14676,6 +16391,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -14998,6 +16748,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -15125,6 +16910,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -15447,6 +17267,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -15855,6 +17710,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -16177,6 +18067,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -16304,6 +18229,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -16626,6 +18586,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -17105,6 +19100,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -17427,6 +19457,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -17554,6 +19619,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -17876,6 +19976,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -18177,6 +20312,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -18499,6 +20669,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -18626,6 +20831,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -18948,6 +21188,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -19278,6 +21553,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -19600,6 +21910,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -19727,6 +22072,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -20049,6 +22429,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -20349,6 +22764,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -20671,6 +23121,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -20798,6 +23283,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -21120,6 +23640,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -21434,6 +23989,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -21756,6 +24346,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }
@@ -21883,6 +24508,41 @@
                                   "type": "boolean",
                                   "description": "Wait until execution has been finished or not.",
                                   "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
@@ -22205,6 +24865,41 @@
                                 "xpath": {
                                   "type": "string",
                                   "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             }

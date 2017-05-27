@@ -79,6 +79,11 @@ export interface OpenOptions {
      */
     cwd?: string;
     /**
+     * An optional list of environment variables
+     * to submit to the new process.
+     */
+    env?: any;
+    /**
      * Wait until exit or not.
      */
     wait?: boolean;
@@ -1648,6 +1653,67 @@ export function log(msg: any) {
 }
 
 /**
+ * Creates a storage of nvironment variables for a process object.
+ * 
+ * @param {deploy_contracts.ProcessObject} obj The object from where to create the storage from.
+ * @param {(deploy_values.ValueBase|deploy_values.ValueBase[])} [values] The optional list of values to use. 
+ * 
+ * @returns {{[name: string]: any}} The created storage. 
+ */
+export function makeEnvVarsForProcess(obj: deploy_contracts.ProcessObject,
+                                      values?: deploy_values.ValueBase | deploy_values.ValueBase[]): { [name: string]: any } {
+    values = asArray(values).filter(x => x);
+    
+    let envVars: { [name: string]: any };
+
+    if (toBooleanSafe(obj.useEnvVarsOfWorkspace)) {
+        if (process.env) {
+            envVars = {};
+
+            for (let prop in process.env) {
+                envVars[prop] = process.env[prop];
+            }
+        }
+    }
+
+    if (obj) {
+        if (obj.envVars) {
+            if (!envVars) {
+                envVars = {};
+            }
+
+            for (let prop in obj.envVars) {
+                let name = toStringSafe(prop).trim();
+                let val = obj.envVars[prop];
+
+                let usePlaceholders: boolean;
+                if ('boolean' === typeof obj.noPlaceholdersForTheseVars) {
+                    usePlaceholders = obj.noPlaceholdersForTheseVars;
+                }
+                else {
+                    usePlaceholders = asArray(obj.noPlaceholdersForTheseVars)
+                        .map(x => toStringSafe(prop).trim())
+                        .filter(x => '' !== x)
+                        .indexOf(name) < 0;                            
+                }
+
+                if (usePlaceholders) {
+                    val = deploy_values.replaceWithValues(values, val);
+                }
+
+                if ('' === val) {
+                    val = undefined;
+                }
+
+                envVars[name] = val;
+            }
+        }
+    }
+
+    return envVars;
+}
+
+/**
  * Merge inheritable objects.
  * 
  * @param {T|T[]} objs The objects to merge.
@@ -1730,6 +1796,7 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
             let args: string[] = [];
             let cpOpts: ChildProcess.SpawnOptions = {
                 cwd: opts.cwd || vscode.workspace.rootPath,
+                env: opts.env,
             };
 
             if (Array.isArray(opts.app)) {

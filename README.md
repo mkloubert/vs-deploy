@@ -49,9 +49,8 @@ If you would like to add another translation, please read [that issue](https://g
 
 1. [Demos](#demos-)
    * [Deploying to SFTP](#deploying-to-sftp-)
-   * [Deploy on save](#deploy-on-save-)
+   * [Deploy on change](#deploy-on-change-)
    * [Download / pull from SFTP](#download--pull-from-sftp-)
-   * [Compare files](#compare-files-)
    * [Check for newer files](#check-for-newer-files-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
@@ -68,9 +67,9 @@ If you would like to add another translation, please read [that issue](https://g
 
 ![Demo SFTP](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo.gif)
 
-### Deploy on save [[&uarr;](#demos-)]
+### Deploy on change [[&uarr;](#demos-)]
 
-![Demo Deploy on save](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
+![Demo Deploy on change](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo2.gif)
 
 ### Download / pull from SFTP [[&uarr;](#demos-)]
 
