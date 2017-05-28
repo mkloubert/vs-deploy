@@ -119,6 +119,13 @@ export interface AfterDeployedCompileOperation extends AfterDeployedOperation, D
 }
 
 /**
+ * A deploy operation for doing a HTTP request that is invoked AFTER
+ * ALL files have been deployed.
+ */
+export interface AfterDeployedHttpOperation extends AfterDeployedOperation, DeployHttpOperation {
+}
+
+/**
  * An operation that is invoked AFTER
  * ALL files have been deployed.
  */
@@ -215,6 +222,13 @@ export interface BeforeDeployOperation extends DeployOperation {
  * files will be deployed.
  */
 export interface BeforeDeployCompileOperation extends BeforeDeployOperation, DeployCompileOperation {
+}
+
+/**
+ * A deploy operation for doing a HTTP request that is invoked BEFORE
+ * files will be deployed.
+ */
+export interface BeforeDeployHttpOperation extends BeforeDeployOperation, DeployHttpOperation {
 }
 
 /**
@@ -938,6 +952,44 @@ export interface DeployFilesEventArguments {
      * The symbol that indentifies the operation.
      */
     symbol?: symbol;
+}
+
+/**
+ * An operation that does a HTTP request.
+ */
+export interface DeployHttpOperation extends DeployOperation {
+    /**
+     * The body or the path to a script that returns the body to send.
+     */
+    body?: string;
+    /**
+     * The request headers.
+     */
+    headers?: any;
+    /**
+     * Indicates if 'body' is Base64 encoded or not.
+     */
+    isBodyBase64?: boolean;
+    /**
+     * Indicates if 'body' contains the path to a script instead the content to send.
+     */
+    isBodyScript?: boolean;
+    /**
+     * The HTTP request method.
+     */
+    method?: string;
+    /**
+     * A list of headers that should NOT use placeholders / values.
+     */
+    noPlaceholdersForTheseHeaders?: string | string[] | boolean;
+    /**
+     * The options for the script that returns the body to send.
+     */
+    options?: any;
+    /**
+     * The URL.
+     */
+    url?: string;
 }
 
 /**

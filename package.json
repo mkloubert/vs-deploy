@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.8.0",
+  "version": "9.9.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -1399,6 +1399,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -1912,6 +1981,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -2667,6 +2805,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -3180,6 +3387,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -3913,6 +4189,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -4426,6 +4771,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -5126,6 +5540,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -5639,6 +6122,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -6352,6 +6904,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -6865,6 +7486,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -7600,6 +8290,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -8113,6 +8872,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -8943,6 +9771,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -9456,6 +10353,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -10201,6 +11167,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -10714,6 +11749,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -11422,6 +12526,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -11935,6 +13108,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -12676,6 +13918,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -13189,6 +14500,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -13899,6 +15279,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -14412,6 +15861,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -15114,6 +16632,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -15627,6 +17214,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -16358,6 +18014,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -16871,6 +18596,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -17677,6 +19471,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -18190,6 +20053,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -19067,6 +20999,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -19580,6 +21581,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -20279,6 +22349,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -20792,6 +22931,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -21520,6 +23728,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -22033,6 +24310,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -22731,6 +25077,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -23244,6 +25659,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",
@@ -23956,6 +26440,75 @@
                               "properties": {
                                 "type": {
                                   "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
                                     "open"
                                   ],
                                   "type": "string",
@@ -24469,6 +27022,75 @@
                               "required": [
                                 "compiler"
                               ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
                             },
                             {
                               "type": "object",

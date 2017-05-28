@@ -1688,13 +1688,12 @@ export function makeEnvVarsForProcess(obj: deploy_contracts.ProcessObject,
 
                 let usePlaceholders: boolean;
                 if ('boolean' === typeof obj.noPlaceholdersForTheseVars) {
-                    usePlaceholders = obj.noPlaceholdersForTheseVars;
+                    usePlaceholders = !obj.noPlaceholdersForTheseVars;
                 }
                 else {
                     usePlaceholders = asArray(obj.noPlaceholdersForTheseVars)
                         .map(x => toStringSafe(prop).trim())
-                        .filter(x => '' !== x)
-                        .indexOf(name) < 0;                            
+                        .indexOf(name) < 0;
                 }
 
                 if (usePlaceholders) {

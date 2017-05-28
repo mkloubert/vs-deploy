@@ -305,11 +305,6 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                         port: parseInt(port),
                                         protocol: protocol,
                                     }, (resp) => {
-                                        if (!(resp.statusCode > 199 && resp.statusCode < 300)) {
-                                            completed(new Error(`No success: [${resp.statusCode}] '${resp.statusMessage}'`));
-                                            return;
-                                        }
-
                                         if (resp.statusCode > 399 && resp.statusCode < 500) {
                                             completed(new Error(`Client error: [${resp.statusCode}] '${resp.statusMessage}'`));
                                             return;
@@ -322,6 +317,11 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
                                         if (resp.statusCode > 599) {
                                             completed(new Error(`Error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                                            return;
+                                        }
+
+                                        if (!(resp.statusCode > 199 && resp.statusCode < 300)) {
+                                            completed(new Error(`No success: [${resp.statusCode}] '${resp.statusMessage}'`));
                                             return;
                                         }
 

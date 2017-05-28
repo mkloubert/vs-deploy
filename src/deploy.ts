@@ -1999,6 +1999,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         executor = deploy_operations.compile;
                         break;
 
+                    case 'http':
+                        executor = deploy_operations.http;
+                        break;
+
                     case 'script':
                         let scriptExecutor: deploy_contracts.DeployScriptOperationExecutor;
 
@@ -3978,6 +3982,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me.reloadEvents();
             me.reloadPlugins();
             me.reloadCommands();
+
+            deploy_operations.resetOperations();
 
             me.startExternalExtensions().then(() => {
                 finished(null, cfg);

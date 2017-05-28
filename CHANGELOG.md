@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 9.9.0 (May 28th, 2017; http target operations)
+
+* added [http target operation](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#http-)
+* bugfixes in [helpers](https://mkloubert.github.io/vs-deploy/modules/_helpers_.html#makeenvvarsforprocess) and [http target](https://github.com/mkloubert/vs-deploy/wiki/target_http)
+
 ## 9.8.0 (May 28th, 2017; environment variables)
 
 * can define environment variables for [app targets](https://github.com/mkloubert/vs-deploy/wiki/target_app), [open operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) and [webdeploy operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#webdeploy-) now

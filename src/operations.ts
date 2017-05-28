@@ -27,11 +27,71 @@ import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_sql from './sql';
+import * as HTTP from 'http';
+import * as HTTPs from 'https';
 import * as i18 from './i18';
 import * as Path from 'path';
+import * as Url from 'url';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
+
+/**
+ * A module for getting the request body for a HTTP operation.
+ */
+export interface HttpBodyModule {
+    /**
+     * Gets the request body data.
+     */
+    getBody: HttpBodyModuleExecutor;
+}
+
+/**
+ * The function / method that gets the request body data.
+ * 
+ * @param {HttpBodyModuleExecutorArguments} args The arguments for the execution.
+ * 
+ * @return {any} The data to send.
+ */
+export type HttpBodyModuleExecutor = (args: HttpBodyModuleExecutorArguments) => any;
+
+/**
+ * Arguments for the function / method that gets the request body data.
+ */
+export interface HttpBodyModuleExecutorArguments {
+    /**
+     * The underlying operation context.
+     */
+    readonly context: OperationContext<deploy_contracts.DeployHttpOperation>;
+    /**
+     * The global data from the settings.
+     */
+    readonly globals?: any;
+    /**
+     * The options for the execution of the underlying script.
+     */
+    readonly options?: any;
+    /**
+     * Handles a value as string and replaces placeholders.
+     * 
+     * @param {any} val The value to parse.
+     * 
+     * @return {string} The parsed value.
+     */
+    readonly replaceWithValues: (val: any) => string;
+    /**
+     * Gets or sets a value that will be available
+     * for the underlying script while the current session.
+     */
+    state: any;
+    /**
+     * The request URL.
+     */
+    readonly url: Url.Url;
+}
+
+
+let httpOperationStates: { [script: string]: any };
 
 /**
  * An operation context.
@@ -251,7 +311,218 @@ export function getOperationName(operation: deploy_contracts.DeployOperation): s
 }
 
 /**
- * Waits.
+ * Does a HTTP request.
+ * 
+ * @param {OperationContext<deploy_contracts.DeployHttpOperation>} ctx The execution context.
+ * 
+ * @returns {Promise<boolean>} The promise.
+ */
+export function http(ctx: OperationContext<deploy_contracts.DeployHttpOperation>): Promise<boolean> {
+    let me: vs_deploy.Deployer = this;
+
+    return new Promise<boolean>((resolve, reject) => {
+        let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
+
+        try {
+            let operation = ctx.operation;
+
+            let u = deploy_helpers.toStringSafe(operation.url);
+            if (deploy_helpers.isEmptyString(u)) {
+                u = 'http://localhost/';
+            }
+
+            let url = Url.parse(u);
+
+            let host = deploy_helpers.normalizeString(url.hostname);
+            if ('' === host) {
+                host = 'localhost';
+            }
+
+            let method = deploy_helpers.normalizeString(operation.method, x => x.toUpperCase().trim());
+            if ('' === method) {
+                method = 'GET';
+            }
+
+            let headers = deploy_helpers.cloneObject(operation.headers);
+            if (headers) {
+                for (let prop in headers) {
+                    let name = deploy_helpers.normalizeString(prop);
+                    let value = headers[prop];
+
+                    let usePlaceholders: boolean;
+                    if ('boolean' === typeof operation.noPlaceholdersForTheseHeaders) {
+                        usePlaceholders = !operation.noPlaceholdersForTheseHeaders;
+                    }
+                    else {
+                        usePlaceholders = deploy_helpers.asArray(operation.noPlaceholdersForTheseHeaders)
+                                                        .map(x => deploy_helpers.normalizeString(prop))
+                                                        .indexOf(name) < 0;                            
+                    }
+
+                    if (usePlaceholders) {
+                        value = me.replaceWithValues(value);
+                    }
+
+                    headers[prop] = value;
+                }
+            }
+
+            let port = deploy_helpers.toStringSafe(url.port);
+
+            let opts: HTTP.RequestOptions = {
+                host: host,
+                headers: headers,
+                method: method,
+                path: url.path,
+                protocol: url.protocol,
+            };
+
+            let callback = (resp: HTTP.IncomingMessage) => {
+                if (resp.statusCode > 399 && resp.statusCode < 500) {
+                    completed(new Error(`Client error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                    return;
+                }
+
+                if (resp.statusCode > 499 && resp.statusCode < 600) {
+                    completed(new Error(`Server error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                    return;
+                }
+
+                if (resp.statusCode > 599) {
+                    completed(new Error(`Error: [${resp.statusCode}] '${resp.statusMessage}'`));
+                    return;
+                }
+
+                if (!(resp.statusCode > 199 && resp.statusCode < 300)) {
+                    completed(new Error(`No success: [${resp.statusCode}] '${resp.statusMessage}'`));
+                    return;
+                }
+
+                completed();
+            };
+
+            let httpModule: any;
+            let req: HTTP.ClientRequest;
+            switch (deploy_helpers.normalizeString(url.protocol)) {
+                case 'https:':
+                    httpModule = HTTPs;
+                    if ('' === port) {
+                        port = '443';
+                    }
+                    break;
+
+                default:
+                    httpModule = HTTP;
+                    if ('' === port) {
+                        port = '80';
+                    }
+                    break;
+            }
+
+            opts.port = parseInt(port);
+
+            req = httpModule.request(opts, callback);
+
+            let startRequest = () => {
+                try {
+                    req.end();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            };
+
+            if (deploy_helpers.isNullOrUndefined(operation.body)) {
+                startRequest();
+            }
+            else {
+                // send request body
+
+                let body = deploy_helpers.toStringSafe(operation.body);
+                
+                if (deploy_helpers.toBooleanSafe(operation.isBodyBase64)) {
+                    body = (new Buffer(body, 'base64')).toString('ascii');  // is Base64
+                }
+
+                if (deploy_helpers.toBooleanSafe(operation.isBodyScript)) {
+                    // 'body' is path to a script
+
+                    let bodyScript = body;
+                    if (deploy_helpers.isEmptyString(bodyScript)) {
+                        bodyScript = './getBody.js';
+                    }
+                    if (!Path.isAbsolute(bodyScript)) {
+                        bodyScript = Path.join(vscode.workspace.rootPath, bodyScript);
+                    }
+                    bodyScript = Path.resolve(bodyScript);
+
+                    let bodyModule = deploy_helpers.loadModule<HttpBodyModule>(bodyScript);
+                    if (bodyModule) {
+                        if (bodyModule.getBody) {
+                            let args: HttpBodyModuleExecutorArguments = {
+                                context: ctx,
+                                globals: me.getGlobals(),
+                                replaceWithValues: (val) => {
+                                    return me.replaceWithValues(val);
+                                },
+                                state: undefined,
+                                url: url,
+                            };
+
+                            // args.state
+                            Object.defineProperty(args, 'state', {
+                                get: () => { return httpOperationStates[bodyScript]; },
+
+                                set: (newValue) => {
+                                    httpOperationStates[bodyScript] = newValue;
+                                },
+                            });
+
+                            Promise.resolve( bodyModule.getBody(args) ).then((r) => {
+                                try {
+                                    let bodyData: Buffer = r;
+                                    if (deploy_helpers.isNullOrUndefined(bodyData)) {
+                                        bodyData = Buffer.alloc(0);
+                                    }
+                                    if (!Buffer.isBuffer(bodyData)) {
+                                        // handle as string
+                                        bodyData = new Buffer(deploy_helpers.toStringSafe(bodyData), 'ascii');
+                                    }
+
+                                    if (bodyData.length > 0) {
+                                        req.write(bodyData);
+                                    }
+
+                                    startRequest();
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
+                            }).catch((err) => {
+                                completed(err);
+                            });
+                        }
+                        else {
+                            startRequest();
+                        }
+                    }
+                    else {
+                        startRequest();
+                    }
+                }
+                else {
+                    startRequest();
+                }
+            }
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
+ * Opens something.
  * 
  * @param {OperationContext<deploy_contracts.DeployOpenOperation>} ctx The execution context.
  * 
@@ -326,6 +597,13 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
             completed(e);
         }
     });
+}
+
+/**
+ * Resets all operations and their state values.
+ */
+export function resetOperations() {
+    httpOperationStates = {};
 }
 
 /**
