@@ -448,6 +448,7 @@ export function http(ctx: OperationContext<deploy_contracts.DeployHttpOperation>
                     // 'body' is path to a script
 
                     let bodyScript = body;
+                    bodyScript = me.replaceWithValues(bodyScript);
                     if (deploy_helpers.isEmptyString(bodyScript)) {
                         bodyScript = './getBody.js';
                     }
