@@ -108,6 +108,10 @@ function parsePlaceHolders(v: any, usePlaceHolders: boolean, context: deploy_con
 
 class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public deployWorkspace(files: string[], target: DeployTargetMap, opts?: deploy_contracts.DeployWorkspaceOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
         let hasCancelled = false;
         let completedInvoked = false;
         let completed = (err: any) => {
@@ -212,7 +216,7 @@ class MapPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                                             target: clonedTarget,
                                                         });
                                                     }
-                                                }
+                                                },
                                             });
                                         }
                                         catch (e) {

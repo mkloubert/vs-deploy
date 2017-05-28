@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.10.0 (May 28th, 2017; new list target)
+
+* added [list target](https://github.com/mkloubert/vs-deploy/wiki/target_list), that lets the user select an entry by the GUI, which contains settings for one or more other target
+
 ## 9.9.1 (May 28th, 2017; http target operations)
 
 * added [http target operation](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#http-)

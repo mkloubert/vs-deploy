@@ -44,6 +44,10 @@ interface DeployTargetEach extends deploy_contracts.DeployTarget {
 
 class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public deployWorkspace(files: string[], target: DeployTargetEach, opts?: deploy_contracts.DeployWorkspaceOptions): void {
+        if (!opts) {
+            opts = {};
+        }
+
         let hasCancelled = false;
         let completedInvoked = false;
         let completed = (err: any) => {
@@ -179,7 +183,7 @@ class EachPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                                             target: clonedTarget,
                                                         });
                                                     }
-                                                }
+                                                },
                                             });
                                         }
                                         catch (e) {

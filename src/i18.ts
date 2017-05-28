@@ -240,6 +240,10 @@ export interface Translation {
             description?: string;
             protocolNotSupported?: string;
         },
+        list?: {
+            description?: string;
+            selectEntry?: string;
+        },
         local?: {
             description?: string;
             emptyTargetDirectory?: string;

@@ -231,6 +231,10 @@ export const translation: Translation = {
             description: 'Sendet Dateien an einen HTTP-Server/-Dienst',
             protocolNotSupported: 'Protokolle vom Typ {0:trim,surround} werden nicht unterstützt!',
         },
+        list: {
+            description: 'Lässt den Benutzer einen Eintrag auswählen, dessen Einstellungen auf ein oder mehrere Ziele übertragen werden sollen',
+            selectEntry: 'Bitte wählen Sie einen Eintrag aus...',
+        },
         local: {
             description: 'Kopiert Dateien in ein lokales Verzeichnis oder eine Netwerkfreigabe',
             emptyTargetDirectory: 'Leere lokales Verzeichnis {0:trim,surround}... ',

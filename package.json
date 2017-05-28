@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.9.1",
+  "version": "9.10.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -12289,6 +12289,1425 @@
                       },
                       "transformerOptions": {
                         "description": "Optional data for the transformer script."
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "A description for the target."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "description": "Additional information that should be shown in the GUI, e.g."
+                      },
+                      "diffBeforeDeploy": {
+                        "type": "boolean",
+                        "description": "Start a diff before deploy file(s) or not.",
+                        "default": false
+                      },
+                      "hideIf": {
+                        "description": "A list of one or more package names that indicates if that target is hidden from GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "if": {
+                        "description": "A list of one or more conditions (as JavaScript code) that defines if target is available or not.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "isFor": {
+                        "description": "A list of one or more (host)names that target is visible for.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "isHidden": {
+                        "type": "boolean",
+                        "description": "Hide target in GUI or not.",
+                        "default": false
+                      },
+                      "mappings": {
+                        "description": "One or more folder mapping to add.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "description": "The directory that should be mapped."
+                            },
+                            "target": {
+                              "type": "string",
+                              "description": "The target directory to map the files of source directory to."
+                            }
+                          }
+                        }
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The name of the target."
+                      },
+                      "platforms": {
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The name of the platform the target is for."
+                          },
+                          {
+                            "type": "array",
+                            "description": "One or more platform names the target is for.",
+                            "items": {
+                              "type": "string",
+                              "description": "The name of platform the target is for."
+                            }
+                          }
+                        ]
+                      },
+                      "showIf": {
+                        "description": "A list of one or more package names that indicates if that target is only shown in GUI if one of the package(s) has been selected.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        ]
+                      },
+                      "sortOrder": {
+                        "description": "The sort order(s).",
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ],
+                        "default": 0
+                      },
+                      "applyValuesTo": {
+                        "description": "A list of property names and their values that should be applied to that target.",
+                        "type": "object",
+                        "patternProperties": {
+                          ".*": {
+                            "description": "The value (with optional placeholders) that should be applied to the property.",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "inheritFrom": {
+                        "description": "One or more target name from where to inherit settings from.",
+                        "oneOf": [
+                          {
+                            "type": "string",
+                            "description": "The target name from where to inherit settings from."
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "description": "A target name from where to inherit settings from."
+                            }
+                          }
+                        ]
+                      },
+                      "deployed": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "compile"
+                                  ],
+                                  "type": "string",
+                                  "description": "A local command to be run after deploy."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "compiler": {
+                                  "description": "The compiler to use.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "less"
+                                      ],
+                                      "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "uglifyjs"
+                                      ],
+                                      "description": "UglifyJS compiler"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "open"
+                                  ],
+                                  "type": "string",
+                                  "description": "One or more local command to be run before deploy action"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target command/executable"
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "A list of one or more optional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "script"
+                                  ],
+                                  "type": "string",
+                                  "description": "Runs a script from a file."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "options": {
+                                  "description": "Additional options for the script execution."
+                                },
+                                "script": {
+                                  "type": "string",
+                                  "description": "The path to the script file.",
+                                  "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "engine": {
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "wait"
+                                  ],
+                                  "type": "string",
+                                  "description": "Waits a number of milliseconds, before the next operation is executed."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "time": {
+                                  "type": "number",
+                                  "description": "The number of milliseconds to wait before next operation is invoked.",
+                                  "minimum": 0,
+                                  "default": 1000
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "webdeploy"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes Microsoft's Web Deploy tool (msdeploy)."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "allowUntrusted": {
+                                  "type": "boolean",
+                                  "description": "When specified, untrusted SSL connections are allowed; otherwise, untrusted SSL Connections are not allowed.",
+                                  "default": false
+                                },
+                                "appHostConfigDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the ApplicationHost.config file for the current instance of IIS Express."
+                                },
+                                "args": {
+                                  "type": "array",
+                                  "description": "One or more additional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "declareParam": {
+                                  "type": "string",
+                                  "description": "Creates a user-specified parameter for a package or archive. When the package or archive is later synchronized, the value of the declared parameter is specified by using 'setParam'."
+                                },
+                                "declareParamFile": {
+                                  "type": "string",
+                                  "description": "Specifies an XML file that contains declarations of parameters that will be used in an operation. The XML format of the declared parameters matches that of the parameters that are found in the archive or package."
+                                },
+                                "dest": {
+                                  "type": "string",
+                                  "description": "Specifies the destination (the target object) of the operation that the 'verb' argument specifies. The and its associated settings more narrowly define the destination object or how it will be processed."
+                                },
+                                "dir": {
+                                  "type": "string",
+                                  "description": "The custom working directory for the execution.",
+                                  "default": "./"
+                                },
+                                "disableAppStore": {
+                                  "type": "boolean",
+                                  "default": false
+                                },
+                                "disableLink": {
+                                  "type": "string",
+                                  "description": "Disables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'disableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "disableRule": {
+                                  "type": "string",
+                                  "description": "Disables the specified synchronization rule or rules during a synchronization operation. The rules are specified after 'disableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "disableSkipDirective": {
+                                  "type": "string",
+                                  "description": "Disables the specified skip directive."
+                                },
+                                "enableLink": {
+                                  "type": "string",
+                                  "description": "Enables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'enableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "enableRule": {
+                                  "type": "string",
+                                  "description": "Enables one or more synchronization rules during a synchronization operation. The rules are specified after 'enableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "exec": {
+                                  "type": "string",
+                                  "description": "The path of the executable.",
+                                  "default": "msdeploy.exe"
+                                },
+                                "postSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination after a synchronization completes."
+                                },
+                                "preSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination before a synchronization starts."
+                                },
+                                "removeParam": {
+                                  "type": "string",
+                                  "description": "Removes a parameter definition from the list of declared parameters."
+                                },
+                                "replace": {
+                                  "type": "string",
+                                  "description": "Specifies items to replace during a synchronization operation. More than one 'replace' argument can appear on the same command line."
+                                },
+                                "retryAttempts": {
+                                  "type": "number",
+                                  "description": "Specifies the number of times the provider will retry after a failure.",
+                                  "minimum": 0
+                                },
+                                "retryInterval": {
+                                  "type": "number",
+                                  "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
+                                  "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
+                                "setParam": {
+                                  "type": "string",
+                                  "description": "Specifies values during a sync operation for the parameters that you specify."
+                                },
+                                "setParamFile": {
+                                  "type": "string",
+                                  "description": "Applies parameter settings from an XML 'answer' file during a sync operation."
+                                },
+                                "showSecure": {
+                                  "type": "boolean",
+                                  "description": "When specified, displays encrypted configuration properties (such as passwords) in clear text when the output format is XML.",
+                                  "default": false
+                                },
+                                "skip": {
+                                  "type": "string",
+                                  "description": "Specifies an action or object to be excluded during a synchronization operation."
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "Specifies the source of the data for the operation that the 'verb' argument specifies."
+                                },
+                                "unicode": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the string values for the username and password provider settings will be encoded in UTF-8.",
+                                  "default": false
+                                },
+                                "useCheckSum": {
+                                  "type": "boolean",
+                                  "description": "Specifies that files will be compared by using their CRC (Cyclic Redundancy Check) checksum and ignoring their last write time.",
+                                  "default": false
+                                },
+                                "verb": {
+                                  "type": "string",
+                                  "description": "Specifies the action that the operation will perform."
+                                },
+                                "verbose": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the Informational verbosity level will be included in the output of the operation.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "webServerDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the program files for the current instance of IIS Express."
+                                },
+                                "whatif": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the command will be run without actually making any changes.",
+                                  "default": false
+                                },
+                                "xml": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the output should be returned in XML format.",
+                                  "default": false
+                                },
+                                "xpath": {
+                                  "type": "string",
+                                  "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": "One or more operations to be run after deploy."
+                      },
+                      "beforeDeploy": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "compile"
+                                  ],
+                                  "type": "string",
+                                  "description": "A local command to be run before deploy action."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "compiler": {
+                                  "description": "The compiler to use.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "htmlminifier"
+                                      ],
+                                      "description": "html-minifier"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "less"
+                                      ],
+                                      "description": "LESS compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "pug"
+                                      ],
+                                      "description": "Pug compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "script"
+                                      ],
+                                      "description": "Script based compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "typescript"
+                                      ],
+                                      "description": "TypeScript compiler"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "enum": [
+                                        "uglifyjs"
+                                      ],
+                                      "description": "UglifyJS compiler"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for compiler."
+                                },
+                                "useFilesOfDeployment": {
+                                  "description": "Use files that will be deployed / have been deployed as source or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "compiler"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "http"
+                                  ],
+                                  "type": "string",
+                                  "description": "Does a HTTP request."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "The body or the path to a script that returns the body to send."
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "description": "The request headers.",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The header to define."
+                                    }
+                                  }
+                                },
+                                "isBodyBase64": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' is Base64 encoded or not.",
+                                  "default": false
+                                },
+                                "isBodyScript": {
+                                  "type": "boolean",
+                                  "description": "Indicates if 'body' contains the path to a script instead the content to send.",
+                                  "default": false
+                                },
+                                "method": {
+                                  "type": "string",
+                                  "description": "The HTTP request method.",
+                                  "default": "GET"
+                                },
+                                "options": {
+                                  "description": "The options for the script that returns the body to send."
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The URL.",
+                                  "default": "http://localhost/"
+                                },
+                                "noPlaceholdersForTheseHeaders": {
+                                  "description": "A list of headers that should NOT use placeholders / values.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the header that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "A list of headers that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the header that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL headers or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "open"
+                                  ],
+                                  "type": "string",
+                                  "description": "One or more local command to be run before deploy action"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "target": {
+                                  "type": "string",
+                                  "description": "Target command/executable"
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "A list of one or more optional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "script"
+                                  ],
+                                  "type": "string",
+                                  "description": "Runs a script from a file."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "options": {
+                                  "description": "Additional options for the script execution."
+                                },
+                                "script": {
+                                  "type": "string",
+                                  "description": "The path to the script file.",
+                                  "default": "./my_deployOperation_script.js"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "sql"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes SQL scripts."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "engine": {
+                                  "default": "mysql",
+                                  "oneOf": [
+                                    {
+                                      "enum": [
+                                        "mysql"
+                                      ],
+                                      "type": "string",
+                                      "description": "MySQL"
+                                    },
+                                    {
+                                      "enum": [
+                                        "sql"
+                                      ],
+                                      "type": "string",
+                                      "description": "Microsoft SQL"
+                                    }
+                                  ]
+                                },
+                                "options": {
+                                  "description": "The options for the connection."
+                                },
+                                "queries": {
+                                  "description": "One or more query to invoke.",
+                                  "oneOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "vscommand"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes a Visual Studio Code command."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The ID of the command to execute."
+                                },
+                                "arguments": {
+                                  "type": "array",
+                                  "description": "One or more optional argument for the execution."
+                                },
+                                "contextOptions": {
+                                  "description": "Options for the operation context."
+                                },
+                                "submitContext": {
+                                  "type": "boolean",
+                                  "description": "Submit an operation context object as first argument or not.",
+                                  "default": false
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "wait"
+                                  ],
+                                  "type": "string",
+                                  "description": "Waits a number of milliseconds, before the next operation is executed."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "time": {
+                                  "type": "number",
+                                  "description": "The number of milliseconds to wait before next operation is invoked.",
+                                  "minimum": 0,
+                                  "default": 1000
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "webdeploy"
+                                  ],
+                                  "type": "string",
+                                  "description": "Executes Microsoft's Web Deploy tool (msdeploy)."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The name of the operation."
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "The description for the operation."
+                                },
+                                "allowUntrusted": {
+                                  "type": "boolean",
+                                  "description": "When specified, untrusted SSL connections are allowed; otherwise, untrusted SSL Connections are not allowed.",
+                                  "default": false
+                                },
+                                "appHostConfigDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the ApplicationHost.config file for the current instance of IIS Express."
+                                },
+                                "args": {
+                                  "type": "array",
+                                  "description": "One or more additional arguments for the execution.",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "declareParam": {
+                                  "type": "string",
+                                  "description": "Creates a user-specified parameter for a package or archive. When the package or archive is later synchronized, the value of the declared parameter is specified by using 'setParam'."
+                                },
+                                "declareParamFile": {
+                                  "type": "string",
+                                  "description": "Specifies an XML file that contains declarations of parameters that will be used in an operation. The XML format of the declared parameters matches that of the parameters that are found in the archive or package."
+                                },
+                                "dest": {
+                                  "type": "string",
+                                  "description": "Specifies the destination (the target object) of the operation that the 'verb' argument specifies. The and its associated settings more narrowly define the destination object or how it will be processed."
+                                },
+                                "dir": {
+                                  "type": "string",
+                                  "description": "The custom working directory for the execution.",
+                                  "default": "./"
+                                },
+                                "disableAppStore": {
+                                  "type": "boolean",
+                                  "default": false
+                                },
+                                "disableLink": {
+                                  "type": "string",
+                                  "description": "Disables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'disableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "disableRule": {
+                                  "type": "string",
+                                  "description": "Disables the specified synchronization rule or rules during a synchronization operation. The rules are specified after 'disableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "disableSkipDirective": {
+                                  "type": "string",
+                                  "description": "Disables the specified skip directive."
+                                },
+                                "enableLink": {
+                                  "type": "string",
+                                  "description": "Enables one or more specified link extensions during a synchronization operation. The link extensions are specified after 'enableLink' in a comma-delimited list. You can specify the link extension names directly, or use regular expressions that resolve to valid Web Deploy link extension names."
+                                },
+                                "enableRule": {
+                                  "type": "string",
+                                  "description": "Enables one or more synchronization rules during a synchronization operation. The rules are specified after 'enableRule' in a comma-delimited list. You can specify the rule names directly, or use a regular expression that resolves to valid Web Deploy rules. The specified rule name can also be followed by an asterisk wildcard character."
+                                },
+                                "exec": {
+                                  "type": "string",
+                                  "description": "The path of the executable.",
+                                  "default": "msdeploy.exe"
+                                },
+                                "postSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination after a synchronization completes."
+                                },
+                                "preSync": {
+                                  "type": "string",
+                                  "description": "Runs the specified command or batch file on the destination before a synchronization starts."
+                                },
+                                "removeParam": {
+                                  "type": "string",
+                                  "description": "Removes a parameter definition from the list of declared parameters."
+                                },
+                                "replace": {
+                                  "type": "string",
+                                  "description": "Specifies items to replace during a synchronization operation. More than one 'replace' argument can appear on the same command line."
+                                },
+                                "retryAttempts": {
+                                  "type": "number",
+                                  "description": "Specifies the number of times the provider will retry after a failure.",
+                                  "minimum": 0
+                                },
+                                "retryInterval": {
+                                  "type": "number",
+                                  "description": "Specifies, in milliseconds, the interval between provider retry attempts.",
+                                  "minimum": 0
+                                },
+                                "runInTerminal": {
+                                  "type": "boolean",
+                                  "description": "Run in integrated terminal or not.",
+                                  "default": false
+                                },
+                                "setParam": {
+                                  "type": "string",
+                                  "description": "Specifies values during a sync operation for the parameters that you specify."
+                                },
+                                "setParamFile": {
+                                  "type": "string",
+                                  "description": "Applies parameter settings from an XML 'answer' file during a sync operation."
+                                },
+                                "showSecure": {
+                                  "type": "boolean",
+                                  "description": "When specified, displays encrypted configuration properties (such as passwords) in clear text when the output format is XML.",
+                                  "default": false
+                                },
+                                "skip": {
+                                  "type": "string",
+                                  "description": "Specifies an action or object to be excluded during a synchronization operation."
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "Specifies the source of the data for the operation that the 'verb' argument specifies."
+                                },
+                                "unicode": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the string values for the username and password provider settings will be encoded in UTF-8.",
+                                  "default": false
+                                },
+                                "useCheckSum": {
+                                  "type": "boolean",
+                                  "description": "Specifies that files will be compared by using their CRC (Cyclic Redundancy Check) checksum and ignoring their last write time.",
+                                  "default": false
+                                },
+                                "verb": {
+                                  "type": "string",
+                                  "description": "Specifies the action that the operation will perform."
+                                },
+                                "verbose": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the Informational verbosity level will be included in the output of the operation.",
+                                  "default": false
+                                },
+                                "wait": {
+                                  "type": "boolean",
+                                  "description": "Wait until execution has been finished or not.",
+                                  "default": true
+                                },
+                                "webServerDir": {
+                                  "type": "string",
+                                  "description": "Specifies the path of the program files for the current instance of IIS Express."
+                                },
+                                "whatif": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the command will be run without actually making any changes.",
+                                  "default": false
+                                },
+                                "xml": {
+                                  "type": "boolean",
+                                  "description": "Specifies that the output should be returned in XML format.",
+                                  "default": false
+                                },
+                                "xpath": {
+                                  "type": "string",
+                                  "description": "Specifies an XPath expression to apply to XML output."
+                                },
+                                "noPlaceholdersForTheseVars": {
+                                  "description": "A list of environment variables that should NOT use placeholders.",
+                                  "oneOf": [
+                                    {
+                                      "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "description": "The list of environment variables that should NOT use placeholders / values.",
+                                      "items": {
+                                        "description": "The name of the environment variable that should NOT use placeholders / values.",
+                                        "type": "string"
+                                      }
+                                    },
+                                    {
+                                      "description": "Defines if placeholders should be DEactivated for ALL environment variables or not.",
+                                      "type": "boolean"
+                                    }
+                                  ]
+                                },
+                                "envVars": {
+                                  "description": "An object that defines environment variables for the new process by properties.",
+                                  "type": "object",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The variable to define."
+                                    }
+                                  }
+                                },
+                                "useEnvVarsOfWorkspace": {
+                                  "description": "Also use environment variables of the process of current workspace or not.",
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "description": "One or more operations to be run before deploy action."
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "enum": [
+                          "list"
+                        ],
+                        "type": "string",
+                        "description": "Lets the user select an entry with settings for one or more targets."
+                      },
+                      "placeholder": {
+                        "description": "The placeholder for the GUI.",
+                        "type": "string"
+                      },
+                      "entries": {
+                        "oneOf": [
+                          {
+                            "description": "The entry.",
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "description": "A description for the GUI.",
+                                "type": "string"
+                              },
+                              "detail": {
+                                "description": "Details for the GUI.",
+                                "type": "string"
+                              },
+                              "name": {
+                                "description": "The (display) name for the GUI.",
+                                "type": "string"
+                              },
+                              "settings": {
+                                "type": "object",
+                                "description": "Settings for the target(s).",
+                                "patternProperties": {
+                                  ".*": {
+                                    "description": "The setting for the target(s)."
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "description": "One or more entry.",
+                            "type": "array",
+                            "items": {
+                              "description": "The entry.",
+                              "type": "object",
+                              "properties": {
+                                "description": {
+                                  "description": "A description for the GUI.",
+                                  "type": "string"
+                                },
+                                "detail": {
+                                  "description": "Details for the GUI.",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "description": "The (display) name for the GUI.",
+                                  "type": "string"
+                                },
+                                "settings": {
+                                  "type": "object",
+                                  "description": "Settings for the target(s).",
+                                  "patternProperties": {
+                                    ".*": {
+                                      "description": "The setting for the target(s)."
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "targets": {
+                        "oneOf": [
+                          {
+                            "description": "The target name to deploy to / pull from.",
+                            "type": "string"
+                          },
+                          {
+                            "description": "One or more target name to deploy to / pull from.",
+                            "type": "array",
+                            "items": {
+                              "description": "The target name to deploy to / pull from.",
+                              "type": "string"
+                            }
+                          }
+                        ]
                       },
                       "description": {
                         "type": "string",

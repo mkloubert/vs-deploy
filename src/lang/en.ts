@@ -233,6 +233,10 @@ export const translation: Translation = {
             description: 'Deploys to a HTTP server/service',
             protocolNotSupported: 'Protocol {0:trim,surround} is not supported!',
         },
+        list: {
+            description: 'Lets the user select an entry with settings for one or more targets',
+            selectEntry: 'Please select an entry...',
+        },
         local: {
             description: 'Deploys to a local folder or a shared folder (like SMB) inside your LAN',
             emptyTargetDirectory: 'Empty LOCAL target directory {0:trim,surround}... ',
