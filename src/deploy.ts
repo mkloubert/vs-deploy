@@ -400,7 +400,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                 let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                     return !type ||
-                        (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.downloadFile);
+                           (x.plugin.__type === type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.downloadFile);
                 });
 
                 if (matchIngPlugins.length > 0) {
@@ -767,7 +767,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                 let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                     return !type ||
-                           (x.plugin.__type == type && x.plugin.deployFile);
+                           (x.plugin.__type === type && x.plugin.deployFile);
                 });
 
                 let relativePath = deploy_helpers.toRelativePath(file);
@@ -1321,7 +1321,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                         return !type ||
-                               (x.plugin.__type == type && x.plugin.deployWorkspace);
+                               (x.plugin.__type === type && x.plugin.deployWorkspace);
                     });
 
                     if (matchIngPlugins.length > 0) {
@@ -1628,11 +1628,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     let ifaces = networkInterfaces[ifName].filter(x => {
                         let addr = deploy_helpers.toStringSafe(x.address)
                                                  .toLowerCase().trim();
-                        if ('IPv4' == x.family) {
+                        if ('IPv4' === x.family) {
                             return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
                         }
 
-                        if ('IPv6' == x.family) {
+                        if ('IPv6' === x.family) {
                             return '::1' != addr;
                         }
 
