@@ -632,6 +632,11 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     packages?: DeployPackage[];
     /**
+     * Run build task on startup or define the wait time, in milliseconds, after
+     * the build task should be run after startup.
+     */
+    runBuildTaskOnStartup?: boolean | number;
+    /**
      * Show an item in the status bar after deployment or not.
      */
     showDeployResultInStatusBar?: boolean;
@@ -652,11 +657,6 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      * s. https://github.com/mkloubert/vs-rest-api
      */
     startApi?: boolean;
-    /**
-     * Run build task on startup or define the wait time, in milliseconds, after
-     * the build task should be run after startup.
-     */
-    startBuildTask?: boolean | number;
     /**
      * Starts the cron jobs or not.
      * s. https://github.com/mkloubert/vs-cron

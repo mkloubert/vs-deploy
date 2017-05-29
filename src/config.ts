@@ -259,12 +259,12 @@ export function runBuildTask() {
 
     let doRun = false;
     let timeToWait: number;
-    if (!deploy_helpers.isNullOrUndefined(cfg.startBuildTask)) {
-        if ('boolean' === typeof cfg.startBuildTask) {
-            doRun = cfg.startBuildTask;
+    if (!deploy_helpers.isNullOrUndefined(cfg.runBuildTaskOnStartup)) {
+        if ('boolean' === typeof cfg.runBuildTaskOnStartup) {
+            doRun = cfg.runBuildTaskOnStartup;
         }
         else {
-            timeToWait = parseInt(deploy_helpers.toStringSafe(cfg.startBuildTask));
+            timeToWait = parseInt(deploy_helpers.toStringSafe(cfg.runBuildTaskOnStartup));
         }
     }
 

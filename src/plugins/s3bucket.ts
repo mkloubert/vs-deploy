@@ -182,11 +182,11 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
 
                 // remove leading '/' chars
                 let bucketKey = relativePath;
-                while (0 == bucketKey.indexOf('/')) {
+                while (0 === bucketKey.indexOf('/')) {
                     bucketKey = bucketKey.substr(1);
                 }
                 bucketKey = ctx.dir + bucketKey;
-                while (0 == bucketKey.indexOf('/')) {
+                while (0 === bucketKey.indexOf('/')) {
                     bucketKey = bucketKey.substr(1);
                 }
 
@@ -300,10 +300,10 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
 
                     // remove leading '/' chars
                     let bucketKey = relativePath;
-                    while (0 == bucketKey.indexOf('/')) {
+                    while (0 === bucketKey.indexOf('/')) {
                         bucketKey = bucketKey.substr(1);
                     }
-                    while (0 == bucketKey.indexOf('/')) {
+                    while (0 === bucketKey.indexOf('/')) {
                         bucketKey = bucketKey.substr(1);
                     }
 
@@ -377,10 +377,10 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
 
                 // remove leading '/' chars
                 let bucketKey = relativePath;
-                while (0 == bucketKey.indexOf('/')) {
+                while (0 === bucketKey.indexOf('/')) {
                     bucketKey = bucketKey.substr(1);
                 }
-                while (0 == bucketKey.indexOf('/')) {
+                while (0 === bucketKey.indexOf('/')) {
                     bucketKey = bucketKey.substr(1);
                 }
 
