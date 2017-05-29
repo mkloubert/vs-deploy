@@ -1071,6 +1071,20 @@
               "description": "Starts the REST API or not (s. https://github.com/mkloubert/vs-rest-api).",
               "default": false
             },
+            "startBuildTask": {
+              "oneOf": [
+                {
+                  "type": "boolean",
+                  "description": "Indicates if build task should be run on startup or not.",
+                  "default": "false"
+                },
+                {
+                  "type": "integer",
+                  "description": "Defines the number of milliseconds to wait before the build task is run.",
+                  "minimum": 0
+                }
+              ]
+            },
             "startCronJobs": {
               "type": "boolean",
               "description": "Starts the cron jobs or not (s. https://github.com/mkloubert/vs-cron).",

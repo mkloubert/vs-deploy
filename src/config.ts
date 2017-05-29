@@ -35,6 +35,8 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
+let buildTaskTime: NodeJS.Timer;
+
 /**
  * Returns a merged config object.
  * 
@@ -231,4 +233,57 @@ export function mergeConfig(cfg: deploy_contracts.DeployConfiguration): Promise<
             completed(e);
         }
     });
+}
+
+/**
+ * Runs the build task, if defined in config.
+ */
+export function runBuildTask() {
+    let me: vs_deploy.Deployer = this;
+    let cfg = me.config;
+
+    // close old timer (if defined)
+    try {
+        let btt = buildTaskTime;
+        if (btt) {
+            clearTimeout(btt);
+        }
+    }
+    catch (e) {
+        me.log(i18.t('errors.withCategory',
+                     'config.runBuildTask(1)', e));
+    }
+    finally {
+        buildTaskTime = null;
+    }
+
+    let doRun = false;
+    let timeToWait: number;
+    if (!deploy_helpers.isNullOrUndefined(cfg.startBuildTask)) {
+        if ('boolean' === typeof cfg.startBuildTask) {
+            doRun = cfg.startBuildTask;
+        }
+        else {
+            timeToWait = parseInt(deploy_helpers.toStringSafe(cfg.startBuildTask));
+        }
+    }
+
+    let executeBuildTaskCommand = () => {
+        vscode.commands.executeCommand('workbench.action.tasks.build').then(() => {
+        }, (err) => {
+            me.log(i18.t('errors.withCategory',
+                         'config.runBuildTask(2)', err));
+        });
+    };
+
+    if (doRun) {
+        if (isNaN(timeToWait)) {
+            executeBuildTaskCommand();
+        }
+        else {
+            buildTaskTime = setTimeout(() => {
+                executeBuildTaskCommand();
+            }, timeToWait);
+        }
+    }
 }

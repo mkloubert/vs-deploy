@@ -3964,6 +3964,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             }
 
+            deploy_config.runBuildTask
+                         .apply(me);
+
             if (showDefaultTemplateRepos) {
                 // check official repo version
                 deploy_templates.checkOfficialRepositoryVersions
