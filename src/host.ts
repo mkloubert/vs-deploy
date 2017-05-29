@@ -505,7 +505,7 @@ export class DeployHost {
 
                                                         let handleData = function(data: Buffer) {
                                                             try {
-                                                                while (0 == file.name.indexOf('/')) {
+                                                                while (0 === file.name.indexOf('/')) {
                                                                     file.name = file.name.substr(1);
                                                                 }
 

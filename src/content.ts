@@ -91,7 +91,7 @@ export class HtmlTextDocumentContentProvider implements vscode.TextDocumentConte
             for (let i = 0; i < htmlDocs.length; i++) {
                 let d = htmlDocs[i];
 
-                if (deploy_helpers.toStringSafe(d.id).trim() == id) {
+                if (deploy_helpers.toStringSafe(d.id).trim() === id) {
                     doc = d;
                     break;
                 }

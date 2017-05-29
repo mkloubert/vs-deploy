@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.10.0",
+  "version": "9.11.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -141,6 +141,16 @@
         "deploy": {
           "type": "object",
           "properties": {
+            "alwaysShowPackageList": {
+              "type": "boolean",
+              "description": "Indicates if package list is shown, even if there is only one entry.",
+              "default": false
+            },
+            "alwaysShowTargetList": {
+              "type": "boolean",
+              "description": "Indicates if target list is shown, even if there is only one entry.",
+              "default": false
+            },
             "button": {
               "type": "object",
               "description": "Settings for the 'quick deploy button' in the status bar.",

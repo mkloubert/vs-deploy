@@ -52,7 +52,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
                             direction: deploy_contracts.DeployDirection): Promise<any> {
         let me = this;
         
-        if (direction == deploy_contracts.DeployDirection.Deploy) {
+        if (direction === deploy_contracts.DeployDirection.Deploy) {
             return super.createZipFile.apply(me, arguments);
         }
         

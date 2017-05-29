@@ -654,7 +654,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             }
         };
 
-        if (quickPicks.length > 1) {
+        if (quickPicks.length > 1 || deploy_helpers.toBooleanSafe(me.config.alwaysShowTargetList)) {
             vscode.window.showQuickPick(quickPicks, {
                 placeHolder: i18.t('targets.select'),
             }).then((item) => {
@@ -1213,7 +1213,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
                                                                                                     me.getValues()));
 
-                    if (fileQuickPicks.length > 1) {
+                    if (fileQuickPicks.length > 1 || deploy_helpers.toBooleanSafe(me.config.alwaysShowTargetList)) {
                         vscode.window.showQuickPick(fileQuickPicks, {
                             placeHolder: i18.t('deploy.workspace.selectTarget'),
                         }).then((item) => {
@@ -1261,7 +1261,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             };
 
-            if (packageQuickPicks.length > 1) {
+            if (packageQuickPicks.length > 1 || deploy_helpers.toBooleanSafe(me.config.alwaysShowPackageList)) {
                 vscode.window.showQuickPick(packageQuickPicks, {
                     placeHolder: i18.t('deploy.workspace.selectPackage'),
                 }).then((item) => {

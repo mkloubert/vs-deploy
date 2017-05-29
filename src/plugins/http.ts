@@ -266,7 +266,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                     }
 
                                     let protocol = deploy_helpers.toStringSafe(targetUrl.protocol).toLowerCase().trim();
-                                    if (!protocol) {
+                                    if ('' === protocol) {
                                         protocol = 'http:';
                                     }
 
@@ -292,8 +292,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                                     }
 
                                     let port = deploy_helpers.toStringSafe(targetUrl.port).trim();
-                                    if (!port) {
-                                        port = 'http:' == protocol ? '80' : '443';
+                                    if ('' === port) {
+                                        port = 'http:' === protocol ? '80' : '443';
                                     }
 
                                     // start the request

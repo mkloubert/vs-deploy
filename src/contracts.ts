@@ -435,6 +435,14 @@ export interface DeployCompileOperation extends DeployOperation {
  */
 export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
     /**
+     * Indicates if package list is shown, even if there is only one entry.
+     */
+    alwaysShowPackageList?: boolean;
+    /**
+     * Indicates if target list is shown, even if there is only one entry.
+     */
+    alwaysShowTargetList?: boolean;
+    /**
      * Settings for a "quick deploy button".
      */
     button?: {
