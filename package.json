@@ -1470,6 +1470,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -2058,6 +2066,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -2876,6 +2892,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -3464,6 +3488,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -4260,6 +4292,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -4848,6 +4888,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -5611,6 +5659,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -6199,6 +6255,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -6975,6 +7039,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -7563,6 +7635,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -8361,6 +8441,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -8949,6 +9037,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -9842,6 +9938,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -10430,6 +10534,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -11238,6 +11350,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -11826,6 +11946,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -12597,6 +12725,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -13185,6 +13321,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -14016,6 +14160,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -14604,6 +14756,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -15408,6 +15568,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -15996,6 +16164,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -16769,6 +16945,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -17357,6 +17541,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -18122,6 +18314,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -18710,6 +18910,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -19504,6 +19712,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -20092,6 +20308,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -20961,6 +21185,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -21549,6 +21781,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -22489,6 +22729,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -23077,6 +23325,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -23839,6 +24095,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -24427,6 +24691,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -25218,6 +25490,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -25806,6 +26086,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -26567,6 +26855,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -27155,6 +27451,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -27930,6 +28234,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },
@@ -28518,6 +28830,14 @@
                                       "type": "boolean"
                                     }
                                   ]
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "description": "The username for basic auth."
+                                },
+                                "password": {
+                                  "type": "string",
+                                  "description": "The password for basic auth."
                                 }
                               }
                             },

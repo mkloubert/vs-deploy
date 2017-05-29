@@ -344,6 +344,18 @@ export function http(ctx: OperationContext<deploy_contracts.DeployHttpOperation>
             }
 
             let headers = deploy_helpers.cloneObject(operation.headers);
+
+            if (!deploy_helpers.isEmptyString(operation.username)) {
+                // Basic Auth
+
+                let username = deploy_helpers.toStringSafe(operation.username);
+                let password = deploy_helpers.toStringSafe(operation.password);
+
+                headers = headers || {};
+
+                headers['Authorization'] = 'Basic ' + (new Buffer(username + ':' + password, 'ascii').toString('base64'));
+            }
+
             if (headers) {
                 for (let prop in headers) {
                     let name = deploy_helpers.normalizeString(prop);

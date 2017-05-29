@@ -995,9 +995,17 @@ export interface DeployHttpOperation extends DeployOperation {
      */
     options?: any;
     /**
+     * The password for basic auth.
+     */
+    password?: string;
+    /**
      * The URL.
      */
     url?: string;
+    /**
+     * The username for basic auth.
+     */
+    username?: string;
 }
 
 /**

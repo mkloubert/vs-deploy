@@ -4,6 +4,7 @@
 
 * added `alwaysShowPackageList` setting that indicates if package list is shown, even if there is only 1 entry
 * added `alwaysShowTargetList` setting that indicates if target list is shown, even if there is only 1 entry
+* added `username` and `password` settings for [HTTP target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#http-)
 
 ## 9.10.0 (May 28th, 2017; new list target)
 
