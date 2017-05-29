@@ -264,6 +264,8 @@ export function runBuildTask() {
             doRun = cfg.runBuildTaskOnStartup;
         }
         else {
+            doRun = true;
+
             timeToWait = parseInt(deploy_helpers.toStringSafe(cfg.runBuildTaskOnStartup));
         }
     }
