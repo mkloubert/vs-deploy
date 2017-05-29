@@ -184,7 +184,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                 err = new Error(allErrors.map((x, i) => i18.t('errors.countable', i + 1, x))
                                          .join('\n\n'));
             }
-            else if (1 == allErrors.length) {
+            else if (1 === allErrors.length) {
                 err = allErrors[0];
             }
 
@@ -254,7 +254,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                     return;
                 }
 
-                while (0 == relativePath.indexOf('/')) {
+                while (0 === relativePath.indexOf('/')) {
                     relativePath = relativePath.substr(1);
                 }
 
@@ -280,7 +280,7 @@ class RemotePlugin extends deploy_objects.DeployPluginWithContextBase<RemoteCont
                     try {
                         let remoteFile: RemoteFile = {
                             isFirst: 1 === ctx.counter,
-                            isLast: ctx.counter == ctx.totalCount,
+                            isLast: ctx.counter === ctx.totalCount,
                             name: <string>relativePath,
                             nr: ctx.counter,
                             session: ctx.session,

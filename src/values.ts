@@ -483,6 +483,15 @@ export function getBuildInValues(): ValueBase[] {
         }));
     }
 
+    // ${userName}
+    {
+        objs.push(new CodeValue({
+            name: 'userName',
+            type: "code",
+            code: "require('os').userInfo().username",
+        }));
+    }
+
     // ${workspaceRoot}
     {
         objs.push(new CodeValue({

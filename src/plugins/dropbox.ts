@@ -77,7 +77,7 @@ function toDropboxPath(path: string): string {
 
     // remote ending path separators
     while ((result.length) > 0 &&
-           (result.lastIndexOf(PATH_SEP) == (result.length - 1))) {
+           (result.lastIndexOf(PATH_SEP) === (result.length - 1))) {
         result = result.substr(0, result.length - 1).trim();
     }
 
