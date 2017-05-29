@@ -130,11 +130,11 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
 
                 // remove leading '/' chars
                 let blob = relativePath;
-                while (0 == blob.indexOf('/')) {
+                while (0 === blob.indexOf('/')) {
                     blob = blob.substr(1);
                 }
                 blob = ctx.dir + blob;
-                while (0 == blob.indexOf('/')) {
+                while (0 === blob.indexOf('/')) {
                     blob = blob.substr(1);
                 }
 
@@ -257,11 +257,11 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
 
                     // remove leading '/' chars
                     let blob = relativePath;
-                    while (0 == blob.indexOf('/')) {
+                    while (0 === blob.indexOf('/')) {
                         blob = blob.substr(1);
                     }
                     blob = ctx.dir + blob;
-                    while (0 == blob.indexOf('/')) {
+                    while (0 === blob.indexOf('/')) {
                         blob = blob.substr(1);
                     }
 
@@ -363,11 +363,11 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
 
                     // remove leading '/' chars
                     let blob = relativePath;
-                    while (0 == blob.indexOf('/')) {
+                    while (0 === blob.indexOf('/')) {
                         blob = blob.substr(1);
                     }
                     blob = ctx.dir + blob;
-                    while (0 == blob.indexOf('/')) {
+                    while (0 === blob.indexOf('/')) {
                         blob = blob.substr(1);
                     }
 

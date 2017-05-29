@@ -7,6 +7,7 @@
 * added `username` and `password` settings for [HTTP target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#http-)
 * added build-in [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) `EOL`, `hostName` and `tempDir`
 * added `startBuildTask` that can defines if `workbench.action.tasks.build` (build task) should be run on startup or not
+* lots of code improvements
 
 ## 9.10.0 (May 28th, 2017; new list target)
 
