@@ -637,6 +637,11 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     runBuildTaskOnStartup?: boolean | number;
     /**
+     * Run Git pull on startup or define the wait time, in milliseconds, after
+     * Git pull should be run after startup.
+     */
+    runGitPullOnStartup?: boolean | number;
+    /**
      * Show an item in the status bar after deployment or not.
      */
     showDeployResultInStatusBar?: boolean;

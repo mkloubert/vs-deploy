@@ -2284,7 +2284,7 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
         if (wsRootPath) {
             if (FS.existsSync(wsRootPath)) {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {
-                    if (0 == normalizedPath.indexOf(wsRootPath)) {
+                    if (0 === normalizedPath.indexOf(wsRootPath)) {
                         result = normalizedPath.substr(wsRootPath.length);
                         result = replaceAllStrings(result, Path.sep, '/');
                     }
@@ -2337,7 +2337,7 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
         let source = normalizeDirPath(mapping.source);
         let target = normalizeDirPath(mapping.target);
 
-        if (0 == relativePath.indexOf(source)) {
+        if (0 === relativePath.indexOf(source)) {
             // is matching => rebuild path
 
             relativePath = Path.join(target,

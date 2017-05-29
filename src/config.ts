@@ -35,7 +35,8 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
-let buildTaskTime: NodeJS.Timer;
+let buildTaskTimer: NodeJS.Timer;
+let gitPullTimer: NodeJS.Timer;
 
 /**
  * Returns a merged config object.
@@ -244,7 +245,7 @@ export function runBuildTask() {
 
     // close old timer (if defined)
     try {
-        let btt = buildTaskTime;
+        let btt = buildTaskTimer;
         if (btt) {
             clearTimeout(btt);
         }
@@ -254,7 +255,7 @@ export function runBuildTask() {
                      'config.runBuildTask(1)', e));
     }
     finally {
-        buildTaskTime = null;
+        buildTaskTimer = null;
     }
 
     let doRun = false;
@@ -283,9 +284,76 @@ export function runBuildTask() {
             executeBuildTaskCommand();
         }
         else {
-            buildTaskTime = setTimeout(() => {
+            buildTaskTimer = setTimeout(() => {
                 executeBuildTaskCommand();
             }, timeToWait);
         }
     }
+}
+
+/**
+ * Runs the git sync, if defined in config.
+ * 
+ * @return {Promise<any>} The promise.
+ */
+export function runGitPull(): Promise<any> {
+    let me: vs_deploy.Deployer = this;
+    let cfg = me.config;
+
+    return new Promise<any>((resolve, reject) => {
+        try {
+            // close old timer (if defined)
+            try {
+                let gst = gitPullTimer;
+                if (gst) {
+                    clearTimeout(gst);
+                }
+            }
+            catch (e) {
+                me.log(i18.t('errors.withCategory',
+                             'config.runGitPull(1)', e));
+            }
+            finally {
+                gitPullTimer = null;
+            }
+
+            let doRun = false;
+            let timeToWait: number;
+            if (!deploy_helpers.isNullOrUndefined(cfg.runGitPullOnStartup)) {
+                if ('boolean' === typeof cfg.runGitPullOnStartup) {
+                    doRun = cfg.runGitPullOnStartup;
+                }
+                else {
+                    doRun = true;
+
+                    timeToWait = parseInt(deploy_helpers.toStringSafe(cfg.runGitPullOnStartup));
+                }
+            }
+
+            let executeGitSyncCommand = () => {
+                vscode.commands.executeCommand('git.pull').then(() => {
+                    resolve();
+                }, (err) => {
+                    reject(err);
+                });
+            };
+
+            if (doRun) {
+                if (isNaN(timeToWait)) {
+                    executeGitSyncCommand();
+                }
+                else {
+                    gitPullTimer = setTimeout(() => {
+                        executeGitSyncCommand();
+                    }, timeToWait);
+                }
+            }
+            else {
+                resolve();
+            }
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
 }

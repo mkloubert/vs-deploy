@@ -364,7 +364,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
 
         let targetNames = deploy_helpers.asArray(otherTargets)
                                         .map(x => normalizeString(x))
-                                        .filter(x => x);
+                                        .filter(x => '' !== x);
 
         if (targetNames.indexOf(myTargetName) > -1) {
             // no recurrence!
@@ -382,7 +382,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         targetNames.forEach(tn => {
             let found = false;
             knownTargets.forEach(t => {
-                if (normalizeString(t.name) == tn) {
+                if (normalizeString(t.name) === tn) {
                     found = true;
                     foundTargets.push(t);
                 }
@@ -405,7 +405,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
             knownPlugins.forEach(pi => {
                 let pluginType = normalizeString(pi.__type);
 
-                if (!pluginType || (pluginType == normalizeString(t.type))) {
+                if (!pluginType || (pluginType === normalizeString(t.type))) {
                     newBatchTarget.plugins
                                   .push(pi);
                 }

@@ -71,7 +71,7 @@ function toDropboxPath(path: string): string {
     let result = deploy_helpers.replaceAllStrings(path, Path.sep, PATH_SEP).trim();
     
     // remote leading path separators
-    while (0 == result.indexOf(PATH_SEP)) {
+    while (0 === result.indexOf(PATH_SEP)) {
         result = result.substr(1).trim();
     }
 
@@ -85,7 +85,7 @@ function toDropboxPath(path: string): string {
         result = PATH_SEP + result;
     }
 
-    if (PATH_SEP == result) {
+    if (PATH_SEP === result) {
         result = '';
     }
 

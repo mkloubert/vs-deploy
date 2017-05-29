@@ -3964,14 +3964,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             }
 
-            deploy_config.runBuildTask
-                         .apply(me);
+            let afterGitPull = (err: any) => {
+                deploy_config.runBuildTask
+                             .apply(me);
 
-            if (showDefaultTemplateRepos) {
-                // check official repo version
-                deploy_templates.checkOfficialRepositoryVersions
-                                .apply(me, []);
-            }
+                if (showDefaultTemplateRepos) {
+                    // check official repo version
+                    deploy_templates.checkOfficialRepositoryVersions
+                                    .apply(me, []);
+                }
+            };
+
+            deploy_config.runGitPull.apply(me).then(() => {
+                afterGitPull(null);
+            }).catch((err) => {
+                afterGitPull(err);
+            });
         };
 
         let next = (cfg: deploy_contracts.DeployConfiguration) => {

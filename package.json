@@ -1052,11 +1052,26 @@
                 {
                   "type": "boolean",
                   "description": "Indicates if build task should be run on startup or not.",
-                  "default": "false"
+                  "default": false
                 },
                 {
                   "type": "integer",
                   "description": "Defines the number of milliseconds to wait before the build task is run.",
+                  "minimum": 0
+                }
+              ]
+            },
+            "runGitPullOnStartup": {
+              "description": "Indicates if Git pull should be run on startup or not.",
+              "oneOf": [
+                {
+                  "type": "boolean",
+                  "description": "Indicates if Git pull should be run on startup or not.",
+                  "default": false
+                },
+                {
+                  "type": "integer",
+                  "description": "Defines the number of milliseconds to wait before the Git sync is run.",
                   "minimum": 0
                 }
               ]

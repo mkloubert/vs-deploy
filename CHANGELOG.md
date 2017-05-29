@@ -6,7 +6,8 @@
 * added `alwaysShowTargetList` setting that indicates if target list is shown, even if there is only 1 entry
 * added `username` and `password` settings for [HTTP target operations](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#http-)
 * added build-in [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) `EOL`, `hostName` and `tempDir`
-* added `runBuildTaskOnStartup` that can defines if `workbench.action.tasks.build` (build task) should be run on startup or not
+* added `runBuildTaskOnStartup` that can defines if `workbench.action.tasks.build` command (build task) should be run on startup or not
+* added `runGitPullOnStartup` that can defines if `git.pull` command should be run on startup or not
 * lots of code improvements
 
 ## 9.10.0 (May 28th, 2017; new list target)
