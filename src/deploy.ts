@@ -1767,21 +1767,21 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             let excludeForPackages = deploy_helpers.asArray(t.hideIf)
                                                    .map(x => deploy_helpers.normalizeString(x))
-                                                   .filter(x => x);
+                                                   .filter(x => '' !== x);
             for (let i = 0; i < excludeForPackages.length; i++) {
-                if (excludeForPackages[i] == pkgName) {
+                if (excludeForPackages[i] === pkgName) {
                     return false;  // exclude
                 }
             }
 
             let showForPackages = deploy_helpers.asArray(t.showIf)
                                                 .map(x => deploy_helpers.normalizeString(x))
-                                                .filter(x => x);
+                                                .filter(x => '' !== x);
             if (showForPackages.length > 0) {
                 takeTarget = false;  // exclude by default now
 
                 for (let i = 0; i < showForPackages.length; i++) {
-                    if (showForPackages[i] == pkgName) {
+                    if (showForPackages[i] === pkgName) {
                         takeTarget = true;  // include
                         break;
                     }
@@ -1922,7 +1922,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let targetNames = deploy_helpers.asArray(pkg.targets)
                                         .map(x => normalizeString(x))
-                                        .filter(x => x);
+                                        .filter(x => '' !== x);
 
         let knownTargets = this.getTargets();
 
@@ -1931,7 +1931,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             for (let i = 0; i < knownTargets.length; i++) {
                 let kt = knownTargets[i];
                 
-                if (normalizeString(kt.name) == tn) {
+                if (normalizeString(kt.name) === tn) {
                     found = true;
                     pkgTargets.push(kt);
                 }
@@ -2977,7 +2977,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                 let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                     return !type ||
-                           (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullFile);
+                           (x.plugin.__type === type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullFile);
                 });
 
                 let relativePath = deploy_helpers.toRelativePath(file);
@@ -3298,7 +3298,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             else {
                 // we have explicit defined targets here
 
-                if (1 == targetsOfPackage.length) {
+                if (1 === targetsOfPackage.length) {
                     pull(targetsOfPackage[0]);  // pull the one and only
                 }
                 else {

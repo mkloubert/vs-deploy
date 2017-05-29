@@ -447,12 +447,39 @@ export function getBuildInValues(): ValueBase[] {
         }));
     }
 
+    // ${EOL}
+    {
+        objs.push(new CodeValue({
+            name: 'EOL',
+            type: "code",
+            code: "require('os').EOL",
+        }));
+    }
+
+    // ${hostName}
+    {
+        objs.push(new CodeValue({
+            name: 'hostName',
+            type: "code",
+            code: "require('os').hostname()",
+        }));
+    }
+
     // ${homeDir}
     {
         objs.push(new CodeValue({
             name: 'homeDir',
             type: "code",
             code: "require('os').homedir()",
+        }));
+    }
+
+    // ${tempDir}
+    {
+        objs.push(new CodeValue({
+            name: 'tempDir',
+            type: "code",
+            code: "require('os').tmpdir()",
         }));
     }
 
