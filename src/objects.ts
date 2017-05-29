@@ -224,7 +224,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
             },
             globals: me.context.globals(),
             mode: mode,
-            options: deploy_helpers.cloneObject(target.transformerOptions),
+            options: deploy_helpers.cloneObject((target || {}).transformerOptions),
             replaceWithValues: (val) => {
                 return me.context.replaceWithValues(val);
             },
@@ -1563,7 +1563,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                         context: zipFile,
                     };
 
-                    if (deploy_contracts.DeployDirection.Deploy == direction) {
+                    if (deploy_contracts.DeployDirection.Deploy === direction) {
                         wrapper.destroy = () => {
                             return me.deployZipFile(zipFile, target);
                         };

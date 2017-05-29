@@ -6772,6 +6772,15 @@
                       "transformerOptions": {
                         "description": "The data for the 'file data transformation', if needed."
                       },
+                      "password": {
+                        "type": "string",
+                        "description": "An optional password for encrypting/decrypting the file(s)."
+                      },
+                      "passwordAlgorithm": {
+                        "type": "string",
+                        "description": "The algorithm for the password to use.",
+                        "default": "aes-256-ctr"
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."

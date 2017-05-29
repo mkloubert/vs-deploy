@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as Crypto from 'crypto';
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
@@ -38,12 +39,15 @@ const PATH_SEP = '/';
 interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget {
     dir?: string;
     empty?: boolean;
+    password?: string;
+    passwordAlgorithm?: string;
     token: string;
 }
 
 interface DropboxContext {
     dir: string;
     hasCancelled: boolean;
+    passwordTransformer: deploy_contracts.DataTransformer;
     token: string;
 }
 
@@ -124,8 +128,44 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 let ctx: DropboxContext = {
                     dir: dir,
                     hasCancelled: false,
+                    passwordTransformer: undefined,
                     token: deploy_helpers.toStringSafe(target.token),
                 };
+
+                let pwd = deploy_helpers.toStringSafe(target.password);
+                if ('' !== pwd) {
+                    // use password
+
+                    let pwdAlgo = deploy_helpers.normalizeString(target.passwordAlgorithm);
+                    if ('' === pwdAlgo) {
+                        pwdAlgo = deploy_contracts.DEFAULT_PASSWORD_ALGORITHM;
+                    }
+
+                    ctx.passwordTransformer = (ctx) => {
+                        return new Promise<Buffer>((resolve, reject) => {
+                            try {
+                                let cipher: Crypto.Cipher | Crypto.Decipher;
+                                if (ctx.mode === deploy_contracts.DataTransformerMode.Transform) {
+                                    cipher = Crypto.createCipher(pwdAlgo, pwd);
+                                }
+                                else {
+                                    cipher = Crypto.createDecipher(pwdAlgo, pwd);
+                                }
+
+                                let a = cipher.update(ctx.data);
+                                let b = cipher.final();
+
+                                // return crypted data
+                                resolve(Buffer.concat([a, b]));
+                            }
+                            catch (e) {
+                                reject(e);
+                            }
+                        });
+                    };
+                }
+
+                ctx.passwordTransformer = deploy_helpers.toDataTransformerSafe(ctx.passwordTransformer);
 
                 me.onCancelling(() => ctx.hasCancelled = true, opts);
 
@@ -443,9 +483,29 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                                                    subCtx);
                         tCtx.data = data;
 
+                        // first transform data
                         let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Transform)(tCtx);
                         Promise.resolve(tResult).then((transformedData) => {
-                            uploadFile(transformedData);
+                            try {
+                                let pwdTCtx = me.createDataTransformerContext(null, deploy_contracts.DataTransformerMode.Transform,
+                                                                              subCtx);
+                                pwdTCtx.data = transformedData;
+
+                                // then ENcrypt daza
+                                Promise.resolve(ctx.passwordTransformer(pwdTCtx)).then((cryptedData) => {
+                                    try {
+                                        uploadFile(cryptedData);
+                                    }
+                                    catch (e) {
+                                        completed(e);
+                                    }
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
                         }).catch((err) => {
                             completed(err);
                         });
@@ -540,13 +600,28 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                             remoteFile: relativeFilePath,
                                         };
 
-                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
-                                                                                   subCtx);
-                                        tCtx.data = data;
+                                        let pwdTCtx = me.createDataTransformerContext(null, deploy_contracts.DataTransformerMode.Restore,
+                                                                                      subCtx);
+                                        pwdTCtx.data = data;
 
-                                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
-                                        Promise.resolve(tResult).then((untransformedData) => {
-                                            completed(null, untransformedData);
+                                        // first UNcrypt data
+                                        Promise.resolve(ctx.passwordTransformer(pwdTCtx)).then((uncryptedData) => {
+                                            try {
+                                                let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                                           subCtx);
+                                                tCtx.data = uncryptedData;
+
+                                                // then UNtransform data
+                                                let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                                Promise.resolve(tResult).then((untransformedData) => {
+                                                    completed(null, untransformedData);
+                                                }).catch((err) => {
+                                                    completed(err);
+                                                });
+                                            }
+                                            catch (e) {
+                                                completed(e);
+                                            }
                                         }).catch((err) => {
                                             completed(err);
                                         });

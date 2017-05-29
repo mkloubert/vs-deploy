@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.11.0 (May 29th, 2017; settings and placeholders)
+## 9.11.0 (May 29th, 2017; dropbox, settings and placeholders)
 
 * added `alwaysShowPackageList` setting that indicates if package list is shown, even if there is only 1 entry
 * added `alwaysShowTargetList` setting that indicates if target list is shown, even if there is only 1 entry
@@ -8,6 +8,7 @@
 * added build-in [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) `EOL`, `hostName`, `tempDir`, `userName`
 * added `runBuildTaskOnStartup` which defines if `workbench.action.tasks.build` command (build task) should be run on startup or not
 * added `runGitPullOnStartup`, which defines if `git.pull` command should be run on startup or not
+* added `password` and `passwordAlgorithm` settings for [dropbox targets](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), that can be used to encrypt/decrypt files before they will be uploaded / after have been downloaded
 * lots of code improvements
 
 ## 9.10.0 (May 28th, 2017; new list target)

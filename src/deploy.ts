@@ -3376,7 +3376,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     let matchIngPlugins = me.pluginsWithContextes.filter(x => {
                         return !type ||
-                               (x.plugin.__type == type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullWorkspace);
+                               (x.plugin.__type === type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.pullWorkspace);
                     });
 
                     if (matchIngPlugins.length > 0) {

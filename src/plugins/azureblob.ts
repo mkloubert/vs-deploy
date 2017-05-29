@@ -70,10 +70,10 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                           .trim();
 
         let dir = deploy_helpers.toStringSafe(target.dir).trim();
-        while ((dir.length > 0) && (0 == dir.indexOf('/'))) {
+        while ((dir.length > 0) && (0 === dir.indexOf('/'))) {
             dir = dir.substr(1).trim();
         }
-        while ((dir.length > 0) && ((dir.length - 1) == dir.lastIndexOf('/'))) {
+        while ((dir.length > 0) && ((dir.length - 1) === dir.lastIndexOf('/'))) {
             dir = dir.substr(0, dir.length - 1).trim();
         }
         dir += '/';
