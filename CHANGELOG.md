@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.13.0 (May 31st, 2017; CoffeeScript)
+## 9.13.1 (May 31st, 2017; CoffeeScript)
 
 * added [CoffeeScript](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) compiler support
 
