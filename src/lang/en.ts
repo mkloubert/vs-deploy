@@ -181,6 +181,11 @@ export const translation: Translation = {
         file: "{0:trim,surround} is no file!",
         validItem: '{0:trim,surround} is no valid item that can be deployed!',
     },
+    load: {
+        from: {
+            failed: "Loading data from {0:trim,surround} failed: {1}",
+        }
+    },
     network: {
         hostname: 'Your hostname: {0:trim,surround}',
         interfaces: {

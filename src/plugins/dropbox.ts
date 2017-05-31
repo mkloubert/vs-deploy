@@ -85,7 +85,7 @@ function toDropboxPath(path: string): string {
         result = result.substr(0, result.length - 1).trim();
     }
 
-    if (0 != result.indexOf(PATH_SEP)) {
+    if (0 !== result.indexOf(PATH_SEP)) {
         result = PATH_SEP + result;
     }
 
@@ -443,7 +443,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                                 default:
                                     err = new Error(i18.t('plugins.dropbox.unknownResponse',
-                                                        resp.statusCode, 2, resp.statusMessage));
+                                                          resp.statusCode, 2, resp.statusMessage));
                                     break;
                             }
 

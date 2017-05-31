@@ -188,6 +188,11 @@ export interface Translation {
         file?: string;
         validItem?: string;
     },
+    load?: {
+        from?: {
+            failed?: string;
+        }
+    },
     network?: {
         hostname?: string;
         interfaces?: {
@@ -457,7 +462,7 @@ export function init(lang?: string): Promise<any> {
                                 continue;
                             }
 
-                            if ('.js' != fileName.substr(fileName.length - 3)) {
+                            if ('.js' !== fileName.substr(fileName.length - 3)) {
                                 continue;  // no JavaScript file
                             }
 

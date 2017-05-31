@@ -36,6 +36,7 @@ import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
 const IsBinaryFile = require("isbinaryfile");
+const MergeDeep = require('merge-deep');
 const MIME = require('mime');
 import * as Minimatch from 'minimatch';
 import * as Moment from 'moment';
@@ -1022,6 +1023,52 @@ export function isNullOrUndefined(val: any): boolean {
 export function isNullUndefinedOrEmptyString(val: any): boolean {
     return isNullOrUndefined(val) ||
            '' === toStringSafe(val);
+}
+
+/**
+ * Loads base settings for object from files.
+ *  
+ * @param {T|T[]} objs The objects. 
+ * @param {deploy_values.ValueBase|deploy_values.ValueBase[]} values The values to use for the file path(s).
+ * @param {boolean} cloneObjects Clone objects or not.
+ * 
+ * @return {T[]} The new list. 
+ */
+export function loadBaseSettingsFromFiles<T extends deploy_contracts.CanLoadFrom>(objs: T | T[],
+                                                                                  values?: deploy_values.ValueBase | deploy_values.ValueBase[],
+                                                                                  cloneObjects = true): T[] {
+    return asArray(objs).filter(x => x).map(x => {
+        let loadFrom: string;
+        try {
+            loadFrom = deploy_values.replaceWithValues(values, x.loadFrom);
+            if (!isEmptyString(x.loadFrom)) {
+                if (!Path.isAbsolute(loadFrom)) {
+                    loadFrom = Path.join(vscode.workspace.rootPath, '.vscode', loadFrom);
+                }
+
+                let basePackages: T[] = JSON.parse( FS.readFileSync(loadFrom).toString('utf8') );
+                basePackages = loadBaseSettingsFromFiles(basePackages, values);
+
+                let args = [ {}, x ].concat(basePackages);
+
+                x = MergeDeep.apply(null,
+                                    [{}, x].concat(basePackages));
+            }
+
+            if (toBooleanSafe(cloneObjects)) {
+                x = cloneObject(x);
+            }
+
+            delete x['loadFrom'];
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(i18.t('load.from.failed', loadFrom, e)).then(() => {}, (err) => {
+                log(`[ERROR] helpers.loadBaseSettingsFromFiles(): ${e}`);
+            });
+        }
+
+        return x;
+    });
 }
 
 /**
@@ -2320,10 +2367,10 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
         let normalizedDir = toStringSafe(dir).trim();
         normalizedDir = replaceAllStrings(normalizedDir, Path.sep, '/');
 
-        if (normalizedDir.lastIndexOf('/') != (normalizedDir.length - 1)) {
+        if (normalizedDir.lastIndexOf('/') !== (normalizedDir.length - 1)) {
             normalizedDir += '/';  // append ending "/" char
         }
-        if (normalizedDir.indexOf('/') != 0) {
+        if (normalizedDir.indexOf('/') !== 0) {
             normalizedDir = '/' + normalizedDir;  // append leading "/" char
         }
 

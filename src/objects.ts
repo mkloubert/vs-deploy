@@ -372,7 +372,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         }
 
         // prevent recurrence
-        targetNames = targetNames.filter(x => x != myTargetName);
+        targetNames = targetNames.filter(x => x !== myTargetName);
 
         let knownTargets = this.context.targets();
         let knownPlugins = this.context.plugins();

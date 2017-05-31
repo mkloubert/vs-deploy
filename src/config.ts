@@ -109,8 +109,8 @@ export function mergeConfig(cfg: deploy_contracts.DeployConfiguration): Promise<
                 // isFor
                 allImports = allImports.filter(imp => {
                     let validHosts = deploy_helpers.asArray(imp.isFor)
-                                                   .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
-                                                   .filter(x => x);
+                                                   .map(x => deploy_helpers.normalizeString(x))
+                                                   .filter(x => '' !== x);
 
                     if (validHosts.length < 1) {
                         return true;

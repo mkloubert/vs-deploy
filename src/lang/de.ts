@@ -180,6 +180,11 @@ export const translation: Translation = {
         file: "{0:trim,surround} ist keine Datei!",
         validItem: '{0:trim,surround} ist kein gültiges Element, das bereitgestellt werden kann!',
     },
+    load: {
+        from: {
+            failed: "Das Laden der Daten aus {0:trim,surround} heraus schlug fehl: {1}",
+        }
+    },
     network: {
         hostname: 'Name dieses Computers: {0:trim,surround}',
         interfaces: {

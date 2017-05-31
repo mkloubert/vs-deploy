@@ -32,7 +32,9 @@ import * as deploy_helpers from './helpers';
 import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
+import * as deploy_packages from './packages';
 import * as deploy_plugins from './plugins';
+import * as deploy_targets from './targets';
 import * as deploy_templates from './templates';
 import * as deploy_urls from './urls';
 import * as deploy_values from './values';
@@ -1626,14 +1628,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 this.outputChannel.appendLine(i18.t('network.interfaces.list'));
                 Object.keys(networkInterfaces).forEach((ifName) => {
                     let ifaces = networkInterfaces[ifName].filter(x => {
-                        let addr = deploy_helpers.toStringSafe(x.address)
-                                                 .toLowerCase().trim();
+                        let addr = deploy_helpers.normalizeString(x.address);
+                        
                         if ('IPv4' === x.family) {
                             return !/^(127\.[\d.]+|[0:]+1|localhost)$/.test(addr);
                         }
 
                         if ('IPv6' === x.family) {
-                            return '::1' != addr;
+                            return '::1' !== addr;
                         }
 
                         return true;
@@ -1831,38 +1833,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @returns {DeployPackage[]} The packages.
      */
     public getPackages(): deploy_contracts.DeployPackage[] {
-        let me = this;
-
-        let packages = this.config.packages || [];
-
-        // inherit and merge
-        packages = deploy_helpers.mergeInheritables(packages);
-
-        let myName = this.name;
-        packages = deploy_helpers.sortPackages(packages, () => myName);
-
-        // isFor
-        packages = packages.filter(p => {
-            let validHosts = deploy_helpers.asArray(p.isFor)
-                                           .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
-                                           .filter(x => x);
-
-            if (validHosts.length < 1) {
-                return true;
-            }
-
-            return validHosts.indexOf(myName) > -1;
-        });
-
-        // platforms
-        packages = deploy_helpers.filterPlatformItems(packages);
-
-        // if
-        packages = me.filterConditionalItems(packages);
-
-        return packages.map(p => {
-            return deploy_helpers.applyValues(p, me.getValues());
-        });
+        return deploy_packages.getPackages
+                              .apply(this);
     }
 
     /**
@@ -1871,38 +1843,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * @returns {DeployTarget[]} The targets.
      */
     public getTargets(): deploy_contracts.DeployTarget[] {
-        let me = this;
-
-        let targets = this.config.targets || [];
-
-        // inherit and merge
-        targets = deploy_helpers.mergeInheritables(targets);
-
-        let myName = this.name;
-        targets = deploy_helpers.sortTargets(targets, () => myName);
-
-        // isFor
-        targets = targets.filter(t => {
-            let validHosts = deploy_helpers.asArray(t.isFor)
-                                           .map(x => deploy_helpers.toStringSafe(x).toLowerCase().trim())
-                                           .filter(x => x);
-
-            if (validHosts.length < 1) {
-                return true;
-            }
-
-            return validHosts.indexOf(myName) > -1;
-        });
-
-        // platforms
-        targets = deploy_helpers.filterPlatformItems(targets);
-
-        // if
-        targets = me.filterConditionalItems(targets);
-
-        return targets.map(t => {
-            return deploy_helpers.applyValues(t, me.getValues());
-        });
+        return deploy_targets.getTargets
+                             .apply(this);
     }
 
     /**
@@ -3643,7 +3585,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                 let packageNames = deploy_helpers.asArray(cfg.button.packages)
                                                  .map(x => normalizeString(x))
-                                                 .filter(x => x);
+                                                 .filter(x => '' !== x);
 
                 let knownPackages = this.getPackages();
 
@@ -3652,7 +3594,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                     for (let i = 0; i < knownPackages.length; i++) {
                         let kp = knownPackages[i];
-                        if (normalizeString(kp.name) == pn) {
+                        if (normalizeString(kp.name) === pn) {
                             found = true;
                             packagesToDeploy.push(kp);
                         }
@@ -3839,7 +3781,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 // try find known target
                                 for (let i = 0; i < allKnownTargets.length; i++) {
                                     let kt = allKnownTargets[i];
-                                    if (deploy_helpers.normalizeString(kt.name) == targetName) {
+                                    if (deploy_helpers.normalizeString(kt.name) === targetName) {
                                         t = kt;  // found
                                         break;
                                     }
@@ -4329,11 +4271,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     // modules from plugin directory
                     let moduleFiles = FS.readdirSync(pluginDir).filter(x => {
                         try {
-                            if ('.' != x && '..' != x) {
+                            if ('.' !== x && '..' !== x) {
                                 let fullPath = Path.join(pluginDir, x);
                                 if (FS.lstatSync(fullPath).isFile()) {
                                     if (fullPath.length >= 3) {
-                                        return '.js' == fullPath.substring(fullPath.length - 3);
+                                        return '.js' === fullPath.substring(fullPath.length - 3);
                                     }
                                 }
                             }
@@ -4424,7 +4366,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     if (newPlugin) {
                                         let pluginIndex = ++nextPluginIndex;
                                         ctx.plugins = function() {
-                                            return loadedPlugins.filter(x => x.plugin.__index != pluginIndex)
+                                            return loadedPlugins.filter(x => x.plugin.__index !== pluginIndex)
                                                                 .map(x => x.plugin);
                                         };
 
@@ -4466,7 +4408,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     });
 
                     this.outputChannel.appendLine('');
-                    if (loadedPlugins.length != 1) {
+                    if (loadedPlugins.length !== 1) {
                         this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', loadedPlugins.length));
                     }
                     else {

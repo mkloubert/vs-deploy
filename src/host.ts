@@ -367,7 +367,7 @@ export class DeployHost {
                 let startReading = () => {
                     try {
                         deploy_helpers.readSocket(socket, 4).then((dlBuff) => {
-                            if (4 != dlBuff.length) {  // must have the size of 4
+                            if (4 !== dlBuff.length) {  // must have the size of 4
                                 me.log(i18.t('warnings.withCategory', 'DeployHost.start().createServer()',
                                              `Invalid data buffer length ${dlBuff.length}`));
 
@@ -387,7 +387,7 @@ export class DeployHost {
                             deploy_helpers.readSocket(socket, dataLength).then((msgBuff) => {
                                 closeSocket();
 
-                                if (msgBuff.length != dataLength) {  // non-exptected data length
+                                if (msgBuff.length !== dataLength) {  // non-exptected data length
                                     me.log(i18.t('warnings.withCategory', 'DeployHost.start().createServer()',
                                                  `Invalid buffer length ${msgBuff.length}`));
 
@@ -464,7 +464,7 @@ export class DeployHost {
                                                             if (!isNaN(totalCount)) {
                                                                 fileInfo += ` / ${totalCount}`;
 
-                                                                if (0 != totalCount) {
+                                                                if (0 !== totalCount) {
                                                                     let percentage = Math.floor(fileNr / totalCount * 10000.0) / 100.0;
                                                                     
                                                                     fileInfo += `; ${percentage}%`;
