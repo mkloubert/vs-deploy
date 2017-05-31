@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.13.0 (May 31st, 2017; CoffeeScript)
+
+* added [CoffeeScript](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) compiler support
+
 ## 9.12.0 (May 31st, 2017; load settings from external files)
 
 * added `loadFrom` for [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-) and [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-), which can define a path to an external JSON file with data to use as base settings for the underlying objects
