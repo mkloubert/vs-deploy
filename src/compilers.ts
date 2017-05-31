@@ -22,6 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 
+const CoffeeScript = require('coffeescript');
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
@@ -35,7 +36,37 @@ const Pug = require('pug');
 const TypeScript = require('typescript');
 import * as UglifyJS from 'uglify-js';
 import * as vscode from 'vscode';
+import * as Workflows from 'node-workflows';
 
+
+
+/**
+ * A CoffeeScript compiler error entry.
+ */
+export interface CoffeeScriptCompilerError extends CompilerError {
+}
+
+/**
+ * CoffeeScript compiler options.
+ */
+export interface CoffeeScriptCompilerOptions extends TextCompilerOptions {
+    /**
+     * The custom file extension for the output files to use.
+     */
+    extension?: string;
+    /**
+     * Generate source map files or not.
+     */
+    sourceMap?: boolean;
+}
+
+/**
+ * A CoffeeScript compiler result.
+ */
+export interface CoffeeScriptCompilerResult extends CompilerResult {
+    /** @inheritdoc */
+    errors: CoffeeScriptCompilerError[];
+}
 
 /**
  * List of known compilers.
@@ -65,6 +96,10 @@ export enum Compiler {
      * Html Minifier
      */
     HtmlMinifier = 5,
+    /**
+     * CoffeeScript
+     */
+    CoffeeScript = 6,
 }
 
 /**
@@ -435,6 +470,11 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
         let func: Function;
 
         switch (compiler) {
+            case Compiler.CoffeeScript:
+                // CoffeeScript
+                func = compileCoffeeScript;
+                break;
+
             case Compiler.HtmlMinifier:
                 // Html Minifier
                 func = compileHtmlMinifier;
@@ -485,6 +525,115 @@ export function compile(compiler: Compiler, args?: any[]): Promise<CompilerResul
 }
 
 /**
+ * Compiles CoffeeScript files.
+ * 
+ * @param {CoffeeScriptCompilerOptions} [opts] The options.
+ * 
+ * @returns Promise<CoffeeScriptCompilerResult> The promise.
+ */
+export function compileCoffeeScript(opts?: CoffeeScriptCompilerOptions): Promise<CoffeeScriptCompilerResult> {
+    if (!opts) {
+        opts = {};
+    }
+
+    let enc = deploy_helpers.normalizeString(opts.encoding);
+    if ('' === enc) {
+        enc = 'utf8';
+    }
+
+    let outExt = deploy_helpers.toStringSafe(opts.extension);
+    if (deploy_helpers.isEmptyString(outExt)) {
+        outExt = 'js';
+    }
+
+    return new Promise<CoffeeScriptCompilerResult>((resolve, reject) => {
+        let completed = (err: any, result?: CoffeeScriptCompilerResult) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(result);
+            }
+        };
+
+        try {
+            collectCompilerFiles({
+                files: "/**/*.coffee",
+            }, opts).then((filesToCompile) => {
+                let result: CoffeeScriptCompilerResult = {
+                    errors: [],
+                    files: filesToCompile.map(x => x),  // create copy
+                };
+
+                let coffeeOpts = deploy_helpers.cloneObject(opts);
+                delete coffeeOpts['files'];
+                delete coffeeOpts['exclude'];
+                delete coffeeOpts['encoding'];
+                delete coffeeOpts['extension'];
+
+                coffeeOpts['inlineMap'] = deploy_helpers.toBooleanSafe(coffeeOpts['sourceMap']);
+                coffeeOpts['sourceMap'] = false;
+
+                let wf = Workflows.create();
+
+                filesToCompile.forEach(f => {
+                    return new Promise<any>((res, rej) => {
+                        let addError = (err: any) => {
+                            result.errors.push({
+                                error: err,
+                                file: f,
+                            });
+
+                            res();
+                        };
+
+                        FS.readFile(f, (err, data) => {
+                            try {
+                                if (err) {
+                                    addError(err);
+                                    return;
+                                }
+
+                                let coffeeCode = data.toString('utf8');
+                                let jsCode = CoffeeScript.compile(coffeeCode, opts);
+
+                                let outDir = Path.dirname(f);
+                                let ext = Path.extname(f);
+                                let fileName = Path.basename(f, ext);
+
+                                let outputFile = Path.join(outDir,
+                                                           fileName + '.' + outExt);
+
+                                FS.writeFile(outputFile, new Buffer(jsCode, 'utf8'), (err) => {
+                                    if (err) {
+                                        addError(err);
+                                    }
+                                    else {
+                                        res();
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                addError(e);
+                            }
+                        });
+                    });
+                });
+
+                wf.start().then(() => {
+                    completed(null, result);
+                }).catch((err) => {
+                    completed(err);
+                });
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
+
+/**
  * Compiles JavaScript files with UglifyJS.
  * 
  * @param {HtmlMinifierCompilerOptions} [opts] The options.
@@ -497,7 +646,7 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
     }
 
     let enc = deploy_helpers.normalizeString(opts.encoding);
-    if (!enc) {
+    if ('' === enc) {
         enc = 'utf8';
     }
 
@@ -530,8 +679,11 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
                     
                     let nextFile: () => void;
 
-                    let addError = (err: any) => {
-                        result.errors.push(err);
+                    let addError = (err: any, file: string) => {
+                        result.errors.push({
+                            error: err,
+                            file: file,
+                        });
 
                         nextFile();
                     };
@@ -556,7 +708,7 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
                                 if (deleteOnSuccess) {
                                     FS.unlink(f, (err) => {
                                         if (err) {
-                                            addError(err);
+                                            addError(err, f);
                                         }
                                         else {
                                             nextFile();
@@ -570,7 +722,7 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
 
                             FS.readFile(f, (err, data) => {
                                 if (err) {
-                                    addError(err);
+                                    addError(err, f);
                                 }
                                 else {
                                     try {
@@ -579,7 +731,7 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
 
                                         FS.writeFile(outputFile, new Buffer(ugliCode, enc), (err) => {
                                             if (err) {
-                                                addError(err);
+                                                addError(err, f);
                                             }
                                             else {
                                                 deleteSourceFile();
@@ -587,13 +739,13 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
                                         });
                                     }
                                     catch (e) {
-                                        addError(err);
+                                        addError(err, f);
                                     }
                                 }
                             });
                         }
                         catch (e) {
-                            addError(e);
+                            addError(e, f);
                         }
                     };
 
@@ -627,7 +779,7 @@ export function compileLess(opts?: LessCompilerOptions): Promise<LessCompilerRes
     let compressOutput = deploy_helpers.toBooleanSafe(opts.compress);
 
     let enc = deploy_helpers.normalizeString(opts.encoding);
-    if (!enc) {
+    if ('' === enc) {
         enc = 'utf8';
     }
 
@@ -793,7 +945,7 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
     }
 
     let enc = deploy_helpers.normalizeString(opts.encoding);
-    if (!enc) {
+    if ('' === enc) {
         enc = 'utf8';
     }
 
@@ -823,8 +975,11 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
 
                     let nextFile: () => void;
 
-                    let addError = (err: any) => {
-                        result.errors.push(err);
+                    let addError = (err: any, file: string) => {
+                        result.errors.push({
+                            error: err,
+                            file: file,
+                        });
 
                         nextFile();
                     };
@@ -845,7 +1000,7 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
 
                         FS.readFile(f, (err, data) => {
                             if (err) {
-                                addError(err);
+                                addError(err, f);
                             }
                             else {
                                 try {
@@ -856,7 +1011,7 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
 
                                     FS.writeFile(outFile, new Buffer(html, enc), (err) => {
                                         if (err) {
-                                            addError(err);
+                                            addError(err, f);
                                         }
                                         else {
                                             nextFile();
@@ -864,7 +1019,7 @@ export function compliePug(opts?: PugCompilerOptions): Promise<PugCompilerResult
                                     });
                                 }
                                 catch (e) {
-                                    addError(e);
+                                    addError(e, f);
                                 }
                             }
                         });
@@ -1023,7 +1178,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
     }
 
     let enc = deploy_helpers.normalizeString(opts.encoding);
-    if (!enc) {
+    if ('' === enc) {
         enc = 'utf8';
     }
 
@@ -1056,8 +1211,11 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                     
                     let nextFile: () => void;
 
-                    let addError = (err: any) => {
-                        result.errors.push(err);
+                    let addError = (err: any, file: string) => {
+                        result.errors.push({
+                            error: err,
+                            file: file,
+                        });
 
                         nextFile();
                     };
@@ -1086,7 +1244,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                                 if (deleteOnSuccess) {
                                     FS.unlink(f, (err) => {
                                         if (err) {
-                                            addError(err);
+                                            addError(err, f);
                                         }
                                         else {
                                             nextFile();
@@ -1100,7 +1258,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
 
                             FS.writeFile(outputFile, new Buffer(ugliCode, enc), (err) => {
                                 if (err) {
-                                    addError(err);
+                                    addError(err, f);
                                 }
                                 else {
                                     deleteSourceFile();
@@ -1108,7 +1266,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                             });
                         }
                         catch (e) {
-                            addError(e);
+                            addError(e, f);
                         }
                     };
 

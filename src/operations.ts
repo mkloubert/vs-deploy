@@ -182,6 +182,13 @@ export function compile(ctx: OperationContext<deploy_contracts.DeployCompileOper
             let compiler: deploy_compilers.Compiler;
             let compilerArgs: any[];
             switch (compilerName) {
+                case 'coffeescript':
+                    updateFilesProperty();
+
+                    compiler = deploy_compilers.Compiler.CoffeeScript;
+                    compilerArgs = [ compileOp.options ];
+                    break;
+
                 case 'htmlminifier':
                     updateFilesProperty();
 
