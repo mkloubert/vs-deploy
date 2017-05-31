@@ -594,7 +594,7 @@ export function compileCoffeeScript(opts?: CoffeeScriptCompilerOptions): Promise
                                     return;
                                 }
 
-                                let coffeeCode = data.toString('utf8');
+                                let coffeeCode = data.toString(enc);
                                 let jsCode = CoffeeScript.compile(coffeeCode, opts);
 
                                 let outDir = Path.dirname(f);
