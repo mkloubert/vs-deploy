@@ -30,6 +30,7 @@ The extension supports the following destination types:
 There is also build-in support for the following [compilers and processors](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-):
 
 * [CoffeeScript](http://coffeescript.org/)
+* [html-minifier](https://www.npmjs.com/package/html-minifier)
 * [Less](http://lesscss.org/)
 * [Pug](https://pugjs.org/)
 * [TypeScript](https://www.typescriptlang.org/)
