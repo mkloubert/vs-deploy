@@ -243,7 +243,7 @@ export const translation: Translation = {
             emptyTargetDirectory: 'Dossier local vide {0:trim,surround}... ',
         },
         list: {
-            description: 'Permet à l'utilisateur de sélectionner une entrée avec des paramètres pour une ou plusieurs cibles',
+            description: 'Permet à l\'utilisateur de sélectionner une entrée avec des paramètres pour une ou plusieurs cibles',
             selectEntry: 'Sélectionnez une entrée...',
         },
         mail: {
