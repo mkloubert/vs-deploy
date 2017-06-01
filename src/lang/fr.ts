@@ -181,6 +181,11 @@ export const translation: Translation = {
         file: "{0:trim,surround} n'est pas un fichier!",
         validItem: '{0:trim,surround} n\'est pas un élément valide pouvant être déployé!',
     },
+    load: {
+        from: {
+            failed: "Échec du chargement des données depuis {0:trim,surround} : {1}",
+        }
+    },
     network: {
         hostname: 'Votre nom d\'hôte: {0:trim,surround}',
         interfaces: {
@@ -236,6 +241,10 @@ export const translation: Translation = {
         local: {
             description: 'Déploie dans un dossier local ou un dossier partagé (comme SMB) sur le réseau',
             emptyTargetDirectory: 'Dossier local vide {0:trim,surround}... ',
+        },
+        list: {
+            description: 'Permet à l\'utilisateur de sélectionner une entrée avec des paramètres pour une ou plusieurs cibles',
+            selectEntry: 'Sélectionnez une entrée...',
         },
         mail: {
             addressSelector: {
