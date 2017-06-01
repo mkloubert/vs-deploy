@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.14.0 (June 1st, 2017; french translation)
+
+* [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)
+
 ## 9.13.2 (May 31st, 2017; CoffeeScript)
 
 * added [CoffeeScript](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#compile-) compiler support
