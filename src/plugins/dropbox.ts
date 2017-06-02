@@ -125,6 +125,8 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             };
             
             try {
+                //TODO: password prompt (access token)
+
                 let ctx: DropboxContext = {
                     dir: dir,
                     hasCancelled: false,

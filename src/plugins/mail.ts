@@ -76,6 +76,7 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
         let auth: any;
         let user = deploy_helpers.toStringSafe(target.user);
         if (user) {
+            //TODO: password prompt
             let password = deploy_helpers.toStringSafe(target.password);
 
             auth = {

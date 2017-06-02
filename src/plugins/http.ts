@@ -127,10 +127,11 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
             let user = deploy_helpers.toStringSafe(target.user);
             if (user) {
+                //TODO: password prompt
                 let pwd = deploy_helpers.toStringSafe(target.password);
 
                 headers['Authorization'] = 'Basic ' + 
-                                        (new Buffer(`${user}:${pwd}`)).toString('base64');
+                                           (new Buffer(`${user}:${pwd}`)).toString('base64');
             }
 
             let submitFileHeader = deploy_helpers.toBooleanSafe(target.submitFileHeader, false);

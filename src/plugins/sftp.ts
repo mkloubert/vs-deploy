@@ -310,6 +310,9 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             if ('' === user) {
                 user = undefined;
             }
+            else {
+                //TODO: password prompt
+            }
             let pwd = deploy_helpers.toStringSafe(target.password);
             if ('' === pwd) {
                 pwd = undefined;
