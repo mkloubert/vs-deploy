@@ -37,7 +37,7 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
-interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     dir?: string;
     hashAlgorithm?: string;
     hashes?: string | string[];

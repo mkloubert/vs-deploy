@@ -237,9 +237,6 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
             if ('' === user) {
                 user = 'sa';
             }
-            else {
-                //TODO: password prompt
-            }
 
             let pwd = deploy_helpers.toStringSafe(opts.password);
             if ('' === pwd) {

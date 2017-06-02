@@ -36,7 +36,7 @@ import * as Path from 'path';
 
 const PATH_SEP = '/';
 
-interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     dir?: string;
     empty?: boolean;
     password?: string;

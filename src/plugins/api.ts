@@ -33,7 +33,7 @@ import * as i18 from '../i18';
 import * as URL from 'url';
 
 
-interface DeployTargeApi extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargeApi extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     host?: string;
     isSecure?: boolean;
     port?: number;

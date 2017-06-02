@@ -39,7 +39,7 @@ import * as URL from 'url';
 
 const DATE_RFC2822_UTC = "ddd, DD MMM YYYY HH:mm:ss [GMT]";
 
-interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     encodeUrlValues?: boolean;
     headers?: { [key: string]: any };
     method?: string;

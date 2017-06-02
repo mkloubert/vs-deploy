@@ -638,6 +638,7 @@ export function sql(ctx: OperationContext<deploy_contracts.DeploySqlOperation>):
         let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
 
         try {
+            //TODO: password prompt
             let sqlOp = ctx.operation;
 
             let type: deploy_sql.SqlConnectionType;

@@ -1456,7 +1456,7 @@ export interface DeployScriptOperationModule {
 /**
  * An operation that executes SQL.
  */
-export interface DeploySqlOperation extends DeployOperation {
+export interface DeploySqlOperation extends DeployOperation, PasswordObject {
     /**
      * The engine.
      */
@@ -2097,6 +2097,16 @@ export interface OpenFileFilter extends ConditionalItem, FileFilter, MachineItem
      * Close other opened files or not.
      */
     closeOthers?: boolean;
+}
+
+/**
+ * An object that can handle passwords.
+ */
+export interface PasswordObject {
+    /**
+     * Prompt for a password if not defined.
+     */
+    promptForPassword?: boolean;
 }
 
 /**

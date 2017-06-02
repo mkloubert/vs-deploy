@@ -39,7 +39,7 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
-interface DeployTargetFTP extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetFTP extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     dir?: string;
     host?: string;
     port?: number;

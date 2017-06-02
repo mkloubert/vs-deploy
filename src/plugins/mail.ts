@@ -32,7 +32,7 @@ import * as Moment from 'moment';
 import * as vscode from 'vscode';
 
 
-interface DeployTargetMail extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetMail extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     from?: string;
     host?: string;
     ignoreTLS?: boolean;
