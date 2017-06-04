@@ -353,6 +353,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 readyTimeout = undefined;
             }
 
+            let privateKeyPassphrase = deploy_helpers.toStringSafe(target.privateKeyPassphrase);
+            if ('' === privateKeyPassphrase) {
+                privateKeyPassphrase = undefined;
+            }
+
             try {
                 let privateKey: Buffer;
                 let openConnection = () => {
@@ -383,7 +388,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         password: pwd,
 
                         privateKey: privateKey,
-                        passphrase: target.privateKeyPassphrase,
+                        passphrase: privateKeyPassphrase,
 
                         hostHash: hashAlgo,
                         hostVerifier: (hashedKey, cb) => {
@@ -408,9 +413,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     });
                 };
 
-                let askForPasswordIfNeeded = (defaultValueForShowPasswordPrompt: boolean) => {
+                let askForPasswordIfNeeded = (defaultValueForShowPasswordPrompt: boolean,
+                                              passwordGetter: () => string,
+                                              passwordSetter: (pwdToSet: string) => void) => {
                     let showPasswordPrompt = false;
-                    if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(pwd)) {
+                    if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(passwordGetter())) {
                         // user defined, but no password
                         showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword,
                                                                           defaultValueForShowPasswordPrompt);
@@ -425,7 +432,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                 completed(null, null);  // cancelled
                             }
                             else {
-                                pwd = passwordFromUser;
+                                passwordSetter(passwordFromUser);
 
                                 openConnection();
                             }
@@ -439,7 +446,9 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 };
 
                 if (deploy_helpers.isNullUndefinedOrEmptyString(privateKeyFile)) {
-                    askForPasswordIfNeeded(true);
+                    askForPasswordIfNeeded(true,
+                                           () => pwd,
+                                           (pwdToSet) => pwd = pwdToSet);
                 }
                 else {
                     // try read private key
@@ -451,7 +460,9 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         }
 
                         privateKey = data;
-                        askForPasswordIfNeeded(false);
+                        askForPasswordIfNeeded(false,
+                                               () => privateKeyPassphrase,
+                                               (pwdToSet) => privateKeyPassphrase = pwdToSet);
                     });
                 }
             }
