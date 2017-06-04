@@ -847,7 +847,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     let ctx: FTPContext = {
                         cachedRemoteDirectories: {},
                         connection: conn,
-                        hasCancelled: false,
+                        hasCancelled: deploy_helpers.isNullOrUndefined(conn),
                         user: deploy_helpers.toStringSafe(target.user, 'anonymous'),
                     };
 
@@ -860,9 +860,11 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     me.onCancelling(() => {
                         ctx.hasCancelled = true;
 
-                        conn.end().catch((e) => {
-                            me.context.log(i18.t(`errors.withCategory`, 'FtpPlugin.createContext().onCancelling()', e));
-                        });
+                        if (conn) {
+                            conn.end().catch((e) => {
+                                me.context.log(i18.t(`errors.withCategory`, 'FtpPlugin.createContext().onCancelling()', e));
+                            });
+                        }
                     }, opts);
 
                     let wrapper: deploy_objects.DeployPluginContextWrapper<any> = {
@@ -875,15 +877,17 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                                                  'close_time', new Date());
 
                                 // execute commands BEFORE close connection
-                                conn.executeCommands(target.closing, connectionValues).then(() => {
-                                    conn.end().then(() => {
-                                        resolve2(conn);
-                                    }).catch((e) => {
-                                        reject2(e);
+                                if (conn) {
+                                    conn.executeCommands(target.closing, connectionValues).then(() => {
+                                        conn.end().then(() => {
+                                            resolve2(conn);
+                                        }).catch((e) => {
+                                            reject2(e);
+                                        });
+                                    }).catch((err) => {
+                                        reject2(err);
                                     });
-                                }).catch((err) => {
-                                    reject2(err);
-                                });
+                                }
                             });
                         },
                     };
@@ -906,20 +910,66 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             }
 
             if (client) {
-                client.connect(target).then(() => {
-                    appendTimeValues(connectionValues,
-                                     'connected_time', new Date());
+                let user = deploy_helpers.toStringSafe(target.user);
+                if ('' === user) {
+                    user = undefined;
+                }
+                let pwd = deploy_helpers.toStringSafe(target.password);
+                if ('' === pwd) {
+                    pwd = undefined;
+                }
 
-                    // execute commands AFTER
-                    // connection has been established
-                    client.executeCommands(target.connected, connectionValues).then(() => {
-                        completed(null, client);
+                let openConnection = () => {
+                    let clonedTarget: any = deploy_helpers.cloneObject(target) || {};
+                    clonedTarget.user = user;
+                    clonedTarget.password = pwd;
+
+                    client.connect(clonedTarget).then(() => {
+                        appendTimeValues(connectionValues,
+                                        'connected_time', new Date());
+
+                        // execute commands AFTER
+                        // connection has been established
+                        client.executeCommands(target.connected, connectionValues).then(() => {
+                            completed(null, client);
+                        }).catch((err) => {
+                            completed(err);
+                        });
                     }).catch((err) => {
                         completed(err);
                     });
-                }).catch((err) => {
-                    completed(err);
-                });
+                };
+
+                let askForPasswordIfNeeded = () => {
+                    let showPasswordPrompt = false;
+                    if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(pwd)) {
+                        // user defined, but no password
+                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                    }
+
+                    if (showPasswordPrompt) {
+                        vscode.window.showInputBox({
+                            placeHolder: i18.t('prompts.inputPassword'),
+                            password: true,
+                        }).then((passwordFromUser) => {
+                            if ('undefined' === typeof passwordFromUser) {
+                                completed(null, null);  // cancelled
+                            }
+                            else {
+                                pwd = passwordFromUser;
+
+                                openConnection();
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        openConnection();
+                    }
+                };
+
+                askForPasswordIfNeeded();
             }
             else {
                 completed(new Error(`Unknown engine: '${engine}'`));  //TODO: translate

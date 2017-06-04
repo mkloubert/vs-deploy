@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.16.0 (June 4th, 2017; password prompts)
+
+* password box is shown now if no password is defined in [FTP target](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+
 ## 9.15.1 (June 4th, 2017; bugfixes and password prompt for SFTP)
 
 * fixed bug when deploying of a single file failed
