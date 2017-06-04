@@ -6862,6 +6862,11 @@
                         "description": "The algorithm for the password to use.",
                         "default": "aes-256-ctr"
                       },
+                      "promptForToken": {
+                        "type": "boolean",
+                        "description": "Prompt for a access token if not defined.",
+                        "default": true
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."

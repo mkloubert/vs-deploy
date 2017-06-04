@@ -32,11 +32,12 @@ import * as HTTPs from 'https';
 import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Path from 'path';
+import * as vscode from 'vscode';
 
 
 const PATH_SEP = '/';
 
-interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
+interface DeployTargetDropbox extends deploy_contracts.TransformableDeployTarget, deploy_contracts.AccessTokenObject {
     dir?: string;
     empty?: boolean;
     password?: string;
@@ -108,9 +109,12 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
     protected createContext(target: DeployTargetDropbox,
                             files: string[],
-                            opts: deploy_contracts.DeployFileOptions): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
+                            opts: deploy_contracts.DeployFileOptions,
+                            direction: deploy_contracts.DeployDirection): Promise<deploy_objects.DeployPluginContextWrapper<DropboxContext>> {
         let me = this;
         let dir = getDirFromTarget(target);
+
+        target = deploy_helpers.cloneObject(target);
 
         let empty = deploy_helpers.toBooleanSafe(target.empty);
 
@@ -125,8 +129,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             };
             
             try {
-                //TODO: password prompt (access token)
-
                 let ctx: DropboxContext = {
                     dir: dir,
                     hasCancelled: false,
@@ -175,156 +177,54 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     context: ctx,
                 };
 
-                if (empty) {
-                    let targetDirectory = toDropboxPath(dir);
+                let prepareWrapper = () => {
+                    let doEmpty = false;
+                    switch (direction) {
+                        case deploy_contracts.DeployDirection.Deploy:
+                            doEmpty = empty;
+                            break;
+                    }
 
-                    let headersToSubmit = {
-                        'Authorization': `Bearer ${ctx.token}`,
-                        'Content-Type': 'application/json',
-                    };
+                    if (doEmpty) {
+                        let targetDirectory = toDropboxPath(dir);
 
-                    let cursor: string;
-                    let deleteItem: (item: string) => Promise<any>;
-                    let deleteNextFiles: () => void;
-                    let hasMoreItemsToDelete = true;
+                        let headersToSubmit = {
+                            'Authorization': `Bearer ${ctx.token}`,
+                            'Content-Type': 'application/json',
+                        };
 
-                    // delete an item
-                    deleteItem = (item: string): Promise<any> => {
-                        return new Promise<any>((resolve, reject) => {
-                            let deletionCompleted = (err?: any) => {
-                                if (err) {
-                                    reject(err);
-                                }
-                                else {
-                                    resolve(err);
-                                }
-                            };
+                        let cursor: string;
+                        let deleteItem: (item: string) => Promise<any>;
+                        let deleteNextFiles: () => void;
+                        let hasMoreItemsToDelete = true;
 
-                            try {
-                                let req = HTTPs.request({
-                                    headers: headersToSubmit,
-                                    host: 'api.dropboxapi.com',
-                                    method: 'POST',
-                                    path: '/2/files/delete',
-                                    port: 443,
-                                    protocol: 'https:',
-                                }, (resp) => {
-                                    let err: Error;
-
-                                    switch (resp.statusCode) {
-                                        case 200:
-                                        case 409:  // not found
-                                            // OK
-                                            break;
-
-                                        default:
-                                            err = new Error(i18.t('plugins.dropbox.unknownResponse',
-                                                                  resp.statusCode, 2, resp.statusMessage));
-                                            break;
-                                    }
-
-                                    deletionCompleted(err);
-                                });
-
-                                req.once('error', (err) => {
+                        // delete an item
+                        deleteItem = (item: string): Promise<any> => {
+                            return new Promise<any>((resolve, reject) => {
+                                let deletionCompleted = (err?: any) => {
                                     if (err) {
-                                        deletionCompleted(err);
+                                        reject(err);
                                     }
-                                });
+                                    else {
+                                        resolve(err);
+                                    }
+                                };
 
-                                let json = JSON.stringify({
-                                    path: item,
-                                });
-
-                                req.write(json);
-
-                                req.end();
-                            }
-                            catch (e) {
-                                deletionCompleted(e);
-                            }
-                        });
-                    };
-
-                    // delete next files
-                    deleteNextFiles = () => {
-                        if (!hasMoreItemsToDelete) {
-                            completed(null, wrapper);  // nothing more to delete
-                            return;
-                        }
-
-                        let apiPath: string;
-                        let dataToSend: any;
-                        if (cursor) {
-                            apiPath = '/2/files/list_folder/continue';
-
-                            dataToSend = {
-                                "cursor": cursor,
-                            };
-                        }
-                        else {
-                            apiPath = '/2/files/list_folder';
-
-                            dataToSend = {
-                                "path": targetDirectory,
-                                "recursive": false,
-                                "include_media_info": false,
-                                "include_deleted": false,
-                                "include_has_explicit_shared_members": false,
-                            };
-                        }
-                        
-                        try {
-                            let req = HTTPs.request({
-                                headers: headersToSubmit,
-                                host: 'api.dropboxapi.com',
-                                method: 'POST',
-                                path: apiPath,
-                                port: 443,
-                                protocol: 'https:',
-                            }, (resp) => {
-                                hasMoreItemsToDelete = false;
-
-                                deploy_helpers.getHttpBody(resp).then((body) => {
-                                    try {
+                                try {
+                                    let req = HTTPs.request({
+                                        headers: headersToSubmit,
+                                        host: 'api.dropboxapi.com',
+                                        method: 'POST',
+                                        path: '/2/files/delete',
+                                        port: 443,
+                                        protocol: 'https:',
+                                    }, (resp) => {
                                         let err: Error;
 
                                         switch (resp.statusCode) {
                                             case 200:
                                             case 409:  // not found
-                                                let json = body.toString('utf8');
-                                                if (json) {
-                                                    let result: DropboxListFolderResult = JSON.parse(json);
-                                                    if (result) {
-                                                        hasMoreItemsToDelete = result.has_more;
-                                                        cursor = result.cursor;
-
-                                                        if (result.entries) {
-                                                            let entriesToDo = result.entries.filter(x => x);
-
-                                                            let deleteNextEntry: () => void;
-                                                            deleteNextEntry = () => {
-                                                                if (entriesToDo.length < 1) {
-                                                                    deleteNextFiles();
-                                                                    return;
-                                                                }
-
-                                                                let e = entriesToDo.shift();
-
-                                                                deleteItem(e.path_display).then(() => {
-                                                                    deleteNextEntry();
-                                                                }).catch((err) => {
-                                                                    completed(err);
-                                                                });
-                                                            };
-
-                                                            deleteNextEntry();
-                                                        }
-                                                        else {
-                                                            deleteNextFiles();
-                                                        }
-                                                    }
-                                                }
+                                                // OK
                                                 break;
 
                                             default:
@@ -333,43 +233,187 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                                                 break;
                                         }
 
-                                        if (err) {
-                                            completed(err);
-                                        }
-                                        else {
-                                            completed(null, wrapper);
-                                        }
-                                    }
-                                    catch (e) {
-                                        completed(e);
-                                    }
-                                }).catch((err) => {
-                                    completed(err);
-                                });
-                            });
+                                        deletionCompleted(err);
+                                    });
 
-                            req.once('error', (err) => {
-                                if (err) {
-                                    completed(err);
+                                    req.once('error', (err) => {
+                                        if (err) {
+                                            deletionCompleted(err);
+                                        }
+                                    });
+
+                                    let json = JSON.stringify({
+                                        path: item,
+                                    });
+
+                                    req.write(json);
+
+                                    req.end();
+                                }
+                                catch (e) {
+                                    deletionCompleted(e);
                                 }
                             });
+                        };
 
-                            if (dataToSend) {
-                                req.write(JSON.stringify(dataToSend));
+                        // delete next files
+                        deleteNextFiles = () => {
+                            if (!hasMoreItemsToDelete) {
+                                completed(null, wrapper);  // nothing more to delete
+                                return;
                             }
 
-                            req.end();
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
-                    };
+                            let apiPath: string;
+                            let dataToSend: any;
+                            if (cursor) {
+                                apiPath = '/2/files/list_folder/continue';
 
-                    deleteNextFiles();
-                }
-                else {
-                    completed(null, wrapper);
-                }
+                                dataToSend = {
+                                    "cursor": cursor,
+                                };
+                            }
+                            else {
+                                apiPath = '/2/files/list_folder';
+
+                                dataToSend = {
+                                    "path": targetDirectory,
+                                    "recursive": false,
+                                    "include_media_info": false,
+                                    "include_deleted": false,
+                                    "include_has_explicit_shared_members": false,
+                                };
+                            }
+                            
+                            try {
+                                let req = HTTPs.request({
+                                    headers: headersToSubmit,
+                                    host: 'api.dropboxapi.com',
+                                    method: 'POST',
+                                    path: apiPath,
+                                    port: 443,
+                                    protocol: 'https:',
+                                }, (resp) => {
+                                    hasMoreItemsToDelete = false;
+
+                                    deploy_helpers.getHttpBody(resp).then((body) => {
+                                        try {
+                                            let err: Error;
+
+                                            switch (resp.statusCode) {
+                                                case 200:
+                                                case 409:  // not found
+                                                    let json = body.toString('utf8');
+                                                    if (json) {
+                                                        let result: DropboxListFolderResult = JSON.parse(json);
+                                                        if (result) {
+                                                            hasMoreItemsToDelete = result.has_more;
+                                                            cursor = result.cursor;
+
+                                                            if (result.entries) {
+                                                                let entriesToDo = result.entries.filter(x => x);
+
+                                                                let deleteNextEntry: () => void;
+                                                                deleteNextEntry = () => {
+                                                                    if (entriesToDo.length < 1) {
+                                                                        deleteNextFiles();
+                                                                        return;
+                                                                    }
+
+                                                                    let e = entriesToDo.shift();
+
+                                                                    deleteItem(e.path_display).then(() => {
+                                                                        deleteNextEntry();
+                                                                    }).catch((err) => {
+                                                                        completed(err);
+                                                                    });
+                                                                };
+
+                                                                deleteNextEntry();
+                                                            }
+                                                            else {
+                                                                deleteNextFiles();
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+
+                                                default:
+                                                    err = new Error(i18.t('plugins.dropbox.unknownResponse',
+                                                                          resp.statusCode, 2, resp.statusMessage));
+                                                    break;
+                                            }
+
+                                            if (err) {
+                                                completed(err);
+                                            }
+                                            else {
+                                                completed(null, wrapper);
+                                            }
+                                        }
+                                        catch (e) {
+                                            completed(e);
+                                        }
+                                    }).catch((err) => {
+                                        completed(err);
+                                    });
+                                });
+
+                                req.once('error', (err) => {
+                                    if (err) {
+                                        completed(err);
+                                    }
+                                });
+
+                                if (dataToSend) {
+                                    req.write(JSON.stringify(dataToSend));
+                                }
+
+                                req.end();
+                            }
+                            catch (e) {
+                                completed(e);
+                            }
+                        };
+
+                        deleteNextFiles();
+                    }
+                    else {
+                        completed(null, wrapper);
+                    }
+                };
+
+                let askForTokenIfNeeded = () => {
+                    let showTokenPrompt = false;
+                    if (deploy_helpers.isEmptyString(ctx.token)) {
+                        // user defined, but no password
+                        showTokenPrompt = deploy_helpers.toBooleanSafe(target.promptForToken, true);
+                    }
+
+                    if (showTokenPrompt) {
+                        vscode.window.showInputBox({
+                            placeHolder: i18.t('prompts.inputAccessToken'),
+                            password: true,
+                        }).then((tokenFromUser) => {
+                            if (deploy_helpers.isEmptyString(tokenFromUser)) {
+                                ctx.hasCancelled = true;  // cancelled
+                                
+                                completed(null, wrapper);
+                            }
+                            else {
+                                ctx.token = tokenFromUser.trim();
+
+                                prepareWrapper();
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        prepareWrapper();
+                    }
+                };
+
+                askForTokenIfNeeded();
             }
             catch (e) {
                 completed(e);

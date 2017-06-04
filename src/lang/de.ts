@@ -296,6 +296,7 @@ export const translation: Translation = {
         },
     },
     prompts: {
+        inputAccessToken: 'Geben Sie das Zugriffs-Token an...',
         inputPassword: 'Geben Sie das Passwort an...',
     },
     pull: {
