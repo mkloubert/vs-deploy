@@ -2,7 +2,7 @@
 
 ## 9.16.0 (June 4th, 2017; password prompts)
 
-* password box is shown now if no password / token / key is defined in [API](https://github.com/mkloubert/vs-deploy/wiki/target_api), [Azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) and [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail) targets
+* password box is shown now if no password / token / key is defined in [API](https://github.com/mkloubert/vs-deploy/wiki/target_api), [Azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [HTTP](https://github.com/mkloubert/vs-deploy/wiki/target_http) and [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail) targets
 
 ## 9.15.1 (June 4th, 2017; bugfixes and password prompt for SFTP)
 
