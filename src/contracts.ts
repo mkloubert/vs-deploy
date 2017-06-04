@@ -895,6 +895,12 @@ export interface DeployContext extends ConditionalItemFilter, vscode.Disposable,
      */
     writeLine: (msg: any) => DeployContext;
     /**
+     * Returns the cache of the targets.
+     * 
+     * @return {ObjectCache<DeployTarget>} The cache.
+     */
+    targetCache: () => ObjectCache<DeployTarget>;
+    /**
      * Returns the list of targets.
      * 
      * @return {DeployTarget[]} The targets.
@@ -2081,6 +2087,33 @@ export interface MachineItem {
      * A list of one or more (host)names that item is (visible) for.
      */
     isFor?: string | string[];
+}
+
+/**
+ * A cache for objects.
+ */
+export interface ObjectCache<T> {
+    /**
+     * Returns a value from the cache.
+     * 
+     * @param {T} obj The underlying object.
+     * @param {string} name The name of the value.
+     * @param {TValue} [defaultValue] The default value.
+     * 
+     * @returns {TValue} The value.
+     */
+    get<TValue>(obj: T, name: string, defaultValue?: TValue): TValue;
+
+    /**
+     * Sets a value for an object.
+     * 
+     * @param {T} obj The underlying object.
+     * @param {string} name The name of the value.
+     * @param {TValue} value The value to set.
+     * 
+     * @returns {this}
+     */
+    set<TValue>(obj: T, name: string, value: TValue): this;
 }
 
 /**

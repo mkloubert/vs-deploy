@@ -176,6 +176,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _serverStatusItem: vscode.StatusBarItem;
     /**
+     * Cache for deploy targets.
+     */
+    protected _targetCache: deploy_objects.DeployTargetCache;
+    /**
      * Stores the packages that are currently deploy.
      */
     protected readonly _WORKSPACE_IN_PROGRESS: any = {};
@@ -3949,6 +3953,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me._globalScriptOperationState = {};
             me._htmlDocs = [];
             me._scriptOperationStates = {};
+            me._targetCache = new deploy_objects.DeployTargetCache();
 
             deploy_values.resetScriptStates();
 
@@ -4348,6 +4353,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         ctx.packageFile = () => me.packageFile;
                         ctx.packages = () => me.getPackages();
                         ctx.replaceWithValues = (v) => me.replaceWithValues(v);
+                        ctx.targetCache = () => me._targetCache;
                         ctx.targets = () => me.getTargets();
                         ctx.values = () => me.getValues();
 

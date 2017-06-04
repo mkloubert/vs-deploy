@@ -107,6 +107,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         require: function(id) {
             return require(id);
         },
+        targetCache: null,
         targets: null,
         values: null,
         warn: function(msg) {
@@ -162,6 +163,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         ctx.packages = () => baseCtx.packages();
         ctx.plugins = () => baseCtx.plugins();
         ctx.replaceWithValues = (val) => baseCtx.replaceWithValues(val);
+        ctx.targetCache = () => baseCtx.targetCache(),
         ctx.targets = () => baseCtx.targets();
         ctx.values = () => baseCtx.values();
     }

@@ -2234,6 +2234,72 @@ export abstract class MultiTargetDeployPluginBase extends MultiFileDeployPluginB
 }
 
 /**
+ * A basic object cache.
+ * 
+ * @template T Type of the objects.
+ */
+export abstract class ObjectCacheBase<T> implements deploy_contracts.ObjectCache<T> {
+    /** @inheritdoc */
+    public abstract get<TValue>(obj: T, name: string, defaultValue?: TValue): TValue;
+
+    /**
+     * Normalizes a value name.
+     * 
+     * @param string name The input value.
+     * 
+     * @return {string} The output value. 
+     */
+    public static normalizeName(name: string): string {
+        return deploy_helpers.normalizeString(name);
+    }
+
+    /** @inheritdoc */
+    public abstract set<TValue>(obj: T, name: string, value: TValue): this;
+}
+
+/**
+ * A cache for targets.
+ */
+export class DeployTargetCache extends ObjectCacheBase<deploy_contracts.DeployTarget> {
+    /**
+     * The underlying storage.
+     */
+    protected _storage: any = {};
+
+    /** @inheritdoc */
+    public get<TValue>(target: deploy_contracts.DeployTarget, name: string, defaultValue?: TValue): TValue {
+        let targetName = deploy_helpers.normalizeString(target.name);
+        name = DeployTargetCache.normalizeName(name);
+
+        let targetItem = this._storage[targetName];
+        if (!deploy_helpers.isNullOrUndefined(targetItem)) {
+            for (let p in targetItem) {
+                if (p === name) {
+                    return targetItem[p];
+                }
+            }
+        }
+
+        return defaultValue;
+    }
+
+    /** @inheritdoc */
+    public set<TValue>(target: deploy_contracts.DeployTarget, name: string, value: TValue): this {
+        let targetName = deploy_helpers.normalizeString(target.name);
+        name = DeployTargetCache.normalizeName(name);
+
+        let targetItem = this._storage[targetName];
+        if (!deploy_helpers.isNullOrUndefined(targetItem)) {
+            this._storage[targetName] = targetItem = {};
+        }
+
+        targetItem[name] = value;
+
+        return this;
+    }
+}
+
+/**
  * A simple popup button.
  */
 export class SimplePopupButton implements deploy_contracts.PopupButton {
