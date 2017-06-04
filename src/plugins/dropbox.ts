@@ -385,7 +385,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 let askForTokenIfNeeded = () => {
                     let showTokenPrompt = false;
                     if (deploy_helpers.isEmptyString(ctx.token)) {
-                        // user defined, but no password
+                        // user defined, but no token
                         showTokenPrompt = deploy_helpers.toBooleanSafe(target.promptForToken, true);
                     }
 

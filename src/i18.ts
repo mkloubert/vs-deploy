@@ -305,6 +305,7 @@ export interface Translation {
         },
     },
     prompts?: {
+        inputAccessKey?: string;
         inputAccessToken?: string;
         inputPassword?: string;
     },

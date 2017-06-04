@@ -112,11 +112,21 @@ export const EVENT_DEPLOYONSAVE_ENABLE = 'deploy.deployOnSave.enable';
 export const EVENT_DEPLOYONSAVE_TOGGLE = 'deploy.deployOnSave.toggle';
 
 /**
- * An object that can handle passwords.
+ * An object that can handle access keys.
+ */
+export interface AccessKeyObject {
+    /**
+     * Prompt for an access key if not defined.
+     */
+    promptForKey?: boolean;
+}
+
+/**
+ * An object that can handle access tokens.
  */
 export interface AccessTokenObject {
     /**
-     * Prompt for a access token if not defined.
+     * Prompt for an access token if not defined.
      */
     promptForToken?: boolean;
 }

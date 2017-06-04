@@ -4070,6 +4070,11 @@
                       "transformerOptions": {
                         "description": "Optional data for the transformer script."
                       },
+                      "promptForKey": {
+                        "type": "boolean",
+                        "description": "Prompt for an access key if not defined.",
+                        "default": true
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
@@ -6864,7 +6869,7 @@
                       },
                       "promptForToken": {
                         "type": "boolean",
-                        "description": "Prompt for a access token if not defined.",
+                        "description": "Prompt for an access token if not defined.",
                         "default": true
                       },
                       "description": {

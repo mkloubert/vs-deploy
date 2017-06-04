@@ -298,6 +298,7 @@ export const translation: Translation = {
         },
     },
     prompts: {
+        inputAccessKey: 'Input the access key...',
         inputAccessToken: 'Input the access token...',
         inputPassword: 'Input the password...',
     },

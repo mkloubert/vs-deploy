@@ -32,9 +32,10 @@ import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as TMP from 'tmp';
+import * as vscode from 'vscode';
 
 
-interface DeployTargetAzureBlob extends deploy_contracts.TransformableDeployTarget {
+interface DeployTargetAzureBlob extends deploy_contracts.TransformableDeployTarget, deploy_contracts.AccessKeyObject {
     accessKey?: string;
     account?: string;
     container: string;
@@ -78,26 +79,82 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         }
         dir += '/';
         
-        return new Promise<deploy_objects.DeployPluginContextWrapper<any>>((resolve, reject) => {
+        return new Promise<deploy_objects.DeployPluginContextWrapper<AzureBlobContext>>((resolve, reject) => {
+            let completed = (err: any, wrapper?: deploy_objects.DeployPluginContextWrapper<AzureBlobContext>) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(wrapper);
+                }
+            };
+
             try {
-                let service = AzureStorage.createBlobService(target.account, target.accessKey,
-                                                             target.host);
+                let accessKey = deploy_helpers.toStringSafe(target.accessKey);
+
+                let ctx: AzureBlobContext = {
+                    container: containerName,
+                    dir: dir,
+                    hasCancelled: false,
+                    service: undefined,
+                };
 
                 let wrapper: deploy_objects.DeployPluginContextWrapper<AzureBlobContext> = {
-                    context: {
-                        container: containerName,
-                        dir: dir,
-                        hasCancelled: false,
-                        service: service,
-                    },
+                    context: ctx,
                 };
 
                 me.onCancelling(() => wrapper.context.hasCancelled = true, opts);
 
-                resolve(wrapper);
+                let prepareWrapper = (hasCancelled: boolean) => {
+                    try {
+                        ctx.hasCancelled = hasCancelled;
+
+                        if (!ctx.hasCancelled) {
+                            ctx.service = AzureStorage.createBlobService(target.account, accessKey,
+                                                                         target.host);
+                        }
+
+                        completed(null, wrapper);
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                };
+
+                let askForTokenIfNeeded = () => {
+                    let showKeyPrompt = false;
+                    if (deploy_helpers.isEmptyString(accessKey)) {
+                        // user defined, but no key
+                        showKeyPrompt = deploy_helpers.toBooleanSafe(target.promptForKey, true);
+                    }
+
+                    if (showKeyPrompt) {
+                        vscode.window.showInputBox({
+                            placeHolder: i18.t('prompts.inputAccessKey'),
+                            password: true,
+                        }).then((keyFromUser) => {
+                            if (deploy_helpers.isEmptyString(keyFromUser)) {
+                                // cancelled
+                                prepareWrapper(true);
+                            }
+                            else {
+                                accessKey = keyFromUser;
+
+                                prepareWrapper(false);
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        prepareWrapper(false);
+                    }
+                };
+
+                askForTokenIfNeeded();
             }
             catch (e) {
-                reject(e);
+                completed(e);
             }
         });
     }
