@@ -184,7 +184,6 @@ class FtpClient extends FtpClientBase {
         let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
 
         let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
-        //TODO: password prompt
         let pwd = deploy_helpers.toStringSafe(target.password);
 
         let rejectUnauthorized = target.rejectUnauthorized;
@@ -530,7 +529,6 @@ class JsFTPClient extends FtpClientBase {
         let port = parseInt(deploy_helpers.toStringSafe(target.port, isSecure ? '990' : '21').trim());
 
         let user = deploy_helpers.toStringSafe(target.user, 'anonymous');
-        //TODO: password prompt
         let pwd = deploy_helpers.toStringSafe(target.password);
         
         return new Promise<boolean>((resolve, reject) => {

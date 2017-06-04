@@ -1207,6 +1207,11 @@
                       "transformerOptions": {
                         "description": "Optional data for the transformer script."
                       },
+                      "promptForPassword": {
+                        "type": "boolean",
+                        "description": "Prompt for a password if not defined.",
+                        "default": true
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."

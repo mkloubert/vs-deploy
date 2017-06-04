@@ -31,6 +31,7 @@ import * as HTTP from 'http';
 import * as HTTPs from 'http';
 import * as i18 from '../i18';
 import * as URL from 'url';
+import * as vscode from 'vscode';
 
 
 interface DeployTargeApi extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
@@ -42,6 +43,46 @@ interface DeployTargeApi extends deploy_contracts.TransformableDeployTarget, dep
 }
 
 class ApiPlugin extends deploy_objects.DeployPluginBase {
+    protected askForPasswordIfNeeded(target: DeployTargeApi): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            let completed = (err: any, cancelled?: boolean) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(cancelled);
+                }
+            };
+            
+            let showPasswordPrompt = false;
+            if (!deploy_helpers.isEmptyString(target.user) && deploy_helpers.isNullOrUndefined(target.password)) {
+                // user defined, but no password
+                showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+            }
+
+            if (showPasswordPrompt) {
+                vscode.window.showInputBox({
+                    placeHolder: i18.t('prompts.inputPassword'),
+                    password: true,
+                }).then((passwordFromUser) => {
+                    if ('undefined' === typeof passwordFromUser) {
+                        completed(null, true);  // cancelled
+                    }
+                    else {
+                        target.password = passwordFromUser;
+
+                        completed(null, false);
+                    }
+                }, (err) => {
+                    completed(err);
+                });
+            }
+            else {
+                completed(null, false);
+            }
+        });
+    }
+
     public get canPull(): boolean {
         return true;
     }
@@ -49,6 +90,8 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
     /** @inheritdoc */
     public deployFile(file: string, target: DeployTargeApi, opts?: deploy_contracts.DeployFileOptions) {
         let me = this;
+
+        target = deploy_helpers.cloneObject(target);
         
         let hasCancelled = false;
         let completed = (err?: any) => {
@@ -99,8 +142,6 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
 
             let user = deploy_helpers.normalizeString(target.user);
             if (user) {
-                //TODO: password prompt
-
                 let pwd = deploy_helpers.toStringSafe(target.password);
 
                 headers['Authorization'] = `Basic ${(new Buffer(user + ':' + pwd).toString('base64'))}`;
@@ -199,13 +240,24 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                 }
             };
 
-            FS.readFile(file, (err, data) => {
-                if (err) {
-                    completed(err);
+            me.askForPasswordIfNeeded(target).then((cancelled) => {
+                hasCancelled = cancelled;
+
+                if (hasCancelled) {
+                    completed(null);
                 }
                 else {
-                    startRequest(data);
+                    FS.readFile(file, (err, data) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            startRequest(data);
+                        }
+                    });
                 }
+            }).catch((err) => {
+                completed(err);
             });
         }
         catch (e) {
@@ -221,6 +273,8 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
         }
         
         let me = this;
+
+        target = deploy_helpers.cloneObject(target);
         
         return new Promise<Buffer>((resolve, reject) => {
             let hasCancelled = false;
@@ -251,153 +305,166 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                 return;
             }
 
-            try {
-                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
-                if (false === relativePath) {
-                    completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
-                    return;
-                }
-
-                let host = deploy_helpers.normalizeString(target.host);
-                if (!host) {
-                    host = '127.0.0.1';
-                }
-
-                let port = target.port;
-                if (deploy_helpers.isEmptyString(port)) {
-                    port = 1781;
-                }
-                else {
-                    port = parseInt(deploy_helpers.toStringSafe(port).trim());
-                }
-
-                let isSecure = deploy_helpers.toBooleanSafe(target.isSecure);
-
-                let headers: any = {
-                    'Content-type': deploy_helpers.detectMimeByFilename(file),
-                };
-
-                let user = deploy_helpers.normalizeString(target.user);
-                if (user) {
-                    //TODO: password prompt
-
-                    let pwd = deploy_helpers.toStringSafe(target.password);
-
-                    headers['Authorization'] = `Basic ${(new Buffer(user + ':' + pwd).toString('base64'))}`;
-                }
-
-                let destination = `http${isSecure ? 's' : ''}://${host}:${port}/api/workspace${relativePath}`;
-                let url = URL.parse(destination);
-
-                if (opts.onBeforeDeploy) {
-                    opts.onBeforeDeploy(me, {
-                        destination: destination,
-                        file: file,
-                        target: target,
-                    });
-                }
-
-                let reqOpts: HTTP.RequestOptions = {
-                    headers: headers,
-                    host: host,
-                    method: 'GET',
-                    path: url.pathname,
-                    port: port,
-                    protocol: url.protocol,
-                };
-
-                let responseListener = (res: HTTP.IncomingMessage) => {
-                    let err: any;
-
-                    if (res.statusCode >= 400 && res.statusCode < 500) {
-                        switch (res.statusCode) {
-                            case 401:
-                                err = new Error(i18.t('plugins.api.clientErrors.unauthorized'));
-                                break;
-
-                            case 404:
-                                err = new Error(i18.t('plugins.api.clientErrors.notFound'));
-                                break;
-
-                            default:
-                                err = new Error(i18.t('plugins.api.clientErrors.unknown',
-                                                    res.statusCode, res.statusMessage));
-                                break;
-                        }
-                    }
-                    else if (res.statusCode >= 500 && res.statusCode < 600) {
-                        switch (res.statusCode) {
-                            default:
-                                err = new Error(i18.t('plugins.api.serverErrors.unknown',
-                                                        res.statusCode, res.statusMessage));
-                                break;
-                        }
+            let startRequest = () => {
+                try {
+                    let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                    if (false === relativePath) {
+                        completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
+                        return;
                     }
 
-                    if (err) {
-                        completed(err);
+                    let host = deploy_helpers.normalizeString(target.host);
+                    if (!host) {
+                        host = '127.0.0.1';
+                    }
+
+                    let port = target.port;
+                    if (deploy_helpers.isEmptyString(port)) {
+                        port = 1781;
                     }
                     else {
-                        let isFile = false;  // x-vscode-restapi-type
-                        if (res.headers) {
-                            for (let p in res.headers) {
-                                if ('x-vscode-restapi-type' === deploy_helpers.normalizeString(p)) {
-                                    if ('file' === deploy_helpers.normalizeString(res.headers[p])) {
-                                        isFile = true;
-                                    }
-                                }
+                        port = parseInt(deploy_helpers.toStringSafe(port).trim());
+                    }
+
+                    let isSecure = deploy_helpers.toBooleanSafe(target.isSecure);
+
+                    let headers: any = {
+                        'Content-type': deploy_helpers.detectMimeByFilename(file),
+                    };
+
+                    let user = deploy_helpers.normalizeString(target.user);
+                    if (user) {
+                        let pwd = deploy_helpers.toStringSafe(target.password);
+
+                        headers['Authorization'] = `Basic ${(new Buffer(user + ':' + pwd).toString('base64'))}`;
+                    }
+
+                    let destination = `http${isSecure ? 's' : ''}://${host}:${port}/api/workspace${relativePath}`;
+                    let url = URL.parse(destination);
+
+                    if (opts.onBeforeDeploy) {
+                        opts.onBeforeDeploy(me, {
+                            destination: destination,
+                            file: file,
+                            target: target,
+                        });
+                    }
+
+                    let reqOpts: HTTP.RequestOptions = {
+                        headers: headers,
+                        host: host,
+                        method: 'GET',
+                        path: url.pathname,
+                        port: port,
+                        protocol: url.protocol,
+                    };
+
+                    let responseListener = (res: HTTP.IncomingMessage) => {
+                        let err: any;
+
+                        if (res.statusCode >= 400 && res.statusCode < 500) {
+                            switch (res.statusCode) {
+                                case 401:
+                                    err = new Error(i18.t('plugins.api.clientErrors.unauthorized'));
+                                    break;
+
+                                case 404:
+                                    err = new Error(i18.t('plugins.api.clientErrors.notFound'));
+                                    break;
+
+                                default:
+                                    err = new Error(i18.t('plugins.api.clientErrors.unknown',
+                                                          res.statusCode, res.statusMessage));
+                                    break;
+                            }
+                        }
+                        else if (res.statusCode >= 500 && res.statusCode < 600) {
+                            switch (res.statusCode) {
+                                default:
+                                    err = new Error(i18.t('plugins.api.serverErrors.unknown',
+                                                          res.statusCode, res.statusMessage));
+                                    break;
                             }
                         }
 
-                        if (isFile) {
-                            deploy_helpers.readHttpBody(res).then((data) => {
-                                try {
-                                    let subCtx = {
-                                        file: file,
-                                        remoteFile: relativePath,
-                                    };
-
-                                    let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
-                                                                               subCtx);
-                                    tCtx.data = data;
-
-                                    let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
-                                    Promise.resolve(tResult).then((untransformedData) => {
-                                        completed(null, untransformedData);
-                                    }).catch((err) => {
-                                        completed(err);
-                                    });
-                                }
-                                catch (e) {
-                                    completed(e);
-                                }
-                            }).catch((err) => {
-                                completed(err);
-                            });
+                        if (err) {
+                            completed(err);
                         }
                         else {
-                            completed(i18.t('isNo.file', relativePath));
-                        }
-                    }
-                };
+                            let isFile = false;  // x-vscode-restapi-type
+                            if (res.headers) {
+                                for (let p in res.headers) {
+                                    if ('x-vscode-restapi-type' === deploy_helpers.normalizeString(p)) {
+                                        if ('file' === deploy_helpers.normalizeString(res.headers[p])) {
+                                            isFile = true;
+                                        }
+                                    }
+                                }
+                            }
 
-                let req: HTTP.ClientRequest;
-                if (isSecure) {
-                    req = HTTPs.request(reqOpts, responseListener);
+                            if (isFile) {
+                                deploy_helpers.readHttpBody(res).then((data) => {
+                                    try {
+                                        let subCtx = {
+                                            file: file,
+                                            remoteFile: relativePath,
+                                        };
+
+                                        let tCtx = me.createDataTransformerContext(target, deploy_contracts.DataTransformerMode.Restore,
+                                                                                   subCtx);
+                                        tCtx.data = data;
+
+                                        let tResult = me.loadDataTransformer(target, deploy_contracts.DataTransformerMode.Restore)(tCtx);
+                                        Promise.resolve(tResult).then((untransformedData) => {
+                                            completed(null, untransformedData);
+                                        }).catch((err) => {
+                                            completed(err);
+                                        });
+                                    }
+                                    catch (e) {
+                                        completed(e);
+                                    }
+                                }).catch((err) => {
+                                    completed(err);
+                                });
+                            }
+                            else {
+                                completed(i18.t('isNo.file', relativePath));
+                            }
+                        }
+                    };
+
+                    let req: HTTP.ClientRequest;
+                    if (isSecure) {
+                        req = HTTPs.request(reqOpts, responseListener);
+                    }
+                    else {
+                        req = HTTP.request(reqOpts, responseListener);
+                    }
+
+                    req.once('error', (err) => {
+                        completed(err);
+                    });
+
+                    req.end();
+                }
+                catch (e) {
+                    completed(e);
+                }
+            }
+
+            me.askForPasswordIfNeeded(target).then((cancelled) => {
+                hasCancelled = cancelled;
+
+                if (hasCancelled) {
+                    completed(null);
                 }
                 else {
-                    req = HTTP.request(reqOpts, responseListener);
+                    startRequest();
                 }
-
-                req.once('error', (err) => {
-                    completed(err);
-                });
-
-                req.end();
-            }
-            catch (e) {
-                completed(e);
-            }
+            }).catch((err) => {
+                completed(err);
+            });
         });
     }
 
