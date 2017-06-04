@@ -2,7 +2,7 @@
 
 ## 9.16.0 (June 4th, 2017; password prompts)
 
-* password box is shown now if no password is defined in [FTP target](https://github.com/mkloubert/vs-deploy/wiki/target_ftp)
+* password box is shown now if no password is defined in [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp) and [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail) targets
 
 ## 9.15.1 (June 4th, 2017; bugfixes and password prompt for SFTP)
 

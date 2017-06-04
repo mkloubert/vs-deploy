@@ -75,9 +75,11 @@ class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
         let auth: any;
         let user = deploy_helpers.toStringSafe(target.user);
-        if (user) {
-            //TODO: password prompt
+        if ('' !== user) {
             let password = deploy_helpers.toStringSafe(target.password);
+            if ('' === password) {
+                password = undefined;
+            }
 
             auth = {
                 user: user,
@@ -156,22 +158,55 @@ https://github.com/mkloubert/vs-deploy`,
                     }
                 };
 
-                vscode.window.showInputBox({
-                    prompt: i18.t('plugins.mail.addressSelector.prompt'),
-                    ignoreFocusOut: true,
-                    placeHolder: i18.t('plugins.mail.addressSelector.placeholder'),
-                    value: to,
-                }).then((value) => {
-                            to = deploy_helpers.toStringSafe(value).trim();
-                            if (to) {
-                                deploy();
+                let inputRecipients = () => {
+                    vscode.window.showInputBox({
+                        prompt: i18.t('plugins.mail.addressSelector.prompt'),
+                        ignoreFocusOut: true,
+                        placeHolder: i18.t('plugins.mail.addressSelector.placeholder'),
+                        value: to,
+                    }).then((value) => {
+                                to = deploy_helpers.toStringSafe(value).trim();
+                                if (to) {
+                                    deploy();
+                                }
+                                else {
+                                    completed();
+                                }
+                            }, (err) => {
+                                completed(err);
+                            });
+                };
+
+                let askForPasswordIfNeeded = () => {
+                    let showPasswordPrompt = false;
+                    if (!deploy_helpers.isEmptyString(auth.user) && deploy_helpers.isNullOrUndefined(auth.password)) {
+                        // user defined, but no password
+                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                    }
+
+                    if (showPasswordPrompt) {
+                        vscode.window.showInputBox({
+                            placeHolder: i18.t('prompts.inputPassword'),
+                            password: true,
+                        }).then((passwordFromUser) => {
+                            if ('undefined' === typeof passwordFromUser) {
+                                completed(null);  // cancelled
                             }
                             else {
-                                completed();
+                                auth.password = passwordFromUser;
+
+                                inputRecipients();
                             }
                         }, (err) => {
                             completed(err);
                         });
+                    }
+                    else {
+                        inputRecipients();
+                    }
+                };
+
+                askForPasswordIfNeeded();
             }
             catch (e) {
                 completed(e);
