@@ -297,6 +297,9 @@ export const translation: Translation = {
             showChangeLog: 'Show changelog...',
         },
     },
+    prompts: {
+        inputPassword: 'Input the password...',
+    },
     pull: {
         button: {
             cancelling: 'Cancelling...',

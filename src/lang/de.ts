@@ -295,6 +295,9 @@ export const translation: Translation = {
             showChangeLog: 'Änderungsprotokoll anzeigen (englisch)...',
         },
     },
+    prompts: {
+        inputPassword: 'Geben Sie das Passwort an...',
+    },
     pull: {
         button: {
             cancelling: 'Breche ab...',

@@ -202,7 +202,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         cachedRemoteDirectories: {},
                         connection: conn,
                         dataTransformer: deploy_helpers.toDataTransformerSafe(dataTransformer),
-                        hasCancelled: false,
+                        hasCancelled: deploy_helpers.isNullOrUndefined(conn),
                         user: user,
                     };
 
@@ -266,7 +266,9 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                                                   connectionValues);
 
                                     closingConnectionWorkflow.next(() => {
-                                        conn.end();
+                                        if (conn) {
+                                            conn.end();
+                                        }
                                     });
 
                                     closingConnectionWorkflow.start().then(() => {
@@ -305,13 +307,12 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
             let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
+            
+
             // username and password
             let user = deploy_helpers.toStringSafe(target.user);
             if ('' === user) {
                 user = undefined;
-            }
-            else {
-                //TODO: password prompt
             }
             let pwd = deploy_helpers.toStringSafe(target.password);
             if ('' === pwd) {
@@ -407,8 +408,38 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     });
                 };
 
+                let askForPasswordIfNeeded = (defaultValueForShowPasswordPrompt: boolean) => {
+                    let showPasswordPrompt = false;
+                    if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(pwd)) {
+                        // user defined, but no password
+                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword,
+                                                                          defaultValueForShowPasswordPrompt);
+                    }
+
+                    if (showPasswordPrompt) {
+                        vscode.window.showInputBox({
+                            placeHolder: i18.t('prompts.inputPassword'),
+                            password: true,
+                        }).then((passwordFromUser) => {
+                            if ('undefined' === typeof passwordFromUser) {
+                                completed(null, null);  // cancelled
+                            }
+                            else {
+                                pwd = passwordFromUser;
+
+                                openConnection();
+                            }
+                        }, (err) => {
+                            completed(err);
+                        });
+                    }
+                    else {
+                        openConnection();
+                    }
+                };
+
                 if (deploy_helpers.isNullUndefinedOrEmptyString(privateKeyFile)) {
-                    openConnection();
+                    askForPasswordIfNeeded(true);
                 }
                 else {
                     // try read private key
@@ -420,7 +451,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                         }
 
                         privateKey = data;
-                        openConnection();
+                        askForPasswordIfNeeded(false);
                     });
                 }
             }

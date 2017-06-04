@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 9.15.0 (June 4th, 2017; bugfixes and password prompt for SFTP)
+
+* fixed bug when deploying of a single file failed
+* password box is shown now if no password is defined in [SFTP target](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) ... this behavior can be changed by setting `promptForPassword` to `(false)`
+
 ## 9.14.0 (June 1st, 2017; french translation)
 
 * [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)

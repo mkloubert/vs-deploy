@@ -304,6 +304,9 @@ export interface Translation {
             showChangeLog?: string;
         },
     },
+    prompts?: {
+        inputPassword?: string;
+    },
     pull?: {
         button?: {
             cancelling?: string;

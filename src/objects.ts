@@ -674,7 +674,22 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
             opts = {};
         }
 
-        let me = this;
+        let completedInvoked = false;
+        let completed = (sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            if (opts.onCompleted) {
+                opts.onCompleted(sender, {
+                    canceled: e.canceled,
+                    error: e.error,
+                    file: e.file,
+                    target: e.target,
+                });
+            }
+        };
 
         this.deployWorkspace([ file ], target, {
             context: opts.context,
@@ -690,15 +705,17 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
             },
 
             onFileCompleted: (sender, e) => {
-                if (opts.onCompleted) {
-                    opts.onCompleted(sender, {
-                        canceled: e.canceled,
-                        error: e.error,
-                        file: file,
-                        target: e.target,
-                    });
-                }
-            }
+                completed(sender, e);
+            },
+
+            onCompleted: (sender, e) => {
+                completed(sender, {
+                    canceled: e.canceled,
+                    error: e.error,
+                    file: file,
+                    target: e.target,
+                });
+            },
         });
     }
 
@@ -710,6 +727,25 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
         if (!opts) {
             opts = {};
         }
+
+        let me = this;
+
+        let completedInvoked = false;
+        let completed = (sender: any, e: deploy_contracts.FileDeployCompletedEventArguments) => {
+            if (completedInvoked) {
+                return;
+            }
+
+            completedInvoked = true;
+            if (opts.onCompleted) {
+                opts.onCompleted(sender, {
+                    canceled: e.canceled,
+                    error: e.error,
+                    file: e.file,
+                    target: e.target,
+                });
+            }
+        };
 
         this.pullWorkspace([ file ], target, {
             context: opts.context,
@@ -725,14 +761,16 @@ export abstract class MultiFileDeployPluginBase extends DeployPluginBase {
             },
 
             onFileCompleted: (sender, e) => {
-                if (opts.onCompleted) {
-                    opts.onCompleted(sender, {
-                        canceled: e.canceled,
-                        error: e.error,
-                        file: file,
-                        target: e.target,
-                    });
-                }
+                completed(sender, e);
+            },
+
+            onCompleted: (sender, e) => {
+                completed(sender, {
+                    canceled: e.canceled,
+                    error: e.error,
+                    file: file,
+                    target: e.target,
+                });
             },
         });
     }

@@ -229,7 +229,7 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
             }
 
             let port = deploy_helpers.toStringSafe(opts.port).trim();
-            if (!port) {
+            if ('' === port) {
                 port = '1433';
             }
 
@@ -244,7 +244,7 @@ export function createMSSqlConnection(opts?: MSSqlOptions): Promise<MSSqlConnect
             }
 
             let db = deploy_helpers.toStringSafe(opts.database).trim();
-            if (!db) {
+            if ('' === db) {
                 db = undefined;
             }
 
@@ -341,27 +341,27 @@ export function createMySqlConnection(opts?: MySqlOptions): Promise<MySqlConnect
         
         try {
             let host = deploy_helpers.toStringSafe(opts.host).toLowerCase().trim();
-            if (!host) {
+            if ('' === host) {
                 host = '127.0.0.1';
             }
 
             let port = deploy_helpers.toStringSafe(opts.port).trim();
-            if (!port) {
+            if ('' === port) {
                 port = '3306';
             }
 
             let user = deploy_helpers.toStringSafe(opts.user).trim();
-            if (!user) {
+            if ('' === user) {
                 user = 'root';
             }
 
             let pwd = deploy_helpers.toStringSafe(opts.password);
-            if (!pwd) {
+            if ('' === pwd) {
                 pwd = undefined;
             }
 
             let db = deploy_helpers.toStringSafe(opts.database).trim();
-            if (!db) {
+            if ('' === db) {
                 db = undefined;
             }
 
