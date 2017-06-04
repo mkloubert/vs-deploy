@@ -45,6 +45,8 @@ interface DeployTargetMail extends deploy_contracts.TransformableDeployTarget, d
     user?: string;
 }
 
+const TARGET_CACHE_PASSWORD = 'password';
+
 class MailPlugin extends deploy_objects.ZipFileDeployPluginBase {
     protected deployZipFile(zip: any, target: DeployTargetMail): Promise<any> {
         let me = this;
@@ -180,8 +182,14 @@ https://github.com/mkloubert/vs-deploy`,
                 let askForPasswordIfNeeded = () => {
                     let showPasswordPrompt = false;
                     if (!deploy_helpers.isEmptyString(auth.user) && deploy_helpers.isNullOrUndefined(auth.password)) {
-                        // user defined, but no password
-                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                        let pwdFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_PASSWORD));
+                        if ('' === pwdFromCache) {
+                            // nothing in cache
+                            showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                        }
+                        else {
+                            auth.password = pwdFromCache;
+                        }
                     }
 
                     if (showPasswordPrompt) {
@@ -194,6 +202,8 @@ https://github.com/mkloubert/vs-deploy`,
                             }
                             else {
                                 auth.password = passwordFromUser;
+                                me.context.targetCache().set(target,
+                                                             TARGET_CACHE_PASSWORD, passwordFromUser);
 
                                 inputRecipients();
                             }

@@ -69,6 +69,7 @@ interface FTPContext {
 const FTP_TIME_FORMAT = 'YYYYMMDDHHmmss';
 const FTP_FULL_TIME_FORMAT = 'YYYYMMDDHHmmss.SSS';
 const MODE_PAD = '000';
+const TARGET_CACHE_PASSWORD = 'password';
 
 function appendTimeValues(values: deploy_values.ValueBase[],
                           name: string, timeValue: Date) {
@@ -942,7 +943,15 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                     let showPasswordPrompt = false;
                     if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(pwd)) {
                         // user defined, but no password
-                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+
+                        let pwdFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_PASSWORD));
+                        if ('' === pwdFromCache) {
+                            // nothing in cache
+                            showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                        }
+                        else {
+                            pwd = pwdFromCache;
+                        }
                     }
 
                     if (showPasswordPrompt) {
@@ -955,6 +964,8 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                             }
                             else {
                                 pwd = passwordFromUser;
+                                me.context.targetCache().set(target,
+                                                             TARGET_CACHE_PASSWORD, passwordFromUser);
 
                                 openConnection();
                             }

@@ -42,8 +42,13 @@ interface DeployTargeApi extends deploy_contracts.TransformableDeployTarget, dep
     password?: string;
 }
 
+
+const TARGET_CACHE_PASSWORD = 'password';
+
 class ApiPlugin extends deploy_objects.DeployPluginBase {
     protected askForPasswordIfNeeded(target: DeployTargeApi): Promise<boolean> {
+        let me = this;
+
         return new Promise<boolean>((resolve, reject) => {
             let completed = (err: any, cancelled?: boolean) => {
                 if (err) {
@@ -57,7 +62,15 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
             let showPasswordPrompt = false;
             if (!deploy_helpers.isEmptyString(target.user) && deploy_helpers.isNullOrUndefined(target.password)) {
                 // user defined, but no password
-                showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+
+                let pwdFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_PASSWORD));
+                if ('' === pwdFromCache) {
+                    // nothing in cache
+                    showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                }
+                else {
+                    target.password = pwdFromCache;
+                }
             }
 
             if (showPasswordPrompt) {
@@ -70,6 +83,8 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
                     }
                     else {
                         target.password = passwordFromUser;
+                        me.context.targetCache().set(target,
+                                                     TARGET_CACHE_PASSWORD, passwordFromUser);
 
                         completed(null, false);
                     }

@@ -1502,6 +1502,13 @@ export interface DeploySqlOperation extends DeployOperation, PasswordObject {
  */
 export interface DeployTarget extends Applyable, CanLoadFrom, ConditionalItem, Hideable, Inheritable, MachineItem, PlatformItem, Sortable {
     /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
+     * Gets the ID of that target.
+     */
+    __id?: any;
+    
+    /**
      * List of operations that should be invoked BEFORE
      * target is being deployed.
      */

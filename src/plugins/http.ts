@@ -39,6 +39,7 @@ import * as vscode from 'vscode';
 
 
 const DATE_RFC2822_UTC = "ddd, DD MMM YYYY HH:mm:ss [GMT]";
+const TARGET_CACHE_PASSWORD = 'password';
 
 interface DeployTargetHttp extends deploy_contracts.TransformableDeployTarget, deploy_contracts.PasswordObject {
     encodeUrlValues?: boolean;
@@ -367,7 +368,15 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                     let showPasswordPrompt = false;
                     if (!deploy_helpers.isEmptyString(user) && deploy_helpers.isNullOrUndefined(pwd)) {
                         // user defined, but no password
-                        showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+
+                        let pwdFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_PASSWORD));
+                        if ('' === pwdFromCache) {
+                            // nothing in cache
+                            showPasswordPrompt = deploy_helpers.toBooleanSafe(target.promptForPassword, true);
+                        }
+                        else {
+                            pwd = pwdFromCache;
+                        }
                     }
 
                     if (showPasswordPrompt) {
@@ -382,6 +391,8 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
                             }
                             else {
                                 pwd = passwordFromUser;
+                                me.context.targetCache().set(target,
+                                                             TARGET_CACHE_PASSWORD, passwordFromUser);
 
                                 startRequest();
                             }

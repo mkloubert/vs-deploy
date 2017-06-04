@@ -63,6 +63,8 @@ interface DropboxListFolderResult {
 }
 
 
+const TARGET_CACHE_TOKEN = 'token';
+
 function getDirFromTarget(target: DeployTargetDropbox): string {
     let dir = deploy_helpers.toStringSafe(target.dir).trim();
     if (!dir) {
@@ -385,8 +387,16 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 let askForTokenIfNeeded = () => {
                     let showTokenPrompt = false;
                     if (deploy_helpers.isEmptyString(ctx.token)) {
-                        // user defined, but no token
-                        showTokenPrompt = deploy_helpers.toBooleanSafe(target.promptForToken, true);
+                        // no token
+
+                        let tokenFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_TOKEN));
+                        if ('' === tokenFromCache) {
+                            // nothing in cache
+                            showTokenPrompt = deploy_helpers.toBooleanSafe(target.promptForToken, true);
+                        }
+                        else {
+                            target.token = tokenFromCache;
+                        }
                     }
 
                     if (showTokenPrompt) {
@@ -401,6 +411,8 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                             }
                             else {
                                 ctx.token = tokenFromUser.trim();
+                                me.context.targetCache().set(target,
+                                                             TARGET_CACHE_TOKEN, ctx.token);
 
                                 prepareWrapper();
                             }

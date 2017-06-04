@@ -53,6 +53,8 @@ interface AzureBlobContext {
     service: AzureStorage.BlobService;
 }
 
+const TARGET_CACHE_ACCESS_KEY = 'accessKey';
+
 class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBlobContext> {
     public get canGetFileInfo(): boolean {
         return true;
@@ -124,8 +126,16 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                 let askForTokenIfNeeded = () => {
                     let showKeyPrompt = false;
                     if (deploy_helpers.isEmptyString(accessKey)) {
-                        // user defined, but no key
-                        showKeyPrompt = deploy_helpers.toBooleanSafe(target.promptForKey, true);
+                        // no token
+
+                        let keyFromCache = deploy_helpers.toStringSafe(me.context.targetCache().get(target, TARGET_CACHE_ACCESS_KEY));
+                        if ('' === keyFromCache) {
+                            // nothing in cache
+                            showKeyPrompt = deploy_helpers.toBooleanSafe(target.promptForKey, true);
+                        }
+                        else {
+                            accessKey = keyFromCache;
+                        }
                     }
 
                     if (showKeyPrompt) {
@@ -139,6 +149,8 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                             }
                             else {
                                 accessKey = keyFromUser;
+                                me.context.targetCache().set(target,
+                                                             TARGET_CACHE_ACCESS_KEY, keyFromUser);
 
                                 prepareWrapper(false);
                             }

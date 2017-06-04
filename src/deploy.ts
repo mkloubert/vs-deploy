@@ -102,6 +102,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected readonly _AFTER_DEPLOYMENT_STATUS_ITEM: vscode.StatusBarItem;
     /**
+     * Stores all known targets from config as copies.
+     */
+    protected _allTargets: deploy_contracts.DeployTarget[];
+    /**
      * Stores the current configuration.
      */
     protected _config: deploy_contracts.DeployConfiguration;
@@ -278,6 +282,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 });
             }
         });
+    }
+
+    /**
+     * Returns all targets from config.
+     */
+    public get allTargetsFromConfig(): deploy_contracts.DeployTarget[] {
+        return this._allTargets;
     }
 
     /**
@@ -3950,6 +3961,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
+            me._allTargets = deploy_helpers.asArray(cfg.targets)
+                                           .filter(x => x)
+                                           .map((x, i) => {
+                                                    let clonedTarget = deploy_helpers.cloneObject(x);
+                                                    clonedTarget.__id = i;
+
+                                                    return clonedTarget;         
+                                                });
             me._globalScriptOperationState = {};
             me._htmlDocs = [];
             me._scriptOperationStates = {};

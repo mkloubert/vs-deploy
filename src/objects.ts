@@ -2268,10 +2268,10 @@ export class DeployTargetCache extends ObjectCacheBase<deploy_contracts.DeployTa
 
     /** @inheritdoc */
     public get<TValue>(target: deploy_contracts.DeployTarget, name: string, defaultValue?: TValue): TValue {
-        let targetName = deploy_helpers.normalizeString(target.name);
+        let targetKey = this.getStorageKeyForTarget(target);
         name = DeployTargetCache.normalizeName(name);
 
-        let targetItem = this._storage[targetName];
+        let targetItem = this._storage[targetKey];
         if (!deploy_helpers.isNullOrUndefined(targetItem)) {
             for (let p in targetItem) {
                 if (p === name) {
@@ -2283,14 +2283,31 @@ export class DeployTargetCache extends ObjectCacheBase<deploy_contracts.DeployTa
         return defaultValue;
     }
 
+    /**
+     * Returns the storage key for a target.
+     * 
+     * @param {deploy_contracts.DeployTarget} target The target.
+     * 
+     * @returns {string} The key.
+     */
+    protected getStorageKeyForTarget(target: deploy_contracts.DeployTarget): string {
+        let key: string;
+
+        if (target) {
+            key = deploy_helpers.toStringSafe(target.__id) + '::' + deploy_helpers.normalizeString(target.name);
+        }
+
+        return key;
+    }
+
     /** @inheritdoc */
     public set<TValue>(target: deploy_contracts.DeployTarget, name: string, value: TValue): this {
-        let targetName = deploy_helpers.normalizeString(target.name);
+        let targetKey = this.getStorageKeyForTarget(target);
         name = DeployTargetCache.normalizeName(name);
 
-        let targetItem = this._storage[targetName];
-        if (!deploy_helpers.isNullOrUndefined(targetItem)) {
-            this._storage[targetName] = targetItem = {};
+        let targetItem = this._storage[targetKey];
+        if (deploy_helpers.isNullOrUndefined(targetItem)) {
+            this._storage[targetKey] = targetItem = {};
         }
 
         targetItem[name] = value;

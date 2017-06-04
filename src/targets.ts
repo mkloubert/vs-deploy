@@ -40,7 +40,7 @@ import * as vscode from 'vscode';
 export function getTargets(): deploy_contracts.DeployTarget[] {
     let me: vs_deploy.Deployer = this;
 
-    let targets = (me.config.targets || []).filter(x => x);
+    let targets = me.allTargetsFromConfig;
 
     // load from
     targets = deploy_helpers.loadBaseSettingsFromFiles(targets, me.getValues());
