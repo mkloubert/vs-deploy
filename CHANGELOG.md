@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.17.0 (June 5th, 2017; folder mappings)
+
+* added support for [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) and [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [folder mappings](https://github.com/mkloubert/vs-deploy/wiki/folder_mappings)
+
 ## 9.16.0 (June 4th, 2017; password prompts)
 
 * password box is shown now if no password / token / key is defined in [API](https://github.com/mkloubert/vs-deploy/wiki/target_api), [Azure blob](https://github.com/mkloubert/vs-deploy/wiki/target_azureblob), [DropBox](https://github.com/mkloubert/vs-deploy/wiki/target_dropbox), [FTP](https://github.com/mkloubert/vs-deploy/wiki/target_ftp), [HTTP](https://github.com/mkloubert/vs-deploy/wiki/target_http) and [mail](https://github.com/mkloubert/vs-deploy/wiki/target_mail) targets
