@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.16.0",
+  "version": "9.17.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -1285,6 +1285,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -2725,6 +2730,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -4148,6 +4158,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -5533,6 +5548,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -6945,6 +6965,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -8365,6 +8390,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -9885,6 +9915,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -11320,6 +11355,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -12713,6 +12753,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -14166,6 +14211,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -15597,6 +15647,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -16992,6 +17047,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -18379,6 +18439,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -19795,6 +19860,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -21286,6 +21356,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -22853,6 +22928,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -24237,6 +24317,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -25650,6 +25735,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -27033,6 +27123,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
@@ -28430,6 +28525,11 @@
                             "target": {
                               "type": "string",
                               "description": "The target directory to map the files of source directory to."
+                            },
+                            "isRegEx": {
+                              "type": "boolean",
+                              "description": "Indicates if 'source' contains a regular expression instead of a static string.",
+                              "default": false
                             }
                           }
                         }
