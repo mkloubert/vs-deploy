@@ -106,13 +106,13 @@ let nextHtmlDocId = -1;
  * Applies values to an object.
  * 
  * @param {T} obj The object to apply the values to. 
- * @param {deploy_values.ValueBase|deploy_values.ValueBase[]} values The values to apply.
+ * @param {deploy_contracts.ObjectWithNameAndValue|deploy_contracts.ObjectWithNameAndValue[]} values The values to apply.
  * @param {boolean} [cloneObj] Clone object or not.
  * 
  * @return {T} The object with the applied values.
  */
 export function applyValues<T extends deploy_contracts.Applyable>(obj: T,
-                                                                  values: deploy_values.ValueBase | deploy_values.ValueBase[],
+                                                                  values: deploy_contracts.ObjectWithNameAndValue | deploy_contracts.ObjectWithNameAndValue[],
                                                                   cloneObj = true): T {
     values = asArray(values).filter(v => v);
     
@@ -2355,9 +2355,26 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
  * @param {deploy_contracts.DeployTarget} target The target.
  * @param {string} [baseDir] The custom base / root directory to use.
  * 
- * @return {string | false} The relative path or (false) if not possible.
+ * @return {string|false} The relative path or (false) if not possible.
  */
 export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget, baseDir?: string): string | false {
+    return toRelativeTargetPathWithValues(path, target, [], baseDir);
+}
+
+/**
+ * Tries to convert a file path to a relative path
+ * by using the mappings of a target and placeholders / values.
+ * 
+ * @param {string} path The path to convert.
+ * @param {deploy_contracts.DeployTarget} target The target.
+ * @param {deploy_contracts.ObjectWithNameAndValue|deploy_contracts.ObjectWithNameAndValue[]} values The values to use.
+ * @param {string} [baseDir] The custom base / root directory to use.
+ * 
+ * @return {string|false} The relative path or (false) if not possible.
+ */
+export function toRelativeTargetPathWithValues(path: string, target: deploy_contracts.DeployTarget,
+                                               values: deploy_contracts.ObjectWithNameAndValue | deploy_contracts.ObjectWithNameAndValue[],
+                                               baseDir?: string): string | false {
     let relativePath = toRelativePath(path, baseDir);
     if (false === relativePath) {
         return relativePath;
@@ -2381,14 +2398,49 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
     for (let i = 0; i < allMappings.length; i++) {
         let mapping = allMappings[i];
 
-        let source = normalizeDirPath(mapping.source);
-        let target = normalizeDirPath(mapping.target);
+        let sourceDir: string;
+        let targetDir = toStringSafe(mapping.target);
 
-        if (0 === relativePath.indexOf(source)) {
+        let doesMatch = false;
+        if (toBooleanSafe(mapping.isRegEx)) {
+            let r = new RegExp(toStringSafe(mapping.source), 'g');
+
+            let match = r.exec(relativePath);
+            if (match) {
+                sourceDir = match[0];
+
+                // RegEx matches
+                let matchValues: deploy_values.ValueBase[] = [];
+                for (let i = 0; i < match.length; i++) {
+                    matchValues.push(new deploy_values.StaticValue({
+                        name: '' + i,
+                        value: match[i],
+                    }));
+                }
+
+                sourceDir = deploy_values.replaceWithValues(values, sourceDir);
+                sourceDir = normalizeDirPath(sourceDir);
+
+                // apply RegEx matches to targetDir
+                targetDir = deploy_values.replaceWithValues(matchValues, targetDir);
+
+                doesMatch = true;
+            }
+        }
+        else {
+            sourceDir = deploy_values.replaceWithValues(values, mapping.source);
+            sourceDir = normalizeDirPath(sourceDir);
+
+            doesMatch = 0 === relativePath.indexOf(sourceDir);
+        }
+
+        targetDir = normalizeDirPath(targetDir);
+
+        if (doesMatch) {
             // is matching => rebuild path
 
-            relativePath = Path.join(target,
-                                     relativePath.substr(source.length));  // remove the source prefix
+            relativePath = Path.join(targetDir,
+                                     relativePath.substr(sourceDir.length));  // remove the source prefix
             break;
         }
     }

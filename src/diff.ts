@@ -310,7 +310,7 @@ async function showFilesInBrowsers(me: vs_deploy.Deployer,
             remoteFile = Path.join(f.right.path, f.right.name);
             remoteFile = deploy_helpers.replaceAllStrings(remoteFile, Path.sep, '/');
 
-            let relRemotePath = deploy_helpers.toRelativeTargetPath(remoteFile, target);
+            let relRemotePath = deploy_helpers.toRelativeTargetPathWithValues(remoteFile, target, me.getValues());
             if (false !== relRemotePath) {
                 remoteFile = relRemotePath;
             }

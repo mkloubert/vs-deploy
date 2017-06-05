@@ -89,7 +89,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             me.onCancelling(() => hasCancelled = true, opts);
 
             try {
-                let relativePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -151,7 +151,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPath(file, target, opts.baseDirectory);
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
         if (false === relativeTargetFilePath) {
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }

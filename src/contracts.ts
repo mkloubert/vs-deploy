@@ -1582,6 +1582,11 @@ export interface DeployTargetWithPlugins {
  */
 export interface DeployTargetMapping {
     /**
+     * Indicates if 'source' contains a regular expression
+     * instead of a static string.
+     */
+    isRegEx?: boolean;
+    /**
      * The source directory.
      */
     source: string;

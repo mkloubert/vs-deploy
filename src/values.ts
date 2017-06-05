@@ -569,12 +569,12 @@ export function reloadAdditionalValues() {
 /**
  * Handles a value as string and replaces placeholders.
  * 
- * @param {ValueBase|ValueBase[]} values The "placeholders".
+ * @param {deploy_contracts.ObjectWithNameAndValue|deploy_contracts.ObjectWithNameAndValue[]} values The "placeholders".
  * @param {any} val The value to parse.
  * 
  * @return {string} The parsed value.
  */
-export function replaceWithValues(values: ValueBase | ValueBase[], val: any): string {
+export function replaceWithValues(values: deploy_contracts.ObjectWithNameAndValue | deploy_contracts.ObjectWithNameAndValue[], val: any): string {
     let allValues = deploy_helpers.asArray(values).filter(x => x);
 
     if (!deploy_helpers.isNullOrUndefined(val)) {

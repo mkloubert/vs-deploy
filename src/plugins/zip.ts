@@ -252,7 +252,7 @@ class ZIPPlugin extends deploy_objects.ZipFileDeployPluginBase {
 
                                 let zipFile = Path.join(targetDir, zipFileName);
 
-                                let zipRelativePath = deploy_helpers.toRelativeTargetPath(zipFile, target);
+                                let zipRelativePath = deploy_helpers.toRelativeTargetPathWithValues(zipFile, target, me.context.values());
                                 if (false === zipRelativePath) {
                                     zipRelativePath = zipFile;
                                 }
