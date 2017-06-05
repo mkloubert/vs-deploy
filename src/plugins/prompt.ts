@@ -24,6 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 import * as deploy_contracts from '../contracts';
+import * as deploy_globals from '../globals';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as deploy_plugins from '../plugins';
@@ -76,11 +77,7 @@ export type ValueValidatorModuleExecutor = (args: ValueValidatorModuleExecutorAr
 /**
  * Arguments for a validator function.
  */
-export interface ValueValidatorModuleExecutorArguments {
-    /**
-     * Global data from the settings.
-     */
-    globals: any;
+export interface ValueValidatorModuleExecutorArguments extends deploy_contracts.ScriptArguments {
     /**
      * The custom error message.
      */
@@ -340,8 +337,16 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                     
                                     try {
                                         let args: ValueValidatorModuleExecutorArguments = {
+                                            emitGlobal: function() {
+                                                return deploy_globals.EVENTS
+                                                                     .emit
+                                                                     .apply(deploy_globals.EVENTS, arguments);
+                                            },
                                             globals: me.context.globals(),
                                             options: deploy_helpers.cloneObject(p.validatorOptions),
+                                            require: function(id) {
+                                                return me.context.require(id);
+                                            },
                                             value: v,
                                         };
 
