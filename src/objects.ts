@@ -2242,6 +2242,14 @@ export abstract class ObjectCacheBase<T> implements deploy_contracts.ObjectCache
     /** @inheritdoc */
     public abstract get<TValue>(obj: T, name: string, defaultValue?: TValue): TValue;
 
+    /** @inheritdoc */
+    public has(obj: T, name: string): boolean {
+        let notFound = Symbol('NOT_FOUND');
+
+        return notFound !== this.get<any>(obj, name,
+                                          notFound);
+    }
+
     /**
      * Normalizes a value name.
      * 

@@ -258,6 +258,10 @@ export const translation: Translation = {
             description: 'Leitet eine Liste von Quelldateien über ein Skript an einen anderen Ort und übermittelt die neuen Dateien an eine Liste von Zielen',
             noPipeFunction: "{0:trim,surround} implementiert keine 'pipe()' Funktion!",
         },
+        prompt: {
+            description: "Fragt den Benutzer nach einer Liste von Einstellungen, die auf ein oder mehrere Ziele angewendet werden sollen",
+            invalidInput: "Ihre Eingabe ist fehlerhaft!",
+        },
         remote: {
             description: 'Überträgt Dateien über eine TCP-Verbindung',
         },

@@ -956,6 +956,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
 
                     if (showPasswordPrompt) {
                         vscode.window.showInputBox({
+                            ignoreFocusOut: true,
                             placeHolder: i18.t('prompts.inputPassword'),
                             password: true,
                         }).then((passwordFromUser) => {

@@ -140,6 +140,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
 
                     if (showKeyPrompt) {
                         vscode.window.showInputBox({
+                            ignoreFocusOut: true,
                             placeHolder: i18.t('prompts.inputAccessKey'),
                             password: true,
                         }).then((keyFromUser) => {

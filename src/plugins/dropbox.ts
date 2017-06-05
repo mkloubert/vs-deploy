@@ -401,6 +401,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                     if (showTokenPrompt) {
                         vscode.window.showInputBox({
+                            ignoreFocusOut: true,
                             placeHolder: i18.t('prompts.inputAccessToken'),
                             password: true,
                         }).then((tokenFromUser) => {

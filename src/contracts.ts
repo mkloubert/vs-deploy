@@ -2112,9 +2112,19 @@ export interface ObjectCache<T> {
      * @param {string} name The name of the value.
      * @param {TValue} [defaultValue] The default value.
      * 
-     * @returns {TValue} The value.
+     * @returns {TValue|TDefault} The value.
      */
-    get<TValue>(obj: T, name: string, defaultValue?: TValue): TValue;
+    get<TValue = any, TDefault = TValue>(obj: T, name: string, defaultValue?: TDefault): TValue | TDefault;
+
+    /**
+     * Checks if the cache contains a value.
+     * 
+     * @param {T} obj The underlying object.
+     * @param {string} name The name of the value.
+     * 
+     * @return {boolean} Contains value or not.
+     */
+    has(obj: T, name: string): boolean;
 
     /**
      * Sets a value for an object.

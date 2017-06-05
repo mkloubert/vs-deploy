@@ -381,6 +381,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
 
                     if (showPasswordPrompt) {
                         vscode.window.showInputBox({
+                            ignoreFocusOut: true,
                             placeHolder: i18.t('prompts.inputPassword'),
                             password: true,
                         }).then((passwordFromUser) => {

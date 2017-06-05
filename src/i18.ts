@@ -263,6 +263,10 @@ export interface Translation {
         map?: {
             description?: string;
         },
+        prompt?: {
+            description?: string;
+            invalidInput?: string;
+        },
         pipeline?: {
             description?: string;
             noPipeFunction?: string;

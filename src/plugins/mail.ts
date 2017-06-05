@@ -194,6 +194,7 @@ https://github.com/mkloubert/vs-deploy`,
 
                     if (showPasswordPrompt) {
                         vscode.window.showInputBox({
+                            ignoreFocusOut: true,
                             placeHolder: i18.t('prompts.inputPassword'),
                             password: true,
                         }).then((passwordFromUser) => {

@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.18.0 (June 5th, 2017; prompt target)
+
+* added new [prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) target, which asks the user for a list of settings that will be applied to one or more other [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-)
+
 ## 9.17.0 (June 5th, 2017; folder mappings)
 
 * added support for [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) and [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values) in [folder mappings](https://github.com/mkloubert/vs-deploy/wiki/folder_mappings)

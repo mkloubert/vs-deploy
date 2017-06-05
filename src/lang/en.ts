@@ -260,6 +260,10 @@ export const translation: Translation = {
             description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target',
             noPipeFunction: "{0:trim,surround} implements no 'pipe()' function!",
         },
+        prompt: {
+            description: "Asks the user for a list of settings that will be applied to one or more targets",
+            invalidInput: "Invalid input!",
+        },
         remote: {
             description: 'Deploys to a remote machine over a TCP connection',
         },
