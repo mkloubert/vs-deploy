@@ -149,6 +149,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
             wf.next((wfCtx) => {
                 wfCtx.value = {
                     properties: {},
+                    propertiesToCache: [],
                 };
             });
 
@@ -188,6 +189,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 // create action
                 wf.next((wfCtx) => {
                     let properties = wfCtx.value['properties'];
+                    let propertiesToCache: any[] = wfCtx.value['propertiesToCache'];
 
                     // define value converter
                     let valueConverter: (val: string) => any;
@@ -265,8 +267,10 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                 else {
                                     if ('undefined' !== typeof userValue) {
                                         if (doCache) {
-                                            me.context.targetCache()
-                                                      .set(target, cacheKey, userValue);
+                                            propertiesToCache.push({
+                                                'key': cacheKey,
+                                                'value': userValue,
+                                            });
                                         }
 
                                         Promise.resolve( valueConverter(userValue) ).then((valueToSet) => {
@@ -450,6 +454,16 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                              afterWorkflowsAction);
 
                 await wfTargets.start();
+            });
+
+            // cache values
+            wf.next((wfCtx) => {
+                let propertiesToCache: any[] = wfCtx.value['propertiesToCache'];
+                
+                propertiesToCache.forEach(ptc => {
+                    me.context.targetCache()
+                              .set(target, ptc.key, ptc.value);
+                });
             });
 
             wf.on('action.after',
