@@ -87,6 +87,10 @@ export interface ValueValidatorModuleExecutorArguments extends deploy_contracts.
      */
     options: any;
     /**
+     * The name of the properties where to write the value to.
+     */
+    properties: string[];
+    /**
      * The user value to check.
      */
     value: string;
@@ -344,6 +348,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                             },
                                             globals: me.context.globals(),
                                             options: deploy_helpers.cloneObject(p.validatorOptions),
+                                            properties: propertyNames,
                                             require: function(id) {
                                                 return me.context.require(id);
                                             },
