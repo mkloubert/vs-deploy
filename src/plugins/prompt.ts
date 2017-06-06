@@ -43,6 +43,8 @@ interface DeployTargetPrompt extends deploy_contracts.DeployTarget {
 
 interface PromptEntry {
     cache?: boolean;
+    converter?: string;
+    converterOptions?: any;
     defaultValue?: any;
     ignoreFocusOut?: boolean;
     isPassword?: boolean;
@@ -53,6 +55,51 @@ interface PromptEntry {
     validator?: string;
     validatorOptions?: any;
     valuePlaceHolder?: string;
+}
+
+/**
+ * A module for converting a (string) value.
+ */
+export interface ValueConverterModule {
+    /**
+     * The converter function / method.
+     */
+    convert: ValueConverterModuleExecutor;
+}
+
+/**
+ * Converts a (string) value.
+ * 
+ * @param {ValueConverterModuleExecutorArguments} args The arguments for the execution.
+ * 
+ * @return {any} The result.
+ */
+export type ValueConverterModuleExecutor = (args: ValueConverterModuleExecutorArguments) => any;
+
+/**
+ * Arguments for a value converter function / method.
+ */
+export interface ValueConverterModuleExecutorArguments extends deploy_contracts.ScriptArguments {
+    /**
+     * Options for the script.
+     */
+    options: any;
+    /**
+     * The name of the properties where to write the value to.
+     */
+    properties: string[];
+    /**
+     * The name of the targets where to write the value to.
+     */
+    targets: string[];
+    /**
+     * The type from the target settings.
+     */
+    type: string;
+    /**
+     * The value to convert.
+     */
+    value: string;
 }
 
 /**
@@ -191,113 +238,140 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                     };
                 }
 
+                let converter: ValueConverterModuleExecutor;
+                if (!deploy_helpers.isEmptyString(p.converter)) {
+                    let converterModule = deploy_helpers.loadModule<ValueConverterModule>(p.converter);
+                    if (converterModule) {
+                        converter = converterModule.convert;
+                    }
+                }
+
                 // create action
                 wf.next((wfCtx) => {
                     let properties = wfCtx.value['properties'];
                     let propertiesToCache: any[] = wfCtx.value['propertiesToCache'];
 
+                    let targetType = deploy_helpers.normalizeString(p.type);
+
+                    let valueConverter = converter;
+
                     // define value converter
-                    let valueConverter: (val: string) => any;
-                    switch (deploy_helpers.normalizeString(p.type)) {
-                        case 'bool':
-                        case 'boolean':
-                            valueConverter = (val) => {
-                                switch (deploy_helpers.normalizeString(val)) {
-                                    case '1':
-                                    case 'true':
-                                    case 'yes':
-                                    case 'y':
-                                        return true;
+                    if (!valueConverter) {
+                        valueConverter = (args) => {
+                            switch (args.type) {
+                                case 'bool':
+                                case 'boolean':
+                                    {
+                                        switch (deploy_helpers.normalizeString(args.value)) {
+                                            case '1':
+                                            case 'true':
+                                            case 'yes':
+                                            case 'y':
+                                                return true;
 
-                                    case '':
-                                        return undefined;
-                                }
-                                
-                                return false;
-                            };
-                            break;
-
-                        case 'int':
-                        case 'integer':
-                            valueConverter = (val) => parseInt(deploy_helpers.toStringSafe(val).trim());
-                            break;
-
-                        case 'float':
-                        case 'number':
-                            valueConverter = (val) => parseFloat(deploy_helpers.toStringSafe(val).trim());
-                            break;
-
-                        case 'json':
-                        case 'obj':
-                        case 'object':
-                            valueConverter = (val) => JSON.parse(val);
-                            break;
-
-                        case 'file':
-                            valueConverter = (src) => {
-                                src = deploy_values.replaceWithValues(me.context.values(), src);
-
-                                return new Promise<any>((res, rej) => {
-                                    deploy_helpers.loadFrom(src).then((result) => {
-                                        try {
-                                            let val: any;
-
-                                            if (result.data && result.data.length > 0) {
-                                                val = JSON.parse(result.data.toString('utf8'));
-                                            }
-
-                                            res(val);
+                                            case '':
+                                                return undefined;
                                         }
-                                        catch (e) {
-                                            rej(e);
-                                        }
-                                    }).catch((err) => {
-                                        rej(err);
-                                    });
-                                });
-                            };
-                            break;
+                                        
+                                        return false;
+                                    }
+                                    // bool
 
-                        default:
-                            valueConverter = (val) => val;
-                            break;
+                                case 'int':
+                                case 'integer':
+                                    return parseInt(deploy_helpers.toStringSafe(args.value).trim());
+
+                                case 'float':
+                                case 'number':
+                                    return parseFloat(deploy_helpers.toStringSafe(args.value).trim());
+
+                                case 'json':
+                                case 'obj':
+                                case 'object':
+                                    return JSON.parse(args.value);
+
+                                case 'file':
+                                    {
+                                        let src = deploy_values.replaceWithValues(me.context.values(), args.value);
+
+                                        return new Promise<any>((res, rej) => {
+                                            deploy_helpers.loadFrom(src).then((result) => {
+                                                try {
+                                                    let val: any;
+
+                                                    if (result.data && result.data.length > 0) {
+                                                        val = JSON.parse(result.data.toString('utf8'));
+                                                    }
+
+                                                    res(val);
+                                                }
+                                                catch (e) {
+                                                    rej(e);
+                                                }
+                                            }).catch((err) => {
+                                                rej(err);
+                                            });
+                                        });
+                                    }
+                                    // file
+                            }
+
+                            return args.value;
+                        };
                     }
 
                     return new Promise<any>((resolve, reject) => {
                         let completed = (err: any, userValue?: string) => {
-                            try {
-                                if (err) {
-                                    reject(err);
-                                }
-                                else {
-                                    if ('undefined' !== typeof userValue) {
-                                        if (doCache) {
-                                            propertiesToCache.push({
-                                                'key': cacheKey,
-                                                'value': userValue,
-                                            });
-                                        }
+                            if (err) {
+                                reject(err);
+                            }
+                            else {
+                                if ('undefined' !== typeof userValue) {
+                                    if (doCache) {
+                                        propertiesToCache.push({
+                                            'key': cacheKey,
+                                            'value': userValue,
+                                        });
+                                    }
 
-                                        Promise.resolve( valueConverter(userValue) ).then((valueToSet) => {
+                                    let args: ValueConverterModuleExecutorArguments = {
+                                        emitGlobal: function() {
+                                            return deploy_globals.EVENTS
+                                                                 .emit
+                                                                 .apply(deploy_globals.EVENTS, arguments);
+                                        },
+                                        globals: me.context.globals(),
+                                        options: deploy_helpers.cloneObject(p.converterOptions),
+                                        properties: propertyNames,
+                                        require: function(id) {
+                                            return me.context.require(id);
+                                        },
+                                        targets: targets,
+                                        type: targetType,
+                                        value: userValue,
+                                    };
+
+                                    try {
+                                        Promise.resolve( valueConverter(args) ).then((valueToSet) => {
                                             propertyNames.forEach(pn => {
                                                 properties[pn] = valueToSet;
                                             });
 
                                             resolve();
-                                        }).catch((e) => {
-                                            reject(e);
+                                        }).catch((err) => {
+                                            reject(err);
                                         });
                                     }
-                                    else {
-                                        wfCtx.finish();
-                                        hasCancelled = true;
-
-                                        resolve();
+                                    catch (e) {
+                                        reject(e);
                                     }
                                 }
-                            }
-                            catch (e) {
-                                reject(e);
+                                else {
+                                    wfCtx.finish();
+                                    hasCancelled = true;
+
+                                    resolve();
+                                }
                             }
                         };
 

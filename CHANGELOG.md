@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.19.0 ( ??? ; prompt targets )
+
+* can define a value convert script for [target_prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) now 
+
 ## 9.18.3 (June 5th, 2017; prompt target)
 
 * added new [prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) target, which asks the user for a list of settings that will be applied to one or more other [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-)
