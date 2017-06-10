@@ -13,6 +13,7 @@
 
     "deploy": {
         "showPopupOnSuccess": false,
+        "runBuildTaskOnStartup": true,
 
         "packages": [
             {
