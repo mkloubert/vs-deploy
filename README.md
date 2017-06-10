@@ -54,6 +54,7 @@ If you would like to add another translation, please read [that issue](https://g
    * [Deploy on change](#deploy-on-change-)
    * [Download / pull from SFTP](#download--pull-from-sftp-)
    * [Check for newer files](#check-for-newer-files-)
+   * [Sync when open](#sync-when-open-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
 2. [Install](#install-)
@@ -84,6 +85,10 @@ If you would like to add another translation, please read [that issue](https://g
 ### Check for newer files [[&uarr;](#demos-)]
 
 ![Demo check for newer files](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo9.gif)
+
+### Sync when open [[&uarr;](#demos-)]
+
+![Demo sync when open](https://raw.githubusercontent.com/mkloubert/vs-deploy/master/img/demo10.gif)
 
 ### Deploy to ZIP file [[&uarr;](#demos-)]
 
