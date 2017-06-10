@@ -24,6 +24,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as Enumerable from 'node-enumerable';
 import * as FS from 'fs';
 import * as i18 from './i18';
 const MergeDeep = require('merge-deep');
@@ -31,6 +32,52 @@ import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
+
+/**
+ * A target with plugins.
+ */
+export interface TargetWithPlugins {
+    /**
+     * The plugins of the underlying target.
+     */
+    plugins: deploy_contracts.DeployPlugin[];
+    /**
+     * The underlying target.
+     */
+    target: deploy_contracts.DeployTarget;
+}
+
+/**
+ * Returns targets with their plugins.
+ * 
+ * @param {deploy_contracts.DeployTarget | deploy_contracts.DeployTarget[]} targets One or more target.
+ * @param {(deploy_contracts.DeployPlugin|deploy_contracts.DeployPlugin[])} plugins All known plugins.
+ * 
+ * @returns {TargetWithPlugins[]} The targets with their plugins.
+ */
+export function getPluginsForTarget(targets: deploy_contracts.DeployTarget | deploy_contracts.DeployTarget[],
+                                    plugins: deploy_contracts.DeployPlugin | deploy_contracts.DeployPlugin[]): TargetWithPlugins[] {
+    let allTargets = deploy_helpers.asArray(targets)
+                                   .filter(x => x);
+
+    return Enumerable.from(allTargets).select<TargetWithPlugins>(t => {
+        let targetType = deploy_helpers.normalizeString(t.type);
+
+        let matchingPlugins = deploy_helpers.asArray(plugins);
+        matchingPlugins = matchingPlugins.filter(x => x);
+        matchingPlugins = matchingPlugins.filter(pi => {
+            let pluginType = deploy_helpers.normalizeString(pi.__type);
+
+            return '' === pluginType ||
+                   pluginType === targetType;
+        });
+
+        return {
+            plugins: matchingPlugins,
+            target: t,
+        };
+    }).toArray();
+}
 
 /**
  * Returns the list of targets.

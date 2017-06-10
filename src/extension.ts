@@ -208,6 +208,8 @@ export function activate(context: vscode.ExtensionContext) {
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
                                                                           new deploy_content.HtmlTextDocumentContentProvider(deployer));
 
+    // notify when opening a text document
+    context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(deployer.onDidOpenTextDocument, deployer));
     // notfiy setting changes
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved

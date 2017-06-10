@@ -1046,6 +1046,48 @@
                         }
                       }
                     ]
+                  },
+                  "syncWhenOpen": {
+                    "description": "Synchronizes local files with remote ones when opening it.",
+                    "oneOf": [
+                      {
+                        "description": "Synchronizes all files of that package with remote ones when opening it or not.",
+                        "type": "boolean",
+                        "default": false
+                      },
+                      {
+                        "type": "string",
+                        "description": "The target from where to sync."
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "exclude": {
+                            "description": "A list of one or more glob patterns of files that should be execluded from sync.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "files": {
+                            "description": "A list of one or more glob patterns of files that should be synced. By default ALL files will be synced.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "target": {
+                            "type": "string",
+                            "description": "The target from where to sync."
+                          },
+                          "useGitIgnoreStylePatterns": {
+                            "type": "boolean",
+                            "description": "Also check directory patterns, like in '.gitignore' files, or not.",
+                            "default": true
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
               }
@@ -1159,6 +1201,11 @@
                   }
                 }
               ]
+            },
+            "syncWhenOpen": {
+              "type": "boolean",
+              "description": "Activate or deactivate 'sync when open' for all packages.",
+              "default": true
             },
             "targets": {
               "type": "array",
@@ -31644,6 +31691,7 @@
     "moment": "^2.18.1",
     "mssql": "^3.3.0",
     "mysql": "^2.13.0",
+    "node-enumerable": "^1.2.0",
     "node-workflows": "^1.3.1",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.2",

@@ -110,6 +110,21 @@ export const EVENT_DEPLOYONSAVE_ENABLE = 'deploy.deployOnSave.enable';
  * feature should be toggled.
  */
 export const EVENT_DEPLOYONSAVE_TOGGLE = 'deploy.deployOnSave.toggle';
+/**
+ * Name of the event that is raised when 'sync when open'
+ * feature should be disabled.
+ */
+export const EVENT_SYNCWHENOPEN_DISABLE = 'deploy.syncWhenOpen.disable';
+/**
+ * Name of the event that is raised when 'sync when open'
+ * feature should be enabled.
+ */
+export const EVENT_SYNCWHENOPEN_ENABLE = 'deploy.syncWhenOpen.enable';
+/**
+ * Name of the event that is raised when 'sync when open'
+ * feature should be toggled.
+ */
+export const EVENT_SYNCWHENOPEN_TOGGLE = 'deploy.syncWhenOpen.toggle';
 
 /**
  * An object that can handle access keys.
@@ -702,6 +717,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     startupCommands?: (string | StartupCommand)[] | StartupCommand | string;
     /**
+     * Activates or deactivates "sync when open" feature.
+     */
+    syncWhenOpen?: boolean;
+    /**
      * List of targets.
      */
     targets?: DeployTarget[];
@@ -1176,6 +1195,10 @@ export interface DeployPackage extends Applyable, CanLoadFrom, ConditionalItem, 
      * Show this package for pulling or not.
      */
     showForPull?: boolean;
+    /**
+     * Synchronizes local files with remote ones when opening it.
+     */
+    syncWhenOpen?: boolean | string | SyncWhenOpenFileFilter;
     /**
      * One or more explicit targets to deploy to.
      */
@@ -2505,6 +2528,16 @@ export interface StaticValueWithName extends ValueWithName {
      * Gets the value.
      */
     value: any;
+}
+
+/**
+ * 'Sync when open' file filter.
+ */
+export interface SyncWhenOpenFileFilter extends FileFilter {
+    /**
+     * The target from where to sync.
+     */
+    target?: string;
 }
 
 /**

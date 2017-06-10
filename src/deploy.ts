@@ -34,6 +34,7 @@ import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_packages from './packages';
 import * as deploy_plugins from './plugins';
+import * as deploy_sync from './sync';
 import * as deploy_targets from './targets';
 import * as deploy_templates from './templates';
 import * as deploy_urls from './urls';
@@ -141,6 +142,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores if 'deploy on save' feature is enabled or not.
      */
     protected _isDeployOnSaveEnabled = true;
+    /**
+     * Stores if 'sync when open' feature is enabled or not.
+     */
+    protected _isSyncWhenOpenEnabled = true;
+
     private readonly _NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS = {
         's': 0,
         'w': 0,
@@ -151,6 +157,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * the deploy result button in the status bar.
      */
     protected _lastAfterDeploymentButtonDisapearTimeout: NodeJS.Timer;
+    /**
+     * Stores the timestamp of the last config update.
+     */
+    protected _lastConfigUpdate: Moment.Moment;
     /**
      * Stores the last list of environment vars.
      */
@@ -2120,6 +2130,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets the timestamp of the last config update.
+     */
+    public get lastConfigUpdate(): Moment.Moment {
+        return this._lastConfigUpdate;
+    }
+
+    /**
      * Starts listening for files.
      */
     public listen() {
@@ -2480,6 +2497,32 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
         catch (e) {
             vscode.window.showErrorMessage(i18.t('deploy.onSave.failed', relativeDocFilePath, 2, e));
+        }
+    }
+
+    /**
+     * Event after text document has been opened.
+     * 
+     * @param {vscode.TextDocument} doc The document.
+     */
+    public onDidOpenTextDocument(doc: vscode.TextDocument) {
+        if (!doc) {
+            return;
+        }
+
+        let me = this;
+
+        if (!doc.isUntitled && !deploy_helpers.isEmptyString(doc.fileName)) {
+            if (deploy_helpers.toBooleanSafe(this.config.syncWhenOpen, true) &&
+                this._isSyncWhenOpenEnabled) {
+                    
+                // only if activated
+                deploy_sync.syncWhenOpen.apply(me, [ doc ]).then(() => {
+                    //TODO
+                }).catch((err) => {
+                    //TODO
+                });
+            }
         }
     }
 
@@ -3743,6 +3786,17 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             me._isDeployOnSaveEnabled = !me._isDeployOnSaveEnabled;
         });
 
+        // deploy.syncWhenOpen.*
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_SYNCWHENOPEN_DISABLE, function() {
+            me._isSyncWhenOpenEnabled = false;
+        });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_SYNCWHENOPEN_ENABLE, function() {
+            me._isSyncWhenOpenEnabled = true;
+        });
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_SYNCWHENOPEN_TOGGLE, function() {
+            me._isSyncWhenOpenEnabled = !me._isSyncWhenOpenEnabled;
+        });
+
         // deploy.deployFiles
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYFILES, function(files: string | string[],
                                                                               targets: deploy_contracts.DeployTargetList,
@@ -3961,6 +4015,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
+            me._lastConfigUpdate = Moment();
+
             me._allTargets = deploy_helpers.asArray(cfg.targets)
                                            .filter(x => x)
                                            .map((x, i) => {
