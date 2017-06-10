@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.19.0 (June 10th, 2017; russian translation)
+
+* [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
+
 ## 9.18.3 (June 5th, 2017; prompt target)
 
 * added new [prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) target, which asks the user for a list of settings that will be applied to one or more other [targets](https://github.com/mkloubert/vs-deploy/wiki#targets-)
