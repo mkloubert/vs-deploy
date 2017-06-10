@@ -103,11 +103,9 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                 }
                                 else {
                                     // target name
+                                    
                                     filter = deploy_helpers.cloneObject(pkg);
-
-                                    filter = {
-                                        target: deploy_helpers.toStringSafe(pkg.syncWhenOpen),
-                                    };
+                                    filter.target = deploy_helpers.toStringSafe(pkg.syncWhenOpen);
                                 }
                             }
 

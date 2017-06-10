@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.20.0 (June 10th, 2017; sync when open and prompt targets)
+## 9.20.1 (June 10th, 2017; sync when open and prompt targets)
 
 * can [sync files with remote when opening in editor](https://github.com/mkloubert/vs-deploy/wiki/sync_when_open) now
 * can define a value convert script for [target_prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) now 
