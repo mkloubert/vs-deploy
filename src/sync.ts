@@ -206,42 +206,47 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                     try {
                                         // get info of remote file
                                         Promise.resolve( pi.getFileInfo(file, targetWithPlugin.target) ).then((fi) => {
-                                            if (fi.exists) {
-                                                try {
-                                                    let remoteFileIsNewer = false;
+                                            if (fi) {
+                                                if (fi.exists) {
+                                                    try {
+                                                        let remoteFileIsNewer = false;
 
-                                                    if (fi.modifyTime) {
-                                                        remoteFileIsNewer = fi.modifyTime.isAfter(fileStats.mtime);
-                                                    }
+                                                        if (fi.modifyTime) {
+                                                            remoteFileIsNewer = fi.modifyTime.isAfter(fileStats.mtime);
+                                                        }
 
-                                                    if (remoteFileIsNewer) {
-                                                        // sync local with remote file ...
+                                                        if (remoteFileIsNewer) {
+                                                            // sync local with remote file ...
 
-                                                        if (timeToCompareWithLocalFile.isAfter(fileStats.mtime)) {
-                                                            // ... if local not changed
-                                                            // since the current session
-                                                            
-                                                            pi.pullFile(file, targetWithPlugin.target, {
-                                                                onCompleted: (sender, e) => {
-                                                                    syncCompleted(e.error);
-                                                                }
-                                                            });
+                                                            if (timeToCompareWithLocalFile.isAfter(fileStats.mtime)) {
+                                                                // ... if local not changed
+                                                                // since the current session
+                                                                
+                                                                pi.pullFile(file, targetWithPlugin.target, {
+                                                                    onCompleted: (sender, e) => {
+                                                                        syncCompleted(e.error);
+                                                                    }
+                                                                });
+                                                            }
+                                                            else {
+                                                                syncCompleted(null);
+                                                            }
                                                         }
                                                         else {
                                                             syncCompleted(null);
                                                         }
                                                     }
-                                                    else {
-                                                        syncCompleted(null);
+                                                    catch (e) {
+                                                        syncCompleted(e);
                                                     }
                                                 }
-                                                catch (e) {
-                                                    syncCompleted(e);
+                                                else {
+                                                    // does not exist on remote
+                                                    syncCompleted(null);
                                                 }
                                             }
                                             else {
-                                                // does not exist on remote
-
+                                                // cancelled
                                                 syncCompleted(null);
                                             }
                                         }).catch((err) => {
