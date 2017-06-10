@@ -190,6 +190,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _serverStatusItem: vscode.StatusBarItem;
     /**
+     * Stores the extension's start time.
+     */
+    protected _startTime: Moment.Moment;
+    /**
      * Cache for deploy targets.
      */
     protected _targetCache: deploy_objects.DeployTargetCache;
@@ -2278,6 +2282,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * The 'on activated' event.
      */
     public onActivated() {
+        this._startTime = Moment();
+
         this.registerGlobalEvents();
 
         this.reloadConfiguration();
@@ -2517,7 +2523,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 this._isSyncWhenOpenEnabled) {
                     
                 // only if activated
-                deploy_sync.syncWhenOpen.apply(me, [ doc ]).then(() => {
+                deploy_sync.syncDocumentWhenOpen.apply(me, [ doc ]).then(() => {
                     //TODO
                 }).catch((err) => {
                     //TODO
@@ -4875,6 +4881,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 reject(err);
             });
         });
+    }
+
+    /**
+     * Gets the start time of the extension.
+     */
+    public get startTime(): Moment.Moment {
+        return this._startTime;
     }
 
     /**

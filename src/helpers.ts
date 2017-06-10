@@ -712,6 +712,103 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter,
 }
 
 /**
+ * Returns the list of files by a filter that should be deployed.
+ * 
+ * @param {deploy_contracts.FileFilter} filter The filter.
+ * @param {boolean} useGitIgnoreStylePatterns Also check directory patterns, like in .gitignore files, or not.
+ * 
+ * @return {Promise<string[]>} The promise.
+ */
+export function getFilesByFilterAsync(filter: deploy_contracts.FileFilter,
+                                      useGitIgnoreStylePatterns: boolean): Promise<string[]> {
+    useGitIgnoreStylePatterns = toBooleanSafe(useGitIgnoreStylePatterns);
+
+    // files in include
+    let allFilePatterns: string[] = [];
+    if (filter.files) {
+        allFilePatterns = asArray(filter.files).map(x => toStringSafe(x))
+                                               .filter(x => '' !== x);
+
+        allFilePatterns = distinctArray(allFilePatterns);
+    }
+    if (allFilePatterns.length < 1) {
+        allFilePatterns.push('**');  // include all by default
+    }
+
+    // files to exclude
+    let allExcludePatterns: string[] = [];
+    if (filter.exclude) {
+        allExcludePatterns = asArray(filter.exclude).map(x => toStringSafe(x))
+                                                    .filter(x => '' !== x);
+    }
+    allExcludePatterns = distinctArray(allExcludePatterns);
+    
+    return new Promise<string[]>((resolve, reject) => {
+        let completed = (err: any, files?: string[]) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve(distinctArray(files || []));
+            }
+        };
+        
+        if (filter) {
+            try {
+                let wf = Workflows.create();
+
+                wf.next((ctx) => {
+                    ctx.result = [];
+                });
+
+                allFilePatterns.forEach(x => {
+                    wf.next((ctx) => {
+                        let files: string[] = ctx.result;
+
+                        return new Promise<any>((res, rej) => {
+                            try {
+                                Glob(x, {
+                                    absolute: true,
+                                    cwd: vscode.workspace.rootPath,
+                                    dot: true,
+                                    ignore: allExcludePatterns,
+                                    nodir: true,
+                                    root: vscode.workspace.rootPath,
+                                }, (err: any, matchingFiles: string[]) => {
+                                    if (err) {
+                                        rej(err);
+                                    }
+                                    else {
+                                        ctx.result = files.concat(matchingFiles);
+
+                                        res();
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                rej(e);
+                            }
+                        });
+                    });
+                });
+
+                wf.start().then((files: string[]) => {
+                    completed(null, files);
+                }).catch((err) => {
+                    completed(err);
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        }
+        else {
+            completed(null);
+        }
+    });
+}
+
+/**
  * Returns the list of files of a package that should be deployed.
  * 
  * @param {deploy_contracts.DeployPackage} pkg The package.

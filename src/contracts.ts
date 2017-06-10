@@ -761,6 +761,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     useTargetListForDeployOnSave?: boolean;
     /**
+     * Use workspace start time for 'sync when open' for all packages by default or not.
+     */
+    useWorkspaceStartTimeForSyncWhenOpen?: boolean;
+    /**
      * A list of one or more values that can be accessed
      * via placeholders in strings, e.g.
      */
@@ -1208,6 +1212,10 @@ export interface DeployPackage extends Applyable, CanLoadFrom, ConditionalItem, 
      * if its 'deployOnSave' property is set to (true).
      */
     useTargetListForDeployOnSave?: boolean;
+    /**
+     * Use workspace start time for 'sync when open' for that package or not.
+     */
+    useWorkspaceStartTimeForSyncWhenOpen?: boolean;
 }
 
 /**

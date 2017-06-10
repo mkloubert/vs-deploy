@@ -1088,6 +1088,11 @@
                         }
                       }
                     ]
+                  },
+                  "useWorkspaceStartTimeForSyncWhenOpen": {
+                    "type": "boolean",
+                    "description": "Use workspace start time for 'sync when open' for that package or not.",
+                    "default": false
                   }
                 }
               }
@@ -31451,6 +31456,11 @@
             "useTargetListForDeployOnSave": {
               "type": "boolean",
               "description": "Use 'targets' property of a package instead, if its 'deployOnSave' property is set to (true).",
+              "default": false
+            },
+            "useWorkspaceStartTimeForSyncWhenOpen": {
+              "type": "boolean",
+              "description": "Use workspace start time for 'sync when open' for all packages by default or not.",
               "default": false
             },
             "values": {
