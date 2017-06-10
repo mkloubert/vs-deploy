@@ -59,7 +59,7 @@ export abstract class ValueBase implements deploy_contracts.ObjectWithNameAndVal
     }
 
     /**
-     * Anthing that identifies that value.
+     * Anything that identifies that value.
      */
     public id: any;
 
@@ -117,9 +117,7 @@ export class CodeValue extends ValueBase {
         return deploy_helpers.toStringSafe(this.item.code);
     }
 
-    /**
-     * Gets the underlying item.
-     */
+    /** @inheritdoc */
     public get item(): deploy_contracts.CodeValueWithName {
         return <deploy_contracts.CodeValueWithName>super.item;
     }
@@ -182,9 +180,7 @@ export class EnvValue extends ValueBase {
                                                         : this.alias;
     }
 
-    /**
-     * Gets the underlying item.
-     */
+    /** @inheritdoc */
     public get item(): deploy_contracts.EnvValueWithName {
         return <deploy_contracts.EnvValueWithName>super.item;
     }
@@ -222,9 +218,7 @@ export class FileValue extends ValueBase {
         super(value);
     }
 
-    /**
-     * Gets the underlying item.
-     */
+    /** @inheritdoc */
     public get item(): deploy_contracts.FileValueWithName {
         return <deploy_contracts.FileValueWithName>super.item;
     }
@@ -287,9 +281,7 @@ export class ScriptValue extends ValueBase {
         return this._config || <any>{};
     }
 
-    /**
-     * Gets the underlying item.
-     */
+    /** @inheritdoc */
     public get item(): deploy_contracts.ScriptValueWithName {
         return <deploy_contracts.ScriptValueWithName>super.item;
     }
@@ -412,9 +404,7 @@ export class StaticValue extends ValueBase {
         super(value);
     }
 
-    /**
-     * Gets the underlying item.
-     */
+    /** @inheritdoc */
     public get item(): deploy_contracts.StaticValueWithName {
         return <deploy_contracts.StaticValueWithName>super.item;
     }
