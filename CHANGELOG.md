@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.21.0 (June 11th, 2017; prompt targets)
+
+* converter and validator scripts of [prompt targets](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) now support [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values)
+
 ## 9.20.1 (June 10th, 2017; sync when open and prompt targets)
 
 * can [sync files with remote when opening in editor](https://github.com/mkloubert/vs-deploy/wiki/sync_when_open) now
