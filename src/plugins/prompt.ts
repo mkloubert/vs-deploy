@@ -227,9 +227,16 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 // the validator for the input
                 let validator: ValueValidatorModuleExecutor;
                 if (!deploy_helpers.isEmptyString(p.validator)) {
-                    let validatorScript = deploy_helpers.loadModule<ValueValidatorModule>(p.validator);
-                    if (validatorScript) {
-                        validator = validatorScript.validate;
+                    let validatorScript = deploy_helpers.toStringSafe(p.validator);
+                    validatorScript = me.context.replaceWithValues(validatorScript);
+                    if (!Path.isAbsolute(validatorScript)) {
+                        validatorScript = Path.join(vscode.workspace.rootPath, validatorScript);
+                    }
+                    validatorScript = Path.resolve(validatorScript);
+
+                    let validatorModule = deploy_helpers.loadModule<ValueValidatorModule>(validatorScript);
+                    if (validatorModule) {
+                        validator = validatorModule.validate;
                     }
                 }
                 if (!validator) {
@@ -240,7 +247,14 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
 
                 let converter: ValueConverterModuleExecutor;
                 if (!deploy_helpers.isEmptyString(p.converter)) {
-                    let converterModule = deploy_helpers.loadModule<ValueConverterModule>(p.converter);
+                    let converterScript = deploy_helpers.toStringSafe(p.converter);
+                    converterScript = me.context.replaceWithValues(converterScript);
+                    if (!Path.isAbsolute(converterScript)) {
+                        converterScript = Path.join(vscode.workspace.rootPath, converterScript);
+                    }
+                    converterScript = Path.resolve(converterScript);
+
+                    let converterModule = deploy_helpers.loadModule<ValueConverterModule>(converterScript);
                     if (converterModule) {
                         converter = converterModule.convert;
                     }
