@@ -181,6 +181,11 @@ export const translation: Translation = {
         file: "{0:trim,surround} это не файл!",
         validItem: '{0:trim,surround} это не допустимый элемент, который мог бы быть развёрнут!',
     },
+    load: {
+        from: {
+            failed: "Загрузка данный из {0:trim,surround} провалена: {1}",
+        }
+    },
     network: {
         hostname: 'Имя вашего компьютера: {0:trim,surround}',
         interfaces: {
@@ -233,6 +238,10 @@ export const translation: Translation = {
             description: 'Разворачивает на HTTP сервер/сервис',
             protocolNotSupported: 'Протокол {0:trim,surround} не поддерживается!',
         },
+        list: {
+            description: 'Позволяет пользователю выбрать запись с настройками для одного или нескольких назначений',
+            selectEntry: 'Пожалуйста выберите entry...',
+        },
         local: {
             description: 'Разворачивает в каталог на локальном компьютере или сетевой каталог (например SMB) внутри вашей локальной сети',
             emptyTargetDirectory: 'Пустой каталог назначения {0:trim,surround}... ',
@@ -248,8 +257,12 @@ export const translation: Translation = {
             description: 'Разворачивает файлы используя список значений',
         },
         pipeline: {
-            description: 'Pipes a list of sources files to a new destination, by using a script and sends the new file list to a target',
+            description: 'Перебирает список файлов источника, предназначенных для копирования в назначение, используя скрипт и отправляет новый список файлов в назначение',
             noPipeFunction: "{0:trim,surround} не реализует 'pipe()' функцию!",
+        },
+        prompt: {
+            description: "Запрашивает у пользователя список параметров, которые будут применены к одному или нескольким назначениям",
+            invalidInput: "Некорректный ввод!",
         },
         remote: {
             description: 'Разворачивает на удаленный компьютер через TCP соединение',
@@ -287,6 +300,11 @@ export const translation: Translation = {
             message: "Запущена новая версия 'vs-deploy' ({0:trim})!",
             showChangeLog: 'Показать список изменений...',
         },
+    },
+    prompts: {
+        inputAccessKey: 'Введите ключ доступа...',
+        inputAccessToken: 'Введите токен доступа...',
+        inputPassword: 'Введите пароль...',
     },
     pull: {
         button: {
