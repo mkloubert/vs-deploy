@@ -1,8 +1,12 @@
 # Change Log (vs-deploy)
 
-## 9.19.0 ( ??? ; prompt targets )
+## 9.20.0 ( ??? ; prompt targets )
 
 * can define a value convert script for [target_prompt](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) now 
+
+## 9.19.0 (June 10th, 2017; russian translation)
+
+* [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
 
 ## 9.18.3 (June 5th, 2017; prompt target)
 
