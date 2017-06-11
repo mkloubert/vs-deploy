@@ -91,10 +91,12 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                         if (false !== pkg.syncWhenOpen) {
                             let filter: deploy_contracts.SyncWhenOpenFileFilter;
 
+                            let fastFileCheck = deploy_helpers.toBooleanSafe(pkg.fastCheckOnSync,
+                                                                             deploy_helpers.toBooleanSafe(cfg.fastCheckOnSync));
+
                             if (true === pkg.syncWhenOpen) {
                                 // files of package
                                 filter = deploy_helpers.cloneObject(pkg);
-
                                 filter.target = <any>pkg.targets;
                             }
                             else {
@@ -109,10 +111,23 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                 }
                             }
 
-                            let filesByFilter = await deploy_helpers.getFilesByFilterAsync(filter, me.useGitIgnoreStylePatternsInFilter(filter));
-                            filesByFilter = filesByFilter.map(x => normalizeFilePath(x));
+                            let fileChecker: () => boolean;
 
-                            if (filesByFilter.indexOf(file) > -1) {
+                            if (fastFileCheck) {
+                                fileChecker = () => {
+                                    return deploy_helpers.doesFileMatchByFilter(file, filter);
+                                };
+                            }
+                            else {
+                                let filesByFilter = await deploy_helpers.getFilesByFilterAsync(filter, me.useGitIgnoreStylePatternsInFilter(filter));
+                                filesByFilter = filesByFilter.map(x => normalizeFilePath(x));
+
+                                fileChecker = () => {
+                                    return filesByFilter.indexOf(file) > -1;
+                                };
+                            }
+
+                            if (fileChecker()) {
                                 packagesAndFilters.push({
                                     filter: filter,
                                     package: pkg,

@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.22.0 (June 11th, 2017; fastCheckOnSync)
+
+* added missing `fastCheckOnSync` for [global settings](https://github.com/mkloubert/vs-deploy/wiki#settings--) and [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-)
+
 ## 9.21.0 (June 11th, 2017; prompt targets)
 
 * converter and validator scripts of [prompt targets](https://github.com/mkloubert/vs-deploy/wiki/target_prompt) now support [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values)

@@ -569,6 +569,11 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     fastCheckOnSave?: boolean;
     /**
+     * Default value that indicates if a "fast" file check
+     * should be used for "sync when open" feature or not.
+     */
+    fastCheckOnSync?: boolean;
+    /**
      * Defines an object that contains global values and objects, categorized by its properties.
      */
     globals?: GlobalVariables;
@@ -1179,6 +1184,11 @@ export interface DeployPackage extends Applyable, CanLoadFrom, ConditionalItem, 
      * should be used for "deploy on save" feature or not.
      */
     fastCheckOnSave?: boolean;
+    /**
+     * Indicates if a "fast" file check
+     * should be used for "sync when open" feature or not.
+     */
+    fastCheckOnSync?: boolean;
     /**
      * Files to include.
      */
