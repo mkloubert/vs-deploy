@@ -2424,8 +2424,8 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
     try {
         let normalizedPath = replaceAllStrings(path, Path.sep, '/');
 
-        let wsRootPath = replaceAllStrings(vscode.workspace.rootPath, Path.sep, '/');
-        if (wsRootPath) {
+        let wsRootPath = replaceAllStrings(baseDir, Path.sep, '/');
+        if ('' !== wsRootPath) {
             if (FS.existsSync(wsRootPath)) {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {
                     if (0 === normalizedPath.indexOf(wsRootPath)) {
