@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as Enumerable from 'node-enumerable';
 import * as FS from 'fs';
 import * as FSExtra from 'fs-extra';
 import * as i18 from '../i18';
@@ -42,6 +43,10 @@ interface DeployTargetLocal extends deploy_contracts.TransformableDeployTarget {
 
 class LocalPlugin extends deploy_objects.DeployPluginBase {
     public get canGetFileInfo(): boolean {
+        return true;
+    }
+
+    public get canList(): boolean {
         return true;
     }
     
@@ -364,6 +369,112 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         return {
             description: i18.t('plugins.local.description'),
         };
+    }
+
+    public list(path: string, target: DeployTargetLocal): Promise<deploy_contracts.FileSystemInfo[]> {
+        let me = this;
+
+        return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
+            let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(Enumerable.from(items).orderBy(x => {
+                        switch (x.type) {
+                            case deploy_contracts.FileSystemType.Directory:
+                                return 0;
+
+                            case deploy_contracts.FileSystemType.File:
+                                return 0;
+                        }
+                        
+                        return Number.MAX_SAFE_INTEGER;
+                    }).thenBy(x => deploy_helpers.normalizeString(x.name))
+                      .toArray());
+                }
+            };
+
+            try {
+                let dir = getFullDirPathFromTarget(target, me);
+
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), dir);
+                if (false === relativeTargetFilePath) {
+                    completed(new Error(i18.t('relativePaths.couldNotResolve', path)));
+                    return;
+                }
+
+                let targetDirectory = deploy_helpers.toStringSafe(path);
+
+                let wf = Workflows.create();
+
+                FS.readdir(targetDirectory, (err, files) => {
+                    if (err) {
+                        completed(err);
+                        return;
+                    }
+
+                    files = files.map(x => {
+                        x = Path.join(targetDirectory, x);
+                        x = Path.resolve(x);
+
+                        return x;
+                    });
+
+                    wf.next((ctx) => {
+                        ctx.result = [];
+                    });
+
+                    files.forEach((x, i) => {
+                        wf.next((ctx) => {
+                            let items: deploy_contracts.FileSystemInfo[] = ctx.result;
+
+                            return new Promise<any>((res, rej) => {
+                                FS.lstat(x, (err, stats) => {
+                                    if (err) {
+                                        rej(err);
+                                        return;
+                                    }
+
+                                    let newItem: deploy_contracts.FileSystemInfo;
+
+                                    if (stats.isFile()) {
+                                        let f: deploy_contracts.FileInfo = {
+                                            exists: true,
+                                            isRemote: true,
+                                            type: deploy_contracts.FileSystemType.File,
+                                        };
+                                    }
+                                    else if (stats.isDirectory()) {
+                                        let d: deploy_contracts.DirectoryInfo = {
+                                            exists: true,
+                                            isRemote: true,
+                                            type: deploy_contracts.FileSystemType.Directory,
+                                        };
+                                    }
+
+                                    if (newItem) {
+                                        newItem.name = Path.basename(x);
+                                        newItem.path = targetDirectory;
+
+                                        items.push(newItem);
+                                    }
+                                });
+                            });
+                        });
+                    });
+
+                    wf.start().then((items: deploy_contracts.FileSystemInfo[]) => {
+                        completed(null, items);
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                });
+            }
+            catch (e) {
+                completed(e);
+            }
+        });
     }
 }
 
