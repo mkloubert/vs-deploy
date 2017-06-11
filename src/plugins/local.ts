@@ -313,6 +313,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             let result: deploy_contracts.FileInfo = {
                 exists: undefined,
                 isRemote: true,
+                type: deploy_contracts.FileSystemType.File,
             };
 
             ctx.result = result;

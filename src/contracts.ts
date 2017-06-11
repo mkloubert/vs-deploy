@@ -964,6 +964,10 @@ export enum DeployDirection {
      * Get information about a file.
      */
     FileInfo = 4,
+    /**
+     * List directory.
+     */
+    ListDirectory = 5,
 }
 
 /**
@@ -1314,6 +1318,10 @@ export interface DeployPlugin {
      */
     canGetFileInfo?: boolean;
     /**
+     * Indicates if plugin is able to list a directory.
+     */
+    canList?: boolean;
+    /**
      * Indicates if plugin can pull files or not.
      */
     canPull?: boolean;
@@ -1383,6 +1391,15 @@ export interface DeployPlugin {
      * @return {DeployPluginInfo} The plugin info.
      */
     info?: () => DeployPluginInfo;
+    /**
+     * Lists the content of a directory.
+     * 
+     * @param {string} path The path of the directory to list.
+     * @param {DeployTarget} target The target that contains the file to pull.
+     * 
+     * @return {ListDirectoryResult} The result.
+     */
+    list?: (path: string, target: DeployTarget) => ListDirectoryResult;
     /**
      * Pulls a file.
      * 
@@ -1804,6 +1821,12 @@ export interface DeployWorkspaceOptions {
 }
 
 /**
+ * Information about a directory.
+ */
+export interface DirectoryInfo extends FileSystemInfo {
+}
+
+/**
  * A document.
  */
 export interface Document {
@@ -2037,7 +2060,17 @@ export interface FileFilter {
 /**
  * Information about a file.
  */
-export interface FileInfo {
+export interface FileInfo extends FileSystemInfo {
+    /**
+     * The size.
+     */
+    size?: number;
+}
+
+/**
+ * Information about an item on a file system.
+ */
+export interface FileSystemInfo {
     /**
      * Files exists or not.
      */
@@ -2059,9 +2092,23 @@ export interface FileInfo {
      */
     path?: string;
     /**
-     * The size.
+     * The type.
      */
-    size?: number;
+    type: FileSystemType;
+}
+
+/**
+ * Type of a file system item.
+ */
+export enum FileSystemType {
+    /**
+     * Directory
+     */
+    Directory = 1,
+    /**
+     * File
+     */
+    File = 2,
 }
 
 /**
@@ -2139,6 +2186,11 @@ export interface Inheritable {
      */
     name?: string;
 }
+
+/**
+ * Possible types for listening a directory on a file system.
+ */
+export type ListDirectoryResult = FileSystemInfo[] | PromiseLike<FileSystemInfo[]>;
 
 /**
  * An item for a specific machine.

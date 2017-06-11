@@ -969,6 +969,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let info: deploy_contracts.FileInfo = {
                 exists: false,
                 isRemote: true,
+                type: deploy_contracts.FileSystemType.File,
             };
 
             try {

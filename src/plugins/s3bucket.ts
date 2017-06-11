@@ -392,6 +392,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
                     let result: deploy_contracts.FileInfo = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     };
 
                     if (!err && data) {
