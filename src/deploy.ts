@@ -4480,9 +4480,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             this._plugins = loadedPlugins;
 
-            /*
             let plugins = deploy_targets.getPluginsForTarget(me._allTargets, me.plugins);
-            Promise.resolve( plugins[0].plugins[0].list('E:/test/deploy/local/.', plugins[0].target) ).then((items) => {
+            Promise.resolve( plugins[0].plugins[0].list(vscode.workspace.rootPath, plugins[0].target) ).then((items) => {
                 if (items) {
 
                 }
@@ -4490,7 +4489,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 if (err) {
                     
                 }
-            }); */
+            });
 
             if (forceDisplay || deploy_helpers.toBooleanSafe(this.config.displayLoadedPlugins, true)) {
                 // display loaded plugins

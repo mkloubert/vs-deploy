@@ -424,7 +424,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 
     /** @inheritdoc */
-    public list(path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+    public list(path: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
         throw new Error("Not implemented!");
     }
 
@@ -1029,14 +1029,14 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * 
      * @param {deploy_contracts.DeployTarget} target The target.
      * @param {string[]} files The files to deploy.
-     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
+     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions|deploy_contracts.ListDirectoryOptions} opts The underlying options.
      * @param {deploy_contracts.DeployDirection} direction The direction.
      * 
      * @return {Promise<DeployPluginContextWrapper<TContext>>} The promise.
      */
     protected abstract createContext(target: deploy_contracts.DeployTarget,
                                      files: string[],
-                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
+                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions | deploy_contracts.ListDirectoryOptions,
                                      direction: deploy_contracts.DeployDirection): Promise<DeployPluginContextWrapper<TContext>>;
 
     /**
@@ -1371,8 +1371,12 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
     }
 
     /** @inheritdoc */
-    public list(path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+    public list(path: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
         let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
 
         return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
             let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
@@ -1398,7 +1402,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
 
             // create context
             wf.next(async (ctx) => {
-                return await me.createContext(target, [ ], {}, deploy_contracts.DeployDirection.ListDirectory);
+                return await me.createContext(target, [ ], opts, deploy_contracts.DeployDirection.ListDirectory);
             });
 
             // get file info
@@ -1406,7 +1410,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 wrapper = ctx.previousValue;
 
                 return await me.listWithContext(wrapper.context,
-                                                null, target);
+                                                null, target, opts);
             });
 
             // write result
@@ -1428,11 +1432,12 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * @param {TContext} ctx The context to use.
      * @param {string} path The path of the directory to list.
      * @param {DeployTarget} target The target that contains the file to pull.
+     * @param {deploy_contracts.ListDirectoryOptions} opts Additional options.
      * 
      * @return {deploy_contracts.ListDirectoryResult} The result.
      */
     protected listWithContext(ctx: TContext,
-                              path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+                              path: string, target: deploy_contracts.DeployTarget, opts: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
         throw new Error("Not implemented!");
     }
 

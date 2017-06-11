@@ -371,8 +371,12 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         };
     }
 
-    public list(path: string, target: DeployTargetLocal): Promise<deploy_contracts.FileSystemInfo[]> {
+    public list(path: string, target: DeployTargetLocal, opts?: deploy_contracts.ListDirectoryOptions): Promise<deploy_contracts.FileSystemInfo[]> {
         let me = this;
+
+        if (!opts) {
+            opts = {};
+        }
 
         return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
             let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
@@ -386,7 +390,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                                 return 0;
 
                             case deploy_contracts.FileSystemType.File:
-                                return 0;
+                                return 1;
                         }
                         
                         return Number.MAX_SAFE_INTEGER;
@@ -396,15 +400,16 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             };
 
             try {
-                let dir = getFullDirPathFromTarget(target, me);
-
-                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), dir);
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeTargetFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', path)));
                     return;
                 }
 
-                let targetDirectory = deploy_helpers.toStringSafe(path);
+                let dir = getFullDirPathFromTarget(target, me);
+
+                let targetDirectory = Path.join(dir, <string>relativeTargetFilePath);
+                targetDirectory = Path.resolve(targetDirectory);
 
                 let wf = Workflows.create();
 
@@ -444,6 +449,8 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                                             isRemote: true,
                                             type: deploy_contracts.FileSystemType.File,
                                         };
+
+                                        newItem = f;
                                     }
                                     else if (stats.isDirectory()) {
                                         let d: deploy_contracts.DirectoryInfo = {
@@ -451,6 +458,8 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                                             isRemote: true,
                                             type: deploy_contracts.FileSystemType.Directory,
                                         };
+
+                                        newItem = d;
                                     }
 
                                     if (newItem) {
@@ -459,6 +468,8 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
 
                                         items.push(newItem);
                                     }
+
+                                    res();
                                 });
                             });
                         });
