@@ -94,6 +94,11 @@
         "category": "Deploy"
       },
       {
+        "command": "extension.deploy.pullAllFilesFromTarget",
+        "title": "Pull all files from target",
+        "category": "Deploy"
+      },
+      {
         "command": "extension.deploy.pullFile",
         "title": "Pull current file / folder",
         "category": "Deploy"

@@ -28,6 +28,7 @@
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_pull from './pull';
 import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
@@ -198,6 +199,12 @@ export function activate(context: vscode.ExtensionContext) {
     // pull workspace
     let pull = vscode.commands.registerCommand('extension.deploy.pullWorkspace', () => {
         deployer.pullWorkspace();
+    });
+
+    // pull all files from target
+    let pullAllFiles = vscode.commands.registerCommand('extension.deploy.pullAllFilesFromTarget', () => {
+        deploy_pull.pullAllFilesFromTarget
+                   .apply(deployer, []);
     });
 
     // pull open file or selected folder

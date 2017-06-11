@@ -378,6 +378,11 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
+        path = deploy_helpers.toStringSafe(path);
+        if (deploy_helpers.isEmptyString(path)) {
+            path = '/';
+        }
+
         return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
             let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
                 if (err) {
@@ -400,13 +405,16 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             };
 
             try {
-                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), opts.baseDirectory);
+                let dir = getFullDirPathFromTarget(target, me);
+                
+                path = Path.join(dir, path);
+                path = Path.resolve(path);
+
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), dir);
                 if (false === relativeTargetFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', path)));
                     return;
                 }
-
-                let dir = getFullDirPathFromTarget(target, me);
 
                 let targetDirectory = Path.join(dir, <string>relativeTargetFilePath);
                 targetDirectory = Path.resolve(targetDirectory);
