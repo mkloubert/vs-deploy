@@ -37,6 +37,7 @@ export const translation: Translation = {
             }
         }
     },
+    canceled: '[Canceled]',
     commands: {
         executionFailed: "Execution of command {0:trim,surround} failed: {1}",
     },
@@ -361,6 +362,14 @@ export const translation: Translation = {
     relativePaths: {
         couldNotResolve: "Could not get relative path for {0:trim,surround}!",
         isEmpty: 'Relative path for {0:trim,surround} file is empty!',
+    },
+    sync: {
+        file: {
+            doesNotExistOnRemote: '[remote does not exist]',
+            localChangedWithinSession: '[local changed within session]',
+            localIsNewer: '[local is newer]',
+            synchronize: 'Synchronize file {0:trim,surround}{1:trim,leading_space}... ',
+        }
     },
     targets: {
         cannotUseRecurrence: 'Cannot use target {0:trim,surround} (recurrence)!',

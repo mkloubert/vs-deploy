@@ -206,7 +206,7 @@ export function syncFileWhenOpen(file: string): Promise<any> {
 
                                 return new Promise<any>((res, rej) => {
                                     let syncCompletedInvoked = false;
-                                    let syncCompleted = (err: any) => {
+                                    let syncCompleted = (err: any, okMsg?: string) => {
                                         if (syncCompletedInvoked) {
                                             return;
                                         }
@@ -219,7 +219,7 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                             rej(err);
                                         }
                                         else {
-                                            me.outputChannel.appendLine(i18.t('ok'));
+                                            me.outputChannel.appendLine(okMsg);
 
                                             res();
                                         }
@@ -235,7 +235,7 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                 targetName = ` ('${targetName}')`;
                                             }
 
-                                            pullingMsg = i18.t('pull.file.pulling', file, targetName);
+                                            pullingMsg = i18.t('sync.file.synchronize', file, targetName);
 
                                             me.outputChannel.append(pullingMsg);
                                         }
@@ -261,17 +261,17 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                                 if (!syncCompletedInvoked) {
                                                                     pi.pullFile(file, targetWithPlugin.target, {
                                                                         onCompleted: (sender, e) => {
-                                                                            syncCompleted(e.error);
+                                                                            syncCompleted(e.error, i18.t('ok'));
                                                                         }
                                                                     });
                                                                 }
                                                             }
                                                             else {
-                                                                syncCompleted(null);
+                                                                syncCompleted(null, i18.t('sync.file.localChangedWithinSession'));
                                                             }
                                                         }
                                                         else {
-                                                            syncCompleted(null);
+                                                            syncCompleted(null, i18.t('sync.file.localIsNewer'));
                                                         }
                                                     }
                                                     catch (e) {
@@ -279,13 +279,11 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                     }
                                                 }
                                                 else {
-                                                    // does not exist on remote
-                                                    syncCompleted(null);
+                                                    syncCompleted(null, i18.t('sync.file.doesNotExistOnRemote'));
                                                 }
                                             }
                                             else {
-                                                // cancelled
-                                                syncCompleted(null);
+                                                syncCompleted(null, i18.t('canceled'));
                                             }
                                         }).catch((err) => {
                                             syncCompleted(err);  // could not get file info

@@ -44,6 +44,7 @@ export interface Translation {
             }
         }
     },
+    canceled?: string;
     commands?: {
         executionFailed?: string;
     },
@@ -368,6 +369,14 @@ export interface Translation {
     relativePaths?: {
         couldNotResolve?: string;
         isEmpty?: string;
+    },
+    sync?: {
+        file?: {
+            doesNotExistOnRemote?: string;
+            localChangedWithinSession?: string;
+            localIsNewer?: string;
+            synchronize?: string;
+        }
     },
     targets?: {
         cannotUseRecurrence?: string;

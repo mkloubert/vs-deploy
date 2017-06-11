@@ -37,6 +37,7 @@ export const translation: Translation = {
             }
         }
     },
+    canceled: '[Abgebrochen]',
     commands: {
         executionFailed: "Die Ausführung des Kommandos {0:trim,surround} Schlug fehl: {1}",
     },
@@ -359,6 +360,14 @@ export const translation: Translation = {
     relativePaths: {
         couldNotResolve: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
         isEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
+    },
+    sync: {
+        file: {
+            doesNotExistOnRemote: '[entfernte Datei existiert nicht]',
+            localChangedWithinSession: '[lokale Datei während Sitzung geändert]',
+            localIsNewer: '[lokale Datei ist neuer]',
+            synchronize: 'Synchronisiere Datei {0:trim,surround}{1:trim,leading_space}... ',
+        }
     },
     targets: {
         cannotUseRecurrence: 'Kann das Ziel {0:trim,surround} nicht verwenden (Rekursion)!',

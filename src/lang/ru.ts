@@ -37,6 +37,7 @@ export const translation: Translation = {
             }
         }
     },
+    canceled: '[Отменено]',
     commands: {
         executionFailed: "Выполнение команды {0:trim,surround} не удалось: {1}",
     },
