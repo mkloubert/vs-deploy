@@ -2425,7 +2425,7 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
         let normalizedPath = replaceAllStrings(path, Path.sep, '/');
 
         let wsRootPath = replaceAllStrings(baseDir, Path.sep, '/');
-        if (wsRootPath) {
+        if ('' !== wsRootPath) {
             if (FS.existsSync(wsRootPath)) {
                 if (FS.lstatSync(wsRootPath).isDirectory()) {
                     if (0 === normalizedPath.indexOf(wsRootPath)) {

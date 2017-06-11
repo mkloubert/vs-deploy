@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.24.1 (June 11th, 2017; sync when open)
+## 9.24.2 (June 11th, 2017; sync when open)
 
 * displaying message in output channel when synching a file when opening it now
 * bugfixes
