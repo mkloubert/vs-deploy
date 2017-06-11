@@ -205,21 +205,41 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                 let fileStats: FS.Stats = ctxPkg.value;
 
                                 return new Promise<any>((res, rej) => {
+                                    let syncCompletedInvoked = false;
                                     let syncCompleted = (err: any) => {
+                                        if (syncCompletedInvoked) {
+                                            return;
+                                        }
+
+                                        syncCompletedInvoked = true;
+
                                         if (err) {
-                                            vscode.window.showErrorMessage(i18.t('pull.file.failed', file, err)).then(() => {
-                                                rej(err);
-                                            }, () => {
-                                                //TODO: log
-                                                rej(err);
-                                            });
+                                            me.outputChannel.appendLine(i18.t('failed', err));
+
+                                            rej(err);
                                         }
                                         else {
+                                            me.outputChannel.appendLine(i18.t('ok'));
+
                                             res();
                                         }
                                     };
 
                                     try {
+                                        // output channel message
+                                        {
+                                            let targetName = deploy_helpers.toStringSafe(targetWithPlugin.target.name).trim();
+
+                                            let pullingMsg: string;
+                                            if ('' !== targetName) {
+                                                targetName = ` ('${targetName}')`;
+                                            }
+
+                                            pullingMsg = i18.t('pull.file.pulling', file, targetName);
+
+                                            me.outputChannel.append(pullingMsg);
+                                        }
+
                                         // get info of remote file
                                         Promise.resolve( pi.getFileInfo(file, targetWithPlugin.target) ).then((fi) => {
                                             if (fi) {
@@ -238,11 +258,13 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                                 // ... if local not changed
                                                                 // since the current session
                                                                 
-                                                                pi.pullFile(file, targetWithPlugin.target, {
-                                                                    onCompleted: (sender, e) => {
-                                                                        syncCompleted(e.error);
-                                                                    }
-                                                                });
+                                                                if (!syncCompletedInvoked) {
+                                                                    pi.pullFile(file, targetWithPlugin.target, {
+                                                                        onCompleted: (sender, e) => {
+                                                                            syncCompleted(e.error);
+                                                                        }
+                                                                    });
+                                                                }
                                                             }
                                                             else {
                                                                 syncCompleted(null);
@@ -266,7 +288,7 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                 syncCompleted(null);
                                             }
                                         }).catch((err) => {
-                                            syncCompleted(err);
+                                            syncCompleted(err);  // could not get file info
                                         });
                                     }
                                     catch (e) {

@@ -1,5 +1,10 @@
 # Change Log (vs-deploy)
 
+## 9.24.0 (June 11th, 2017; sync when open)
+
+* displaying message in output channel when synching a file when opening it now
+* bugfixes
+
 ## 9.23.0 (June 11th, 2017; sync when open)
 
 * added `alwaysSyncIfNewer` [package setting](https://github.com/mkloubert/vs-deploy/wiki#packages-) for [sync when open](https://github.com/mkloubert/vs-deploy/wiki/sync_when_open)
