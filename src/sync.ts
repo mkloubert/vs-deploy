@@ -164,6 +164,9 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                 });
 
                 packagesAndFilters.forEach(pf => {
+                    let alwaysSyncIfNewer = deploy_helpers.toBooleanSafe(pf.package.alwaysSyncIfNewer,
+                                                                         deploy_helpers.toBooleanSafe(cfg.alwaysSyncIfNewer));
+
                     let timeToCompareWithLocalFile: Moment.Moment;
                     if (deploy_helpers.toBooleanSafe(cfg.useWorkspaceStartTimeForSyncWhenOpen,
                                                      deploy_helpers.toBooleanSafe(pf.package.useWorkspaceStartTimeForSyncWhenOpen))) {
@@ -231,7 +234,7 @@ export function syncFileWhenOpen(file: string): Promise<any> {
                                                         if (remoteFileIsNewer) {
                                                             // sync local with remote file ...
 
-                                                            if (timeToCompareWithLocalFile.isAfter(fileStats.mtime)) {
+                                                            if (alwaysSyncIfNewer || timeToCompareWithLocalFile.isAfter(fileStats.mtime)) {
                                                                 // ... if local not changed
                                                                 // since the current session
                                                                 

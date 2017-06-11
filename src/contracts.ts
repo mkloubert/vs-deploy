@@ -488,6 +488,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     alwaysShowTargetList?: boolean;
     /**
+     * Always synchronize a local file with a newer one when using 'sync when open' in a package.
+     */
+    alwaysSyncIfNewer?: boolean;
+    /**
      * Settings for a "quick deploy button".
      */
     button?: {
@@ -1150,6 +1154,10 @@ export enum DeployOperationKind {
  * A package.
  */
 export interface DeployPackage extends Applyable, CanLoadFrom, ConditionalItem, Hideable, Inheritable, MachineItem, PlatformItem, Sortable {
+    /**
+     * Always synchronize a local file with a newer one when using 'sync when open' in that package.
+     */
+    alwaysSyncIfNewer?: boolean;
     /**
      * Settings for a "package button".
      */

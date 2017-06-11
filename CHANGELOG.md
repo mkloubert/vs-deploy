@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.23.0 (June 11th, 2017; sync when open)
+
+* added `alwaysSyncIfNewer` [package setting](https://github.com/mkloubert/vs-deploy/wiki#packages-) for [sync when open](https://github.com/mkloubert/vs-deploy/wiki/sync_when_open)
+
 ## 9.22.0 (June 11th, 2017; fastCheckOnSync)
 
 * added missing `fastCheckOnSync` for [global settings](https://github.com/mkloubert/vs-deploy/wiki#settings--) and [packages](https://github.com/mkloubert/vs-deploy/wiki#packages-)
