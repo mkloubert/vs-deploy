@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.25.0 (June 12th, 2017; russian translation)
+
+* [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
+
 ## 9.24.2 (June 11th, 2017; sync when open)
 
 * displaying message in output channel when synching a file when opening it now
