@@ -363,6 +363,14 @@ export const translation: Translation = {
         couldNotResolve: "Не могу получить относительный путь к {0:trim,surround}!",
         isEmpty: 'Относительный путь к файлу {0:trim,surround} пуст!',
     },
+    sync: {
+        file: {
+            doesNotExistOnRemote: '[источник не существует]',
+            localChangedWithinSession: '[локальные изменения вне сессии]',
+            localIsNewer: '[локальные данные новее]',
+            synchronize: 'Сихнронизация файла {0:trim,surround}{1:trim,leading_space}... ',
+        }
+    },
     targets: {
         cannotUseRecurrence: 'Не могу использовать назначение {0:trim,surround} (повторение)!',
         defaultName: '(Назначение #{0:trim})',
