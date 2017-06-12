@@ -88,13 +88,16 @@ export function pullAllFilesFromTarget() {
                                     });
 
                                     items.filter(i => i.type === deploy_contracts.FileSystemType.Directory &&
-                                                      '/.vscode' !== dir + deploy_helpers.normalizeString(i.name)).forEach(i => {
+                                                      !(dir + deploy_helpers.normalizeString(i.name)).startsWith('/.')).forEach(i => {
                                         let d = <deploy_contracts.DirectoryInfo>i;
 
                                         wfItems.next((ctxItems) => {
                                             return new Promise<any>((res, rej) => {
                                                 try {
                                                     let subDir = dir + '/' + d.name;
+
+                                                    //TODO: create directory if needed
+                                                    //      here
 
                                                     pullDirectory(target, subDir, (err) => {
                                                         if (err) {
@@ -112,7 +115,8 @@ export function pullAllFilesFromTarget() {
                                         });
                                     });
 
-                                    items.filter(i => i.type === deploy_contracts.FileSystemType.File).forEach(i => {
+                                    items.filter(i => i.type === deploy_contracts.FileSystemType.File &&
+                                                      !(dir + deploy_helpers.normalizeString(i.name)).startsWith('/.')).forEach(i => {
                                         let f = <deploy_contracts.FileSystemInfo>i;
 
                                         wfItems.next((ctxItems) => {
@@ -130,6 +134,7 @@ export function pullAllFilesFromTarget() {
 
                                                     let localDir = Path.dirname(localFilePath);
 
+                                                    // add file for pulling
                                                     let addFileForPull = () => {
                                                         try {
                                                             filesToPull.push(localFilePath);
@@ -141,10 +146,29 @@ export function pullAllFilesFromTarget() {
                                                         }
                                                     };
 
+                                                    // check if 'localFilePath'
+                                                    // is a file
+                                                    let checkIfFile = () => {
+                                                        FS.lstat(localFilePath, (err, stats) => {
+                                                            if (err) {
+                                                                rej(err);
+                                                            }
+                                                            else {
+                                                                if (stats.isFile()) {
+                                                                    addFileForPull();
+                                                                }
+                                                                else {
+                                                                    rej(new Error(i18.t('isNo.file', localFilePath)));
+                                                                }
+                                                            }
+                                                        });
+                                                    };
+
+                                                    // create dummy file if needed
                                                     let createFileIfNeeded = () => {
                                                         FS.exists(localFilePath, (exists) => {
                                                             if (exists) {
-                                                                addFileForPull();
+                                                                checkIfFile();
                                                             }
                                                             else {
                                                                 FS.writeFile(localFilePath, Buffer.alloc(0), (err) => {
@@ -159,6 +183,8 @@ export function pullAllFilesFromTarget() {
                                                         });
                                                     };
 
+                                                    // check if 'localDir'
+                                                    // is a directory
                                                     let checkIfDirectory = () => {
                                                         FS.lstat(localDir, (err, stats) => {
                                                             if (err) {
@@ -177,9 +203,11 @@ export function pullAllFilesFromTarget() {
 
                                                     FS.exists(localDir, (exists) => {
                                                         if (exists) {
-                                                            checkIfDirectory()
+                                                            checkIfDirectory();
                                                         }
                                                         else {
+                                                            // local directory needs to be created
+
                                                             FSExtra.mkdirs(localDir, (err) => {
                                                                 if (err) {
                                                                     rej(err);

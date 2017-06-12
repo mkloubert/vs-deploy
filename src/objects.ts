@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
+import * as Enumerable from 'node-enumerable';
 import * as FS from 'fs';
 import * as i18 from './i18';
 import * as Moment from 'moment';
@@ -1384,8 +1385,22 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                     reject(err);
                 }
                 else {
-                    resolve( deploy_helpers.asArray(items)
-                                           .filter(x => x) );
+                    items = Enumerable.from(items || []).where(x => {
+                        return !!x;
+                    }).orderBy(x => {
+                        switch (x.type) {
+                            case deploy_contracts.FileSystemType.Directory:
+                                return 0;
+
+                            case deploy_contracts.FileSystemType.File:
+                                return 1;
+                        }
+                        
+                        return Number.MAX_SAFE_INTEGER;
+                    }).thenBy(x => deploy_helpers.normalizeString(x.name))
+                      .toArray();
+
+                    resolve(items);
                 }
             };
 
@@ -1410,7 +1425,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 wrapper = ctx.previousValue;
 
                 return await me.listWithContext(wrapper.context,
-                                                null, target, opts);
+                                                path, target, opts);
             });
 
             // write result
