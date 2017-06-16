@@ -1,7 +1,8 @@
 # Change Log (vs-deploy)
 
-## 9.26.0 (June 16th, 2017; SFTP)
+## 9.26.1 (June 16th, 2017; SFTP)
 
+* added `updateModesOfDirectories` setting for [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), which indicates if a value in `modes` property should also be applied to the directory of a file or not 
 * bugfixes in [sftp target](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) when setting [file mode](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#modes-for-specific-files) after a file has been uploaded
 
 ## 9.25.0 (June 12th, 2017; russian translation)

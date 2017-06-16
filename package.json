@@ -24458,6 +24458,11 @@
                         "description": "Prompt for a password if not defined.",
                         "default": true
                       },
+                      "updateModesOfDirectories": {
+                        "type": "boolean",
+                        "description": "Also execute 'chmod' for the directory of a file.",
+                        "default": false
+                      },
                       "description": {
                         "type": "string",
                         "description": "A description for the target."
