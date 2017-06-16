@@ -60,6 +60,7 @@ interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget, d
     uploaded?: SSHCommands;
     connected?: SSHCommands;
     closing?: SSHCommands;
+    updateModesOfDirectories?: boolean;
 }
 
 interface FileToUpload {
@@ -516,36 +517,45 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
             let targetDirectory = toSFTPPath(Path.dirname(targetFile));
 
-            let putOpts: any = {};
-            if (!deploy_helpers.isNullOrUndefined(target.modes)) {
+            let getModeValue = (pathVal: string) => {
                 let mode: number;
 
-                let asOctalNumber = (val: any): number => {
-                    if (deploy_helpers.isNullUndefinedOrEmptyString(val)) {
-                        return;
-                    }
+                if (!deploy_helpers.isNullOrUndefined(target.modes)) {
+                    let asOctalNumber = (val: any): number => {
+                        if (deploy_helpers.isNullUndefinedOrEmptyString(val)) {
+                            return;
+                        }
 
-                    return parseInt(deploy_helpers.toStringSafe(val).trim(),
-                                    8);
-                };
-                
-                if ('object' === typeof target.modes) {
-                    for (let p in target.modes) {
-                        let r = new RegExp(p);
+                        return parseInt(deploy_helpers.toStringSafe(val).trim(),
+                                        8);
+                    };
+                    
+                    if ('object' === typeof target.modes) {
+                        for (let p in target.modes) {
+                            let r = new RegExp(p);
 
-                        if (r.test(targetFile)) {
-                            mode = asOctalNumber(target.modes[p]);
+                            if (r.test(deploy_helpers.toStringSafe(pathVal))) {
+                                mode = asOctalNumber(target.modes[p]);
+                            }
                         }
                     }
-                }
-                else {
-                    // handle as string or number
-                    mode = asOctalNumber(target.modes);
+                    else {
+                        // handle as string or number
+                        mode = asOctalNumber(target.modes);
+                    }
                 }
 
-                if (!deploy_helpers.isNullUndefinedOrEmptyString(mode)) {
-                    putOpts['mode'] = mode;
+                if (deploy_helpers.isNullUndefinedOrEmptyString(mode)) {
+                    mode = undefined;
                 }
+
+                return mode;
+            };
+
+            let putOpts: any = {};
+            putOpts['mode'] = getModeValue(targetFile);
+            if (deploy_helpers.toBooleanSafe(target.updateModesOfDirectories)) {
+                putOpts['dirMode'] = getModeValue(targetDirectory);
             }
 
             // upload the file
@@ -776,10 +786,31 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 });
             }
 
+            let changeModForDirectory = (initDirCache?: boolean) => {
+                if (ctx.hasCancelled) {
+                    completed();  // cancellation requested
+                    return;
+                }
+
+                if (deploy_helpers.isNullUndefinedOrEmptyString(putOpts['dirMode'])) {
+                    uploadFile(initDirCache);
+                }
+                else {
+                    ctx.connection.sftp.chmod(targetDirectory, putOpts['dirMode'], (err) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            uploadFile(initDirCache);
+                        }
+                    });
+                }
+            };
+
             if (deploy_helpers.isNullOrUndefined(ctx.cachedRemoteDirectories[targetDirectory])) {
                 // first check if target directory exists
                 ctx.connection.list(targetDirectory).then(() => {
-                    uploadFile(true);
+                    changeModForDirectory(true);
                 }).catch((err) => {
                     // no => try to create
 
@@ -789,14 +820,14 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     }
 
                     ctx.connection.mkdir(targetDirectory, true).then(() => {
-                        uploadFile(true);
+                        changeModForDirectory(true);
                     }).catch((err) => {
                         completed(err);
                     });
                 });
             }
             else {
-                uploadFile();
+                changeModForDirectory();
             }
         }
     }
