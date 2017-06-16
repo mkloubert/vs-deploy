@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.26.0 (June 16th, 2017; SFTP)
+
+* bugfixes in [sftp target](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) when setting [file mode](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#modes-for-specific-files) after a file has been uploaded
+
 ## 9.25.0 (June 12th, 2017; russian translation)
 
 * [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts) updated by [sag3ll0](https://github.com/sag3ll0)
