@@ -543,10 +543,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     mode = asOctalNumber(target.modes);
                 }
 
-                if (deploy_helpers.isNullUndefinedOrEmptyString(mode)) {
-                    putOpts = undefined;
-                }
-                else {
+                if (!deploy_helpers.isNullUndefinedOrEmptyString(mode)) {
                     putOpts['mode'] = mode;
                 }
             }
@@ -726,8 +723,20 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                     // upload
                                     putWorkflow.next(() => {
                                         return new Promise<any>((resolve, reject) => {
-                                            ctx.connection.put(dataToUpload, targetFile, putOpts).then(() => {
-                                                resolve();
+                                            ctx.connection.put(dataToUpload, targetFile).then(() => {
+                                                if (deploy_helpers.isNullOrUndefined(putOpts['mode'])) {
+                                                    resolve();
+                                                }
+                                                else {
+                                                    ctx.connection.sftp.chmod(targetFile, putOpts['mode'], (err) => {
+                                                        if (err) {
+                                                            reject(err);
+                                                        }
+                                                        else {
+                                                            resolve();
+                                                        }
+                                                    });
+                                                }
                                             }).catch((e) => {
                                                 reject(e);
                                             });
