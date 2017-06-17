@@ -242,53 +242,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.registerTreeDataProvider('vsdExplorer', targetExplorer);
         context.subscriptions.push(targetExplorer);
 
-        let openPackageFile = vscode.commands.registerCommand('extension.deploy.explorer.openPackageFile',
-            (pkg: deploy_contracts.DeployPackage, path: string) => {
-                return new Promise<any>((resolve, reject) => {
-                    let completed = (err: any) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve();
-                        }
-                    };
+        let explorerCommands = deploy_explorer.registerCommands
+                                              .apply(deployer, []);
 
-                    try {
-                        vscode.workspace.openTextDocument(Path.join(vscode.workspace.rootPath, path)).then((doc) => {
-                            vscode.window.showTextDocument(doc).then(() => {
-                                completed(null);
-                            }, (err) => {
-                                completed(err);
-                            });
-                        }, (err) => {
-                            completed(err);
-                        });
-                    }
-                    catch (e) {
-                        completed(e);
-                    }
-                });
-            });
-
-        //TODO
-        let openTargetFile = vscode.commands.registerCommand('extension.deploy.explorer.openTargetFile',
-            (target: deploy_contracts.DeployTarget, file: deploy_contracts.FileInfo) => {
-                return new Promise<any>((resolve, reject) => {
-                    let completed = (err: any) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve();
-                        }
-                    };
-
-                    completed(new Error('NOT IMPLEMENTED!'));
-                });
-            });
-
-        context.subscriptions.push(openPackageFile, openTargetFile);
+        context.subscriptions
+               .push
+               .apply(context.subscriptions, explorerCommands);
     }
     catch (e) {
         //TODO: show warning message

@@ -28,12 +28,16 @@ import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as deploy_targets from './targets';
 import * as Enumerable from 'node-enumerable';
+import * as FS from 'fs';
 import * as i18 from './i18';
 import * as Path from 'path';
+import * as TMP from 'tmp';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
+
+let _COMMANDS: vscode.Disposable[] = [];
 
 function addFileSystemNodes(fsNode: TargetFileSystemNode | TargetNode,
                             infos: deploy_contracts.FileSystemInfo[],
@@ -502,6 +506,12 @@ class TargetFileNode extends TargetFileSystemNode {
         };
 
         me.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
+        me.command = {
+            command: 'extension.deploy.explorer.openTargetFile',
+            title: 'Open file',
+            arguments: [ me ],
+        };
     }
     
     public get info(): deploy_contracts.FileInfo {
@@ -677,4 +687,149 @@ export class Explorer implements vscode.TreeDataProvider<TreeNode>, vscode.Dispo
     public get onDidChangeTreeData(): vscode.Event<TreeNode | null> {
         return this._ON_DID_CHANGE_TREE_DATA.event;
     }
+}
+
+/**
+ * Registers explorer commands.
+ * 
+ * @return {vscode.Disposable[]} The explorer commands.
+ */
+export function registerCommands(): vscode.Disposable[] {
+    let me: vs_deploy.Deployer = this;
+
+    while (_COMMANDS.length > 0) {
+        let cmd = _COMMANDS.shift();
+
+        deploy_helpers.tryDispose(cmd);
+    }
+
+    let openPackageFile = vscode.commands.registerCommand('extension.deploy.explorer.openPackageFile',
+        (pkg: deploy_contracts.DeployPackage, path: string) => {
+            return new Promise<any>((resolve, reject) => {
+                let completed = (err: any) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                };
+
+                try {
+                    vscode.workspace.openTextDocument(Path.join(vscode.workspace.rootPath, path)).then((doc) => {
+                        vscode.window.showTextDocument(doc).then(() => {
+                            completed(null);
+                        }, (err) => {
+                            completed(err);
+                        });
+                    }, (err) => {
+                        completed(err);
+                    });
+                }
+                catch (e) {
+                    completed(e);
+                }
+            });
+        });
+    _COMMANDS.push(openPackageFile);
+
+    //TODO
+    let openTargetFile = vscode.commands.registerCommand('extension.deploy.explorer.openTargetFile',
+        (node: TargetFileSystemNode) => {
+            return new Promise<any>((resolve, reject) => {
+                let completed = (err: any) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve();
+                    }
+                };
+
+                let wf = Workflows.create();
+
+                let plugins = Enumerable.from( deploy_targets.getPluginsForTarget(node.target, me.plugins) ).selectMany(twp => {
+                    return twp.plugins;
+                }).where(p => {
+                    return p.canPull;
+                });
+
+                plugins.forEach(p => {
+                    wf.next((ctx) => {
+                        return new Promise<any>((res, rej) => {
+                            let downloadCompleted = (err: any) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    resolve();
+                                }
+                            };
+
+                            try {
+                                let path = Path.join(vscode.workspace.rootPath, node.dir, node.info.name);
+                                
+                                let ext = Path.extname(path);
+                                let baseName = Path.basename(path, ext);
+
+                                let downloadOpts: deploy_contracts.DeployFileOptions = {
+                                    noMappings: true,
+                                };
+
+                                Promise.resolve( p.downloadFile(path, node.target, downloadOpts) ).then((data) => {
+                                    try {
+                                        data = data || Buffer.alloc(0);
+
+                                        TMP.tmpName({
+                                            keep: true,
+                                            prefix: baseName + '-',
+                                            postfix: ext,
+                                        }, (err, tmpFile) => {
+                                            if (err) {
+                                                downloadCompleted(err);
+                                                return;
+                                            }
+
+                                            FS.writeFile(tmpFile, data, (err) => {
+                                                if (err) {
+                                                    downloadCompleted(err);
+                                                    return;
+                                                }
+
+                                                vscode.workspace.openTextDocument(tmpFile).then((doc) => {
+                                                    vscode.window.showTextDocument(doc).then(() => {
+                                                        downloadCompleted(null);
+                                                    }, (err) => {
+                                                        downloadCompleted(err);
+                                                    });
+                                                }, (err) => {
+                                                    downloadCompleted(err);
+                                                });
+                                            });
+                                        });
+                                    }
+                                    catch (e) {
+                                        downloadCompleted(e);
+                                    }
+                                }).catch((err) => {
+                                    downloadCompleted(err);
+                                });
+                            }
+                            catch (e) {
+                                downloadCompleted(e);
+                            }
+                        });
+                    });
+                });
+
+                wf.start().then(() => {
+                    completed(null);
+                }).catch((err) => {
+                    completed(err);
+                });
+            });
+        });
+    _COMMANDS.push(openTargetFile);
+
+    return _COMMANDS.map(x => x);
 }
