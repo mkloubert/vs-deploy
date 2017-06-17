@@ -165,8 +165,45 @@ class PackageNode extends TreeNode {
     }
 
     protected _getChildren(): Promise<TreeNode[]> {
+        let me = this;
+
         return new Promise<TreeNode[]>((resolve, reject) => {
-            resolve([]);
+            deploy_helpers.getFilesByFilterAsync(me.package, me.explorer.controller.useGitIgnoreStylePatternsInFilter(me.package)).then((files) => {
+                let fileNodes = Enumerable.from( files ).select(x => {
+                    let relativePath = deploy_helpers.toRelativePath(x);
+                    if (false === relativePath) {
+                        relativePath = x;
+                    }
+
+                    relativePath = deploy_helpers.replaceAllStrings(relativePath, Path.sep, '/');
+
+                    let node = new PackageFileNode(me.explorer, me.package, relativePath);
+
+                    return node;
+                }).orderBy(x => {
+                    let p = deploy_helpers.normalizeString(x.label);
+
+                    try {
+                        return Path.dirname(p);
+                    }
+                    catch (e) {
+                        return p;
+                    }
+                }).thenBy(x => {
+                    let p = deploy_helpers.normalizeString(x.label);
+
+                    try {
+                        return Path.basename(p);
+                    }
+                    catch (e) {
+                        return p;
+                    }
+                }).toArray();
+
+                resolve(fileNodes);
+            }).catch((err) => {
+                reject(err);
+            });
         });
     }
 
@@ -181,6 +218,40 @@ class PackageNode extends TreeNode {
 
     public get package(): deploy_contracts.DeployPackage {
         return this._PACKAGE;
+    }
+}
+
+class PackageFileNode extends TreeNode {
+    protected readonly _PACKAGE: deploy_contracts.DeployPackage;
+    protected readonly _PATH: string;
+    
+    constructor(explorer: Explorer,
+                pkg: deploy_contracts.DeployPackage,
+                path: string) {
+        super(explorer);
+
+        this._PACKAGE = pkg;
+        this._PATH = path;
+
+        this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+
+        this.command = {
+            command: 'extension.deploy.explorer.openPackageFile',
+            title: 'Open file',
+            arguments: [ this.package, this.path ],
+        };
+    }
+
+    public get label(): string {
+        return this.path;
+    }
+
+    public get package(): deploy_contracts.DeployPackage {
+        return this._PACKAGE;
+    }
+    
+    public get path(): string {
+        return this._PATH;
     }
 }
 
