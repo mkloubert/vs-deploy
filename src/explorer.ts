@@ -29,6 +29,7 @@ import * as deploy_helpers from './helpers';
 import * as deploy_targets from './targets';
 import * as Enumerable from 'node-enumerable';
 import * as i18 from './i18';
+import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
@@ -115,6 +116,14 @@ export class TreeNode {
      * The function or method for receiving the children of that node.
      */
     public getChildren: () => Promise<TreeNode[]>;
+
+    /**
+     * The icon for the node.
+     */
+    public icon: string | vscode.Uri | { 
+        light: string | vscode.Uri;
+        dark: string | vscode.Uri
+    };
 
     /**
      * The label.
@@ -329,7 +338,12 @@ class TargetDirectoryNode extends TargetFileSystemNode {
 
         let me = this;
 
-        this.getChildren = () => {
+        me.icon = {
+            dark: me.explorer.controller.context.asAbsolutePath(Path.join('resources', 'dark', 'folder.svg')),
+            light: me.explorer.controller.context.asAbsolutePath(Path.join('resources', 'light', 'folder.svg')),
+        };
+
+        me.getChildren = () => {
             return me._getChildren
                      .apply(me, []);
         };
@@ -424,6 +438,7 @@ class TreeItem extends vscode.TreeItem {
         this._NODE = node;
         
         this.command = this._NODE.command;
+        this.iconPath = this._NODE.icon;
     }
 
     public get node(): TreeNode{

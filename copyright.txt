@@ -1,2 +1,4 @@
 Icons:
     - /icon.png (Nishan Sothilingam; https://www.iconfinder.com/mystockicons)
+    - /resources/dark/folder.svg (Google; https://design.google)
+    - /resources/light/folder.svg (Google; https://design.google)
