@@ -5,7 +5,7 @@
   "version": "10.0.0",
   "publisher": "mkloubert",
   "engines": {
-    "vscode": "^1.6.0"
+    "vscode": "^1.13.0"
   },
   "license": "MIT",
   "categories": [
@@ -23,6 +23,14 @@
   ],
   "main": "./out/src/extension",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "vsdExplorer",
+          "name": "Deploy"
+        }
+      ]
+    },
     "menus": {
       "editor/title": [
         {

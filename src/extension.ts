@@ -27,15 +27,17 @@
 
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
 import * as deploy_pull from './pull';
+import * as deploy_targets from './targets';
 import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as vs_contracts from './contracts';
-import * as deploy_globals from './globals';
 import * as vs_deploy from './deploy';
+import * as Workflows from 'node-workflows';
 
 
 type GetTargetsCallback = (err: any, targets?: vs_contracts.DeployTarget[]) => void;
@@ -230,6 +232,37 @@ export function activate(context: vscode.ExtensionContext) {
                                pull, pullFileOrFolder,
                                openHtmlDoc, openOutputAfterDeploment, openTemplate, 
                                quickDeploy);
+
+    // explorer
+    try {
+        const deploy_explorer = require('./explorer');
+
+        let targetExplorer = new deploy_explorer.Explorer(deployer);
+
+        vscode.window.registerTreeDataProvider('vsdExplorer', targetExplorer);
+        context.subscriptions.push(targetExplorer);
+
+        let openTargetFile = vscode.commands.registerCommand('extension.deploy.explorer.openTargetFile',
+            (target: deploy_contracts.DeployTarget, file: deploy_contracts.FileInfo) => {
+                return new Promise<any>((resolve, reject) => {
+                    let completed = (err: any) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve();
+                        }
+                    };
+
+                    completed(new Error('NOT IMPLEMENTED!'));
+                });
+            });
+
+        context.subscriptions.push(openTargetFile);
+    }
+    catch (e) {
+        //TODO: show warning message
+    }
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();

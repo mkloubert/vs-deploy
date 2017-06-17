@@ -199,6 +199,7 @@ export const translation: Translation = {
         noneDefined: "Definieren sie bitte mindestens ein PAKET in Ihrer 'settings.json'-Datei!",
         notFound: 'Paket {0:trim,surround} wurde nicht gefunden!',
         nothingToDeploy: 'Kein Paket zum Bereitstellen gefunden!',
+        plural: 'Pakete',
     },
     plugins: {
         api: {
@@ -374,6 +375,7 @@ export const translation: Translation = {
         defaultName: '(Ziel #{0:trim})',
         noneDefined: "Definieren sie bitte mindestens ein ZIEL in Ihrer 'settings.json'-Datei!",
         notFound: 'Konnte das Ziel {0:trim,surround} nicht finden!',
+        plural: 'Ziele',
         select: 'Bitte wählen Sie ein Ziel aus...',
         selectSource: 'Bitte wählen Sie eine Quelle aus...',
     },
