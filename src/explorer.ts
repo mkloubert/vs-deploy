@@ -37,7 +37,7 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
-let _COMMANDS: vscode.Disposable[] = [];
+const _COMMANDS: vscode.Disposable[] = [];
 
 function addFileSystemNodes(fsNode: TargetFileSystemNode | TargetNode,
                             infos: deploy_contracts.FileSystemInfo[],
@@ -733,7 +733,6 @@ export function registerCommands(): vscode.Disposable[] {
         });
     _COMMANDS.push(openPackageFile);
 
-    //TODO
     let openTargetFile = vscode.commands.registerCommand('extension.deploy.explorer.openTargetFile',
         (node: TargetFileSystemNode) => {
             return new Promise<any>((resolve, reject) => {
@@ -798,6 +797,9 @@ export function registerCommands(): vscode.Disposable[] {
 
                                                 vscode.workspace.openTextDocument(tmpFile).then((doc) => {
                                                     vscode.window.showTextDocument(doc).then(() => {
+                                                        deploy_targets.registerTextDocumentForSave
+                                                                      .apply(me, [ node.target, doc ]);
+
                                                         downloadCompleted(null);
                                                     }, (err) => {
                                                         downloadCompleted(err);

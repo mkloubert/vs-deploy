@@ -2328,6 +2328,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Event after a document has been closed.
+     * 
+     * @param {vscode.TextDocument} doc The document.
+     */
+    public onDidCloseTextDocument(doc: vscode.TextDocument) {
+        if (!doc) {
+            return;
+        }
+
+        let me = this;
+
+        deploy_targets.unregisterTextDocumentForSave
+                      .apply(me, [ doc ]);
+    }
+
+    /**
      * Event after a document has been saved.
      * 
      * @param {string} fileName The path of the file.
@@ -2542,12 +2558,29 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true) &&
-            this._isDeployOnSaveEnabled) {
-                
-            // only if activated
-            this.onDidSaveFile(doc.fileName);
-        }
+        let me = this;
+
+        deploy_targets.handleSavedTextDocument.apply(me, [ doc ]).then((handled: boolean) => {
+            if (handled) {
+                return;
+            }
+
+            try {
+                if (deploy_helpers.toBooleanSafe(me.config.deployOnSave, true) &&
+                    me._isDeployOnSaveEnabled) {
+                        
+                    // only if activated
+                    me.onDidSaveFile(doc.fileName);
+                }
+            }
+            catch (e) {
+                me.log(i18.t('errors.withCategory',
+                             'Deployer.onDidSaveTextDocument(2)', e));
+            }
+        }).catch((err) => {
+            me.log(i18.t('errors.withCategory',
+                         'Deployer.onDidSaveTextDocument(1)', err));
+        });
     }
 
     /**
@@ -4889,6 +4922,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public get startTime(): Moment.Moment {
         return this._startTime;
+    }
+
+    /**
+     * Unregisters all target text documents.
+     * 
+     * @returns {deploy_targets.TextDocumentWithTarget[]} The removed items.
+     */
+    public unregisterAllTextDocumentsForSave(): deploy_targets.TextDocumentWithTarget[] {
+        return deploy_targets.unregisterAllTextDocumentsForSave
+                             .apply(this, []);
     }
 
     /**
