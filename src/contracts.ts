@@ -1021,6 +1021,10 @@ export interface DeployFileOptions {
      */
     context?: DeployContext;
     /**
+     * DO NOT use mappings.
+     */
+    noMappings?: boolean;
+    /**
      * The "before deploy" callback.
      */
     onBeforeDeploy?: BeforeDeployFileEventHandler;
@@ -2248,6 +2252,10 @@ export interface ListDirectoryOptions {
      * The custom deploy context.
      */
     context?: DeployContext;
+    /**
+     * DO NOT use mappings.
+     */
+    noMappings?: boolean;
     /**
      * The "before list" callback.
      */

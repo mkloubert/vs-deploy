@@ -81,7 +81,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             completed();  // cancellation requested
         }
         else {
-            let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+            let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
             if (false === relativeTargetFilePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -244,7 +244,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativeTargetFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -301,7 +301,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
         if (false === relativeTargetFilePath) {
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }
@@ -410,7 +410,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
                 path = Path.join(dir, path);
                 path = Path.resolve(path);
 
-                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), dir);
+                let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(path, target, me.context.values(), dir, opts.noMappings);
                 if (false === relativeTargetFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', path)));
                     return;

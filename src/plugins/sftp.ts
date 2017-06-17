@@ -510,7 +510,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             completed();  // cancellation requested
         }
         else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
             if (false === relativeFilePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -869,7 +869,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -989,7 +989,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                            file: string, target: DeployTargetSFTP, opts: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
         let me = this;
         
-        let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+        let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
         if (false === relativeFilePath) {
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }

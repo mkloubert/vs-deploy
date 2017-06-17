@@ -174,7 +174,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
         }
         else {
             try {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -292,7 +292,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             }
             else {
                 try {
-                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                     if (false === relativePath) {
                         completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                         return;
@@ -369,7 +369,7 @@ class S3BucketPlugin extends deploy_objects.DeployPluginWithContextBase<S3Contex
             };
 
             try {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;

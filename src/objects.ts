@@ -1766,7 +1766,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             completed();  // cancellation requested
         }
         else {
-            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
             if (false === relativePath) {
                 relativePath = file;
             }
@@ -1834,7 +1834,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let err: any;
         try {
             if (!hasCancelled) {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativePath) {
                     relativePath = file;
                 }
@@ -1989,7 +1989,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let err: any;
         try {
             if (!hasCancelled) {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
                 if (false === relativePath) {
                     relativePath = file;
                 }
