@@ -62,7 +62,9 @@ function addFileSystemNodes(fsNode: TargetFileSystemNode | TargetNode,
     }).where(x => {
         return !deploy_helpers.isNullOrUndefined(x);
     }).orderBy(x => {
-        getTargetFileSystemNodeSortValue(x);
+        return getTargetFileSystemNodeSortValue(x);
+    }).thenBy(x => {
+        return deploy_helpers.normalizeString(x.label);
     }).pushTo(nodeStorage);
 }
 
@@ -421,7 +423,14 @@ class TargetFileNode extends TargetFileSystemNode {
                 parent?: TargetDirectoryNode) {
         super(explorer, target, info, dir, parent);
 
-        this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+        let me = this;
+
+        me.icon = {
+            dark: me.explorer.controller.context.asAbsolutePath(Path.join('resources', 'dark', 'file.svg')),
+            light: me.explorer.controller.context.asAbsolutePath(Path.join('resources', 'light', 'file.svg')),
+        };
+
+        me.collapsibleState = vscode.TreeItemCollapsibleState.None;
     }
     
     public get info(): deploy_contracts.FileInfo {

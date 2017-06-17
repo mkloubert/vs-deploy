@@ -1,4 +1,6 @@
 Icons:
     - /icon.png (Nishan Sothilingam; https://www.iconfinder.com/mystockicons)
-    - /resources/dark/folder.svg (Google; https://design.google)
-    - /resources/light/folder.svg (Google; https://design.google)
+    - /resources/dark/file.svg (Nick Roach; http://www.elegantthemes.com/)
+    - /resources/light/file.svg (Nick Roach; http://www.elegantthemes.com/)
+    - /resources/dark/folder.svg (Nick Roach; http://www.elegantthemes.com/)
+    - /resources/light/folder.svg (Nick Roach; http://www.elegantthemes.com/)
