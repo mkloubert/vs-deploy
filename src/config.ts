@@ -35,8 +35,194 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
+/**
+ * Result of 'loadConfig' function.
+ */
+export interface LoadConfigResult {
+    /**
+     * The loaded configuration.
+     */
+    config: deploy_contracts.DeployConfiguration;
+    /**
+     * The configuration file from where the configuration was read.
+     */
+    file?: string;
+}
+
+const SETTINGS_FILE = 'settings.json';
+
 let buildTaskTimer: NodeJS.Timer;
 let gitPullTimer: NodeJS.Timer;
+
+/**
+ * Tries to load configuration data from a directory.
+ * 
+ * @param {string} [dir] The custom root / workspace directory.
+ * 
+ * @returns {Promise<LoadConfigResult>} The promise.
+ */
+export function loadConfig(dir?: string): Promise<LoadConfigResult> {
+    let me: vs_deploy.Deployer = this;
+
+    if (arguments.length < 1) {
+        dir = Path.join(vscode.workspace.rootPath, '.vscode');
+    }
+    dir = Path.resolve(dir);
+
+    return new Promise<LoadConfigResult>((resolve, reject) => {
+        let completed = (err: any, cfg?: deploy_contracts.DeployConfiguration) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                try {
+                    let result: LoadConfigResult = {
+                        config: cfg,
+                        file: undefined,
+                    };
+
+                    if (result.config) {
+                        try {
+                            result.file = Path.join(dir, SETTINGS_FILE);
+                            result.file = Path.resolve(result.file);
+                        }
+                        catch (e) {
+                            deploy_helpers.log(i18.t('errors.withCategory',
+                                                     'config.loadConfig(1)', e));
+                        }
+                    }
+                    else {
+                        result.config = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+                    }
+
+                    resolve(result);
+                }
+                catch (e) {
+                    reject(e);
+                }
+            }
+        };
+
+        let gotoParent = () => {
+            try {
+                let parent = Path.join(dir, '..');
+                parent = Path.resolve(parent);
+
+                if (dir !== parent) {
+                    loadConfig(parent).then((res) => {
+                        resolve(res);
+                    }).catch((err) => {
+                        completed(err);
+                    });
+                }
+                else {
+                    completed(null);
+                }
+            }
+            catch (e) {
+                completed(e);
+            }
+        };
+        
+        try {
+            FS.exists(dir, (exists) => {
+                if (exists) {
+                    FS.lstat(dir, (err, stats) => {
+                        if (err) {
+                            completed(err);
+                        }
+                        else {
+                            // check if .vscode
+                            // is directory
+
+                            if (stats.isDirectory()) {
+                                try {
+                                    // check for settings file
+
+                                    let settingsFile = Path.join(dir, SETTINGS_FILE);
+                                    settingsFile = Path.resolve(settingsFile);
+
+                                    FS.exists(settingsFile, (exists2) => {
+                                        if (exists2) {
+                                            FS.lstat(settingsFile, (err2, stats2) => {
+                                                if (err2) {
+                                                    completed(err2);
+                                                }
+                                                else {
+                                                    // check if settings.json
+                                                    // is a file
+
+                                                    if (stats2.isFile()) {
+                                                        try {
+                                                            FS.readFile(settingsFile, (err3, data) => {
+                                                                if (err3) {
+                                                                    completed(err3);
+                                                                }
+                                                                else {
+                                                                    try {
+                                                                        let deployCfg: deploy_contracts.DeployConfiguration;
+
+                                                                        if (data.length > 0) {
+                                                                            let json = data.toString('utf8');
+                                                                            
+                                                                            let obj = JSON.parse(json);
+                                                                            if (obj) {
+                                                                                deployCfg = obj['deploy'];
+                                                                            }
+                                                                        }
+
+                                                                        if (deployCfg) {
+                                                                            completed(null, deployCfg);   
+                                                                        }
+                                                                        else {
+                                                                            gotoParent();
+                                                                        }
+                                                                    }
+                                                                    catch (e) {
+                                                                        completed(e);  // maybe a JSON parse error
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                        catch (e) {
+                                                            completed(e);
+                                                        }
+                                                    }
+                                                    else {
+                                                        gotoParent();  // no file
+                                                                       // try parent
+                                                    }
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            gotoParent();  // does NOT exist
+                                                           // try parent
+                                        }
+                                    });
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
+                            }
+                            else {
+                                gotoParent();  // no directory
+                                               // try parent
+                            }
+                        }
+                    });
+                }
+                else {
+                    gotoParent();  // .vscode does NOT exist
+                                   // try parent
+                }
+            });
+        }
+        catch (e) {
+            completed(e);
+        }
+    });
+}
 
 /**
  * Returns a merged config object.

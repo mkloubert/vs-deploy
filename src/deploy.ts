@@ -3951,8 +3951,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public reloadConfiguration() {
         let me = this;
 
-        let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
-
         let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
             let showDefaultTemplateRepos = true;
             if (cfg.templates) {
@@ -4105,12 +4103,32 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             }
         }
 
-        deploy_config.mergeConfig(loadedCfg).then((cfg) => {
-            applyCfg(cfg);
-        }).catch((err) => {
-            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
+        let mergeConfig = (loadedCfg: deploy_contracts.DeployConfiguration) => {
+            if (!loadedCfg) {
+                loadedCfg = <any>{};
+            }
 
-            applyCfg(loadedCfg);
+            deploy_config.mergeConfig(loadedCfg).then((cfg) => {
+                applyCfg(cfg);
+            }).catch((err) => {
+                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
+
+                applyCfg(loadedCfg);
+            });
+        };
+        
+        deploy_config.loadConfig.apply(me, []).then((cfgRes: deploy_config.LoadConfigResult) => {
+            mergeConfig(cfgRes.config);
+        }).catch((err) => {
+            let lc = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+            
+            vscode.window.showErrorMessage('[vs-deploy] Could not load config: ' + deploy_helpers.toStringSafe(err)).then(() => {
+                mergeConfig(lc);
+            }, () => {
+                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(3): ${deploy_helpers.toStringSafe(err)}`);
+
+                mergeConfig(lc);
+            });
         });
     }
 

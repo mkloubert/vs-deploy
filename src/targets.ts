@@ -185,7 +185,7 @@ function isTargetTextDocument(targetDoc: TextDocumentWithTarget, doc: vscode.Tex
  * @param {deploy_contracts.DeployTarget} target The target.
  * @param {vscode.TextDocument} doc The document.
  * 
- * @returns {TargetTextDocument} The document. 
+ * @returns {TextDocumentWithTarget} The document. 
  */
 export function registerTextDocumentForSave(target: deploy_contracts.DeployTarget, doc: vscode.TextDocument): TextDocumentWithTarget {
     let me: vs_deploy.Deployer = this;
@@ -205,7 +205,7 @@ export function registerTextDocumentForSave(target: deploy_contracts.DeployTarge
 /**
  * Unregisters all text documents from being deployed, when save.
  * 
- * @returns {TargetTextDocument[]} The removed items.
+ * @returns {TextDocumentWithTarget[]} The removed items.
  */
 export function unregisterAllTextDocumentsForSave(): TextDocumentWithTarget[] {
     let me: vs_deploy.Deployer = this;
@@ -225,7 +225,7 @@ export function unregisterAllTextDocumentsForSave(): TextDocumentWithTarget[] {
  * 
  * @param {vscode.TextDocument} doc The document.
  * 
- * @returns {TargetTextDocument[]} The removed items.
+ * @returns {TextDocumentWithTarget[]} The removed items.
  */
 export function unregisterTextDocumentForSave(doc: vscode.TextDocument): TextDocumentWithTarget[] {
     let me: vs_deploy.Deployer = this;
