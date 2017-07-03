@@ -2365,7 +2365,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
 
         try {
-            let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage): deploy_contracts.DeployTarget[] => {
+            let getTargetNamesByPackage = (pkg: deploy_contracts.DeployPackage) => {
                 let useTargetLists = deploy_helpers.toBooleanSafe(me.config.useTargetListForDeployOnSave);
 
                 let checkForPackageSpecificTargetListSetting = true;
@@ -2417,7 +2417,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
 
                 return (targetSource || []).map(x => deploy_helpers.normalizeString(x))
-                                           .filter(x => x);
+                                           .filter(x => '' !== x);
             };
 
             if (!packagesToDeploy) {

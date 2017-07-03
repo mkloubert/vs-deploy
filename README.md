@@ -41,6 +41,7 @@ There is also build-in support for the following [compilers and processors](http
 * english
 * french (thanks to [neiobaf](https://github.com/neiobaf)!)
 * german
+* spanish (thanks to [alejandroivan](https://github.com/alejandroivan)!)
 * russian (thanks to [sag3ll0](https://github.com/sag3ll0)!)
 
 If you would like to add another translation, please read [that issue](https://github.com/mkloubert/vs-deploy/issues/18) first.
