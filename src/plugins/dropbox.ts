@@ -734,6 +734,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     info = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     }
                 }
 
@@ -771,7 +772,8 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                         let info: deploy_contracts.FileInfo = {
                             exists: false,
-                            isRemote: true,        
+                            isRemote: true,
+                            type: deploy_contracts.FileSystemType.File,        
                         };
 
                         let next = () => {

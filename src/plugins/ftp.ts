@@ -424,6 +424,7 @@ class FtpClient extends FtpClientBase {
                     info = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -440,6 +441,7 @@ class FtpClient extends FtpClientBase {
                     let info: deploy_contracts.FileInfo = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     };
 
                     if (list) {
@@ -714,6 +716,7 @@ class JsFTPClient extends FtpClientBase {
                     info = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -736,6 +739,7 @@ class JsFTPClient extends FtpClientBase {
                                 let info: deploy_contracts.FileInfo = {
                                     exists: false,
                                     isRemote: true,
+                                    type: deploy_contracts.FileSystemType.File,
                                 };
 
                                 if (list) {

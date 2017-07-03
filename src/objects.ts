@@ -92,6 +92,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 
     /** @inheritdoc */
+    public get canList(): boolean {
+        return false;
+    }
+
+    /** @inheritdoc */
     public get canPull(): boolean {
         return false;
     }
@@ -119,7 +124,8 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                 try {
                     let left: deploy_contracts.FileInfo = {
                         exists: undefined,
-                        isRemote: false,  
+                        isRemote: false,
+                        type: deploy_contracts.FileSystemType.File,
                     };
 
                     FS.exists(file, (exists) => {
@@ -415,6 +421,11 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         });
 
         return batchTargets;
+    }
+
+    /** @inheritdoc */
+    public list(path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+        throw new Error("Not implemented!");
     }
 
     /**
@@ -902,7 +913,8 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 try {
                     let left: deploy_contracts.FileInfo = {
                         exists: undefined,
-                        isRemote: false,  
+                        isRemote: false,
+                        type: deploy_contracts.FileSystemType.File,
                     };
 
                     FS.exists(file, (exists) => {
@@ -1358,6 +1370,72 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         throw new Error("Not implemented!");
     }
 
+    /** @inheritdoc */
+    public list(path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+        let me = this;
+
+        return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
+            let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve( deploy_helpers.asArray(items)
+                                           .filter(x => x) );
+                }
+            };
+
+            let wf = Workflows.create();
+            
+            let wrapper: DeployPluginContextWrapper<TContext>;
+            wf.once('end', (err: any, wcnt: number, items?: deploy_contracts.FileSystemInfo[]) => {
+                me.destroyContext(wrapper).then(() => {
+                    completed(err, items);
+                }).catch(() => {
+                    completed(err, items);
+                });
+            });
+
+            // create context
+            wf.next(async (ctx) => {
+                return await me.createContext(target, [ ], {}, deploy_contracts.DeployDirection.ListDirectory);
+            });
+
+            // get file info
+            wf.next(async (ctx) => {
+                wrapper = ctx.previousValue;
+
+                return await me.listWithContext(wrapper.context,
+                                                null, target);
+            });
+
+            // write result
+            wf.next((ctx) => {
+                ctx.result = ctx.previousValue;
+            });
+
+            wf.start().then(() => {
+                // is done by 'end' event
+            }).catch((err) => {
+                // is done by 'end' event
+            });
+        });
+    }
+
+    /**
+     * Lists the content of a directory by using a context.
+     * 
+     * @param {TContext} ctx The context to use.
+     * @param {string} path The path of the directory to list.
+     * @param {DeployTarget} target The target that contains the file to pull.
+     * 
+     * @return {deploy_contracts.ListDirectoryResult} The result.
+     */
+    protected listWithContext(ctx: TContext,
+                              path: string, target: deploy_contracts.DeployTarget): deploy_contracts.ListDirectoryResult {
+        throw new Error("Not implemented!");
+    }
+
     /**
      * Pulls a file by using a context.
      * 
@@ -1810,6 +1888,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                     info = {
                         exists: false,
                         isRemote: true,
+                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -1882,6 +1961,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let result: deploy_contracts.FileInfo = {
             exists: false,
             isRemote: true,
+            type: deploy_contracts.FileSystemType.File,
         };
 
         me.onCancelling(() => hasCancelled = true);
