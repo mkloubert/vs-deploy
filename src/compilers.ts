@@ -670,7 +670,7 @@ export function compileHtmlMinifier(opts?: HtmlMinifierCompilerOptions): Promise
                         files: filesToCompile.map(x => x),  // create copy
                     };
 
-                    let htmlMiniOpts = deploy_helpers.cloneObject(opts);
+                    let htmlMiniOpts = <any>deploy_helpers.cloneObject(opts);
                     delete htmlMiniOpts['deleteSources'];
                     delete htmlMiniOpts['files'];
                     delete htmlMiniOpts['exclude'];
@@ -1202,7 +1202,7 @@ export function compileUglifyJS(opts?: UglifyJSCompilerOptions): Promise<UglifyJ
                         files: filesToCompile.map(x => x),  // create copy
                     };
 
-                    let uglifyOpts = deploy_helpers.cloneObject(opts);
+                    let uglifyOpts = <any>deploy_helpers.cloneObject(opts);
                     delete uglifyOpts['deleteSources'];
                     delete uglifyOpts['files'];
                     delete uglifyOpts['exclude'];
