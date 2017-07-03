@@ -1,7 +1,7 @@
 import * as i18 from '../src/i18';
 
 import * as en from '../src/lang/en';
-import * as other from '../src/lang/de';
+import * as other from '../src/lang/es';
 
 function findMissingProperties(enObj: Object, otherObj: Object, path: string[] = []): string[] {
     let result: string[] = [];

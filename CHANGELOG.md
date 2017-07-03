@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.27.0 (July 3rd, 2017; spanish translation)
+
+* added spanish translation (thanks to [alejandroivan](https://github.com/alejandroivan)!)
+
 ## 9.26.1 (June 16th, 2017; SFTP)
 
 * added `updateModesOfDirectories` setting for [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp), which indicates if a value in `modes` property should also be applied to the directory of a file or not 

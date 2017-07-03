@@ -2106,7 +2106,7 @@ export interface Hideable {
 /**
  * An import entry.
  */
-export interface Import extends MachineItem, PlatformItem, Sortable {
+export interface Import extends ConditionalItem, MachineItem, PlatformItem, Sortable {
     /**
      * An optional description for the entry.
      */
