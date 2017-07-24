@@ -2626,16 +2626,6 @@ export interface TemplateItem {
  */
 export type TemplateItemList = {
     /**
-     * The minimum version of that extension
-     * that is required to display the items
-     * of that list.
-     */
-    '$requires$'?: string;
-    /**
-     * The version of that list.
-     */
-    '$version$'?: string;
-    /**
      * Gets an item by its name.
      */
     [name: string]: TemplateItem;
