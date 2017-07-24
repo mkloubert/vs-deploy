@@ -31726,7 +31726,7 @@
     "moment": "^2.18.1",
     "mssql": "^3.3.0",
     "mysql": "^2.13.0",
-    "node-enumerable": "^2.0.0",
+    "node-enumerable": "^2.0.1",
     "node-workflows": "^1.3.3",
     "node-zip": "^1.1.1",
     "nodemailer": "^2.7.2",
