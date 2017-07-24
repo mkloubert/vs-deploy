@@ -432,8 +432,8 @@ export function init(lang?: string): Promise<any> {
     if (deploy_helpers.isEmptyString(lang)) {
         lang = vscode.env.language;
     }
-    lang = deploy_helpers.toStringSafe(lang).toLowerCase().trim();
-    if (!lang) {
+    lang = normalizeLangName(lang);
+    if ('' === lang) {
         lang = 'en';
     }
 
@@ -484,8 +484,8 @@ export function init(lang?: string): Promise<any> {
                                 continue;  // no JavaScript file
                             }
 
-                            let langName = fileName.substr(0, fileName.length - 3).toLowerCase().trim();
-                            if (!langName) {
+                            let langName = normalizeLangName( fileName.substr(0, fileName.length - 3) );
+                            if ('' === langName) {
                                 continue;  // no language name available
                             }
 
@@ -539,4 +539,11 @@ export function init(lang?: string): Promise<any> {
             completed(e);
         }
     });
+}
+
+function normalizeLangName(lang: string): string {
+    lang = deploy_helpers.normalizeString(lang);
+    lang = deploy_helpers.replaceAllStrings(lang, '-', '_');
+
+    return lang;
 }
