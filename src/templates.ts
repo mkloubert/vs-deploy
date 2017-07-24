@@ -182,7 +182,7 @@ function extractTemplateItems(list: deploy_contracts.TemplateItemList,
     let items: TemplateItemWithName[] = [];
 
     if (list) {
-        if (checkForExtensionVersion(list['$requires$'], packageFile)) {
+        if (checkForExtensionVersion(<any>list['$requires$'], packageFile)) {
             for (let name in list) {
                 if (REGEX_SPECIAL_PROPERTY.test(name)) {
                     continue;  // ignore
@@ -904,7 +904,7 @@ export function openTemplate() {
             };
 
             wf.start().then((list: deploy_contracts.TemplateItemList) => {
-                if (checkForExtensionVersion(list['$requires$'], me.packageFile)) {
+                if (checkForExtensionVersion(<any>list['$requires$'], me.packageFile)) {
                     showItems(extractTemplateItems(list, me.packageFile));
                 }
                 else {
