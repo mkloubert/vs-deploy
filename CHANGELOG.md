@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.28.0 (July 21st, 2017; brazilian portuguese translation)
+## 9.28.1 (July 21st, 2017; brazilian portuguese translation)
 
 * added portuguese (brazilian) translation (thanks to [Celio Rodrigues](https://github.com/ItsMeCelio)!)
 
