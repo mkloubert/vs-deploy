@@ -31692,7 +31692,7 @@
     "@types/glob": "^5.0.30",
     "@types/html-entities": "^1.2.15",
     "@types/html-minifier": "^1.1.30",
-    "@types/i18next": "^2.3.38",
+    "@types/i18next": "^2.3.39",
     "@types/marked": "0.0.28",
     "@types/mime": "0.0.29",
     "@types/minimatch": "^2.0.29",
@@ -31702,7 +31702,7 @@
     "@types/tmp": "0.0.32",
     "@types/uuid": "^2.0.29",
     "mocha": "^2.3.3",
-    "typescript": "^2.0.3",
+    "typescript": "^2.4.2",
     "vscode": "^1.0.0"
   },
   "icon": "icon.png",
@@ -31718,7 +31718,7 @@
   },
   "readmeFilename": "README.md",
   "dependencies": {
-    "aws-sdk": "^2.49.0",
+    "aws-sdk": "^2.88.0",
     "azure-storage": "^1.4.0",
     "coffeescript": "^1.12.6",
     "compare-versions": "^3.0.1",
@@ -31747,7 +31747,6 @@
     "pug": "^2.0.0-rc.1",
     "ssh2-sftp-client": "^1.0.5",
     "tmp": "0.0.31",
-    "typescript": "^2.3.2",
     "uglify-js": "^2.8.23",
     "uuid": "^3.0.1"
   }
