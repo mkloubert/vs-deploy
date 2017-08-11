@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.29.0 (August 11th, 2017; deactivate deploy on change at startup)
+
+* added `timeToWaitBeforeActivateDeployOnChange` setting, which can freeze 'deploy on change' feature for a specific number of milliseconds, after config has been (re)loaded
+
 ## 9.28.1 (July 21st, 2017; brazilian portuguese translation)
 
 * added portuguese (brazilian) translation (thanks to [Celio Rodrigues](https://github.com/ItsMeCelio)!)
