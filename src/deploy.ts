@@ -115,6 +115,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected readonly _CONTEXT: vscode.ExtensionContext;
     /**
+     * The timeout for freezing 'deploy on change' feature.
+     */
+    protected _deployOnChangeFreezer: NodeJS.Timer;
+    /**
      * Stores the current list of global events.
      */
     protected readonly _EVENTS: EventEntry[] = [];
@@ -138,6 +142,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores if 'deploy on change' feature is enabled or not.
      */
     protected _isDeployOnChangeEnabled = true;
+    /**
+     * Stores if 'deploy on change' feature is freezed or not.
+     */
+    protected _isDeployOnChangeFreezed = false;
     /**
      * Stores if 'deploy on save' feature is enabled or not.
      */
@@ -2559,6 +2567,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected onFileChange(e: vscode.Uri, type: string) {
         let me = this;
 
+        if (deploy_helpers.toBooleanSafe(me._isDeployOnChangeFreezed)) {
+            // freezed
+            return;
+        }
+
         if (!(deploy_helpers.toBooleanSafe(me.config.deployOnChange, true) &&
               me._isDeployOnChangeEnabled)) {
             // deactivated
@@ -4002,6 +4015,22 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         let next = (cfg: deploy_contracts.DeployConfiguration) => {
             me._config = cfg;
 
+            try {
+                let timeToWaitBeforeActivateDeployOnChange = parseInt( deploy_helpers.toStringSafe(cfg.timeToWaitBeforeActivateDeployOnChange).trim() );
+                if (!isNaN(timeToWaitBeforeActivateDeployOnChange)) {
+                    // deactivate 'deploy on change'
+                    // for a while
+
+                    me._isDeployOnChangeFreezed = true;
+                    me._deployOnChangeFreezer = setTimeout(() => {
+                        me._isDeployOnChangeFreezed = false;
+                    }, timeToWaitBeforeActivateDeployOnChange);
+                }
+            }
+            catch (e) {
+                me._isDeployOnChangeFreezed = false;
+            }
+
             deploy_values.reloadAdditionalValues
                          .apply(me, []);
 
@@ -4021,6 +4050,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
+            deploy_helpers.tryClearTimeout(me._deployOnChangeFreezer);
+
             me._lastConfigUpdate = Moment();
 
             me._allTargets = deploy_helpers.asArray(cfg.targets)
@@ -4034,6 +4065,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
             me._globalScriptOperationState = {};
             me._htmlDocs = [];
+            me._isDeployOnChangeFreezed = false;
             me._scriptOperationStates = {};
             me._targetCache = new deploy_objects.DeployTargetCache();
 
