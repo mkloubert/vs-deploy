@@ -779,6 +779,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
         sources?: string | string[] | TemplateSource | TemplateSource[];
     };
     /**
+     * The time (in milliseconds) to wait before activating 'deploy on change' feature.
+     */
+    timeToWaitBeforeActivateDeployOnChange?: number;
+    /**
      * Also check directory patterns, like in '.gitignore' files, in all packages by default or not.
      */
     useGitIgnoreStylePatterns?: boolean;

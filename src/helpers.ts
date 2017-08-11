@@ -2596,6 +2596,29 @@ export function toValidatorSafe<T>(validator: deploy_contracts.Validator<T>): de
 }
 
 /**
+ * Tries to clear a timeout.
+ * 
+ * @param {NodeJS.Timer} timeoutId The timeout (ID).
+ * 
+ * @return {boolean} Operation was successful or not.
+ */
+export function tryClearTimeout(timeoutId: NodeJS.Timer): boolean {
+    try {
+        if (!isNullOrUndefined(timeoutId)) {
+            clearTimeout(timeoutId);
+        }
+
+        return true;
+    }
+    catch (e) {
+        log(i18.t('errors.withCategory',
+                  'helpers.tryClearTimeout()', e));
+
+        return false;
+    }
+}
+
+/**
  * Tries to dispose an object.
  * 
  * @param {vscode.Disposable} obj The object to dispose.

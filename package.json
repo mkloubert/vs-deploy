@@ -31486,6 +31486,10 @@
                 }
               }
             },
+            "timeToWaitBeforeActivateDeployOnChange": {
+              "type": "integer",
+              "description": "The time (in milliseconds) to wait before activating 'deploy on change' feature."
+            },
             "useGitIgnoreStylePatterns": {
               "type": "boolean",
               "description": "Also check directory patterns, like in '.gitignore' files, in all packages by default or not.",
