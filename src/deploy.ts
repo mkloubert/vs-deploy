@@ -2322,6 +2322,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             this._fileSystemWatcher = null;
         }
 
+        // freeze 'deploy on change'
+        deploy_helpers.tryClearTimeout(this._deployOnChangeFreezer);
+        this._isDeployOnChangeFreezed = true;
+
         // destroy buttons
         deploy_helpers.tryDispose(this._QUICK_DEPLOY_STATUS_ITEM);
 

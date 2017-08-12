@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.30.0 (August 12th, 2017; output results of SFTP commands)
+
+* can output results of [SFTP server commands](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#execute-commands-on-server) defined in `beforeUpload`, `closing`, `connected` and `uploaded` settings now
+
 ## 9.29.0 (August 11th, 2017; deactivate deploy on change at startup)
 
 * added `timeToWaitBeforeActivateDeployOnChange` setting, which can freeze 'deploy on change' feature for a specific number of milliseconds, after config has been (re)loaded
