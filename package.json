@@ -24393,6 +24393,11 @@
                           }
                         ]
                       },
+                      "noCommandOutput": {
+                        "type": "boolean",
+                        "description": "Default value if output of commands should NOT be fetched.",
+                        "default": true
+                      },
                       "beforeUpload": {
                         "description": "One or more command that should be executed on the server BEFORE a file is uploaded.",
                         "oneOf": [
@@ -24401,11 +24406,81 @@
                             "description": "The command to execute."
                           },
                           {
+                            "type": "object",
+                            "description": "Settings for the command to execute.",
+                            "properties": {
+                              "command": {
+                                "type": "string",
+                                "description": "The command to execute."
+                              },
+                              "executeBeforeWriteOutputTo": {
+                                "type": "string",
+                                "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                              },
+                              "noOutput": {
+                                "type": "boolean",
+                                "description": "Indicates if output of that command should NOT be fetched.",
+                                "default": false
+                              },
+                              "outputEncoding": {
+                                "type": "string",
+                                "description": "The encoding of the output.",
+                                "default": "utf8"
+                              },
+                              "verbose": {
+                                "type": "boolean",
+                                "description": "Output execution or not.",
+                                "default": false
+                              },
+                              "writeOutputTo": {
+                                "type": "string",
+                                "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                              }
+                            }
+                          },
+                          {
                             "description": "The commands to execute.",
                             "type": "array",
                             "items": {
-                              "type": "string",
-                              "description": "The command to execute."
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "description": "The command to execute."
+                                },
+                                {
+                                  "type": "object",
+                                  "description": "Settings for the command to execute.",
+                                  "properties": {
+                                    "command": {
+                                      "type": "string",
+                                      "description": "The command to execute."
+                                    },
+                                    "executeBeforeWriteOutputTo": {
+                                      "type": "string",
+                                      "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                                    },
+                                    "noOutput": {
+                                      "type": "boolean",
+                                      "description": "Indicates if output of that command should NOT be fetched.",
+                                      "default": false
+                                    },
+                                    "outputEncoding": {
+                                      "type": "string",
+                                      "description": "The encoding of the output.",
+                                      "default": "utf8"
+                                    },
+                                    "verbose": {
+                                      "type": "boolean",
+                                      "description": "Output execution or not.",
+                                      "default": false
+                                    },
+                                    "writeOutputTo": {
+                                      "type": "string",
+                                      "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]
@@ -24418,11 +24493,81 @@
                             "description": "The command to execute."
                           },
                           {
+                            "type": "object",
+                            "description": "Settings for the command to execute.",
+                            "properties": {
+                              "command": {
+                                "type": "string",
+                                "description": "The command to execute."
+                              },
+                              "executeBeforeWriteOutputTo": {
+                                "type": "string",
+                                "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                              },
+                              "noOutput": {
+                                "type": "boolean",
+                                "description": "Indicates if output of that command should NOT be fetched.",
+                                "default": false
+                              },
+                              "outputEncoding": {
+                                "type": "string",
+                                "description": "The encoding of the output.",
+                                "default": "utf8"
+                              },
+                              "verbose": {
+                                "type": "boolean",
+                                "description": "Output execution or not.",
+                                "default": false
+                              },
+                              "writeOutputTo": {
+                                "type": "string",
+                                "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                              }
+                            }
+                          },
+                          {
                             "description": "The commands to execute.",
                             "type": "array",
                             "items": {
-                              "type": "string",
-                              "description": "The command to execute."
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "description": "The command to execute."
+                                },
+                                {
+                                  "type": "object",
+                                  "description": "Settings for the command to execute.",
+                                  "properties": {
+                                    "command": {
+                                      "type": "string",
+                                      "description": "The command to execute."
+                                    },
+                                    "executeBeforeWriteOutputTo": {
+                                      "type": "string",
+                                      "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                                    },
+                                    "noOutput": {
+                                      "type": "boolean",
+                                      "description": "Indicates if output of that command should NOT be fetched.",
+                                      "default": false
+                                    },
+                                    "outputEncoding": {
+                                      "type": "string",
+                                      "description": "The encoding of the output.",
+                                      "default": "utf8"
+                                    },
+                                    "verbose": {
+                                      "type": "boolean",
+                                      "description": "Output execution or not.",
+                                      "default": false
+                                    },
+                                    "writeOutputTo": {
+                                      "type": "string",
+                                      "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]
@@ -24435,11 +24580,81 @@
                             "description": "The command to execute."
                           },
                           {
+                            "type": "object",
+                            "description": "Settings for the command to execute.",
+                            "properties": {
+                              "command": {
+                                "type": "string",
+                                "description": "The command to execute."
+                              },
+                              "executeBeforeWriteOutputTo": {
+                                "type": "string",
+                                "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                              },
+                              "noOutput": {
+                                "type": "boolean",
+                                "description": "Indicates if output of that command should NOT be fetched.",
+                                "default": false
+                              },
+                              "outputEncoding": {
+                                "type": "string",
+                                "description": "The encoding of the output.",
+                                "default": "utf8"
+                              },
+                              "verbose": {
+                                "type": "boolean",
+                                "description": "Output execution or not.",
+                                "default": false
+                              },
+                              "writeOutputTo": {
+                                "type": "string",
+                                "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                              }
+                            }
+                          },
+                          {
                             "description": "The commands to execute.",
                             "type": "array",
                             "items": {
-                              "type": "string",
-                              "description": "The command to execute."
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "description": "The command to execute."
+                                },
+                                {
+                                  "type": "object",
+                                  "description": "Settings for the command to execute.",
+                                  "properties": {
+                                    "command": {
+                                      "type": "string",
+                                      "description": "The command to execute."
+                                    },
+                                    "executeBeforeWriteOutputTo": {
+                                      "type": "string",
+                                      "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                                    },
+                                    "noOutput": {
+                                      "type": "boolean",
+                                      "description": "Indicates if output of that command should NOT be fetched.",
+                                      "default": false
+                                    },
+                                    "outputEncoding": {
+                                      "type": "string",
+                                      "description": "The encoding of the output.",
+                                      "default": "utf8"
+                                    },
+                                    "verbose": {
+                                      "type": "boolean",
+                                      "description": "Output execution or not.",
+                                      "default": false
+                                    },
+                                    "writeOutputTo": {
+                                      "type": "string",
+                                      "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]
@@ -24452,11 +24667,81 @@
                             "description": "The command to execute."
                           },
                           {
+                            "type": "object",
+                            "description": "Settings for the command to execute.",
+                            "properties": {
+                              "command": {
+                                "type": "string",
+                                "description": "The command to execute."
+                              },
+                              "executeBeforeWriteOutputTo": {
+                                "type": "string",
+                                "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                              },
+                              "noOutput": {
+                                "type": "boolean",
+                                "description": "Indicates if output of that command should NOT be fetched.",
+                                "default": false
+                              },
+                              "outputEncoding": {
+                                "type": "string",
+                                "description": "The encoding of the output.",
+                                "default": "utf8"
+                              },
+                              "verbose": {
+                                "type": "boolean",
+                                "description": "Output execution or not.",
+                                "default": false
+                              },
+                              "writeOutputTo": {
+                                "type": "string",
+                                "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                              }
+                            }
+                          },
+                          {
                             "description": "The commands to execute.",
                             "type": "array",
                             "items": {
-                              "type": "string",
-                              "description": "The command to execute."
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "description": "The command to execute."
+                                },
+                                {
+                                  "type": "object",
+                                  "description": "Settings for the command to execute.",
+                                  "properties": {
+                                    "command": {
+                                      "type": "string",
+                                      "description": "The command to execute."
+                                    },
+                                    "executeBeforeWriteOutputTo": {
+                                      "type": "string",
+                                      "description": "The code to execute before output is written via 'writeOutputTo' setting. The result of the execution will be used as value to write."
+                                    },
+                                    "noOutput": {
+                                      "type": "boolean",
+                                      "description": "Indicates if output of that command should NOT be fetched.",
+                                      "default": false
+                                    },
+                                    "outputEncoding": {
+                                      "type": "string",
+                                      "description": "The encoding of the output.",
+                                      "default": "utf8"
+                                    },
+                                    "verbose": {
+                                      "type": "boolean",
+                                      "description": "Output execution or not.",
+                                      "default": false
+                                    },
+                                    "writeOutputTo": {
+                                      "type": "string",
+                                      "description": "The name of the placeholders where to write the output to. This value will be available for the upcoming commands, but will be available for the current deployment only."
+                                    }
+                                  }
+                                }
+                              ]
                             }
                           }
                         ]
