@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.31.0 (August 21st, 2017; prompt target)
+
+* added `handleAs` property for entries in a [prompt target](https://github.com/mkloubert/vs-deploy/wiki/target_prompt), which can define in what data type to convert the user's input to
+
 ## 9.30.0 (August 12th, 2017; output results of SFTP commands)
 
 * can output results of [SFTP server commands](https://github.com/mkloubert/vs-deploy/wiki/target_sftp#execute-commands-on-server) defined in `beforeUpload`, `closing`, `connected` and `uploaded` settings now
