@@ -19864,6 +19864,12 @@
                                   "type": "boolean",
                                   "default": true
                                 },
+                                "handleAs": {
+                                  "description": "The type to convert the user's input to.",
+                                  "type": "string",
+                                  "enum": [ "", "list", "object", "string" ],
+                                  "default": "string"
+                                },
                                 "isPassword": {
                                   "description": "Input value is secret / a password.",
                                   "type": "boolean",

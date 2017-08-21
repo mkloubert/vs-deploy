@@ -55,6 +55,7 @@ interface PromptEntry {
     validator?: string;
     validatorOptions?: any;
     valuePlaceHolder?: string;
+    handleAs?: string;
 }
 
 /**
@@ -205,7 +206,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                 };
             });
 
-            // create an actio
+            // create an action
             // for each entry in
             // 'prompts'
             prompts.forEach((p, propmptIndex) => {
@@ -335,7 +336,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                     }
 
                     return new Promise<any>((resolve, reject) => {
-                        let completed = (err: any, userValue?: string) => {
+                        let completed = (err: any, userValue?: any) => {
                             if (err) {
                                 reject(err);
                             }
@@ -422,6 +423,21 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                             placeHolderText = deploy_values.replaceWithValues(me.context.values(), placeHolderText);
                             placeHolderText = !deploy_helpers.isEmptyString(placeHolderText) ? placeHolderText : undefined;
 
+                            const CONVERT_INPUT_VALUE = (inputVal: string): any => {
+                                switch (deploy_helpers.normalizeString(p.handleAs)) {
+                                    case 'list':
+                                        return JSON.parse('[ ' + inputVal + ' ]');
+                                    
+                                    case 'object':
+                                        if (deploy_helpers.isEmptyString(inputVal)) {
+                                            return undefined;
+                                        }
+                                        return JSON.parse(inputVal);
+                                }
+
+                                return inputVal;
+                            };
+
                             vscode.window.showInputBox({
                                 ignoreFocusOut: ignoreFocusOut,
                                 password: deploy_helpers.toBooleanSafe(p.isPassword),
@@ -445,7 +461,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                                 return me.context.require(id);
                                             },
                                             targets: targets,
-                                            value: v,
+                                            value: CONVERT_INPUT_VALUE(v),
                                         };
 
                                         let isValid = deploy_helpers.toBooleanSafe(validator(args), true);
@@ -468,7 +484,13 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                                     return errMsg;
                                 },
                             }).then((userValue) => {
-                                completed(null, userValue);
+                                try {
+                                    completed(null,
+                                              CONVERT_INPUT_VALUE(userValue));
+                                }
+                                catch (e) {
+                                    completed(e);
+                                }
                             }, (err) => {
                                 completed(err);
                             });
