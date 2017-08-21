@@ -578,6 +578,36 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     });
                 };
 
+                let setupPrivateKeyIfNeeded = () => {
+                    try {
+                        if (privateKey) {
+                            let privateKeySourceFormat = me.context.replaceWithValues(target.privateKeySourceFormat);
+                            privateKeySourceFormat = privateKeySourceFormat.trim();
+
+                            if ('' !== privateKeySourceFormat) {
+                                let privateKeyTargetFormat = me.context.replaceWithValues(target.privateKeyTargetFormat);
+                                privateKeyTargetFormat = privateKeyTargetFormat.trim();
+                                if ('' === privateKeyTargetFormat) {
+                                    privateKeyTargetFormat = 'ssh';
+                                }
+
+                                const OPTS = {
+                                    'filename': privateKeyFile,
+                                    'passphrase': privateKeyPassphrase,
+                                };
+
+                                privateKey = sshpk.parsePrivateKey(privateKey, privateKeySourceFormat)
+                                                  .toBuffer(privateKeyTargetFormat, OPTS);
+                            }
+                        }
+
+                        openConnection();
+                    }
+                    catch (e) {
+                        completed(e);
+                    }
+                };
+
                 let askForPasswordIfNeeded = (defaultValueForShowPasswordPrompt: boolean,
                                               passwordGetter: () => string,
                                               passwordSetter: (pwdToSet: string) => void,
@@ -611,14 +641,14 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                 me.context.targetCache().set(target,
                                                              cacheKey, passwordFromUser);
 
-                                openConnection();
+                                setupPrivateKeyIfNeeded();
                             }
                         }, (err) => {
                             completed(err);
                         });
                     }
                     else {
-                        openConnection();
+                        setupPrivateKeyIfNeeded();
                     }
                 };
 
@@ -637,30 +667,11 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             return;
                         }
 
-                        try {
-                            let privateKeySourceFormat = me.context.replaceWithValues(target.privateKeySourceFormat);
-                            privateKeySourceFormat = privateKeySourceFormat.trim();
-
-                            if ('' !== privateKeySourceFormat) {
-                                let privateKeyTargetFormat = me.context.replaceWithValues(target.privateKeyTargetFormat);
-                                privateKeyTargetFormat = privateKeyTargetFormat.trim();
-                                if ('' === privateKeyTargetFormat) {
-                                    privateKeyTargetFormat = 'ssh';
-                                }    
-
-                                data = sshpk.parseKey(data, privateKeySourceFormat)
-                                            .toBuffer(privateKeyTargetFormat);
-                            }
-
-                            privateKey = data;
-                            askForPasswordIfNeeded(false,
-                                                   () => privateKeyPassphrase,
-                                                   (pwdToSet) => privateKeyPassphrase = pwdToSet,
-                                                   'privateKeyPassphrase');
-                        }
-                        catch (e) {
-                            completed(e);
-                        }
+                        privateKey = data;
+                        askForPasswordIfNeeded(false,
+                                               () => privateKeyPassphrase,
+                                               (pwdToSet) => privateKeyPassphrase = pwdToSet,
+                                               'privateKeyPassphrase');
                     });
                 }
             }
