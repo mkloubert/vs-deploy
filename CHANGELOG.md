@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.32.0 (August 21st, 2017; SFTP private key format)
+
+* added `privateKeySourceFormat` and `privateKeyTargetFormat` settings for [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, that can define the input and output format of a private key
+
 ## 9.31.0 (August 21st, 2017; prompt target)
 
 * added `handleAs` property for entries in a [prompt target](https://github.com/mkloubert/vs-deploy/wiki/target_prompt), which can define in what data type to convert the user's input to
