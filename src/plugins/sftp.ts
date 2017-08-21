@@ -592,7 +592,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                     'passphrase': privateKeyPassphrase,
                                 };
 
-                                privateKey = sshpk.parsePrivateKey(privateKey, privateKeySourceFormat)
+                                privateKey = sshpk.parsePrivateKey(privateKey, privateKeySourceFormat, OPTS)
                                                   .toBuffer(privateKeyTargetFormat, OPTS);
                             }
                         }
