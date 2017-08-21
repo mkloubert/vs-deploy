@@ -581,11 +581,15 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 let setupPrivateKeyIfNeeded = () => {
                     try {
                         if (privateKey) {
-                            let privateKeySourceFormat = me.context.replaceWithValues(target.privateKeySourceFormat);
+                            let privateKeySourceFormat = deploy_helpers.toStringSafe(
+                                me.context.replaceWithValues(target.privateKeySourceFormat)
+                            );
                             privateKeySourceFormat = privateKeySourceFormat.trim();
 
                             if ('' !== privateKeySourceFormat) {
-                                let privateKeyTargetFormat = me.context.replaceWithValues(target.privateKeyTargetFormat);
+                                let privateKeyTargetFormat = deploy_helpers.toStringSafe(
+                                    me.context.replaceWithValues(target.privateKeyTargetFormat)
+                                );
                                 privateKeyTargetFormat = privateKeyTargetFormat.trim();
                                 if ('' === privateKeyTargetFormat) {
                                     privateKeyTargetFormat = 'ssh';
