@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.32.2 (August 21st, 2017; SFTP private key format)
+## 9.32.3 (August 21st, 2017; SFTP private key format)
 
 * added `privateKeySourceFormat` and `privateKeyTargetFormat` settings for [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) targets, that can define the input and output format of a private key
 
