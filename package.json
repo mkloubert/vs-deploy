@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "9.31.0",
+  "version": "9.32.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.6.0"
@@ -19854,7 +19854,12 @@
                                 "handleAs": {
                                   "description": "The type to convert the user's input to.",
                                   "type": "string",
-                                  "enum": [ "", "list", "object", "string" ],
+                                  "enum": [
+                                    "",
+                                    "list",
+                                    "object",
+                                    "string"
+                                  ],
                                   "default": "string"
                                 },
                                 "isPassword": {
@@ -24320,6 +24325,14 @@
                         "type": "string",
                         "description": "The path to the private key file, if authentification should be done via SSH key.",
                         "default": "./my-private-file.key"
+                      },
+                      "privateKeySourceFormat": {
+                        "type": "string",
+                        "description": "The source format of the private key."
+                      },
+                      "privateKeyTargetFormat": {
+                        "type": "string",
+                        "description": "The custom target format of the private key."
                       },
                       "privateKeyPassphrase": {
                         "type": "string",
@@ -31981,6 +31994,7 @@
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
     "@types/ssh2-sftp-client": "^1.0.5",
+    "@types/sshpk": "^1.10.3",
     "@types/tmp": "0.0.32",
     "@types/uuid": "^2.0.29",
     "mocha": "^2.3.3",
@@ -32028,6 +32042,7 @@
     "parse-listing": "^1.1.3",
     "pug": "^2.0.0-rc.1",
     "ssh2-sftp-client": "^1.0.5",
+    "sshpk": "^1.13.1",
     "tmp": "0.0.31",
     "typescript": "^2.3.2",
     "uglify-js": "^2.8.23",

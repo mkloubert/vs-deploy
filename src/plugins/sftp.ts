@@ -32,6 +32,7 @@ import * as i18 from '../i18';
 import * as Moment from 'moment';
 import * as Path from 'path';
 const SFTP = require('ssh2-sftp-client');
+import * as sshpk from 'sshpk';
 import * as TMP from 'tmp';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
@@ -62,6 +63,8 @@ interface DeployTargetSFTP extends deploy_contracts.TransformableDeployTarget, d
     closing?: SSHCommands;
     updateModesOfDirectories?: boolean;
     noCommandOutput?: boolean;
+    privateKeySourceFormat?: string;
+    privateKeyTargetFormat?: string;
 }
 
 interface FileToUpload {
@@ -630,11 +633,30 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                             return;
                         }
 
-                        privateKey = data;
-                        askForPasswordIfNeeded(false,
-                                               () => privateKeyPassphrase,
-                                               (pwdToSet) => privateKeyPassphrase = pwdToSet,
-                                               'privateKeyPassphrase');
+                        try {
+                            let privateKeySourceFormat = me.context.replaceWithValues(target.privateKeySourceFormat);
+                            privateKeySourceFormat = privateKeySourceFormat.trim();
+
+                            if ('' !== privateKeySourceFormat) {
+                                let privateKeyTargetFormat = me.context.replaceWithValues(target.privateKeyTargetFormat);
+                                privateKeyTargetFormat = privateKeyTargetFormat.trim();
+                                if ('' === privateKeyTargetFormat) {
+                                    privateKeyTargetFormat = 'ssh';
+                                }    
+
+                                data = sshpk.parseKey(data, privateKeySourceFormat)
+                                            .toBuffer(privateKeyTargetFormat);
+                            }
+
+                            privateKey = data;
+                            askForPasswordIfNeeded(false,
+                                                   () => privateKeyPassphrase,
+                                                   (pwdToSet) => privateKeyPassphrase = pwdToSet,
+                                                   'privateKeyPassphrase');
+                        }
+                        catch (e) {
+                            completed(e);
+                        }
                     });
                 }
             }
