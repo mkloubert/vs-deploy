@@ -60,7 +60,7 @@ export const translation: Translation = {
         },
         button: {
             cancelling: 'Annulation...',
-            prepareText: 'Preparartion au déploiement...',
+            prepareText: 'Préparation au déploiement...',
             text: 'Déploiement...',
             tooltip: 'Cliquez ici pour annuler le déploiement...',
         },
