@@ -26,6 +26,7 @@ import { Translation } from '../i18';
 // french
 //
 // Translated by: Neiobaf (https://github.com/neiobaf)
+//                Mathieu Lesniak (https://github.com/mathieulesniak)
 export const translation: Translation = {
     __plugins: {
         reload: {
@@ -60,7 +61,7 @@ export const translation: Translation = {
         },
         button: {
             cancelling: 'Annulation...',
-            prepareText: 'Preparartion au déploiement...',
+            prepareText: 'Préparation au déploiement...',
             text: 'Déploiement...',
             tooltip: 'Cliquez ici pour annuler le déploiement...',
         },
