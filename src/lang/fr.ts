@@ -26,6 +26,7 @@ import { Translation } from '../i18';
 // french
 //
 // Translated by: Neiobaf (https://github.com/neiobaf)
+//                Mathieu Lesniak (https://github.com/mathieulesniak)
 export const translation: Translation = {
     __plugins: {
         reload: {

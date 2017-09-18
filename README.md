@@ -40,7 +40,7 @@ There is also build-in support for the following [compilers and processors](http
 
 * brazilian portuguese (thanks to [Celio Rodrigues](https://github.com/ItsMeCelio)!)
 * english
-* french (thanks to [neiobaf](https://github.com/neiobaf)!)
+* french (thanks to [neiobaf](https://github.com/neiobaf) and [Mathieu Lesniak](https://github.com/mathieulesniak)!)
 * german
 * spanish (thanks to [alejandroivan](https://github.com/alejandroivan)!)
 * russian (thanks to [sag3ll0](https://github.com/sag3ll0)!)
