@@ -262,6 +262,10 @@ export const translation: Translation = {
             description: 'Place une liste de fichiers sources dans un \'pipe\' vers une nouvelle destination, en utilisant un script et envoie la liste des nouveaux fichiers vers la cible',
             noPipeFunction: "{0:trim,surround} n'implémente pas de fonction 'pipe()'!",
         },
+        prompt: {
+            description: "Demande à l'utilisateur une liste de paramètres à appliquer à une ou plusieurs cibles",
+            invalidInput: "Entrée invalide!",
+        },
         remote: {
             description: 'Déploie vers une machine distante via une connexion TCP',
         },
@@ -299,6 +303,11 @@ export const translation: Translation = {
             showChangeLog: 'Afficher le journal de modifications...',
         },
     },
+    prompts: {
+        inputAccessKey: 'Entrez la clé d\'accès (Access Key)...',
+        inputAccessToken: 'Entrez le jeton d\'accès (Access Token)...',
+        inputPassword: 'Entrez le mot de passe...',
+    },
     pull: {
         button: {
             cancelling: 'Annulation...',
@@ -313,7 +322,7 @@ export const translation: Translation = {
             pulling: 'Récupération du fichier {0:trim,surround}{1:trim,leading_space}... ',
             pullingWithDestination: 'Récupération du fichier {0:trim,surround} depuis {1:trim,surround}{2:trim,leading_space}... ',
             succeeded: 'Fichier {0:trim,surround} récupéré avec succès.',
-            succeededWithTarget: 'File {0:trim,surround} récupéré avec succès depuis {1:trim,surround}.',
+            succeededWithTarget: 'Fichier {0:trim,surround} récupéré avec succès depuis {1:trim,surround}.',
         },
         fileOrFolder: {
             failed: "Impossible de récupérer le fichier / dossier {0:trim,surround}: {1}",
@@ -354,6 +363,14 @@ export const translation: Translation = {
     relativePaths: {
         couldNotResolve: "Impossible d'obtenir le chemin relatif pour le fichier {0:trim,surround}!",
         isEmpty: 'Le chemin relatif du fichier {0:trim,surround} est vide!',
+    },
+    sync: {
+        file: {
+            doesNotExistOnRemote: '[Objet distant inexistant]',
+            localChangedWithinSession: '[Modification locale durant la session]',
+            localIsNewer: '[Fichier local plus récent]',
+            synchronize: 'Synchronisation du fichier {0:trim,surround}{1:trim,leading_space}... ',
+        }
     },
     targets: {
         cannotUseRecurrence: 'Impossible d\'utiliser la cible {0:trim,surround} (recurrence)!',
