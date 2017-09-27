@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.32.5 (September 27th, 2017; french translation)
+
+* [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)
+
 ## 9.32.4 (September 18th, 2017; french translation)
 
 * fixes in [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) by [Mathieu Lesniak](https://github.com/mathieulesniak)
