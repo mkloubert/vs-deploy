@@ -38,7 +38,7 @@ There is also build-in support for the following [compilers and processors](http
 
 ... and these languages:
 
-* brazilian portuguese (thanks to [Celio Rodrigues](https://github.com/ItsMeCelio)!)
+* brazilian portuguese (thanks to [Celio Rodrigues](https://github.com/rodriguescelio)!)
 * english
 * french (thanks to [neiobaf](https://github.com/neiobaf) and [Mathieu Lesniak](https://github.com/mathieulesniak)!)
 * german
