@@ -137,8 +137,8 @@ export const translation: Translation = {
             someFailedWithTarget: '{0:trim} de {1:trim} arquivo(s) não foram implementados para {2:trim,surround}!',
             status: 'Implementando {0:trim,surround}... ',
             statusWithDestination: 'Implementando {0:trim,surround} para {1:trim,surround}... ',
-            virtualTargetName: 'Virtual batch target for current package',
-            virtualTargetNameWithPackage: 'Virtual batch target for package {0:trim,surround}',
+            virtualTargetName: 'Lote virtual de destino para o pacote atual',
+            virtualTargetNameWithPackage: 'Lote virtual de destino para o pacote {0:trim,surround}',
         }
     },
     errors: {
@@ -350,8 +350,8 @@ export const translation: Translation = {
             someFailedWithTarget: '{0:trim} de {1:trim} arquivos(s) não foram baixados para {2:trim,surround}!',
             status: 'Baixando {0:trim,surround}... ',
             statusWithDestination: 'Baixando {0:trim,surround} para {1:trim,surround}... ',
-            virtualTargetName: 'Virtual batch target for current package',
-            virtualTargetNameWithPackage: 'Virtual batch target for package {0:trim,surround}',
+            virtualTargetName: 'Lote virtual de destino para o pacote atual',
+            virtualTargetNameWithPackage: 'Lote virtual de destino para o pacote {0:trim,surround}',
         }
     },
     quickDeploy: {
