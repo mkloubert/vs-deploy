@@ -2207,7 +2207,7 @@ export function readSocket(socket: Net.Socket, numberOfBytes: number): Promise<B
 /**
  * Removes documents from a storage.
  * 
- * @param {deploy_contracts.Document|sc_contracts.Document[]} docs The document(s) to remove.
+ * @param {deploy_contracts.Document|deploy_contracts.Document[]} docs The document(s) to remove.
  * @param {deploy_contracts.Document[]} storage The storage.
  * 
  * @return {deploy_contracts.Document[]} The removed documents.
