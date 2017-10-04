@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.32.6 (October 4th, 2017; brazilian portuguese translation)
+
+* [portuguese (brazilian) translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/pt-br.ts) updated by [Celio Rodrigues](https://github.com/rodriguescelio)
+
 ## 9.32.5 (September 27th, 2017; french translation)
 
 * [french translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/fr.ts) updated by [neiobaf](https://github.com/neiobaf)
@@ -26,7 +30,7 @@
 
 ## 9.28.1 (July 21st, 2017; brazilian portuguese translation)
 
-* added portuguese (brazilian) translation (thanks to [Celio Rodrigues](https://github.com/ItsMeCelio)!)
+* added portuguese (brazilian) translation (thanks to [Celio Rodrigues](https://github.com/rodriguescelio)!)
 
 ## 9.27.0 (July 3rd, 2017; spanish translation)
 

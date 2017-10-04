@@ -25,7 +25,7 @@ import { Translation } from '../i18';
 
 // Brazilian Portuguese
 // 
-// Translated by: Celio Rodrigues (https://github.com/ItsMeCelio)
+// Translated by: Celio Rodrigues (https://github.com/rodriguescelio)
 export const translation: Translation = {
     __plugins: {
         reload: {
