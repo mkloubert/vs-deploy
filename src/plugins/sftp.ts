@@ -101,15 +101,6 @@ type SSHCommands = SSHCommandEntry | SSHCommandEntry[];
 const MODE_PAD = '000';
 const TOUCH_TIME_FORMAT = 'YYYYMMDDHHmm.ss';
 
-function getDirFromTarget(target: DeployTargetSFTP): string {
-    let dir = deploy_helpers.toStringSafe(target.dir);
-    if ('' === dir) {
-        dir = '/';
-    }
-
-    return dir;
-}
-
 function toHashSafe(hash: string): string {
     return deploy_helpers.normalizeString(hash);
 }
@@ -472,8 +463,6 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let host = deploy_helpers.toStringSafe(target.host, deploy_contracts.DEFAULT_HOST);
             let port = parseInt(deploy_helpers.toStringSafe(target.port, '22').trim());
 
-            
-
             // username and password
             let user = deploy_helpers.toStringSafe(target.user);
             if ('' === user) {
@@ -710,7 +699,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 return;
             }
 
-            let dir = getDirFromTarget(target);
+            let dir = me.getDirFromTarget(target);
 
             let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
             let targetDirectory = toSFTPPath(Path.dirname(targetFile));
@@ -1070,7 +1059,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                     return;
                 }
 
-                let dir = getDirFromTarget(target);
+                let dir = me.getDirFromTarget(target);
 
                 let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
                 let targetDirectory = toSFTPPath(Path.dirname(targetFile));
@@ -1180,6 +1169,15 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
         });
     }
 
+    protected getDirFromTarget(target: DeployTargetSFTP): string {
+        let dir = this.context.replaceWithValues(target.dir);
+        if (deploy_helpers.isEmptyString(dir)) {
+            dir = '/';
+        }
+    
+        return dir;
+    }
+
     protected async getFileInfoWithContext(ctx: SFTPContext,
                                            file: string, target: DeployTargetSFTP, opts: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
         let me = this;
@@ -1189,7 +1187,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }
 
-        let dir = getDirFromTarget(target);
+        let dir = me.getDirFromTarget(target);
 
         let targetFile = toSFTPPath(Path.join(dir, relativeFilePath));
         let targetDirectory = toSFTPPath(Path.dirname(targetFile));

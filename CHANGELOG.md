@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.33.0 (October 5th, 2017; placeholders in SFTP targets)
+
+* `dir` property of [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) now supports [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values)
+
 ## 9.32.6 (October 4th, 2017; brazilian portuguese translation)
 
 * [portuguese (brazilian) translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/pt-br.ts) updated by [Celio Rodrigues](https://github.com/rodriguescelio)
