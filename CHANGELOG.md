@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 9.34.0 (October 8th, 2017; placeholders in arguments of 'open' operations)
+## 9.34.1 (October 8th, 2017; placeholders in arguments of 'open' operations)
 
 * added `usePlaceholdersInArguments` for [open](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) deploy operations
 
