@@ -1117,6 +1117,10 @@ export interface DeployOpenOperation extends DeployOperation, ProcessObject {
      */
     target?: string;
     /**
+     * Use placeholders in arguments or not.
+     */
+    usePlaceholdersInArguments?: boolean;
+    /**
      * Wait until target has been executed or not.
      */
     wait?: boolean;

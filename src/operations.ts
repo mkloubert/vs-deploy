@@ -551,6 +551,16 @@ export function http(ctx: OperationContext<deploy_contracts.DeployHttpOperation>
 export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>): Promise<boolean> {
     let me: vs_deploy.Deployer = this;
 
+    const GET_FINAL_ARGS = (argList: string[]) => {
+        if (deploy_helpers.toBooleanSafe(ctx.operation.usePlaceholdersInArguments)) {
+            argList = argList.map(a => {
+                return me.replaceWithValues(a);
+            });
+        }
+
+        return argList;
+    };
+
     return new Promise<boolean>((resolve, reject) => {
         let completed = deploy_helpers.createSimplePromiseCompletedAction<boolean>(resolve, reject);
 
@@ -564,7 +574,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
 
                 let args = deploy_helpers.asArray(openOperation.arguments)
                                          .map(x => deploy_helpers.toStringSafe(x))
-                                         .filter(x => x);
+                                         .filter(x => '' !== x);
 
                 let terminalName = '[vs-deploy]';
                 if (!deploy_helpers.isEmptyString(openOperation.name)) {
@@ -579,7 +589,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                 app = Path.resolve(app);
 
                 let terminal = vscode.window.createTerminal(terminalName,
-                                                            app, args);
+                                                            app, GET_FINAL_ARGS(args));
                 terminal.show();
             }
             else {
@@ -588,7 +598,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                     openArgs = openArgs.concat(deploy_helpers.asArray(openOperation.arguments));
                 }
                 openArgs = openArgs.map(x => deploy_helpers.toStringSafe(x))
-                                   .filter(x => x);
+                                   .filter(x => '' !== x);
 
                 if (openArgs.length > 0) {
                     let app = operationTarget;
@@ -601,7 +611,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                 ctx.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
 
                 deploy_helpers.open(operationTarget, {
-                    app: openArgs,
+                    app: GET_FINAL_ARGS(openArgs),
                     env: deploy_helpers.makeEnvVarsForProcess(openOperation, me.getValues()),
                     wait: waitForExit,
                 }).then(function() {
