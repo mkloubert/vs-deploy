@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 9.34.0 (October 8th, 2017; placeholders in arguments of 'open' operations)
+
+* added `usePlaceholdersInArguments` for [open](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) deploy operations
+
 ## 9.33.0 (October 5th, 2017; placeholders in SFTP targets)
 
 * `dir` property of [sftp targets](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) now supports [placeholders](https://github.com/mkloubert/vs-deploy/wiki/values)
