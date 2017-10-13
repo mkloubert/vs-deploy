@@ -424,7 +424,6 @@ class FtpClient extends FtpClientBase {
                     info = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -441,7 +440,6 @@ class FtpClient extends FtpClientBase {
                     let info: deploy_contracts.FileInfo = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     };
 
                     if (list) {
@@ -716,7 +714,6 @@ class JsFTPClient extends FtpClientBase {
                     info = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -739,7 +736,6 @@ class JsFTPClient extends FtpClientBase {
                                 let info: deploy_contracts.FileInfo = {
                                     exists: false,
                                     isRemote: true,
-                                    type: deploy_contracts.FileSystemType.File,
                                 };
 
                                 if (list) {
@@ -1010,7 +1006,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             completed();  // cancellation requested
         }
         else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativeFilePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -1219,7 +1215,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -1274,7 +1270,7 @@ class FtpPlugin extends deploy_objects.DeployPluginWithContextBase<FTPContext> {
             let completed = deploy_helpers.createSimplePromiseCompletedAction<deploy_contracts.FileInfo>(resolve, reject);
             
             try {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;

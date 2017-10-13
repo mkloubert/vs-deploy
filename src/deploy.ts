@@ -2340,22 +2340,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
-     * Event after a document has been closed.
-     * 
-     * @param {vscode.TextDocument} doc The document.
-     */
-    public onDidCloseTextDocument(doc: vscode.TextDocument) {
-        if (!doc) {
-            return;
-        }
-
-        let me = this;
-
-        deploy_targets.unregisterTextDocumentForSave
-                      .apply(me, [ doc ]);
-    }
-
-    /**
      * Event after a document has been saved.
      * 
      * @param {string} fileName The path of the file.
@@ -2570,29 +2554,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
-        let me = this;
-
-        deploy_targets.handleSavedTextDocument.apply(me, [ doc ]).then((handled: boolean) => {
-            if (handled) {
-                return;
-            }
-
-            try {
-                if (deploy_helpers.toBooleanSafe(me.config.deployOnSave, true) &&
-                    me._isDeployOnSaveEnabled) {
-                        
-                    // only if activated
-                    me.onDidSaveFile(doc.fileName);
-                }
-            }
-            catch (e) {
-                me.log(i18.t('errors.withCategory',
-                             'Deployer.onDidSaveTextDocument(2)', e));
-            }
-        }).catch((err) => {
-            me.log(i18.t('errors.withCategory',
-                         'Deployer.onDidSaveTextDocument(1)', err));
-        });
+        if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true) &&
+            this._isDeployOnSaveEnabled) {
+                
+            // only if activated
+            this.onDidSaveFile(doc.fileName);
+        }
     }
 
     /**
@@ -3968,6 +3935,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     public reloadConfiguration() {
         let me = this;
 
+        let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+
         let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
             let showDefaultTemplateRepos = true;
             if (cfg.templates) {
@@ -4097,7 +4066,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                                                     return clonedTarget;         
                                                 });
-
             me._globalScriptOperationState = {};
             me._htmlDocs = [];
             me._isDeployOnChangeFreezed = false;
@@ -4139,32 +4107,12 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             }
         }
 
-        let mergeConfig = (loadedCfg: deploy_contracts.DeployConfiguration) => {
-            if (!loadedCfg) {
-                loadedCfg = <any>{};
-            }
-
-            deploy_config.mergeConfig(loadedCfg).then((cfg) => {
-                applyCfg(cfg);
-            }).catch((err) => {
-                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
-
-                applyCfg(loadedCfg);
-            });
-        };
-        
-        deploy_config.loadConfig.apply(me, []).then((cfgRes: deploy_config.LoadConfigResult) => {
-            mergeConfig(cfgRes.config);
+        deploy_config.mergeConfig(loadedCfg).then((cfg) => {
+            applyCfg(cfg);
         }).catch((err) => {
-            let lc = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
-            
-            vscode.window.showErrorMessage('[vs-deploy] Could not load config: ' + deploy_helpers.toStringSafe(err)).then(() => {
-                mergeConfig(lc);
-            }, () => {
-                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(3): ${deploy_helpers.toStringSafe(err)}`);
+            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
 
-                mergeConfig(lc);
-            });
+            applyCfg(loadedCfg);
         });
     }
 
@@ -4976,16 +4924,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public get startTime(): Moment.Moment {
         return this._startTime;
-    }
-
-    /**
-     * Unregisters all target text documents.
-     * 
-     * @returns {deploy_targets.TextDocumentWithTarget[]} The removed items.
-     */
-    public unregisterAllTextDocumentsForSave(): deploy_targets.TextDocumentWithTarget[] {
-        return deploy_targets.unregisterAllTextDocumentsForSave
-                             .apply(this, []);
     }
 
     /**

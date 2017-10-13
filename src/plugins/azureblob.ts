@@ -192,7 +192,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
         }
         else {
             try {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -319,7 +319,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             }
             else {
                 try {
-                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                     if (false === relativePath) {
                         completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                         return;
@@ -414,7 +414,6 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                     info = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -426,7 +425,7 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
             }
             else {
                 try {
-                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                     if (false === relativePath) {
                         completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                         return;
@@ -452,7 +451,6 @@ class AzureBlobPlugin extends deploy_objects.DeployPluginWithContextBase<AzureBl
                                 isRemote: true,
                                 name: Path.basename(<string>relativePath),
                                 path: Path.dirname(<string>relativePath),
-                                type: deploy_contracts.FileSystemType.File,
                             };
 
                             if (!deploy_helpers.isNullUndefinedOrEmptyString(result.lastModified)) {

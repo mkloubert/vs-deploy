@@ -106,7 +106,7 @@ class HttpPlugin extends deploy_objects.DeployPluginBase {
             completed();  // cancellation requested
         }
         else {
-            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;

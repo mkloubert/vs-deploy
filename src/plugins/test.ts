@@ -89,7 +89,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             me.onCancelling(() => hasCancelled = true, opts);
 
             try {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -151,7 +151,7 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             opts = {};
         }
 
-        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+        let relativeTargetFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
         if (false === relativeTargetFilePath) {
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }
@@ -166,7 +166,6 @@ class TestPlugin extends deploy_objects.DeployPluginBase {
             let result: deploy_contracts.FileInfo = {
                 exists: undefined,
                 isRemote: true,
-                type: deploy_contracts.FileSystemType.File,
             };
 
             ctx.result = result;

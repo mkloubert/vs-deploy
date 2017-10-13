@@ -27,17 +27,14 @@
 
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
-import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
-import * as deploy_pull from './pull';
-import * as deploy_targets from './targets';
 import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
 import * as vscode from 'vscode';
 import * as vs_contracts from './contracts';
+import * as deploy_globals from './globals';
 import * as vs_deploy from './deploy';
-import * as Workflows from 'node-workflows';
 
 
 type GetTargetsCallback = (err: any, targets?: vs_contracts.DeployTarget[]) => void;
@@ -203,12 +200,6 @@ export function activate(context: vscode.ExtensionContext) {
         deployer.pullWorkspace();
     });
 
-    // pull all files from target
-    let pullAllFiles = vscode.commands.registerCommand('extension.deploy.pullAllFilesFromTarget', () => {
-        deploy_pull.pullAllFilesFromTarget
-                   .apply(deployer, []);
-    });
-
     // pull open file or selected folder
     let pullFileOrFolder = vscode.commands.registerCommand('extension.deploy.pullFile', (u?: any) => {
         deployer.pullFileOrFolder(u);
@@ -223,8 +214,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(deployer.onDidChangeConfiguration, deployer));
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
-    // notifiy on document has been closed
-    context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(deployer.onDidCloseTextDocument, deployer));
 
     context.subscriptions.push(deployer,
                                compareFiles,
@@ -234,26 +223,6 @@ export function activate(context: vscode.ExtensionContext) {
                                pull, pullFileOrFolder,
                                openHtmlDoc, openOutputAfterDeploment, openTemplate, 
                                quickDeploy);
-
-    // explorer
-    try {
-        const deploy_explorer = require('./explorer');
-
-        let targetExplorer = new deploy_explorer.Explorer(deployer);
-
-        vscode.window.registerTreeDataProvider('vsdExplorer', targetExplorer);
-        context.subscriptions.push(targetExplorer);
-
-        let explorerCommands = deploy_explorer.registerCommands
-                                              .apply(deployer, []);
-
-        context.subscriptions
-               .push
-               .apply(context.subscriptions, explorerCommands);
-    }
-    catch (e) {
-        //TODO: show warning message
-    }
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();

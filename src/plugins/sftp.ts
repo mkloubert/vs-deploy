@@ -295,10 +295,6 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
     public get canGetFileInfo(): boolean {
         return true;
     }
-
-    public get canList(): boolean {
-        return true;
-    }
     
     public get canPull(): boolean {
         return true;
@@ -693,7 +689,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             completed();  // cancellation requested
         }
         else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativeFilePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -1053,7 +1049,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -1182,7 +1178,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
                                            file: string, target: DeployTargetSFTP, opts: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
         let me = this;
         
-        let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+        let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
         if (false === relativeFilePath) {
             throw new Error(i18.t('relativePaths.couldNotResolve', file));
         }
@@ -1206,7 +1202,6 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             let info: deploy_contracts.FileInfo = {
                 exists: false,
                 isRemote: true,
-                type: deploy_contracts.FileSystemType.File,
             };
 
             try {
@@ -1262,73 +1257,6 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
         return {
             description: i18.t('plugins.sftp.description'),
         };
-    }
-
-    protected async listWithContext(ctx: SFTPContext,
-                                    path: string, target: DeployTargetSFTP, opts: deploy_contracts.ListDirectoryOptions): Promise<deploy_contracts.FileSystemInfo[]> {
-        let dir = getDirFromTarget(target);
-        while (dir.endsWith('/')) {
-            dir = dir.substr(0, dir.length - 1);
-        }
-
-        let targetDirectory = toSFTPPath(dir + path);
-
-        let wf = Workflows.create();
-
-        wf.on('action.after', function(err, wfCtx: Workflows.WorkflowActionContext) {
-            if (ctx.hasCancelled) {
-                wfCtx.finish();
-            }
-        });
-
-        wf.next((wfCtx) => {
-            wfCtx.result = [];
-        });
-
-        wf.next(async (wfCtx) => {
-            let items: deploy_contracts.FileSystemInfo[] = wfCtx.result;
-
-            let remoteItems: any[] = await ctx.connection.list(targetDirectory);
-            
-            remoteItems.forEach((i) => {
-                let newItem: deploy_contracts.FileSystemInfo;
-                
-                switch (i.type) {
-                    case '-':
-                        let f: deploy_contracts.FileInfo = {
-                            exists: true,
-                            isRemote: true,
-                            name: i.name,
-                            path: targetDirectory,
-                            size: i.size,
-                            type: deploy_contracts.FileSystemType.File,
-                        };
-
-                        newItem = f;
-                        break;
-
-                    case 'd':
-                        let d: deploy_contracts.DirectoryInfo = {
-                            exists: true,
-                            isRemote: true,
-                            name: i.name,
-                            path: targetDirectory,
-                            type: deploy_contracts.FileSystemType.Directory,
-                        };
-
-                        newItem = d;
-                        break;
-                }
-
-                if (newItem) {
-                    items.push(newItem);
-                }
-            });
-        });
-        
-        if (!ctx.hasCancelled) {
-            return await wf.start();
-        }
     }
 }
 

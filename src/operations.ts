@@ -604,14 +604,14 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                     let app = operationTarget;
                     app = me.replaceWithValues(app);
 
-                    operationTarget = openArgs.pop();
-                    openArgs = [ app ].concat(openArgs);
+                    operationTarget = GET_FINAL_ARGS([ openArgs.pop() ])[0];
+                    openArgs = [ app ].concat( GET_FINAL_ARGS(openArgs) );
                 }
 
                 ctx.outputChannel.append(i18.t('deploy.operations.open', operationTarget));
 
                 deploy_helpers.open(operationTarget, {
-                    app: GET_FINAL_ARGS(openArgs),
+                    app: openArgs,
                     env: deploy_helpers.makeEnvVarsForProcess(openOperation, me.getValues()),
                     wait: waitForExit,
                 }).then(function() {

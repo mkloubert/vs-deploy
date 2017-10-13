@@ -26,7 +26,6 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
-import * as Enumerable from 'node-enumerable';
 import * as FS from 'fs';
 import * as i18 from './i18';
 import * as Moment from 'moment';
@@ -93,11 +92,6 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
     }
 
     /** @inheritdoc */
-    public get canList(): boolean {
-        return false;
-    }
-
-    /** @inheritdoc */
     public get canPull(): boolean {
         return false;
     }
@@ -125,8 +119,7 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
                 try {
                     let left: deploy_contracts.FileInfo = {
                         exists: undefined,
-                        isRemote: false,
-                        type: deploy_contracts.FileSystemType.File,
+                        isRemote: false,  
                     };
 
                     FS.exists(file, (exists) => {
@@ -422,11 +415,6 @@ export abstract class DeployPluginBase implements deploy_contracts.DeployPlugin,
         });
 
         return batchTargets;
-    }
-
-    /** @inheritdoc */
-    public list(path: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
-        throw new Error("Not implemented!");
     }
 
     /**
@@ -914,8 +902,7 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
                 try {
                     let left: deploy_contracts.FileInfo = {
                         exists: undefined,
-                        isRemote: false,
-                        type: deploy_contracts.FileSystemType.File,
+                        isRemote: false,  
                     };
 
                     FS.exists(file, (exists) => {
@@ -1030,14 +1017,14 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
      * 
      * @param {deploy_contracts.DeployTarget} target The target.
      * @param {string[]} files The files to deploy.
-     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions|deploy_contracts.ListDirectoryOptions} opts The underlying options.
+     * @param {deploy_contracts.DeployFileOptions|deploy_contracts.DeployWorkspaceOptions} opts The underlying options.
      * @param {deploy_contracts.DeployDirection} direction The direction.
      * 
      * @return {Promise<DeployPluginContextWrapper<TContext>>} The promise.
      */
     protected abstract createContext(target: deploy_contracts.DeployTarget,
                                      files: string[],
-                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions | deploy_contracts.ListDirectoryOptions,
+                                     opts: deploy_contracts.DeployFileOptions | deploy_contracts.DeployWorkspaceOptions,
                                      direction: deploy_contracts.DeployDirection): Promise<DeployPluginContextWrapper<TContext>>;
 
     /**
@@ -1371,91 +1358,6 @@ export abstract class DeployPluginWithContextBase<TContext> extends MultiFileDep
         throw new Error("Not implemented!");
     }
 
-    /** @inheritdoc */
-    public list(path: string, target: deploy_contracts.DeployTarget, opts?: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
-        let me = this;
-
-        if (!opts) {
-            opts = {};
-        }
-
-        return new Promise<deploy_contracts.FileSystemInfo[]>((resolve, reject) => {
-            let completed = (err: any, items?: deploy_contracts.FileSystemInfo[]) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    items = Enumerable.from(items || []).where(x => {
-                        return !!x;
-                    }).orderBy(x => {
-                        switch (x.type) {
-                            case deploy_contracts.FileSystemType.Directory:
-                                return 0;
-
-                            case deploy_contracts.FileSystemType.File:
-                                return 1;
-                        }
-                        
-                        return Number.MAX_SAFE_INTEGER;
-                    }).thenBy(x => deploy_helpers.normalizeString(x.name))
-                      .toArray();
-
-                    resolve(items);
-                }
-            };
-
-            let wf = Workflows.create();
-            
-            let wrapper: DeployPluginContextWrapper<TContext>;
-            wf.once('end', (err: any, wcnt: number, items?: deploy_contracts.FileSystemInfo[]) => {
-                me.destroyContext(wrapper).then(() => {
-                    completed(err, items);
-                }).catch(() => {
-                    completed(err, items);
-                });
-            });
-
-            // create context
-            wf.next(async (ctx) => {
-                return await me.createContext(target, [ ], opts, deploy_contracts.DeployDirection.ListDirectory);
-            });
-
-            // get file info
-            wf.next(async (ctx) => {
-                wrapper = ctx.previousValue;
-
-                return await me.listWithContext(wrapper.context,
-                                                path, target, opts);
-            });
-
-            // write result
-            wf.next((ctx) => {
-                ctx.result = ctx.previousValue;
-            });
-
-            wf.start().then(() => {
-                // is done by 'end' event
-            }).catch((err) => {
-                // is done by 'end' event
-            });
-        });
-    }
-
-    /**
-     * Lists the content of a directory by using a context.
-     * 
-     * @param {TContext} ctx The context to use.
-     * @param {string} path The path of the directory to list.
-     * @param {DeployTarget} target The target that contains the file to pull.
-     * @param {deploy_contracts.ListDirectoryOptions} opts Additional options.
-     * 
-     * @return {deploy_contracts.ListDirectoryResult} The result.
-     */
-    protected listWithContext(ctx: TContext,
-                              path: string, target: deploy_contracts.DeployTarget, opts: deploy_contracts.ListDirectoryOptions): deploy_contracts.ListDirectoryResult {
-        throw new Error("Not implemented!");
-    }
-
     /**
      * Pulls a file by using a context.
      * 
@@ -1766,7 +1668,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
             completed();  // cancellation requested
         }
         else {
-            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativePath) {
                 relativePath = file;
             }
@@ -1834,7 +1736,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let err: any;
         try {
             if (!hasCancelled) {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativePath) {
                     relativePath = file;
                 }
@@ -1908,7 +1810,6 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
                     info = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     };
                 }
 
@@ -1981,7 +1882,6 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let result: deploy_contracts.FileInfo = {
             exists: false,
             isRemote: true,
-            type: deploy_contracts.FileSystemType.File,
         };
 
         me.onCancelling(() => hasCancelled = true);
@@ -1989,7 +1889,7 @@ export abstract class ZipFileDeployPluginBase extends DeployPluginWithContextBas
         let err: any;
         try {
             if (!hasCancelled) {
-                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativePath) {
                     relativePath = file;
                 }

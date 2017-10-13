@@ -2451,14 +2451,11 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
  * @param {string} path The path to convert.
  * @param {deploy_contracts.DeployTarget} target The target.
  * @param {string} [baseDir] The custom base / root directory to use.
- * @param {boolean} [noMappings] DO NOT use mappings.
  * 
  * @return {string|false} The relative path or (false) if not possible.
  */
-export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget,
-                                     baseDir?: string,
-                                     noMappings?: boolean): string | false {
-    return toRelativeTargetPathWithValues(path, target, [], baseDir, noMappings);
+export function toRelativeTargetPath(path: string, target: deploy_contracts.DeployTarget, baseDir?: string): string | false {
+    return toRelativeTargetPathWithValues(path, target, [], baseDir);
 }
 
 /**
@@ -2469,20 +2466,16 @@ export function toRelativeTargetPath(path: string, target: deploy_contracts.Depl
  * @param {deploy_contracts.DeployTarget} target The target.
  * @param {deploy_contracts.ObjectWithNameAndValue|deploy_contracts.ObjectWithNameAndValue[]} values The values to use.
  * @param {string} [baseDir] The custom base / root directory to use.
- * @param {boolean} [noMappings] DO NOT use mappings.
  * 
  * @return {string|false} The relative path or (false) if not possible.
  */
 export function toRelativeTargetPathWithValues(path: string, target: deploy_contracts.DeployTarget,
                                                values: deploy_contracts.ObjectWithNameAndValue | deploy_contracts.ObjectWithNameAndValue[],
-                                               baseDir?: string,
-                                               noMappings?: boolean): string | false {
+                                               baseDir?: string): string | false {
     let relativePath = toRelativePath(path, baseDir);
     if (false === relativePath) {
         return relativePath;
     }
-
-    noMappings = toBooleanSafe(noMappings);
 
     let normalizeDirPath = (dir: string): string => {
         let normalizedDir = toStringSafe(dir).trim();
@@ -2498,56 +2491,54 @@ export function toRelativeTargetPathWithValues(path: string, target: deploy_cont
         return normalizedDir;
     };
 
-    if (!noMappings) {
-        let allMappings = asArray(target.mappings).filter(x => x);
-        for (let i = 0; i < allMappings.length; i++) {
-            let mapping = allMappings[i];
+    let allMappings = asArray(target.mappings).filter(x => x);
+    for (let i = 0; i < allMappings.length; i++) {
+        let mapping = allMappings[i];
 
-            let sourceDir: string;
-            let targetDir = toStringSafe(mapping.target);
+        let sourceDir: string;
+        let targetDir = toStringSafe(mapping.target);
 
-            let doesMatch = false;
-            if (toBooleanSafe(mapping.isRegEx)) {
-                let r = new RegExp(toStringSafe(mapping.source), 'g');
+        let doesMatch = false;
+        if (toBooleanSafe(mapping.isRegEx)) {
+            let r = new RegExp(toStringSafe(mapping.source), 'g');
 
-                let match = r.exec(relativePath);
-                if (match) {
-                    sourceDir = match[0];
+            let match = r.exec(relativePath);
+            if (match) {
+                sourceDir = match[0];
 
-                    // RegEx matches
-                    let matchValues: deploy_values.ValueBase[] = [];
-                    for (let i = 0; i < match.length; i++) {
-                        matchValues.push(new deploy_values.StaticValue({
-                            name: '' + i,
-                            value: match[i],
-                        }));
-                    }
-
-                    sourceDir = deploy_values.replaceWithValues(values, sourceDir);
-                    sourceDir = normalizeDirPath(sourceDir);
-
-                    // apply RegEx matches to targetDir
-                    targetDir = deploy_values.replaceWithValues(matchValues, targetDir);
-
-                    doesMatch = true;
+                // RegEx matches
+                let matchValues: deploy_values.ValueBase[] = [];
+                for (let i = 0; i < match.length; i++) {
+                    matchValues.push(new deploy_values.StaticValue({
+                        name: '' + i,
+                        value: match[i],
+                    }));
                 }
-            }
-            else {
-                sourceDir = deploy_values.replaceWithValues(values, mapping.source);
+
+                sourceDir = deploy_values.replaceWithValues(values, sourceDir);
                 sourceDir = normalizeDirPath(sourceDir);
 
-                doesMatch = 0 === relativePath.indexOf(sourceDir);
+                // apply RegEx matches to targetDir
+                targetDir = deploy_values.replaceWithValues(matchValues, targetDir);
+
+                doesMatch = true;
             }
+        }
+        else {
+            sourceDir = deploy_values.replaceWithValues(values, mapping.source);
+            sourceDir = normalizeDirPath(sourceDir);
 
-            targetDir = normalizeDirPath(targetDir);
+            doesMatch = 0 === relativePath.indexOf(sourceDir);
+        }
 
-            if (doesMatch) {
-                // is matching => rebuild path
+        targetDir = normalizeDirPath(targetDir);
 
-                relativePath = Path.join(targetDir,
-                                        relativePath.substr(sourceDir.length));  // remove the source prefix
-                break;
-            }
+        if (doesMatch) {
+            // is matching => rebuild path
+
+            relativePath = Path.join(targetDir,
+                                     relativePath.substr(sourceDir.length));  // remove the source prefix
+            break;
         }
     }
 

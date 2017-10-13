@@ -287,7 +287,6 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                         info = {
                             exists: false,
                             isRemote: true,
-                            type: deploy_contracts.FileSystemType.File,
                         };
                     }
 
@@ -578,7 +577,6 @@ class ScriptPlugin extends deploy_objects.DeployPluginBase {
                 resolve(args.info || {
                     exists: false,
                     isRemote: true,
-                    type: deploy_contracts.FileSystemType.File,
                 });
             }).catch((err) => {
                 reject(err);

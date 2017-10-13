@@ -201,7 +201,6 @@ export const translation: Translation = {
         noneDefined: "Please define a least one PACKAGE in your 'settings.json'!",
         notFound: 'Package {0:trim,surround} not found!',
         nothingToDeploy: 'No package to deploy!',
-        plural: 'Packages',
     },
     plugins: {
         api: {
@@ -377,7 +376,6 @@ export const translation: Translation = {
         defaultName: '(Target #{0:trim})',
         noneDefined: "Please define a least one TARGET in your 'settings.json'!",
         notFound: 'Could not find target {0:trim,surround}!',
-        plural: 'Targets',
         select: 'Select the target to deploy to...',
         selectSource: 'Select the source from where to pull from...',
     },

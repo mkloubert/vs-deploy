@@ -231,7 +231,7 @@ export interface Applyable {
  * Describes an event handler that is raised BEFORE a file starts to be deployed.
  * 
  * @param {any} sender The sending object.
- * @param {BeforeDeployFileEventArguments} e The arguments of the event.
+ * @param {BeforeDeployFileEventArguments} e The Arguments of the event.
  */
 export type BeforeDeployFileEventHandler = (sender: any, e: BeforeDeployFileEventArguments) => void;
 
@@ -239,24 +239,6 @@ export type BeforeDeployFileEventHandler = (sender: any, e: BeforeDeployFileEven
  * Arguments for a "before deploy file" event.
  */
 export interface BeforeDeployFileEventArguments extends DeployFileEventArguments {
-    /**
-     * A string that represents the destination.
-     */
-    destination: string;
-}
-
-/**
- * Describes an event handler that is raised BEFORE loading the list of a directory.
- * 
- * @param {any} sender The sending object.
- * @param {BeforeListDirectoryEventArguments} e The arguments of the event.
- */
-export type BeforeListDirectoryEventHandler = (sender: any, e: BeforeListDirectoryEventArguments) => void;
-
-/**
- * Arguments for a "before list directory" event.
- */
-export interface BeforeListDirectoryEventArguments extends DeployFileEventArguments {
     /**
      * A string that represents the destination.
      */
@@ -986,10 +968,6 @@ export enum DeployDirection {
      * Get information about a file.
      */
     FileInfo = 4,
-    /**
-     * List directory.
-     */
-    ListDirectory = 5,
 }
 
 /**
@@ -1024,10 +1002,6 @@ export interface DeployFileOptions {
      * The custom deploy context.
      */
     context?: DeployContext;
-    /**
-     * DO NOT use mappings.
-     */
-    noMappings?: boolean;
     /**
      * The "before deploy" callback.
      */
@@ -1348,10 +1322,6 @@ export interface DeployPlugin {
      */
     canGetFileInfo?: boolean;
     /**
-     * Indicates if plugin is able to list a directory.
-     */
-    canList?: boolean;
-    /**
      * Indicates if plugin can pull files or not.
      */
     canPull?: boolean;
@@ -1421,16 +1391,6 @@ export interface DeployPlugin {
      * @return {DeployPluginInfo} The plugin info.
      */
     info?: () => DeployPluginInfo;
-    /**
-     * Lists the content of a directory.
-     * 
-     * @param {string} path The path of the directory to list.
-     * @param {DeployTarget} target The target that contains the file to pull.
-     * @param {ListDirectoryOptions} [opts] Additional options.
-     * 
-     * @return {ListDirectoryResult} The result.
-     */
-    list?: (path: string, target: DeployTarget, opts?: ListDirectoryOptions) => ListDirectoryResult;
     /**
      * Pulls a file.
      * 
@@ -1852,12 +1812,6 @@ export interface DeployWorkspaceOptions {
 }
 
 /**
- * Information about a directory.
- */
-export interface DirectoryInfo extends FileSystemInfo {
-}
-
-/**
  * A document.
  */
 export interface Document {
@@ -2053,7 +2007,7 @@ export interface FileDeployCompletedEventArguments extends DeployEventArguments 
  * Describes an event handler that is raised AFTER a file deployment has been completed.
  * 
  * @param {any} sender The sending object.
- * @param {FileDeployedCompletedEventArguments} e The arguments of the event.
+ * @param {FileDeployedCompletedEventArguments} e The Arguments of the event.
  */
 export type FileDeployCompletedEventHandler = (sender: any, e: FileDeployCompletedEventArguments) => void;
 
@@ -2091,17 +2045,7 @@ export interface FileFilter {
 /**
  * Information about a file.
  */
-export interface FileInfo extends FileSystemInfo {
-    /**
-     * The size.
-     */
-    size?: number;
-}
-
-/**
- * Information about an item on a file system.
- */
-export interface FileSystemInfo {
+export interface FileInfo {
     /**
      * Files exists or not.
      */
@@ -2123,23 +2067,9 @@ export interface FileSystemInfo {
      */
     path?: string;
     /**
-     * The type.
+     * The size.
      */
-    type: FileSystemType;
-}
-
-/**
- * Type of a file system item.
- */
-export enum FileSystemType {
-    /**
-     * File
-     */
-    File = 1,
-    /**
-     * Directory
-     */
-    Directory = 2,
+    size?: number;
 }
 
 /**
@@ -2217,67 +2147,6 @@ export interface Inheritable {
      */
     name?: string;
 }
-
-/**
- * Arguments for a "list directory completed" event.
- */
-export interface ListDirectoryCompletedEventArguments extends DeployEventArguments {
-    /**
-     * Gets if the operation has been canceled or not.
-     */
-    canceled?: boolean;
-        /**
-     * The directory.
-     */
-    directory: string;
-    /**
-     * The error (if occurred).
-     */
-    error?: any;
-    /**
-     * The target.
-     */
-    target: DeployTarget;
-}
-
-/**
- * Describes an event handler that is raised AFTER the list of a directory has been loaded.
- * 
- * @param {any} sender The sending object.
- * @param {FileDeployedCompletedEventArguments} e The arguments of the event.
- */
-export type ListDirectoryCompletedEventHandler = (sender: any, e: ListDirectoryCompletedEventArguments) => void;
-
-/**
- * Additional options for a 'ListDirectoryCallback'.
- */
-export interface ListDirectoryOptions {
-    /**
-     * The custom root directory to use.
-     */
-    baseDirectory?: string;
-    /**
-     * The custom deploy context.
-     */
-    context?: DeployContext;
-    /**
-     * DO NOT use mappings.
-     */
-    noMappings?: boolean;
-    /**
-     * The "before list" callback.
-     */
-    onBeforeList?: BeforeListDirectoryEventHandler;
-    /**
-     * The "completed" callback.
-     */
-    onCompleted?: ListDirectoryCompletedEventHandler;
-}
-
-/**
- * Possible types for listening a directory on a file system.
- */
-export type ListDirectoryResult = FileSystemInfo[] | PromiseLike<FileSystemInfo[]>;
 
 /**
  * An item for a specific machine.

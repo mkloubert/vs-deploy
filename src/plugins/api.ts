@@ -131,7 +131,7 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
         }
 
         try {
-            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -323,7 +323,7 @@ class ApiPlugin extends deploy_objects.DeployPluginBase {
 
             let startRequest = () => {
                 try {
-                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                    let relativePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                     if (false === relativePath) {
                         completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                         return;

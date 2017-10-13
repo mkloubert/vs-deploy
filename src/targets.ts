@@ -31,22 +31,7 @@ const MergeDeep = require('merge-deep');
 import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
-import * as Workflows from 'node-workflows';
 
-
-/**
- * Stores a text document with a target.
- */
-export interface TextDocumentWithTarget {
-    /**
-     * The text document.
-     */
-    doc: vscode.TextDocument;
-    /**
-     * The target.
-     */
-    target: deploy_contracts.DeployTarget;
-}
 
 /**
  * A target with plugins.
@@ -61,9 +46,6 @@ export interface TargetWithPlugins {
      */
     target: deploy_contracts.DeployTarget;
 }
-
-
-const _DOCUMENTS_WHEN_SAVE: TextDocumentWithTarget[] = [];
 
 /**
  * Returns targets with their plugins.
@@ -138,111 +120,4 @@ export function getTargets(): deploy_contracts.DeployTarget[] {
     return targets.map(t => {
         return deploy_helpers.applyValues(t, me.getValues());
     });
-}
-
-/**
- * Handles a saved text document.
- * 
- * @param {vscode.TextDocument} doc The document.
- *  
- * @returns {Promise<boolean>} The promise.
- */
-export function handleSavedTextDocument(doc: vscode.TextDocument): Promise<boolean> {
-    let me: vs_deploy.Deployer = this;
-    
-    return new Promise<boolean>((resolve, reject) => {
-        let wf = Workflows.create();
-
-        wf.next((ctx) => {
-            ctx.result = false;
-        });
-
-        _DOCUMENTS_WHEN_SAVE.filter(d => isTargetTextDocument(d, doc)).forEach(d => {
-            //TODO: deploy
-        });
-
-        wf.start().then((handled: boolean) => {
-            resolve(handled);
-        }).catch((err) => {
-            reject(err);
-        });
-    });
-}
-
-function isTargetTextDocument(targetDoc: TextDocumentWithTarget, doc: vscode.TextDocument): boolean {
-    if (targetDoc) {
-        if (doc) {
-            return targetDoc.doc === doc;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Registers a text document for deploying to a target, when save.
- * 
- * @param {deploy_contracts.DeployTarget} target The target.
- * @param {vscode.TextDocument} doc The document.
- * 
- * @returns {TextDocumentWithTarget} The document. 
- */
-export function registerTextDocumentForSave(target: deploy_contracts.DeployTarget, doc: vscode.TextDocument): TextDocumentWithTarget {
-    let me: vs_deploy.Deployer = this;
-    
-    if (target && doc) {
-        let newDoc: TextDocumentWithTarget = {
-            doc: doc,
-            target: target,
-        };
-        
-        _DOCUMENTS_WHEN_SAVE.push(newDoc);
-
-        return newDoc;
-    }
-}
-
-/**
- * Unregisters all text documents from being deployed, when save.
- * 
- * @returns {TextDocumentWithTarget[]} The removed items.
- */
-export function unregisterAllTextDocumentsForSave(): TextDocumentWithTarget[] {
-    let me: vs_deploy.Deployer = this;
-
-    let removed: TextDocumentWithTarget[] = [];
-    
-    _DOCUMENTS_WHEN_SAVE.map(d => d.doc).forEach(doc => {
-        removed.push
-               .apply(removed, unregisterTextDocumentForSave(doc));
-    });
-
-    return removed;
-}
-
-/**
- * Unregisters a text document from being deployed, when save.
- * 
- * @param {vscode.TextDocument} doc The document.
- * 
- * @returns {TextDocumentWithTarget[]} The removed items.
- */
-export function unregisterTextDocumentForSave(doc: vscode.TextDocument): TextDocumentWithTarget[] {
-    let me: vs_deploy.Deployer = this;
-
-    let removed: TextDocumentWithTarget[] = [];
-    
-    for (let i = 0; i < _DOCUMENTS_WHEN_SAVE.length; ) {
-        let d = _DOCUMENTS_WHEN_SAVE[i];
-
-        if (isTargetTextDocument(d, doc)) {
-            removed.push(d);
-            _DOCUMENTS_WHEN_SAVE.splice(i, 1);
-        }
-        else {
-            ++i;
-        }
-    }
-
-    return removed;
 }

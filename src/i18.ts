@@ -208,7 +208,6 @@ export interface Translation {
         noneDefined?: string;
         notFound?: string;
         nothingToDeploy?: string;
-        plural?: string;
     },
     plugins?: {
         api?: {
@@ -384,7 +383,6 @@ export interface Translation {
         defaultName?: string;
         noneDefined?: string;
         notFound?: string;
-        plural?: string;
         select?: string;
         selectSource?: string;
     },

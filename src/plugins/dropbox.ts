@@ -453,7 +453,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
             completed();  // cancellation requested
         }
         else {
-            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+            let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
             if (false === relativeFilePath) {
                 completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                 return;
@@ -607,7 +607,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -734,7 +734,6 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                     info = {
                         exists: false,
                         isRemote: true,
-                        type: deploy_contracts.FileSystemType.File,
                     }
                 }
 
@@ -745,7 +744,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
                 completed(null);  // cancellation requested
             }
             else {
-                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory, opts.noMappings);
+                let relativeFilePath = deploy_helpers.toRelativeTargetPathWithValues(file, target, me.context.values(), opts.baseDirectory);
                 if (false === relativeFilePath) {
                     completed(new Error(i18.t('relativePaths.couldNotResolve', file)));
                     return;
@@ -772,8 +771,7 @@ class DropboxPlugin extends deploy_objects.DeployPluginWithContextBase<DropboxCo
 
                         let info: deploy_contracts.FileInfo = {
                             exists: false,
-                            isRemote: true,
-                            type: deploy_contracts.FileSystemType.File,        
+                            isRemote: true,        
                         };
 
                         let next = () => {
