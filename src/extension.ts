@@ -28,6 +28,7 @@
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 import * as Moment from 'moment';
 import * as Path from 'path';
@@ -44,6 +45,8 @@ let deployer: vs_deploy.Deployer;
 
 export function activate(context: vscode.ExtensionContext) {
     let now = Moment();
+
+    deploy_workspace.resetSelectedWorkspaceFolder();
 
     // version
     let pkgFile: vs_contracts.PackageFile;

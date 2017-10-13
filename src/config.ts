@@ -25,6 +25,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_values from './values';
+import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 import * as i18 from './i18';
 import * as Path from 'path';
@@ -142,7 +143,7 @@ export function mergeConfig(cfg: deploy_contracts.DeployConfiguration): Promise<
                                 let src = deploy_helpers.toStringSafe(imp.from);
                                 src = deploy_values.replaceWithValues(values, src);
                                 if (!Path.isAbsolute(src)) {
-                                    src = Path.join(vscode.workspace.rootPath, '.vscode', src);
+                                    src = Path.join(deploy_workspace.getRootPath(), '.vscode', src);
                                 }
                                 src = Path.resolve(src);
 

@@ -27,6 +27,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as deploy_values from '../values';
+import * as deploy_workspace from '../workspace';
 import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Moment from 'moment';
@@ -484,7 +485,7 @@ class SFtpPlugin extends deploy_objects.DeployPluginWithContextBase<SFTPContext>
             privateKeyFile = me.context.replaceWithValues(privateKeyFile);
             if ('' !== privateKeyFile.trim()) {
                 if (!Path.isAbsolute(privateKeyFile)) {
-                    privateKeyFile = Path.join(vscode.workspace.rootPath, privateKeyFile);
+                    privateKeyFile = Path.join(deploy_workspace.getRootPath(), privateKeyFile);
                 }
             }
 

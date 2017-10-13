@@ -26,6 +26,7 @@ const CoffeeScript = require('coffeescript');
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
+import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as HtmlMinifier from 'html-minifier';
@@ -37,7 +38,6 @@ const TypeScript = require('typescript');
 import * as UglifyJS from 'uglify-js';
 import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
-
 
 
 /**
@@ -423,11 +423,11 @@ export function collectCompilerFiles(defaultOpts: CompilerOptions, opts?: Compil
                 try {
                     Glob(f, {
                         absolute: true,
-                        cwd: vscode.workspace.rootPath,
+                        cwd: deploy_workspace.getRootPath(),
                         dot: true,
                         ignore: filesToExclude,
                         nodir: true,
-                        root: vscode.workspace.rootPath,
+                        root: deploy_workspace.getRootPath(),
                     }, (err, files) => {
                         if (err) {
                             completed(err);

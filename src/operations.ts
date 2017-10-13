@@ -27,6 +27,7 @@ import * as deploy_compilers from './compilers';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_sql from './sql';
+import * as deploy_workspace from './workspace';
 import * as HTTP from 'http';
 import * as HTTPs from 'https';
 import * as i18 from './i18';
@@ -472,7 +473,7 @@ export function http(ctx: OperationContext<deploy_contracts.DeployHttpOperation>
                         bodyScript = './getBody.js';
                     }
                     if (!Path.isAbsolute(bodyScript)) {
-                        bodyScript = Path.join(vscode.workspace.rootPath, bodyScript);
+                        bodyScript = Path.join(deploy_workspace.getRootPath(), bodyScript);
                     }
                     bodyScript = Path.resolve(bodyScript);
 
@@ -584,7 +585,7 @@ export function open(ctx: OperationContext<deploy_contracts.DeployOpenOperation>
                 let app = deploy_helpers.toStringSafe(openOperation.target);
                 app = me.replaceWithValues(app);
                 if (!Path.isAbsolute(app)) {
-                    app = Path.join(vscode.workspace.rootPath, app);
+                    app = Path.join(deploy_workspace.getRootPath(), app);
                 }
                 app = Path.resolve(app);
 
@@ -871,7 +872,7 @@ export function webdeploy(ctx: OperationContext<deploy_contracts.DeployWebDeploy
 
                 let app = msDeploy;
                 if (!Path.isAbsolute(app)) {
-                    app = Path.join(vscode.workspace.rootPath, app);
+                    app = Path.join(deploy_workspace.getRootPath(), app);
                 }
                 app = Path.resolve(app);
 

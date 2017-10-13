@@ -29,6 +29,7 @@ import { Deployer } from './deploy';
 import * as Crypto from 'crypto';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 import * as FSExtra from 'fs-extra';
 import * as i18 from './i18';
@@ -303,7 +304,7 @@ export class DeployHost {
             dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
             dir = me.deployer.replaceWithValues(dir);
             if (!Path.isAbsolute(dir)) {
-                dir = Path.join(vscode.workspace.rootPath, dir);
+                dir = Path.join(deploy_workspace.getRootPath(), dir);
             }
 
             jsonTransformer = deploy_helpers.toDataTransformerSafe(jsonTransformer);
@@ -643,7 +644,7 @@ export class DeployHost {
                                                                     }
 
                                                                     if (!Path.isAbsolute(targetFile)) {
-                                                                        targetFile = Path.join(vscode.workspace.rootPath, targetFile);
+                                                                        targetFile = Path.join(deploy_workspace.getRootPath(), targetFile);
                                                                     }
 
                                                                     action();

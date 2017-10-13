@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_helpers from './helpers';
+import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 import * as OS from 'os';
 import * as Path from 'path';
@@ -132,7 +133,7 @@ export class CodeValue extends ValueBase {
         let $require = function(id: string) {
             return require(deploy_helpers.toStringSafe(id));
         };
-        let $workspaceRoot = vscode.workspace.rootPath;
+        let $workspaceRoot = deploy_workspace.getRootPath();
 
         // define properties for $others
         this.otherValues.forEach(ov => {
@@ -228,7 +229,7 @@ export class FileValue extends ValueBase {
         let file = deploy_helpers.toStringSafe(this.item.file);
         file = replaceWithValues(this.otherValues, file);
         if (!Path.isAbsolute(file)) {
-            file = Path.join(vscode.workspace.rootPath, file)
+            file = Path.join(deploy_workspace.getRootPath(), file)
         }
         file = Path.resolve(file);
 
@@ -297,7 +298,7 @@ export class ScriptValue extends ValueBase {
 
         if (!deploy_helpers.isEmptyString(script)) {
             if (!Path.isAbsolute(script)) {
-                script = Path.join(vscode.workspace.rootPath, script);
+                script = Path.join(deploy_workspace.getRootPath(), script);
             }
             script = Path.resolve(script);
 
@@ -487,7 +488,7 @@ export function getBuildInValues(): ValueBase[] {
         objs.push(new CodeValue({
             name: 'workspaceRoot',
             type: "code",
-            code: "require('vscode').workspace.rootPath",
+            code: "require('./workspace').workspace.getRootPath()",
         }));
     }
 

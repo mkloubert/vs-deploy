@@ -25,6 +25,7 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_workspace from './workspace';
 import * as Events from 'events';
 import * as i18 from './i18';
 import * as vscode from 'vscode';
@@ -41,6 +42,8 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
     let eventEmitter = new Events.EventEmitter();
 
     let hasCancelled = false;
+
+    const WORKSPACE_ROOT = deploy_workspace.getRootPath();
 
     let ctx: deploy_contracts.DeployContext;
     ctx = {
@@ -118,7 +121,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
             return this;
         },
         workspace: function() {
-            return vscode.workspace.rootPath;
+            return WORKSPACE_ROOT;
         },
         write: function(msg) {
             msg = deploy_helpers.toStringSafe(msg);

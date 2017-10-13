@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_workspace from '../workspace';
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -344,7 +345,7 @@ function getScriptFile(target: DeployTargetPipeline, plugin: PipelinePlugin): st
     }
 
     if (!Path.isAbsolute(scriptFile)) {
-        scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+        scriptFile = Path.join(deploy_workspace.getRootPath(), scriptFile);
     }
 
     return scriptFile;

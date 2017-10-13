@@ -39,6 +39,7 @@ import * as deploy_targets from './targets';
 import * as deploy_templates from './templates';
 import * as deploy_urls from './urls';
 import * as deploy_values from './values';
+import * as deploy_workspace from './workspace';
 import { DeployHost } from './host';
 import * as Events from 'events';
 import * as FS from 'fs';
@@ -1990,7 +1991,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         let scriptFile = scriptOpts.script;
                         if (!deploy_helpers.isEmptyString(scriptOpts.script)) {
                             if (!Path.isAbsolute(scriptFile)) {
-                                scriptFile = Path.join(vscode.workspace.rootPath, scriptFile);
+                                scriptFile = Path.join(deploy_workspace.getRootPath(), scriptFile);
                             }
                             scriptFile = Path.resolve(scriptFile);
 
@@ -2170,7 +2171,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         dir = deploy_helpers.toStringSafe(dir, deploy_contracts.DEFAULT_HOST_DIR);
         if (!Path.isAbsolute(dir)) {
-            dir = Path.join(vscode.workspace.rootPath, dir);
+            dir = Path.join(deploy_workspace.getRootPath(), dir);
         }
 
         // destroy old status bar item
@@ -2725,7 +2726,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         return;
                     }
 
-                    let dir = vscode.workspace.rootPath;
+                    let dir = deploy_workspace.getRootPath();
                     let f = filters.shift();
 
                     // hostname / machine filter(s)
@@ -3891,7 +3892,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }).filter(x => !deploy_helpers.isEmptyString(x))
                   .map(x => {
                            if (!Path.isAbsolute(x)) {
-                               x = Path.join(vscode.workspace.rootPath, x);
+                               x = Path.join(deploy_workspace.getRootPath(), x);
                            }
 
                            return Path.resolve(x);
@@ -4271,7 +4272,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         let moduleScript = deploy_helpers.toStringSafe(e.script);
                         moduleScript = me.replaceWithValues(moduleScript);
                         if (!Path.isAbsolute(moduleScript)) {
-                            moduleScript = Path.join(vscode.workspace.rootPath, moduleScript);
+                            moduleScript = Path.join(deploy_workspace.getRootPath(), moduleScript);
                         }
                         moduleScript = Path.resolve(moduleScript);
 
@@ -4418,7 +4419,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 .filter(x => x)
                                 .map(x => {
                                         if (!Path.isAbsolute(x)) {
-                                            x = Path.join(vscode.workspace.rootPath, x);
+                                            x = Path.join(deploy_workspace.getRootPath(), x);
                                         }
 
                                         return x;

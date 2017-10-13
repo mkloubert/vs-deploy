@@ -29,6 +29,7 @@ import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as deploy_plugins from '../plugins';
 import * as deploy_values from '../values';
+import * as deploy_workspace from '../workspace';
 import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Path from 'path';
@@ -231,7 +232,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                     let validatorScript = deploy_helpers.toStringSafe(p.validator);
                     validatorScript = me.context.replaceWithValues(validatorScript);
                     if (!Path.isAbsolute(validatorScript)) {
-                        validatorScript = Path.join(vscode.workspace.rootPath, validatorScript);
+                        validatorScript = Path.join(deploy_workspace.getRootPath(), validatorScript);
                     }
                     validatorScript = Path.resolve(validatorScript);
 
@@ -251,7 +252,7 @@ class PromptPlugin extends deploy_objects.MultiFileDeployPluginBase {
                     let converterScript = deploy_helpers.toStringSafe(p.converter);
                     converterScript = me.context.replaceWithValues(converterScript);
                     if (!Path.isAbsolute(converterScript)) {
-                        converterScript = Path.join(vscode.workspace.rootPath, converterScript);
+                        converterScript = Path.join(deploy_workspace.getRootPath(), converterScript);
                     }
                     converterScript = Path.resolve(converterScript);
 

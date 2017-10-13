@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 10.0.0 (October 13th, 2017; multi root support)
+
+* according to [that issue](https://github.com/mkloubert/vs-deploy/issues/112), started to refactor to new, upcoming [Multi Root Workspace API](https://github.com/Microsoft/vscode/wiki/Extension-Authoring:-Adopting-Multi-Root-Workspace-APIs) 
+
 ## 9.34.1 (October 8th, 2017; placeholders in arguments of 'open' operations)
 
 * added `usePlaceholdersInArguments` for [open](https://github.com/mkloubert/vs-deploy/wiki/targetoperations#open-) deploy operations

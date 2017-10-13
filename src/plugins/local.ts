@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_workspace from '../workspace';
 import * as FS from 'fs';
 import * as FSExtra from 'fs-extra';
 import * as i18 from '../i18';
@@ -158,7 +159,7 @@ class LocalPlugin extends deploy_objects.DeployPluginBase {
         let targetDir = deploy_helpers.toStringSafe(target.dir);
         targetDir = me.context.replaceWithValues(targetDir);
         if (!Path.isAbsolute(targetDir)) {
-            targetDir = Path.join(vscode.workspace.rootPath, targetDir);
+            targetDir = Path.join(deploy_workspace.getRootPath(), targetDir);
         }
 
         let hasCancelled = false;
@@ -386,7 +387,7 @@ function getFullDirPathFromTarget(target: DeployTargetLocal,
     }
 
     if (!Path.isAbsolute(dir)) {
-        dir = Path.join(vscode.workspace.rootPath, dir);
+        dir = Path.join(deploy_workspace.getRootPath(), dir);
     }
 
     return dir;

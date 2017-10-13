@@ -28,6 +28,7 @@ const CompareVersion = require('compare-versions');
 import * as deploy_contracts from './contracts';
 import * as deploy_globals from './globals';
 import * as deploy_values from './values';
+import * as deploy_workspace from './workspace';
 import * as FileType from 'file-type';
 import * as FS from 'fs';
 const FTP = require('jsftp');
@@ -698,11 +699,11 @@ export function getFilesByFilter(filter: deploy_contracts.FileFilter,
     allFilePatterns.forEach(x => {
         let matchingFiles: string[] = Glob.sync(x, {
             absolute: true,
-            cwd: vscode.workspace.rootPath,
+            cwd: deploy_workspace.getRootPath(),
             dot: true,
             ignore: allExcludePatterns,
             nodir: true,
-            root: vscode.workspace.rootPath,
+            root: deploy_workspace.getRootPath(),
         });
 
         matchingFiles.forEach(y => filesToDeploy.push(y));
@@ -769,11 +770,11 @@ export function getFilesByFilterAsync(filter: deploy_contracts.FileFilter,
                             try {
                                 Glob(x, {
                                     absolute: true,
-                                    cwd: vscode.workspace.rootPath,
+                                    cwd: deploy_workspace.getRootPath(),
                                     dot: true,
                                     ignore: allExcludePatterns,
                                     nodir: true,
-                                    root: vscode.workspace.rootPath,
+                                    root: deploy_workspace.getRootPath(),
                                 }, (err: any, matchingFiles: string[]) => {
                                     if (err) {
                                         rej(err);
@@ -1054,7 +1055,7 @@ export function isFileIgnored(file: string, patterns: string | string[],
     }
 
     if (!Path.isAbsolute(file)) {
-        file = Path.join(vscode.workspace.rootPath, file);
+        file = Path.join(deploy_workspace.getRootPath(), file);
     }
     file = Path.resolve(file);
     file = replaceAllStrings(file, Path.sep, '/');
@@ -1081,10 +1082,10 @@ export function isFileIgnored(file: string, patterns: string | string[],
         else {
             let matchingFiles: string[] = Glob.sync(p, {
                 absolute: true,
-                cwd: vscode.workspace.rootPath,
+                cwd: deploy_workspace.getRootPath(),
                 dot: true,
                 nodir: true,
-                root: vscode.workspace.rootPath,
+                root: deploy_workspace.getRootPath(),
             });
 
             isMatching = matchingFiles.indexOf(file) > -1;
@@ -1140,7 +1141,7 @@ export function loadBaseSettingsFromFiles<T extends deploy_contracts.CanLoadFrom
             loadFrom = deploy_values.replaceWithValues(values, x.loadFrom);
             if (!isEmptyString(x.loadFrom)) {
                 if (!Path.isAbsolute(loadFrom)) {
-                    loadFrom = Path.join(vscode.workspace.rootPath, '.vscode', loadFrom);
+                    loadFrom = Path.join(deploy_workspace.getRootPath(), '.vscode', loadFrom);
                 }
 
                 let basePackages: T[] = JSON.parse( FS.readFileSync(loadFrom).toString('utf8') );
@@ -1617,7 +1618,7 @@ export function loadFrom(src: string): Promise<DownloadResult> {
 
                 let filePath = src;
                 if (!Path.isAbsolute(filePath)) {
-                    filePath = Path.join(vscode.workspace.rootPath, filePath);
+                    filePath = Path.join(deploy_workspace.getRootPath(), filePath);
                 }
                 filePath = Path.resolve(filePath);
 
@@ -1744,7 +1745,7 @@ export function loadFrom(src: string): Promise<DownloadResult> {
  */
 export function loadModule<TModule>(file: string, useCache: boolean = false): TModule {
     if (!Path.isAbsolute(file)) {
-        file = Path.join(vscode.workspace.rootPath, file);
+        file = Path.join(deploy_workspace.getRootPath(), file);
     }
     file = Path.resolve(file);
 
@@ -1938,7 +1939,7 @@ export function open(target: string, opts?: OpenOptions): Promise<ChildProcess.C
             let appArgs: string[] = [];
             let args: string[] = [];
             let cpOpts: ChildProcess.SpawnOptions = {
-                cwd: opts.cwd || vscode.workspace.rootPath,
+                cwd: opts.cwd || deploy_workspace.getRootPath(),
                 env: opts.env,
             };
 
@@ -2411,11 +2412,11 @@ export function toRelativePath(path: string, baseDir?: string): string | false {
     let result: string | false = false;
 
     if (isEmptyString(baseDir)) {
-        baseDir = vscode.workspace.rootPath;
+        baseDir = deploy_workspace.getRootPath();
     }
     else {
         if (!Path.isAbsolute(baseDir)) {
-            baseDir = Path.join(vscode.workspace.rootPath, baseDir);
+            baseDir = Path.join(deploy_workspace.getRootPath(), baseDir);
         }
 
         baseDir = Path.resolve(baseDir);

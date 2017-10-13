@@ -27,6 +27,7 @@ import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
 import * as deploy_values from '../values';
+import * as deploy_workspace from '../workspace';
 import * as i18 from '../i18';
 import * as Path from 'path';
 import * as vscode from 'vscode';
@@ -46,7 +47,7 @@ function createAppArgsList(file: string, app: string, args: string[]): string[] 
 
     if (app) {
         if (!Path.isAbsolute(app)) {
-            app = Path.join(vscode.workspace.rootPath, app);
+            app = Path.join(deploy_workspace.getRootPath(), app);
         }
     }
     
@@ -124,7 +125,7 @@ class AppPlugin extends deploy_objects.MultiFileDeployPluginBase {
             }
 
             if (!Path.isAbsolute(app)) {
-                app = Path.join(vscode.workspace.rootPath, app);
+                app = Path.join(deploy_workspace.getRootPath(), app);
             }
             app = Path.resolve(app);
 
