@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 10.0.0 (October 13th, 2017; multi root support)
+## 10.0.0 (October 14th, 2017; multi root support)
 
 * according to [that issue](https://github.com/mkloubert/vs-deploy/issues/112), started to refactor to new, upcoming [Multi Root Workspace API](https://github.com/Microsoft/vscode/wiki/Extension-Authoring:-Adopting-Multi-Root-Workspace-APIs) 
 
