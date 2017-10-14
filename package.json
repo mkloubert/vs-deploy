@@ -19,7 +19,7 @@
     "Cloud"
   ],
   "activationEvents": [
-    "*"
+    "workspaceContains:/.vscode/settings.json"
   ],
   "main": "./out/src/extension",
   "contributes": {

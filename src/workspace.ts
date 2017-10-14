@@ -66,11 +66,9 @@ export function getRootPath() {
         }
     }
 
-    if ('undefined' === typeof workspace_root) {
-        workspace_root = './';
+    if ('undefined' !== typeof workspace_root) {
+        return Path.resolve(workspace_root);
     }
-
-    return Path.resolve(workspace_root);
 }
 
 /**

@@ -85,6 +85,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
 
             return this;
         },
+        isActive: () => !deploy_helpers.isEmptyString(deploy_workspace.getRootPath()),
         isCancelling: () => hasCancelled,
         log: null,
         once: function(event, cb) {
@@ -153,6 +154,7 @@ export function createPluginContext(baseCtx?: deploy_contracts.DeployContext): d
         };
         ctx.filterConditionalItems = (items) => baseCtx.filterConditionalItems(items),
         ctx.globals = () => baseCtx.globals();
+        ctx.isActive = () => baseCtx.isActive();
         ctx.log = function(msg) {
             baseCtx.log(msg);
             return this;

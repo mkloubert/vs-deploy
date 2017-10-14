@@ -125,6 +125,10 @@ export const EVENT_SYNCWHENOPEN_ENABLE = 'deploy.syncWhenOpen.enable';
  * feature should be toggled.
  */
 export const EVENT_SYNCWHENOPEN_TOGGLE = 'deploy.syncWhenOpen.toggle';
+/**
+ * Name of the event that is raised when workspace (folder) changed.
+ */
+export const EVENT_WORKSPACE_CHANGED = 'deploy.workspace.changed';
 
 /**
  * An object that can handle access keys.
@@ -828,6 +832,10 @@ export interface DeployContext extends ConditionalItemFilter, vscode.Disposable,
      * @chainable
      */
     info: (msg: any) => DeployContext;
+    /**
+     * Returns if the underlying extension is currently active or not.
+     */
+    isActive: () => boolean;
     /**
      * Returns if cancellation has been requested or not.
      * 

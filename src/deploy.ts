@@ -2143,6 +2143,26 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets if the extension is currently active or not.
+     */
+    public get isActive(): boolean {
+        return !deploy_helpers.isEmptyString(deploy_workspace.getRootPath());
+    }
+
+    /**
+     * Checks if a file (or directory) path is ignored.
+     * 
+     * @param {string} fileOrDir The file / directory to check.
+     * 
+     * @return {boolean} Is ignored or not. 
+     */
+    public isFileIgnored(fileOrDir: string): boolean {
+        return deploy_helpers.isFileIgnored(fileOrDir, this.config.ignore,
+                                            this.config.useGitIgnoreStylePatterns,
+                                            this.config.fastCheckForIgnores);
+    }
+
+    /**
      * Gets the timestamp of the last config update.
      */
     public get lastConfigUpdate(): Moment.Moment {
@@ -2240,19 +2260,6 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
-     * Checks if a file (or directory) path is ignored.
-     * 
-     * @param {string} fileOrDir The file / directory to check.
-     * 
-     * @return {boolean} Is ignored or not. 
-     */
-    public isFileIgnored(fileOrDir: string): boolean {
-        return deploy_helpers.isFileIgnored(fileOrDir, this.config.ignore,
-                                            this.config.useGitIgnoreStylePatterns,
-                                            this.config.fastCheckForIgnores);
-    }
-
-    /**
      * Logs a message.
      * 
      * @param {any} msg The message to log.
@@ -2295,7 +2302,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         this.registerGlobalEvents();
 
-        this.reloadConfiguration();
+        deploy_globals.EVENTS.emit(
+            deploy_contracts.EVENT_WORKSPACE_CHANGED
+        );
 
         this.setupFileSystemWatcher();
     }
@@ -2338,6 +2347,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public onDidChangeConfiguration() {
         this.reloadConfiguration();
+    }
+
+    /**
+     * Event after list of workspace folders changed.
+     * 
+     * @param {vscode.WorkspaceFoldersChangeEvent} e The event arguments.
+     */
+    public onDidChangeWorkspaceFolders(e: vscode.WorkspaceFoldersChangeEvent) {
+        deploy_globals.EVENTS.emit(
+            deploy_contracts.EVENT_WORKSPACE_CHANGED,
+            e
+        );
     }
 
     /**
@@ -2555,6 +2576,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             return;
         }
 
+        if (!this.isActive) {
+            return;  // not active
+        }
+
         if (deploy_helpers.toBooleanSafe(this.config.deployOnSave, true) &&
             this._isDeployOnSaveEnabled) {
                 
@@ -2571,6 +2596,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected onFileChange(e: vscode.Uri, type: string) {
         let me = this;
+        if (!me.isActive) {
+            return;  // not active
+        }
 
         if (deploy_helpers.toBooleanSafe(me._isDeployOnChangeFreezed)) {
             // freezed
@@ -3788,6 +3816,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     protected registerGlobalEvents() {
         let me = this;
 
+        deploy_globals.EVENTS.on(deploy_contracts.EVENT_WORKSPACE_CHANGED, () => {
+            me.reloadConfiguration();
+        });
+
         // deploy.deployOnChange.*
         deploy_globals.EVENTS.on(deploy_contracts.EVENT_DEPLOYONCHANGE_DISABLE, function() {
             me._isDeployOnChangeEnabled = false;
@@ -3935,6 +3967,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public reloadConfiguration() {
         let me = this;
+
+        if (!me.isActive) {
+            me._config = null;
+            return;
+        }
 
         let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
 
@@ -4459,6 +4496,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                         };
                         ctx.filterConditionalItems = (items) => me.filterConditionalItems(items);
                         ctx.globals = () => me.getGlobals();
+                        ctx.isActive = () => me.isActive;
                         ctx.log = function(msg) {
                             me.log(msg);
                             return this;
@@ -4767,6 +4805,35 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         catch (e) {
             me.log(i18.t('errors.withCategory',
                          'Deployer.showStatusBarItemAfterDeployment()', e));
+        }
+    }
+
+    /**
+     * Shows a warning message if extension is currently active or not.
+     * 
+     * @param ifActive 
+     */
+    public async showWarningIfNotActive(ifActive?: () => any): Promise<boolean> {
+        const ME = this;
+
+        if (ME.isActive) {
+            if (ifActive) {
+                await Promise.resolve(
+                    ifActive()    
+                );
+            }
+
+            return true;
+        }
+        else {
+            vscode.window.showWarningMessage(
+                "[vs-deploy] The extension is currently not active! Please open a workspace, before you continue."
+            ).then(() => {}, (err) => {
+                ME.log(i18.t('errors.withCategory',
+                             'Deployer.showWarningIfNotActive()', err));
+            });
+
+            return false;
         }
     }
 

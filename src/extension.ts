@@ -46,8 +46,6 @@ let deployer: vs_deploy.Deployer;
 export function activate(context: vscode.ExtensionContext) {
     let now = Moment();
 
-    deploy_workspace.resetSelectedWorkspaceFolder();
-
     // version
     let pkgFile: vs_contracts.PackageFile;
     try {
@@ -77,31 +75,32 @@ export function activate(context: vscode.ExtensionContext) {
 
     deployer = new vs_deploy.Deployer(context, outputChannel, pkgFile);
 
+    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(deployer.onDidChangeWorkspaceFolders, deployer));
+    deploy_workspace.resetSelectedWorkspaceFolder();
+
     // deploy workspace
-    let deploy = vscode.commands.registerCommand('extension.deploy', () => {
-        return new Promise<number>((resolve, reject) => {
-            deployer.deployWorkspace().then((code) => {
-                resolve(code);
-            }).catch((e) => {
-                reject(e);
-            });
+    let deploy = vscode.commands.registerCommand('extension.deploy', async () => {
+        let code: number;
+        
+        await deployer.showWarningIfNotActive(async () => {
+            code = await deployer.deployWorkspace();
         });
+
+        return code;
     });
 
     // compare local file with remote
-    let compareFiles = vscode.commands.registerCommand('extension.deploy.compareFiles', (u?) => {
-        return new Promise<any>((resolve, reject) => {
-            deployer.compareFiles(u).then((r) => {
-                resolve(r);
-            }).catch((err) => {
-                reject(err);
-            });
+    let compareFiles = vscode.commands.registerCommand('extension.deploy.compareFiles', async (u?) => {
+        await deployer.showWarningIfNotActive(async () => {
+            await deployer.compareFiles(u);
         });
     });
 
     // deploy open file or selected folder
-    let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', (u?) => {
-        deployer.deployFileOrFolder(u);
+    let deployFileOrFolder = vscode.commands.registerCommand('extension.deploy.file', async (u?) => {
+        await deployer.showWarningIfNotActive(async () => {
+            await deployer.deployFileOrFolder(u);
+        });
     });
 
     // deploys files using global events
@@ -109,10 +108,15 @@ export function activate(context: vscode.ExtensionContext) {
                                                                                      targets: vs_contracts.DeployTargetList) => {
         return new Promise<boolean>((resolve, reject) => {
             try {
-                let sym = Symbol('extension.deploy.filesTo');
-
-                resolve(deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
-                                                   files, targets, sym));
+                if (deployer.isActive) {
+                    let sym = Symbol('extension.deploy.filesTo');
+                    
+                    resolve(deploy_globals.EVENTS.emit(vs_contracts.EVENT_DEPLOYFILES,
+                                                       files, targets, sym));
+                }
+                else {
+                    reject(new Error(`vs-deploy NOT ACTIVE!`));
+                }
             }
             catch (e) {
                 reject(e);
@@ -124,18 +128,23 @@ export function activate(context: vscode.ExtensionContext) {
     let getTargets = vscode.commands.registerCommand('extension.deploy.getTargets', (cb?: GetTargetsCallback) => {
         return new Promise<vs_contracts.DeployTarget[]>((resolve, reject) => {
             try {
-                let targets = deployer.getTargets();
-                
-                if (cb) {
-                    try {
-                        cb(null, targets);
+                if (deployer.isActive) {
+                    let targets = deployer.getTargets();
+                    
+                    if (cb) {
+                        try {
+                            cb(null, targets);
+                        }
+                        catch (e) {
+                            cb(e);
+                        }
                     }
-                    catch (e) {
-                        cb(e);
-                    }
+    
+                    resolve(targets);
                 }
-
-                resolve(targets);
+                else {
+                    resolve(null);
+                }
             }
             catch (e) {
                 reject(e);
@@ -144,8 +153,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // listen for files
-    let listen = vscode.commands.registerCommand('extension.deploy.listen', () => {
-        deployer.listen();
+    let listen = vscode.commands.registerCommand('extension.deploy.listen', async () => {
+        await deployer.showWarningIfNotActive(() => {
+            deployer.listen();
+        });
     });
 
     // open HTML document
@@ -167,7 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
                                            `&x=${encodeURIComponent(deploy_helpers.toStringSafe(new Date().getTime()))}`);
 
                 let title = deploy_helpers.toStringSafe(doc.title).trim();
-                if (!title) {
+                if ('' === title) {
                     title = `[vs-deploy] HTML document #${deploy_helpers.toStringSafe(doc.id)}`;
                 }
 
@@ -189,23 +200,31 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // open template
-    let openTemplate = vscode.commands.registerCommand('extension.deploy.openTemplate', () => {
-        deployer.openTemplate();
+    let openTemplate = vscode.commands.registerCommand('extension.deploy.openTemplate', async () => {
+        await deployer.showWarningIfNotActive(() => {
+            deployer.openTemplate();
+        });
     });
 
     // quick deploy packages
-    let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', () => {
-        deployer.quickDeploy();
+    let quickDeploy = vscode.commands.registerCommand('extension.deploy.quickDeploy', async () => {
+        await deployer.showWarningIfNotActive(() => {
+            deployer.quickDeploy();
+        });
     });
 
     // pull workspace
-    let pull = vscode.commands.registerCommand('extension.deploy.pullWorkspace', () => {
-        deployer.pullWorkspace();
+    let pull = vscode.commands.registerCommand('extension.deploy.pullWorkspace', async () => {
+        await deployer.showWarningIfNotActive(() => {
+            deployer.pullWorkspace();
+        });
     });
 
     // pull open file or selected folder
-    let pullFileOrFolder = vscode.commands.registerCommand('extension.deploy.pullFile', (u?: any) => {
-        deployer.pullFileOrFolder(u);
+    let pullFileOrFolder = vscode.commands.registerCommand('extension.deploy.pullFile', async (u?: any) => {
+        await deployer.showWarningIfNotActive(() => {
+            deployer.pullFileOrFolder(u);
+        });
     });
 
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
