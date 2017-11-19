@@ -77,3 +77,17 @@ export function getRootPath() {
 export function resetSelectedWorkspaceFolder() {
     currentFolder = false;
 }
+
+/**
+ * Selects the workspace.
+ * 
+ * @return {Promise<vscode.WorkspaceFolder>} The promise with the folder (if selected).
+ */
+export async function selectWorkspace() {
+    const FOLDER = await vscode.window.showWorkspaceFolderPick();
+    if (FOLDER) {
+        currentFolder = FOLDER;
+    }
+
+    return FOLDER;
+}

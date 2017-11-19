@@ -2,10 +2,10 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "10.0.0",
+  "version": "11.0.0",
   "publisher": "mkloubert",
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.18.0"
   },
   "license": "MIT",
   "categories": [
@@ -102,6 +102,11 @@
         "command": "extension.deploy.pullWorkspace",
         "title": "Pull workspace",
         "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.selectWorkspace",
+        "title": "Select workspace",
+        "category": "Deploy"
       }
     ],
     "keybindings": [
@@ -140,6 +145,7 @@
       "properties": {
         "deploy": {
           "type": "object",
+          "scope": "resource",
           "properties": {
             "alwaysShowPackageList": {
               "type": "boolean",

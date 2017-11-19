@@ -227,6 +227,21 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
+    // select workspace
+    let selectWorkspace = vscode.commands.registerCommand('extension.deploy.selectWorkspace', async () => {
+        try {
+            const FOLDER = await deploy_workspace.selectWorkspace();
+            if (FOLDER) {
+                await Promise.resolve(
+                    deployer.onDidChangeConfiguration()
+                );
+            }
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[SELECT WORKSPACE ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
                                                                           new deploy_content.HtmlTextDocumentContentProvider(deployer));
 
@@ -243,6 +258,7 @@ export function activate(context: vscode.ExtensionContext) {
                                htmlViewer,
                                listen,
                                pull, pullFileOrFolder,
+                               selectWorkspace,
                                openHtmlDoc, openOutputAfterDeploment, openTemplate, 
                                quickDeploy);
 

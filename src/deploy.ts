@@ -3966,137 +3966,145 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Reloads configuration.
      */
     public reloadConfiguration() {
-        let me = this;
+        const ME = this;
 
-        if (!me.isActive) {
-            me._config = null;
+        if (!ME.isActive) {
+            ME._config = null;
             return;
         }
 
-        let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+        const SETTINGS_FILE = Path.join(
+            deploy_workspace.getRootPath(),
+            './.vscode/settings.json',
+        );
 
-        let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
+        const LOADED_CFG: deploy_contracts.DeployConfiguration = vscode.workspace.getConfiguration('deploy',
+                                                                                                   vscode.Uri.file(SETTINGS_FILE)) || <any>{};
+
+        const FINISHED = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
             let showDefaultTemplateRepos = true;
             if (cfg.templates) {
                 showDefaultTemplateRepos = deploy_helpers.toBooleanSafe(cfg.templates.showDefaults, true);
             }
 
-            me.displayNetworkInfo();
-            me.showExtensionInfoPopups();
-            me.clearOutputOrNot();
+            ME.displayNetworkInfo();
+            ME.showExtensionInfoPopups();
+            ME.clearOutputOrNot();
 
             // deploy.config.reloaded
             deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
 
-            me.executeStartupCommands();
-            me.openFiles();
+            ME.executeStartupCommands();
+            ME.openFiles();
 
             deploy_buttons.reloadPackageButtons
-                          .apply(me, []);
+                          .apply(ME, []);
 
             if (cfg.host) {
                 if (deploy_helpers.toBooleanSafe(cfg.host.autoStart)) {
                     // auto start host
 
-                    let autoStartCompleted = (err: any) => {
+                    const AUTOSTART_COMPLETED = (err: any) => {
                         if (err) {
                             vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
                         }
                     };
 
                     try {
-                        let startListening = () => {
+                        const START_LISTENING = () => {
                             try {
-                                me.listen();
+                                ME.listen();
 
-                                autoStartCompleted(null);
+                                AUTOSTART_COMPLETED(null);
                             }
                             catch (e) {
-                                autoStartCompleted(e);
+                                AUTOSTART_COMPLETED(e);
                             }
                         };
 
-                        let host = me._host;
-                        if (host) {
-                            host.stop().then(() => {
-                                me._host = null;
+                        const CURRENT_HOST = ME._host;
+                        if (CURRENT_HOST) {
+                            CURRENT_HOST.stop().then(() => {
+                                ME._host = null;
 
-                                startListening();
+                                START_LISTENING();
                             }).catch((err) => {
-                                autoStartCompleted(err);
+                                AUTOSTART_COMPLETED(err);
                             });
                         }
                         else {
-                            startListening();
+                            START_LISTENING();
                         }
                     }
                     catch (e) {
-                        autoStartCompleted(e);
+                        AUTOSTART_COMPLETED(e);
                     }
                 }
             }
 
-            let afterGitPull = (err: any) => {
+            const AFTER_GIT_PULL = (err: any) => {
                 deploy_config.runBuildTask
-                             .apply(me);
+                             .apply(ME);
 
                 if (showDefaultTemplateRepos) {
                     // check official repo version
                     deploy_templates.checkOfficialRepositoryVersions
-                                    .apply(me, []);
+                                    .apply(ME, []);
                 }
             };
 
-            deploy_config.runGitPull.apply(me).then(() => {
-                afterGitPull(null);
+            deploy_config.runGitPull.apply(ME).then(() => {
+                AFTER_GIT_PULL(null);
             }).catch((err) => {
-                afterGitPull(err);
+                AFTER_GIT_PULL(err);
             });
         };
 
-        let next = (cfg: deploy_contracts.DeployConfiguration) => {
-            me._config = cfg;
+        const NEXT = (cfg: deploy_contracts.DeployConfiguration) => {
+            ME._config = cfg;
 
             try {
-                let timeToWaitBeforeActivateDeployOnChange = parseInt( deploy_helpers.toStringSafe(cfg.timeToWaitBeforeActivateDeployOnChange).trim() );
-                if (!isNaN(timeToWaitBeforeActivateDeployOnChange)) {
+                const TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE = parseInt(
+                    deploy_helpers.toStringSafe(cfg.timeToWaitBeforeActivateDeployOnChange).trim()
+                );
+                if (!isNaN(TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE)) {
                     // deactivate 'deploy on change'
                     // for a while
 
-                    me._isDeployOnChangeFreezed = true;
-                    me._deployOnChangeFreezer = setTimeout(() => {
-                        me._isDeployOnChangeFreezed = false;
-                    }, timeToWaitBeforeActivateDeployOnChange);
+                    ME._isDeployOnChangeFreezed = true;
+                    ME._deployOnChangeFreezer = setTimeout(() => {
+                        ME._isDeployOnChangeFreezed = false;
+                    }, TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE);
                 }
             }
             catch (e) {
-                me._isDeployOnChangeFreezed = false;
+                ME._isDeployOnChangeFreezed = false;
             }
 
             deploy_values.reloadAdditionalValues
-                         .apply(me, []);
+                         .apply(ME, []);
 
-            me.reloadEnvironmentVars();
+            ME.reloadEnvironmentVars();
 
-            me.reloadEvents();
-            me.reloadPlugins();
-            me.reloadCommands();
+            ME.reloadEvents();
+            ME.reloadPlugins();
+            ME.reloadCommands();
 
             deploy_operations.resetOperations();
 
-            me.startExternalExtensions().then(() => {
-                finished(null, cfg);
+            ME.startExternalExtensions().then(() => {
+                FINISHED(null, cfg);
             }).catch((err) => {
-                finished(err, cfg);
+                FINISHED(err, cfg);
             });
         };
 
-        let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
-            deploy_helpers.tryClearTimeout(me._deployOnChangeFreezer);
+        const APPLY_CONFIG = (cfg: deploy_contracts.DeployConfiguration) => {
+            deploy_helpers.tryClearTimeout(ME._deployOnChangeFreezer);
 
-            me._lastConfigUpdate = Moment();
+            ME._lastConfigUpdate = Moment();
 
-            me._allTargets = deploy_helpers.asArray(cfg.targets)
+            ME._allTargets = deploy_helpers.asArray(cfg.targets)
                                            .filter(x => x)
                                            .map((x, i) => {
                                                     let clonedTarget = deploy_helpers.cloneObject(x);
@@ -4104,53 +4112,53 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
                                                     return clonedTarget;         
                                                 });
-            me._globalScriptOperationState = {};
-            me._htmlDocs = [];
-            me._isDeployOnChangeFreezed = false;
-            me._scriptOperationStates = {};
-            me._targetCache = new deploy_objects.DeployTargetCache();
+            ME._globalScriptOperationState = {};
+            ME._htmlDocs = [];
+            ME._isDeployOnChangeFreezed = false;
+            ME._scriptOperationStates = {};
+            ME._targetCache = new deploy_objects.DeployTargetCache();
 
             deploy_values.resetScriptStates();
 
-            me._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
-            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
+            ME._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
+            ME._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
             i18.init(cfg.language).then(() => {
                 if (cfg.button) {
                     let txt = deploy_helpers.toStringSafe(cfg.button.text);
-                    txt = me.replaceWithValues(txt).trim();
+                    txt = ME.replaceWithValues(txt).trim();
                     if ('' === txt) {
                         txt = i18.t('quickDeploy.caption');
                     }
-                    me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+                    ME._QUICK_DEPLOY_STATUS_ITEM.text = txt;
                 }
 
-                me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+                ME._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
 
-                next(cfg);
+                NEXT(cfg);
             }).catch((err) => {
-                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+                ME.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
 
-                next(cfg);
+                NEXT(cfg);
             });
 
-            me._QUICK_DEPLOY_STATUS_ITEM.hide();
+            ME._QUICK_DEPLOY_STATUS_ITEM.hide();
             if (cfg.button) {
                 if (deploy_helpers.toBooleanSafe(cfg.button.enabled)) {
-                    me._QUICK_DEPLOY_STATUS_ITEM.show();
+                    ME._QUICK_DEPLOY_STATUS_ITEM.show();
                 }
             }
 
             if (deploy_helpers.toBooleanSafe(cfg.openOutputOnStartup)) {
-                me.outputChannel.show();
+                ME.outputChannel.show();
             }
         }
 
-        deploy_config.mergeConfig(loadedCfg).then((cfg) => {
-            applyCfg(cfg);
+        deploy_config.mergeConfig(LOADED_CFG).then((cfg) => {
+            APPLY_CONFIG(cfg);
         }).catch((err) => {
-            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
+            ME.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
 
-            applyCfg(loadedCfg);
+            APPLY_CONFIG(LOADED_CFG);
         });
     }
 

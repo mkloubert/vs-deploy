@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 11.0.0 (November 20th, 2017; finished multi root support)
+
+* added `extension.deploy.selectWorkspace`, which can change between workspaces now
+
 ## 10.0.0 (October 14th, 2017; multi root support)
 
 * according to [that issue](https://github.com/mkloubert/vs-deploy/issues/112), started to refactor to new, upcoming [Multi Root Workspace API](https://github.com/Microsoft/vscode/wiki/Extension-Authoring:-Adopting-Multi-Root-Workspace-APIs) 
