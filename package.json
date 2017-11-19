@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "11.0.0",
+  "version": "11.1.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.18.0"
@@ -19,7 +19,7 @@
     "Cloud"
   ],
   "activationEvents": [
-    "workspaceContains:/.vscode"
+    "*"
   ],
   "main": "./out/src/extension",
   "contributes": {

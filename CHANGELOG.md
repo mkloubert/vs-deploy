@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 11.0.0 (November 20th, 2017; finished multi root support)
+## 11.1.0 (November 20th, 2017; finished multi root support)
 
 * added `extension.deploy.selectWorkspace`, which can change between workspaces now
 
