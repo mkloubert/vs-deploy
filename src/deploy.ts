@@ -34,6 +34,7 @@ import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_packages from './packages';
 import * as deploy_plugins from './plugins';
+import * as deploy_switch from './switch';
 import * as deploy_sync from './sync';
 import * as deploy_targets from './targets';
 import * as deploy_templates from './templates';
@@ -391,6 +392,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 });
             }
         });
+    }
+
+    /**
+     * Changes a switch target.
+     */
+    public async changeSwitch() {
+        return await deploy_switch.changeSwitch
+                                  .apply(this, arguments);
     }
 
     /**
@@ -4195,6 +4204,9 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 ME._config = cfg;
 
                 try {
+                    deploy_switch.reloadTargetStates
+                                 .apply(ME, []);
+
                     try {
                         ME._QUICK_DEPLOY_STATUS_ITEM.hide();
                         if (cfg.button) {

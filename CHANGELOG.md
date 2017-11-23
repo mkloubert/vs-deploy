@@ -3,6 +3,7 @@
 ## 11.2.0 (?????, 2017; switch target and multi root support)
 
 * added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
+* added [switch target](https://github.com/mkloubert/vs-deploy/wiki/target_switch)
 
 ## 11.1.0 (November 20th, 2017; finished multi root support)
 

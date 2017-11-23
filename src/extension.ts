@@ -242,6 +242,15 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let changeSwitch = vscode.commands.registerCommand('extension.deploy.changeSwitch', async () => {
+        try {
+            await deployer.changeSwitch();
+        }
+        catch (e) {
+            vscode.window.showErrorMessage(`[CHANGE SWITCH ERROR]: ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
     let htmlViewer = vscode.workspace.registerTextDocumentContentProvider('vs-deploy-html',
                                                                           new deploy_content.HtmlTextDocumentContentProvider(deployer));
 
@@ -257,6 +266,7 @@ export function activate(context: vscode.ExtensionContext) {
                                                                          deployer));
 
     context.subscriptions.push(deployer,
+                               changeSwitch,
                                compareFiles,
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,
                                htmlViewer,

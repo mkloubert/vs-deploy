@@ -286,6 +286,15 @@ export const translation: Translation = {
             invalidFile: 'File is invalid!',
             unknownEngine: 'Unknown engine {0:trim,surround}!',
         },
+        switch: {
+            defaultName: 'Switch #{0:trim}',
+            defaultOptionName: 'Switch option #{0:trim}',
+            description: 'Switches between existing targets',
+            noDefined: 'No swicthes available!',
+            noOptionsDefined: 'No options were defined for the switch {0:trim,surround}!',
+            selectOption: 'Select an option for the switch {0:trim,surround}...',
+            selectSwitch: 'Select a switch...',
+        },
         test: {
             description: 'A mock deployer that only displays what files would be deployed',
         },
@@ -363,6 +372,7 @@ export const translation: Translation = {
         couldNotResolve: "Could not get relative path for {0:trim,surround}!",
         isEmpty: 'Relative path for {0:trim,surround} file is empty!',
     },
+    selected: 'selected',
     sync: {
         file: {
             doesNotExistOnRemote: '[remote does not exist]',

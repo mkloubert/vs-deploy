@@ -107,6 +107,11 @@
         "command": "extension.deploy.selectWorkspace",
         "title": "Select workspace",
         "category": "Deploy"
+      },
+      {
+        "command": "extension.deploy.changeSwitch",
+        "title": "Change switch",
+        "category": "Deploy"
       }
     ],
     "keybindings": [

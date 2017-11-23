@@ -284,6 +284,15 @@ export const translation: Translation = {
             invalidFile: 'Datei ist ungültig!',
             unknownEngine: 'Unbekannter Typ {0:trim,surround}!',
         },
+        switch: {
+            defaultName: 'Schalter #{0:trim}',
+            defaultOptionName: 'Schalter-Option #{0:trim}',
+            description: 'Schaltet zwischen anderen existierenden Zielen um',
+            noDefined: 'Es wurden keine Schalter gefunden!',
+            noOptionsDefined: 'Es wurden keine Optionen für den Schalter {0:trim,surround} definiert!',
+            selectOption: 'Wählen Sie eine Option für den Schalter {0:trim,surround}...',
+            selectSwitch: 'Wählen Sie einen Schalter aus...',
+        },
         test: {
             description: 'Ein Test-PlugIn, welches lediglich anzeigt, welche Dateien bereitgestellt würden',
         },
@@ -361,6 +370,7 @@ export const translation: Translation = {
         couldNotResolve: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
         isEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
     },
+    selected: 'ausgewählt',
     sync: {
         file: {
             doesNotExistOnRemote: '[entfernte Datei existiert nicht]',

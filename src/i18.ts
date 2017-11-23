@@ -293,6 +293,15 @@ export interface Translation {
             invalidFile?: string;
             unknownEngine?: string;
         },
+        switch?: {
+            defaultName?: string;
+            defaultOptionName?: string;
+            description?: string;
+            noDefined?: string;
+            noOptionsDefined?: string;
+            selectOption?: string;
+            selectSwitch?: string;
+        },
         test?: {
             description?: string;
         },
@@ -370,6 +379,7 @@ export interface Translation {
         couldNotResolve?: string;
         isEmpty?: string;
     },
+    selected?: string;
     sync?: {
         file?: {
             doesNotExistOnRemote?: string;
