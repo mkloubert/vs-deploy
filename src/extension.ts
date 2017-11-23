@@ -252,6 +252,10 @@ export function activate(context: vscode.ExtensionContext) {
     // notifiy on document has been saved
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(deployer.onDidSaveTextDocument, deployer));
 
+    // notfiy active editor changed
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(deployer.onDidChangeActiveTextEditor,
+                                                                         deployer));
+
     context.subscriptions.push(deployer,
                                compareFiles,
                                deploy, deployFileOrFolder, deployFilesTo, getTargets,

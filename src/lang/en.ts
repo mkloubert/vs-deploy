@@ -395,5 +395,10 @@ export const translation: Translation = {
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',
     },
+    workspace: {
+        autoSelect: {
+            failed: 'Could not auto-select workspace: {0:trim,surround}',
+        }
+    },
     yes: 'Yes',
 };

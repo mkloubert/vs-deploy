@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "11.1.0",
+  "version": "11.2.0",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.18.0"
@@ -160,6 +160,11 @@
             "alwaysSyncIfNewer": {
               "type": "boolean",
               "description": "Always synchronize a local file with a newer one when using 'sync when open' in a package.",
+              "default": false
+            },
+            "autoSelectWorkspace": {
+              "type": "boolean",
+              "description": "Select the workspace by active text editor automatically or not.",
               "default": false
             },
             "button": {

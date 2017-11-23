@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 11.2.0 (?????, 2017; switch target and multi root support)
+
+* added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
+
 ## 11.1.0 (November 20th, 2017; finished multi root support)
 
 * added `extension.deploy.selectWorkspace`, which can change between workspaces now

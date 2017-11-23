@@ -402,7 +402,12 @@ export interface Translation {
     warnings?: {
         withCategory?: string;
     },
-    yes?: string;
+    workspace?: {
+        autoSelect?: {
+            failed?: string;
+        }
+    },
+    yes?: string,
 }
 
 

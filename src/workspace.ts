@@ -91,3 +91,14 @@ export async function selectWorkspace() {
 
     return FOLDER;
 }
+
+/**
+ * Sets the current workspace (folder).
+ * 
+ * @param {vscode.WorkspaceFolder} wsf The new folder.
+ * 
+ * @return {vscode.WorkspaceFolder|false} The new folder.
+ */
+export function setWorkspace(wsf: vscode.WorkspaceFolder) {
+    return currentFolder = wsf || false;
+}
