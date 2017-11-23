@@ -75,6 +75,13 @@ export class HtmlTextDocumentContentProvider implements vscode.TextDocumentConte
                                           [ uri ]));
     }
 
+    /**
+     * Returns a HTML document by its URI.
+     * 
+     * @param {vscode.Uri} uri The URI.
+     * 
+     * @return {string} The HTML content.
+     */
     protected getHtmlDoc(uri: vscode.Uri): string {
         let htmlDocs = this.controller.htmlDocuments;
 
