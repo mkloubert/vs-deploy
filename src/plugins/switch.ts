@@ -227,7 +227,8 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let canceled = false;
-        ME.onCancelling(() => canceled = true);
+        ME.onCancelling(() => canceled = true,
+                        opts);
 
         let completedInvoked = false;
         const COMPLETED = (err: any) => {
@@ -406,7 +407,8 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let canceled = false;
-        ME.onCancelling(() => canceled = true);
+        ME.onCancelling(() => canceled = true,
+                        opts);
 
         let completedInvoked = false;
         const COMPLETED = (err: any) => {
@@ -491,7 +493,8 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let canceled = false;
-        ME.onCancelling(() => canceled = true);
+        ME.onCancelling(() => canceled = true,
+                        opts);
 
         let completedInvoked = false;
         const COMPLETED = (err: any) => {

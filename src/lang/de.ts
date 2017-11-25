@@ -279,6 +279,9 @@ export const translation: Translation = {
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
         },
+        slack: {
+            description: 'Lädt Dateien in einen Slack Workspace hoch',
+        },
         sql: {
             description: 'Führt SQL-Skripte aus',
             invalidFile: 'Datei ist ungültig!',

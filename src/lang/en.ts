@@ -281,6 +281,9 @@ export const translation: Translation = {
         sftp: {
             description: 'Deploys to a SFTP server',
         },
+        slack: {
+            description: 'Deploys to one or more Slack channels',
+        },
         sql: {
             description: 'Executes SQL scripts',
             invalidFile: 'File is invalid!',

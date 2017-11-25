@@ -32235,6 +32235,7 @@
   },
   "readmeFilename": "README.md",
   "dependencies": {
+    "@slack/client": "^3.14.2",
     "aws-sdk": "^2.49.0",
     "azure-storage": "^1.4.0",
     "coffeescript": "^1.12.6",

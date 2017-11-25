@@ -288,6 +288,9 @@ export interface Translation {
         sftp?: {
             description?: string;
         },
+        slack?: {
+            description?: string;
+        },
         sql?: {
             description?: string;
             invalidFile?: string;
