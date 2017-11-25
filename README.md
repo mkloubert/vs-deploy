@@ -24,6 +24,7 @@ The extension supports the following destination types:
 | [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote) | |
 | [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | X |
 | [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | X |
+| [Slack](https://github.com/mkloubert/vs-deploy/wiki/target_slack) | |
 | [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) | |
 | [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | X |
 
@@ -318,6 +319,7 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
+| `Deploy: Change switch` | Changes the options of a [switch](https://github.com/mkloubert/vs-deploy/wiki/target_switch). | This command does not have a default key binding. If you want to setup a shortcut for `extension.deploy.changeSwitch`, you can update `keybindings.json` as described [here](https://code.visualstudio.com/docs/getstarted/keybindings#_advanced-customization). |
 | `Deploy: Compare files` | Compares a local file with a remote one. | `CTRL+ALT+P, C` |
 | `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
 | `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
