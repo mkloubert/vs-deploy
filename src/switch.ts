@@ -67,13 +67,13 @@ export async function changeSwitch() {
 
         const SWITCH_NAME = getSwitchName(selectedTarget, index);
         
-        const OPTIONS = Enumerable.from( deploy_plugins_switch.getTargetOptionsOf(selectedTarget) ).orderBy(o => {
-        }).toArray()
-          .sort((x, y) => {
-                    return deploy_helpers.compareValuesBy(x, y,
-                                                          i => deploy_helpers.getSortValue(i,
-                                                                                           () => ME.name));
-                });
+        const OPTIONS = Enumerable.from( deploy_plugins_switch.getTargetOptionsOf(selectedTarget) )
+            .toArray()
+            .sort((x, y) => {
+                      return deploy_helpers.compareValuesBy(x, y,
+                                                            i => deploy_helpers.getSortValue(i,
+                                                                                             () => ME.name));
+                  });
         
         const OPTION_QUICK_PICKS: deploy_contracts.DeployActionQuickPick[] = OPTIONS.map((o, i) => {
             const LABEL = getSwitchOptionName(o, i);
