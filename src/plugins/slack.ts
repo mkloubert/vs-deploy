@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as Enumerable from 'node-enumerable';
 import * as FS from 'fs';
 import * as i18 from '../i18';
 import * as Path from 'path';
@@ -34,7 +35,7 @@ import * as Stream from 'stream';
 
 
 interface DeployTargetSlack extends deploy_contracts.DeployTarget {
-    channels: string;
+    channels: string | string[];
     token: string;
 }
 
@@ -74,7 +75,17 @@ class SlackPlugin extends deploy_objects.DeployPluginBase {
                     return;
                 }
 
-                const CHANNELS = deploy_helpers.toStringSafe(target.channels).trim();
+                const CHANNELS = Enumerable.from(
+                    deploy_helpers.asArray(target.channels)
+                ).selectMany(c => {
+                    return deploy_helpers.toStringSafe(c)
+                                         .split(',');
+                }).select(c => {
+                    return c.trim();
+                }).where(c => {
+                    return '' !== c;
+                }).distinct()
+                  .joinToString(',');
                 const TOKEN = deploy_helpers.toStringSafe(target.token).trim();
         
                 const CLIENT = new Slack.WebClient(TOKEN);
