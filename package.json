@@ -30168,6 +30168,11 @@
                                   "description": "Also use environment variables of the process of current workspace or not.",
                                   "type": "boolean",
                                   "default": false
+                                },
+                                "usePlaceholdersInArguments": {
+                                  "description": "Use placeholders in arguments or not.",
+                                  "type": "boolean",
+                                  "default": false
                                 }
                               }
                             },
