@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 12.0.0 (?????, 2017; switch target and multi root support)
+## 12.0.0 (November 27th, 2017; switch target, multi root support and module updates)
 
 * added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
 * added [Slack target](https://github.com/mkloubert/vs-deploy/wiki/target_slack)
