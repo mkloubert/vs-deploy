@@ -1,6 +1,6 @@
 # Change Log (vs-deploy)
 
-## 12.0.0 (November 27th, 2017; switch target, multi root support and module updates)
+## 12.0.1 (November 27th, 2017; switch target, multi root support and module updates)
 
 * added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
 * added [Slack target](https://github.com/mkloubert/vs-deploy/wiki/target_slack)
@@ -17,6 +17,7 @@
   * [node-enumerable](https://www.npmjs.com/package/node-enumerable)
   * [pug](https://www.npmjs.com/package/pug)
   * [typescript](https://www.npmjs.com/package/typescript)
+* bugfixes
 
 ## 11.1.0 (November 20th, 2017; finished multi root support)
 
