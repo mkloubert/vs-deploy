@@ -297,6 +297,10 @@ export interface Translation {
             unknownEngine?: string;
         },
         switch?: {
+            button?: {
+                text?: string;
+                tooltip?: string;
+            },
             defaultName?: string;
             defaultOptionName?: string;
             description?: string;

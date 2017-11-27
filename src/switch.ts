@@ -26,6 +26,7 @@
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
 import * as deploy_plugins_switch from './plugins/switch';
+import * as deploy_values from './values';
 import * as Enumerable from 'node-enumerable';
 import * as i18 from './i18';
 import * as vs_deploy from './deploy';
@@ -33,6 +34,14 @@ import * as vscode from 'vscode';
 
 
 type SavedStates = { [switchName: string]: string };
+
+interface Button {
+    button: vscode.StatusBarItem;
+    command: vscode.Disposable;
+    index: number;
+    settings: deploy_plugins_switch.DeploySwitchButton;
+    switch: deploy_plugins_switch.DeployTargetSwitch;
+}
 
 /**
  * Stores the new option data for a target.
@@ -54,8 +63,10 @@ export interface NewSwitchOptionState {
 export type SelectedSwitchOptions = { [name: string]: deploy_plugins_switch.DeployTargetSwitchOption };
 
 
+const BUTTONS: Button[] = [];
 const KEY_SWITCH_STATES = 'vsdSwitchStates';
 
+let nextButtonId = -1;
 let switchStates: SelectedSwitchOptions = {};
 
 /**
@@ -71,85 +82,9 @@ export async function changeSwitch() {
     let selectedOption: deploy_plugins_switch.DeployTargetSwitchOption;
     let selectedTarget: deploy_plugins_switch.DeployTargetSwitch;
 
-    const SELECT_OPTION = async () => {
-        if (!selectedOption) {
-            return;
-        }
-
-        setCurrentOptionFor(selectedTarget, selectedOption);
-        await saveStates.apply(ME, []);
-
-        printSwitchStates.apply(ME, []);
-    };
-
     const SELECT_TARGET_OPTION = async (index: number) => {
-        if (!selectedTarget) {
-            return;
-        }
-
-        const SWITCH_NAME = getSwitchName(selectedTarget, index);
-        
-        const OPTIONS = Enumerable.from( getTargetOptionsOf(selectedTarget) )
-            .toArray()
-            .sort((x, y) => {
-                      return deploy_helpers.compareValuesBy(x, y,
-                                                            i => deploy_helpers.getSortValue(i,
-                                                                                             () => ME.name));
-                  });
-        
-        const OPTION_QUICK_PICKS: deploy_contracts.DeployActionQuickPick[] = OPTIONS.map((o, i) => {
-            const LABEL = getSwitchOptionName(o, i);
-            const DESCRIPTION = deploy_helpers.toStringSafe(o.description).trim();
-
-            let details = '';
-            let isSelected = false;
-
-            const SELECTED_OPTION_OF_TARGET = getCurrentOptionOf(selectedTarget);
-            if (SELECTED_OPTION_OF_TARGET) {
-                if (o.__id === SELECTED_OPTION_OF_TARGET.__id) {
-                    isSelected = true;
-                }
-            }
-            
-            return {
-                action: async () => {
-                    selectedOption = o;
-
-                    await SELECT_OPTION();
-                },
-                description: DESCRIPTION,
-                detail: isSelected ? `(${i18.t('selected')})` : '',
-                label: LABEL,
-            };
-        });
-        
-        if (OPTION_QUICK_PICKS.length < 1) {
-            vscode.window.showWarningMessage(
-                '[vs-deploy] ' + i18.t('plugins.switch.noOptionsDefined',
-                                       SWITCH_NAME),
-            );
-
-            return;
-        }
-
-        let action: Function;
-
-        if (1 === OPTION_QUICK_PICKS.length) {
-            action = OPTION_QUICK_PICKS[0].action;
-        }
-        else {
-            const SELECTED_ITEM = await vscode.window.showQuickPick(OPTION_QUICK_PICKS, {
-                placeHolder: i18.t('plugins.switch.selectOption',
-                                   SWITCH_NAME),
-            });
-            if (SELECTED_ITEM) {
-                action = SELECTED_ITEM.action;
-            }
-        }
-
-        if (action) {
-            await Promise.resolve(action());
-        }
+        await selectTargetOption.apply(ME,
+                                       [ selectedTarget, index ]);
     };
 
     const QUICK_PICKS: deploy_contracts.DeployActionQuickPick[] = TARGETS.map((t, i) => {
@@ -383,6 +318,93 @@ export function printSwitchStates() {
 }
 
 /**
+ * Reloads the switch buttons.
+ */
+export function reloadButtons() {
+    const ME = this;
+
+    while (BUTTONS.length > 0) {
+        const BTN = BUTTONS.shift();
+
+        deploy_helpers.tryDispose(BTN.button);
+        deploy_helpers.tryDispose(BTN.command);
+    }
+
+    const SWITCHES: deploy_plugins_switch.DeployTargetSwitch[] = getSwitches.apply(ME, []);
+    SWITCHES.forEach((s, i) => {
+        let newBtn: vscode.StatusBarItem;
+        let newCmd: vscode.Disposable;
+        try {
+            if (deploy_helpers.isNullOrUndefined(s.button)) {
+                return;
+            }
+
+            if ('object' !== typeof s.button) {
+                if (!deploy_helpers.toBooleanSafe(s.button)) {
+                    return;
+                }
+            }
+
+            let btn = s.button;
+            if ('object' !== typeof btn) {
+                btn = {
+                };
+            }
+
+            if (!deploy_helpers.toBooleanSafe(btn.enabled, true)) {
+                return;
+            }
+
+            const ID = nextButtonId++;
+
+            let color = deploy_helpers.normalizeString(btn.color);
+            const IS_RIGHT = deploy_helpers.toBooleanSafe(btn.isRight);
+            let prio = parseInt(
+                deploy_helpers.toStringSafe(btn.priority).trim()
+            );
+
+            if (deploy_helpers.isEmptyString(color)) {
+                color = '#ffffff';
+            }
+
+            if (isNaN(prio)) {
+                prio = undefined;
+            }
+
+            const ALIGNMENT = IS_RIGHT ? vscode.StatusBarAlignment.Right
+                                       : vscode.StatusBarAlignment.Left;
+
+            const COMMAND = 'extension.deploy.switches.button' + ID;
+
+            newCmd = vscode.commands.registerCommand(COMMAND, async () => {
+                await selectTargetOption.apply(ME, [ s, i ]);
+            });
+
+            newBtn = vscode.window.createStatusBarItem(ALIGNMENT, prio);
+            newBtn.color = color;
+            newBtn.command = COMMAND;
+            newBtn.show();
+
+            BUTTONS.push({
+                button: newBtn,
+                command: newCmd,
+                index: i,
+                settings: deploy_helpers.cloneObject(btn),
+                switch: s,
+            });
+        }
+        catch (e) {
+            deploy_helpers.tryDispose(newBtn);
+            deploy_helpers.tryDispose(newCmd);
+
+            ME.log(`[ERROR :: vs-deploy] switch.reloadButtons(): ${deploy_helpers.toStringSafe(e)}`);
+        }
+    });
+
+    updateButtons.apply(ME, []);
+}
+
+/**
  * Reloads the target states for switches.
  */
 export function reloadTargetStates() {
@@ -458,6 +480,93 @@ export async function saveStates() {
     }
 }
 
+async function selectTargetOption(target: deploy_plugins_switch.DeployTargetSwitch,
+                                  index: number) {
+    const ME: vs_deploy.Deployer = this;
+    
+    if (!target) {
+        return;
+    }
+
+    let selectedOption: deploy_plugins_switch.DeployTargetSwitchOption;
+    const SWITCH_NAME = getSwitchName(target, index);
+    
+    const OPTIONS = Enumerable.from( getTargetOptionsOf(target) )
+        .toArray()
+        .sort((x, y) => {
+                    return deploy_helpers.compareValuesBy(x, y,
+                                                          i => deploy_helpers.getSortValue(i,
+                                                                                           () => ME.name));
+              });
+
+    const SELECT_OPTION = async () => {
+        if (!selectedOption) {
+            return;
+        }
+
+        setCurrentOptionFor(target, selectedOption);
+        await saveStates.apply(ME, []);
+
+        printSwitchStates.apply(ME, []);
+
+        updateButtons.apply(ME, []);
+    };
+    
+    const OPTION_QUICK_PICKS: deploy_contracts.DeployActionQuickPick[] = OPTIONS.map((o, i) => {
+        const LABEL = getSwitchOptionName(o, i);
+        const DESCRIPTION = deploy_helpers.toStringSafe(o.description).trim();
+
+        let details = '';
+        let isSelected = false;
+
+        const SELECTED_OPTION_OF_TARGET = getCurrentOptionOf(target);
+        if (SELECTED_OPTION_OF_TARGET) {
+            if (o.__id === SELECTED_OPTION_OF_TARGET.__id) {
+                isSelected = true;
+            }
+        }
+        
+        return {
+            action: async () => {
+                selectedOption = o;
+
+                await SELECT_OPTION();
+            },
+            description: DESCRIPTION,
+            detail: isSelected ? `(${i18.t('selected')})` : '',
+            label: LABEL,
+        };
+    });
+    
+    if (OPTION_QUICK_PICKS.length < 1) {
+        vscode.window.showWarningMessage(
+            '[vs-deploy] ' + i18.t('plugins.switch.noOptionsDefined',
+                                    SWITCH_NAME),
+        );
+
+        return;
+    }
+
+    let action: Function;
+
+    if (1 === OPTION_QUICK_PICKS.length) {
+        action = OPTION_QUICK_PICKS[0].action;
+    }
+    else {
+        const SELECTED_ITEM = await vscode.window.showQuickPick(OPTION_QUICK_PICKS, {
+            placeHolder: i18.t('plugins.switch.selectOption',
+                                SWITCH_NAME),
+        });
+        if (SELECTED_ITEM) {
+            action = SELECTED_ITEM.action;
+        }
+    }
+
+    if (action) {
+        await Promise.resolve(action());
+    }
+}
+
 /**
  * Sets the current option for a switch target.
  * 
@@ -482,4 +591,55 @@ export function setCurrentOptionFor(target: deploy_plugins_switch.DeployTargetSw
             target: target,
         };
     }
+}
+
+function updateButtons() {
+    const ME: vs_deploy.Deployer = this;
+
+    BUTTONS.forEach(btn => {
+        const SWITCH_NAME = getSwitchName(btn.switch, btn.index);
+        const OPTION = getCurrentOptionOf(btn.switch);
+
+        const VALUES: deploy_values.ValueBase[] = [
+            new deploy_values.StaticValue({
+                name: 'selectedSwitch',
+                value: SWITCH_NAME,
+            }),
+            new deploy_values.StaticValue({
+                name: 'selectedSwitchOption',
+                value: false === OPTION ? undefined
+                                        : getSwitchOptionName(OPTION, OPTION.__index),
+            }),
+        ];
+        ME.getValues().forEach(v => {
+            VALUES.push(v);
+        });
+
+        let text = deploy_helpers.toStringSafe(
+            deploy_values.replaceWithValues(VALUES, btn.settings.text)
+        ).trim();
+        if ('' === text) {
+            // default text
+            text = i18.t('plugins.switch.button.text',
+                         SWITCH_NAME);
+        }
+
+        let tooltip = deploy_helpers.toStringSafe(
+            deploy_values.replaceWithValues(VALUES, btn.settings.tooltip)
+        ).trim();
+        if ('' === tooltip) {
+            // default tooltip
+            if (false === OPTION) {
+                tooltip = i18.t('plugins.switch.button.tooltip',
+                                i18.t('plugins.switch.noOptionSelected'));
+            }
+            else {
+                tooltip = i18.t('plugins.switch.button.tooltip',
+                                `'${getSwitchOptionName(OPTION, OPTION.__index)}'`);
+            }
+        }
+
+        btn.button.text = text;
+        btn.button.tooltip = tooltip;
+    });
 }

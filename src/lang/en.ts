@@ -290,6 +290,10 @@ export const translation: Translation = {
             unknownEngine: 'Unknown engine {0:trim,surround}!',
         },
         switch: {
+            button: {
+                text: 'Switch {0:trim,surround}',
+                tooltip: "Current option: {0:trim}\n\nClick here to change the current option...",
+            },
             defaultName: 'Switch #{0:trim}',
             defaultOptionName: 'Switch option #{0:trim}',
             description: 'Switches between existing targets',

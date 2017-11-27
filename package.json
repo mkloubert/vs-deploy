@@ -30560,6 +30560,49 @@
                         "type": "string",
                         "description": "Switches between targets."
                       },
+                      "button": {
+                        "description": "Settings for a button for that switch.",
+                        "oneOf": [
+                          {
+                            "type": "boolean",
+                            "description": "Display a button for that switch or not.",
+                            "default": false
+                          },
+                          {
+                            "type": "object",
+                            "description": "The settings for the button.",
+                            "properties": {
+                              "color": {
+                                "type": "string",
+                                "description": "The custom (text) color for the button.",
+                                "default": "#ffffff"
+                              },
+                              "enabled": {
+                                "type": "boolean",
+                                "description": "Enable button or not.",
+                                "default": true
+                              },
+                              "isRight": {
+                                "type": "boolean",
+                                "description": "Set button on the right side or not.",
+                                "default": false
+                              },
+                              "priority": {
+                                "type": "number",
+                                "description": "The custom priority."
+                              },
+                              "text": {
+                                "type": "string",
+                                "description": "The custom text."
+                              },
+                              "tooltip": {
+                                "type": "string",
+                                "description": "The custom tooltip."
+                              }
+                            }
+                          }
+                        ]
+                      },
                       "options": {
                         "description": "One or more options for the switch.",
                         "oneOf": [

@@ -4184,6 +4184,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                                 .apply(ME, []);
                             }
 
+                            deploy_switch.reloadButtons.apply(ME, []);
                             deploy_switch.printSwitchStates.apply(ME, []);
                         }
                         finally {

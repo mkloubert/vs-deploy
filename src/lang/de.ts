@@ -288,6 +288,10 @@ export const translation: Translation = {
             unknownEngine: 'Unbekannter Typ {0:trim,surround}!',
         },
         switch: {
+            button: {
+                text: 'Schalter {0:trim,surround}',
+                tooltip: "Aktuelle Option: {0:trim}\n\nHier klicken, um die aktuelle Option zu wechseln...",
+            },
             defaultName: 'Schalter #{0:trim}',
             defaultOptionName: 'Schalter-Option #{0:trim}',
             description: 'Schaltet zwischen anderen existierenden Zielen um',

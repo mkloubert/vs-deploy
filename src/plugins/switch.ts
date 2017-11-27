@@ -35,9 +35,43 @@ import * as Workflows from 'node-workflows';
 
 
 /**
+ * A button for a switch target.
+ */
+export interface DeploySwitchButton {
+    /**
+     * The custom (text) color for the button.
+     */
+    color?: string;
+    /**
+     * Enable button or not.
+     */
+    enabled?: boolean;
+    /**
+     * Put button on the right side or not.
+     */
+    isRight?: boolean;
+    /**
+     * The priority.
+     */
+    priority?: number;
+    /**
+     * The custom text.
+     */
+    text?: string;
+    /**
+     * The custom tooltip.
+     */
+    tooltip?: string;
+}
+
+/**
  * A switch target.
  */
 export interface DeployTargetSwitch extends deploy_contracts.DeployTarget {
+    /**
+     * A button for the switch.
+     */
+    button?: DeploySwitchButton | boolean;
     /**
      * One or more options for the switch.
      */
