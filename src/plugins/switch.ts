@@ -26,6 +26,7 @@
 import * as deploy_contracts from '../contracts';
 import * as deploy_helpers from '../helpers';
 import * as deploy_objects from '../objects';
+import * as deploy_switch from '../switch';
 import * as deploy_targets from '../targets';
 import * as Enumerable from 'node-enumerable';
 import * as i18 from '../i18';
@@ -76,23 +77,6 @@ export interface DeployTargetSwitchOption extends deploy_contracts.Sortable {
  */
 export type DeployTargetSwitchOptionValue = DeployTargetSwitchOption | string;
 
-/**
- * An action to reset the states of switches.
- */
-export type ResetSwitchStatesAction = () => void;
-
-/**
- * Repository of selected switch options.
- */
-export type SelectedSwitchOptions = { [name: string]: DeployTargetSwitchOption };
-
-/**
- * The provider that returns the states of switches.
- * 
- * @return {SelectedSwitchOptions} The switch states.
- */
-export type SelectedSwitchOptionsProvider = () => SelectedSwitchOptions;
-
 
 /**
  * Returns the current option of a target.
@@ -110,7 +94,7 @@ export function getCurrentOptionOf<TDefault = false>(target: DeployTargetSwitch,
 
     const TARGET_NAME = deploy_helpers.normalizeString( target.name );
 
-    const STATES = getSelectedSwitchOptions();
+    const STATES = deploy_switch.getSelectedSwitchOptions();
     if (STATES) {
         const OPTION = STATES[TARGET_NAME];
         if ('object' === typeof OPTION) {
@@ -132,21 +116,7 @@ export function getCurrentOptionOf<TDefault = false>(target: DeployTargetSwitch,
     return defaultValue;
 }
 
-/**
- * Returns the object that stores the states of all switches.
- * 
- * @return {SelectedSwitchOptions} The object with the states.
- */
-export function getSelectedSwitchOptions(): SelectedSwitchOptions {
-    let options: SelectedSwitchOptions;
-    
-    const PROVIDER = _selectedSwitchOptionsProvider;
-    if (PROVIDER) {
-        options = PROVIDER();
-    }
 
-    return options || <any>{};
-}
 
 /**
  * Returns the options of a switch target.
@@ -201,16 +171,6 @@ export function getTargetOptionsOf(target: DeployTargetSwitch): DeployTargetSwit
 }
 
 /**
- * Resets the switch states.
- */
-export function resetStates() {
-    const ACTION = _resetSwitchStatesAction;
-    if (ACTION) {
-        ACTION();
-    }
-}
-
-/**
  * Sets the current option for a switch target.
  * 
  * @param {DeployTargetSwitch} target The target.
@@ -225,7 +185,7 @@ export function setCurrentOptionFor(target: DeployTargetSwitch, option: DeployTa
 
     const NAME = deploy_helpers.normalizeString( target.name );
 
-    const STATES = getSelectedSwitchOptions();
+    const STATES = deploy_switch.getSelectedSwitchOptions();
     if (STATES) {
         STATES[NAME] = option;
 
@@ -234,26 +194,6 @@ export function setCurrentOptionFor(target: DeployTargetSwitch, option: DeployTa
             target: target,
         };
     }
-}
-
-let _resetSwitchStatesAction: ResetSwitchStatesAction;
-/**
- * Sets the action for resetting the states of all switches.
- * 
- * @param {ResetSwitchStatesAction} action The action to set.
- */
-export function setResetSwitchStatesAction(action: ResetSwitchStatesAction) {
-    _resetSwitchStatesAction = action;
-}
-
-let _selectedSwitchOptionsProvider: SelectedSwitchOptionsProvider;
-/**
- * Sets the provider that returns the object for saving the states of all switches.
- * 
- * @param {SelectedSwitchOptionsProvider} provider The provider to set.
- */
-export function setSelectedSwitchOptionsProvider(provider: SelectedSwitchOptionsProvider) {
-    _selectedSwitchOptionsProvider = provider;
 }
 
 
@@ -357,6 +297,86 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         });
     }
 
+    public async downloadFile(file: string, target: DeployTargetSwitch, opts?: deploy_contracts.DeployFileOptions): Promise<Buffer> {
+        const ME = this;
+        
+        if (!opts) {
+            opts = {};
+        }
+
+        let canceled = false;
+        ME.onCancelling(() => canceled = true,
+                        opts);
+
+        let completedInvoked = false;
+        const COMPLETED = (err: any) => {
+            if (completedInvoked) {
+                return;
+            }
+            completedInvoked = true;
+
+            if (opts.onCompleted) {
+                opts.onCompleted(ME, {
+                    canceled: canceled,
+                    error: err,
+                    file: file,
+                    target: target,
+                });
+            }
+        };
+
+        const OPTION = ME.getSwitchOption(target);
+        if (false === OPTION) {
+            canceled = true;
+
+            COMPLETED(null);
+            return;
+        }
+
+        const TARGETS_AND_PLUGINS = ME.getTargetsWithPlugins(target, OPTION.targets);
+        if (TARGETS_AND_PLUGINS.length < 1) {
+            canceled = true;
+
+            COMPLETED(null);  //TODO: error message
+            return;
+        }
+
+        let data: Buffer;
+        await ME.forEachTargetAndPlugin(target, TARGETS_AND_PLUGINS, async (t, p) => {
+            return new Promise<void>(async (resolve, reject) => {
+                const COMPLETED = deploy_helpers.createSimplePromiseCompletedAction(resolve, reject);
+
+                try {
+                    if (p.downloadFile) {
+                        data = await Promise.resolve(
+                            p.downloadFile(file, t, {
+                                baseDirectory: opts.baseDirectory,
+                                context: opts.context || ME.context,
+                                onBeforeDeploy: (sender, e) => {
+                                    if (opts.onBeforeDeploy) {
+                                        opts.onBeforeDeploy(ME, {
+                                            destination: e.destination,
+                                            file: e.file,
+                                            target: e.target,
+                                        });
+                                    }
+                                },
+                                onCompleted: (sender, e) => {
+                                    COMPLETED(e.error);
+                                }
+                            })
+                        );
+                    }
+                }
+                catch (e) {
+                    COMPLETED(e);
+                }
+            });
+        });
+
+        return data;
+    }
+
     private async forEachTargetAndPlugin(target: DeployTargetSwitch, targetsWithPlugins: deploy_contracts.DeployTargetWithPlugins[],
                                          action: (target: deploy_contracts.DeployTarget, plugin: deploy_contracts.DeployPlugin) => any) {
         const ME = this;
@@ -435,17 +455,7 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         });
     }
 
-    private getSwitchOption(target: DeployTargetSwitch): DeployTargetSwitchOption | false {
-        const OPTION = getCurrentOptionOf(target);
-        if (false === OPTION) {
-            //TODO: show message
-
-            return false;
-        }
-
-        return OPTION;
-    }
-
+    
     public async getFileInfo(file: string, target: DeployTargetSwitch, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
         const ME = this;
         
@@ -524,6 +534,17 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         });
 
         return fi;
+    }
+
+    private getSwitchOption(target: DeployTargetSwitch): DeployTargetSwitchOption | false {
+        const OPTION = getCurrentOptionOf(target);
+        if (false === OPTION) {
+            //TODO: show message
+
+            return false;
+        }
+
+        return OPTION;
     }
     
     public info(): deploy_contracts.DeployPluginInfo {

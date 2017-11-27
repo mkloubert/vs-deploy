@@ -30,13 +30,19 @@ import * as Enumerable from 'node-enumerable';
 import * as i18 from './i18';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
-import { resetStates } from './plugins/switch';
+
+
+type SavedStates = { [switchName: string]: string };
+
+/**
+ * Repository of selected switch options.
+ */
+export type SelectedSwitchOptions = { [name: string]: deploy_plugins_switch.DeployTargetSwitchOption };
 
 
 const KEY_SWITCH_STATES = 'vsdSwitchStates';
 
-type SavedStates = { [switchName: string]: string };
-
+let switchStates: SelectedSwitchOptions = {};
 
 /**
  * Changes a switch target.
@@ -174,6 +180,15 @@ export async function changeSwitch() {
     }
 }
 
+/**
+ * Returns the object that stores the states of all switches.
+ * 
+ * @return {SelectedSwitchOptions} The object with the states.
+ */
+export function getSelectedSwitchOptions(): SelectedSwitchOptions {
+    return switchStates || <any>{};
+}
+
 function getSwitches(): deploy_plugins_switch.DeployTargetSwitch[] {
     const ME: vs_deploy.Deployer = this;
 
@@ -261,7 +276,7 @@ export function reloadTargetStates() {
  * Resets all target states for switches.
  */
 export function resetTargetStates() {
-    return deploy_plugins_switch.resetStates();
+    switchStates = {};
 }
 
 /**
@@ -273,7 +288,7 @@ export async function saveStates() {
     try {
         let newValue: SavedStates;
 
-        const STATES = deploy_plugins_switch.getSelectedSwitchOptions();
+        const STATES = getSelectedSwitchOptions();
         if (STATES) {
             newValue = {};
 
