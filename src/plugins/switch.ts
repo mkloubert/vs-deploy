@@ -44,7 +44,7 @@ export interface DeployTargetSwitch extends deploy_contracts.DeployTarget {
     /**
      * One or more options for the switch.
      */
-    options?: DeployTargetSwitchOptionValue | DeployTargetSwitchOptionValue[];
+    options: DeployTargetSwitchOptionValue | DeployTargetSwitchOptionValue[];
 }
 
 /**

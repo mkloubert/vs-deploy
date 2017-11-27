@@ -1343,7 +1343,7 @@ export function loadFrom(src: string): Promise<DownloadResult> {
                         {
                             // start connection
                             wf.next((ctx) => {
-                                return new Promise<SFTP.Client>((res, rej) => {
+                                return new Promise<SFTP>((res, rej) => {
                                     try {
                                         let port = 22;
                                         if (!isNullUndefinedOrEmptyString(url.port)) {
@@ -1374,7 +1374,7 @@ export function loadFrom(src: string): Promise<DownloadResult> {
 
                             // start reading file
                             wf.next((ctx) => {
-                                let conn: SFTP.Client = ctx.previousValue;
+                                let conn: SFTP = ctx.previousValue;
 
                                 return new Promise<NodeJS.ReadableStream>((res, rej) => {
                                     conn.get(url.path).then((stream) => {
