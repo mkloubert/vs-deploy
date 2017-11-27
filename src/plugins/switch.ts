@@ -33,11 +33,6 @@ import * as Workflows from 'node-workflows';
 
 
 /**
- * The current repository of selected switch options.
- */
-export let switchStates: SelectedSwitchOptions = {};
-
-/**
  * A switch target.
  */
 export interface DeployTargetSwitch extends deploy_contracts.DeployTarget {
@@ -82,9 +77,21 @@ export interface DeployTargetSwitchOption extends deploy_contracts.Sortable {
 export type DeployTargetSwitchOptionValue = DeployTargetSwitchOption | string;
 
 /**
+ * An action to reset the states of switches.
+ */
+export type ResetSwitchStatesAction = () => void;
+
+/**
  * Repository of selected switch options.
  */
 export type SelectedSwitchOptions = { [name: string]: DeployTargetSwitchOption };
+
+/**
+ * The provider that returns the states of switches.
+ * 
+ * @return {SelectedSwitchOptions} The switch states.
+ */
+export type SelectedSwitchOptionsProvider = () => SelectedSwitchOptions;
 
 
 /**
@@ -103,7 +110,7 @@ export function getCurrentOptionOf<TDefault = false>(target: DeployTargetSwitch,
 
     const TARGET_NAME = deploy_helpers.normalizeString( target.name );
 
-    const STATES = switchStates;
+    const STATES = getSelectedSwitchOptions();
     if (STATES) {
         const OPTION = STATES[TARGET_NAME];
         if ('object' === typeof OPTION) {
@@ -123,6 +130,22 @@ export function getCurrentOptionOf<TDefault = false>(target: DeployTargetSwitch,
     }
 
     return defaultValue;
+}
+
+/**
+ * Returns the object that stores the states of all switches.
+ * 
+ * @return {SelectedSwitchOptions} The object with the states.
+ */
+export function getSelectedSwitchOptions(): SelectedSwitchOptions {
+    let options: SelectedSwitchOptions;
+    
+    const PROVIDER = _selectedSwitchOptionsProvider;
+    if (PROVIDER) {
+        options = PROVIDER();
+    }
+
+    return options || <any>{};
 }
 
 /**
@@ -181,7 +204,10 @@ export function getTargetOptionsOf(target: DeployTargetSwitch): DeployTargetSwit
  * Resets the switch states.
  */
 export function resetStates() {
-    switchStates = {};
+    const ACTION = _resetSwitchStatesAction;
+    if (ACTION) {
+        ACTION();
+    }
 }
 
 /**
@@ -199,7 +225,7 @@ export function setCurrentOptionFor(target: DeployTargetSwitch, option: DeployTa
 
     const NAME = deploy_helpers.normalizeString( target.name );
 
-    const STATES = switchStates;
+    const STATES = getSelectedSwitchOptions();
     if (STATES) {
         STATES[NAME] = option;
 
@@ -209,6 +235,27 @@ export function setCurrentOptionFor(target: DeployTargetSwitch, option: DeployTa
         };
     }
 }
+
+let _resetSwitchStatesAction: ResetSwitchStatesAction;
+/**
+ * Sets the action for resetting the states of all switches.
+ * 
+ * @param {ResetSwitchStatesAction} action The action to set.
+ */
+export function setResetSwitchStatesAction(action: ResetSwitchStatesAction) {
+    _resetSwitchStatesAction = action;
+}
+
+let _selectedSwitchOptionsProvider: SelectedSwitchOptionsProvider;
+/**
+ * Sets the provider that returns the object for saving the states of all switches.
+ * 
+ * @param {SelectedSwitchOptionsProvider} provider The provider to set.
+ */
+export function setSelectedSwitchOptionsProvider(provider: SelectedSwitchOptionsProvider) {
+    _selectedSwitchOptionsProvider = provider;
+}
+
 
 class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
     public get canGetFileInfo(): boolean {

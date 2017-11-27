@@ -273,7 +273,7 @@ export async function saveStates() {
     try {
         let newValue: SavedStates;
 
-        const STATES = deploy_plugins_switch.switchStates;
+        const STATES = deploy_plugins_switch.getSelectedSwitchOptions();
         if (STATES) {
             newValue = {};
 

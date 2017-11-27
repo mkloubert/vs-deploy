@@ -28,6 +28,7 @@
 import * as deploy_content from './content';
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_plugins_switch from './plugins/switch';
 import * as deploy_workspace from './workspace';
 import * as FS from 'fs';
 import * as Moment from 'moment';
@@ -42,6 +43,7 @@ type GetTargetsCallback = (err: any, targets?: vs_contracts.DeployTarget[]) => v
 
 
 let deployer: vs_deploy.Deployer;
+let switchOptions: deploy_plugins_switch.SelectedSwitchOptions;
 
 export function activate(context: vscode.ExtensionContext) {
     let now = Moment();
@@ -275,6 +277,15 @@ export function activate(context: vscode.ExtensionContext) {
                                selectWorkspace,
                                openHtmlDoc, openOutputAfterDeploment, openTemplate, 
                                quickDeploy);
+
+    // switches
+    switchOptions = {};
+    deploy_plugins_switch.setResetSwitchStatesAction(() => {
+        switchOptions = {};
+    });
+    deploy_plugins_switch.setSelectedSwitchOptionsProvider(() => {
+        return switchOptions;
+    });
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();
