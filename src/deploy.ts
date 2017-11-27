@@ -4183,6 +4183,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                 deploy_templates.checkOfficialRepositoryVersions
                                                 .apply(ME, []);
                             }
+
+                            deploy_switch.printSwitchStates.apply(ME, []);
                         }
                         finally {
                             DOES_NOT_RELOAD_CONFIG_ANYMORE();

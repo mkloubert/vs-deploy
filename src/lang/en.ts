@@ -293,10 +293,13 @@ export const translation: Translation = {
             defaultName: 'Switch #{0:trim}',
             defaultOptionName: 'Switch option #{0:trim}',
             description: 'Switches between existing targets',
+            item: "{0:trim,surround}: ",
             noDefined: 'No swicthes available!',
             noOptionsDefined: 'No options were defined for the switch {0:trim,surround}!',
+            noOptionSelected: 'NO OPTION SELECTED',
             selectOption: 'Select an option for the switch {0:trim,surround}...',
             selectSwitch: 'Select a switch...',
+            states: 'Switch states:',
         },
         test: {
             description: 'A mock deployer that only displays what files would be deployed',

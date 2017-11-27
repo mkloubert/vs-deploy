@@ -35,6 +35,20 @@ import * as vscode from 'vscode';
 type SavedStates = { [switchName: string]: string };
 
 /**
+ * Stores the new option data for a target.
+ */
+export interface NewSwitchOptionState {
+    /**
+     * The new option.
+     */
+    option: deploy_plugins_switch.DeployTargetSwitchOption;
+    /**
+     * The underlying target.
+     */
+    target: deploy_plugins_switch.DeployTargetSwitch;
+}
+
+/**
  * Repository of selected switch options.
  */
 export type SelectedSwitchOptions = { [name: string]: deploy_plugins_switch.DeployTargetSwitchOption };
@@ -62,8 +76,10 @@ export async function changeSwitch() {
             return;
         }
 
-        deploy_plugins_switch.setCurrentOptionFor(selectedTarget, selectedOption);
+        setCurrentOptionFor(selectedTarget, selectedOption);
         await saveStates.apply(ME, []);
+
+        printSwitchStates.apply(ME, []);
     };
 
     const SELECT_TARGET_OPTION = async (index: number) => {
@@ -73,7 +89,7 @@ export async function changeSwitch() {
 
         const SWITCH_NAME = getSwitchName(selectedTarget, index);
         
-        const OPTIONS = Enumerable.from( deploy_plugins_switch.getTargetOptionsOf(selectedTarget) )
+        const OPTIONS = Enumerable.from( getTargetOptionsOf(selectedTarget) )
             .toArray()
             .sort((x, y) => {
                       return deploy_helpers.compareValuesBy(x, y,
@@ -88,7 +104,7 @@ export async function changeSwitch() {
             let details = '';
             let isSelected = false;
 
-            const SELECTED_OPTION_OF_TARGET = deploy_plugins_switch.getCurrentOptionOf(selectedTarget);
+            const SELECTED_OPTION_OF_TARGET = getCurrentOptionOf(selectedTarget);
             if (SELECTED_OPTION_OF_TARGET) {
                 if (o.__id === SELECTED_OPTION_OF_TARGET.__id) {
                     isSelected = true;
@@ -181,6 +197,44 @@ export async function changeSwitch() {
 }
 
 /**
+ * Returns the current option of a target.
+ * 
+ * @param {deploy_plugins_switch.DeployTargetSwitch} target The target.
+ * @param {TDefault} [defaultValue] The custom default value.
+ * 
+ * @return {deploy_plugins_switch.DeployTargetSwitchOption|TDefault} The option (if found).
+ */
+export function getCurrentOptionOf<TDefault = false>(target: deploy_plugins_switch.DeployTargetSwitch,
+                                                     defaultValue = <TDefault><any>false): deploy_plugins_switch.DeployTargetSwitchOption | TDefault {
+    if (!target) {
+        return <any>target;
+    }
+
+    const TARGET_NAME = deploy_helpers.normalizeString( target.name );
+
+    const STATES = getSelectedSwitchOptions();
+    if (STATES) {
+        const OPTION = STATES[TARGET_NAME];
+        if ('object' === typeof OPTION) {
+            return OPTION;  // found
+        }
+        else {
+            // get first (default) one
+            // instead
+
+            return Enumerable.from(
+                getTargetOptionsOf(target)
+            ).orderBy(o => {
+                return deploy_helpers.toBooleanSafe(o.isDefault) ? 0 : 1;
+            }).firstOrDefault(x => true,
+                              defaultValue);
+        }
+    }
+
+    return defaultValue;
+}
+
+/**
  * Returns the object that stores the states of all switches.
  * 
  * @return {SelectedSwitchOptions} The object with the states.
@@ -225,6 +279,59 @@ function getSwitchOptionName(target: deploy_plugins_switch.DeployTargetSwitchOpt
     return name;
 }
 
+/**
+ * Returns the options of a switch target.
+ * 
+ * @param {deploy_plugins_switch.DeployTargetSwitch} target The target.
+ * 
+ * @return {deploy_plugins_switch.DeployTargetSwitchOption[]} The options.
+ */
+export function getTargetOptionsOf(target: deploy_plugins_switch.DeployTargetSwitch): deploy_plugins_switch.DeployTargetSwitchOption[] {
+    if (deploy_helpers.isNullOrUndefined(target)) {
+        return <any>target;
+    }
+
+    const TARGET_NAME = deploy_helpers.normalizeString(target.name);
+
+    const OPTIONS: deploy_plugins_switch.DeployTargetSwitchOption[] = [];
+
+    let objIndex = -1;
+    Enumerable.from( deploy_helpers.asArray(target.options) ).where(v => {
+        return !deploy_helpers.isNullOrUndefined(v);
+    }).select(v => {
+                  ++objIndex;
+
+                  v = deploy_helpers.cloneObject(v);
+
+                  if ('object' !== typeof v) {
+                      v = {
+                          targets: [ deploy_helpers.normalizeString(v) ]
+                      };
+                  }
+
+                  v.__id = `${target.__id}\n` + 
+                           `${deploy_helpers.normalizeString(deploy_helpers.getSortValue(v))}\n` + 
+                           `${objIndex}\n` + 
+                           `${deploy_helpers.normalizeString(v.name)}`;
+                  v.__index = objIndex;
+
+                  v.targets = Enumerable.from( deploy_helpers.asArray(v.targets) ).select(t => {
+                      return deploy_helpers.normalizeString(t);  
+                  }).where(t => '' !== t &&
+                                TARGET_NAME !== t)
+                    .distinct()
+                    .toArray();
+
+                  return v;
+              })
+      .pushTo(OPTIONS);
+
+    return OPTIONS.sort((x, y) => {
+        return deploy_helpers.compareValuesBy(x, y,
+                                              o => deploy_helpers.getSortValue(o));
+    });
+}
+
 function isSwitch(target: deploy_contracts.DeployTarget): target is deploy_plugins_switch.DeployTargetSwitch {
     if (target) {
         return [
@@ -233,6 +340,46 @@ function isSwitch(target: deploy_contracts.DeployTarget): target is deploy_plugi
     }
 
     return false;
+}
+
+export function printSwitchStates() {
+    const ME: vs_deploy.Deployer = this;
+
+    try {
+        const SWITCHES: deploy_plugins_switch.DeployTargetSwitch[] = getSwitches.apply(ME, []);
+        if (SWITCHES.length > 0) {
+            ME.outputChannel.appendLine('');
+            ME.outputChannel.appendLine(
+                i18.t('plugins.switch.states')
+            );
+
+            SWITCHES.forEach((s, i) => {
+                const TARGET_NAME = getSwitchName(s, i);
+
+                ME.outputChannel.append(
+                    i18.t('plugins.switch.item',
+                          TARGET_NAME),
+                );
+
+                const OPTION = getCurrentOptionOf(s);
+                if (false === OPTION) {
+                    ME.outputChannel.appendLine(
+                        `<${i18.t('plugins.switch.noOptionSelected')}>`,
+                    );
+                }
+                else {
+                    ME.outputChannel.appendLine(
+                        "'" + getSwitchOptionName(OPTION, OPTION.__index)  + "'",
+                    );
+                }
+            });
+
+            ME.outputChannel.appendLine('');
+        }
+    }
+    catch (e) {
+        ME.log(`[ERROR :: vs-deploy] switch.printSwitchStates(): ${deploy_helpers.toStringSafe(e)}`);
+    }
 }
 
 /**
@@ -258,17 +405,23 @@ export function reloadTargetStates() {
                 SWITCHES.filter(s => {
                     return TARGET_NAME === deploy_helpers.normalizeString(s.name);
                 }).forEach(s => {
-                    Enumerable.from( deploy_plugins_switch.getTargetOptionsOf(s) ).where(o => {
+                    Enumerable.from( getTargetOptionsOf(s) ).where(o => {
                         return o.__id === OPTION_ID;
                     }).forEach(o => {
-                        deploy_plugins_switch.setCurrentOptionFor(s, o);
+                        setCurrentOptionFor(s, o);
                     });
                 });
             }
         }
+
+        // clean update
+        saveStates.apply(ME, []).then(() => {
+        }).catch((err) => {
+            ME.log(`[ERROR :: vs-deploy] switch.reloadTargetStates(2): ${deploy_helpers.toStringSafe(err)}`);
+        });
     }
     catch (e) {
-        ME.log(`[ERROR :: vs-deploy] switch.reloadTargetStates(): ${deploy_helpers.toStringSafe(e)}`);
+        ME.log(`[ERROR :: vs-deploy] switch.reloadTargetStates(1): ${deploy_helpers.toStringSafe(e)}`);
     }
 }
 
@@ -302,5 +455,31 @@ export async function saveStates() {
     }
     catch (e) {
         ME.log(`[ERROR :: vs-deploy] switch.saveStates(): ${deploy_helpers.toStringSafe(e)}`);
+    }
+}
+
+/**
+ * Sets the current option for a switch target.
+ * 
+ * @param {deploy_plugins_switch.DeployTargetSwitch} target The target.
+ * @param {deploy_plugins_switch.DeployTargetSwitchOption} option The option to set.
+ * 
+ * @return {Object} The new data.
+ */
+export function setCurrentOptionFor(target: deploy_plugins_switch.DeployTargetSwitch, option: deploy_plugins_switch.DeployTargetSwitchOption): NewSwitchOptionState {
+    if (!target) {
+        return <any>target;
+    }
+
+    const NAME = deploy_helpers.normalizeString( target.name );
+
+    const STATES = getSelectedSwitchOptions();
+    if (STATES) {
+        STATES[NAME] = option;
+
+        return {
+            option: STATES[NAME],
+            target: target,
+        };
     }
 }

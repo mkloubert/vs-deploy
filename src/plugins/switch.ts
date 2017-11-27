@@ -30,6 +30,7 @@ import * as deploy_switch from '../switch';
 import * as deploy_targets from '../targets';
 import * as Enumerable from 'node-enumerable';
 import * as i18 from '../i18';
+import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
@@ -53,6 +54,12 @@ export interface DeployTargetSwitchOption extends deploy_contracts.Sortable {
      * Gets the ID of that option.
      */
     __id?: any;
+    /**
+     * [INTERNAL] DO NOT DEFINE OR OVERWRITE THIS PROPERTY BY YOUR OWN!
+     * 
+     * The zero-based index.
+     */
+    __index?: number;
 
     /**
      * The description.
@@ -76,125 +83,6 @@ export interface DeployTargetSwitchOption extends deploy_contracts.Sortable {
  * A switch option value.
  */
 export type DeployTargetSwitchOptionValue = DeployTargetSwitchOption | string;
-
-
-/**
- * Returns the current option of a target.
- * 
- * @param {DeployTargetSwitch} target The target.
- * @param {TDefault} [defaultValue] The custom default value.
- * 
- * @return {DeployTargetSwitchOption|TDefault} The option (if found).
- */
-export function getCurrentOptionOf<TDefault = false>(target: DeployTargetSwitch,
-                                                     defaultValue = <TDefault><any>false): DeployTargetSwitchOption | TDefault {
-    if (!target) {
-        return <any>target;
-    }
-
-    const TARGET_NAME = deploy_helpers.normalizeString( target.name );
-
-    const STATES = deploy_switch.getSelectedSwitchOptions();
-    if (STATES) {
-        const OPTION = STATES[TARGET_NAME];
-        if ('object' === typeof OPTION) {
-            return OPTION;  // found
-        }
-        else {
-            // get first (default) one
-            // instead
-
-            return Enumerable.from(
-                getTargetOptionsOf(target)
-            ).orderBy(o => {
-                return deploy_helpers.toBooleanSafe(o.isDefault) ? 0 : 1;
-            }).firstOrDefault(x => true,
-                              defaultValue);
-        }
-    }
-
-    return defaultValue;
-}
-
-
-
-/**
- * Returns the options of a switch target.
- * 
- * @param {DeployTargetSwitch} target The target.
- * 
- * @return {DeployTargetSwitchOption[]} The options.
- */
-export function getTargetOptionsOf(target: DeployTargetSwitch): DeployTargetSwitchOption[] {
-    if (deploy_helpers.isNullOrUndefined(target)) {
-        return <any>target;
-    }
-
-    const TARGET_NAME = deploy_helpers.normalizeString(target.name);
-
-    const OPTIONS: DeployTargetSwitchOption[] = [];
-
-    let objIndex = -1;
-    Enumerable.from( deploy_helpers.asArray(target.options) ).where(v => {
-        return !deploy_helpers.isNullOrUndefined(v);
-    }).select(v => {
-                  ++objIndex;
-
-                  v = deploy_helpers.cloneObject(v);
-
-                  if ('object' !== typeof v) {
-                      v = {
-                          targets: [ deploy_helpers.normalizeString(v) ]
-                      };
-                  }
-
-                  v.__id = `${target.__id}\n` + 
-                           `${deploy_helpers.normalizeString(deploy_helpers.getSortValue(v))}\n` + 
-                           `${objIndex}\n` + 
-                           `${deploy_helpers.normalizeString(v.name)}`;
-
-                  v.targets = Enumerable.from( deploy_helpers.asArray(v.targets) ).select(t => {
-                      return deploy_helpers.normalizeString(t);  
-                  }).where(t => '' !== t &&
-                                TARGET_NAME !== t)
-                    .distinct()
-                    .toArray();
-
-                  return v;
-              })
-      .pushTo(OPTIONS);
-
-    return OPTIONS.sort((x, y) => {
-        return deploy_helpers.compareValuesBy(x, y,
-                                              o => deploy_helpers.getSortValue(o));
-    });
-}
-
-/**
- * Sets the current option for a switch target.
- * 
- * @param {DeployTargetSwitch} target The target.
- * @param {DeployTargetSwitchOption} option The option to set.
- * 
- * @return {Object} The new data.
- */
-export function setCurrentOptionFor(target: DeployTargetSwitch, option: DeployTargetSwitchOption): { option: DeployTargetSwitchOption, target: DeployTargetSwitch } {
-    if (!target) {
-        return <any>target;
-    }
-
-    const NAME = deploy_helpers.normalizeString( target.name );
-
-    const STATES = deploy_switch.getSelectedSwitchOptions();
-    if (STATES) {
-        STATES[NAME] = option;
-
-        return {
-            option: STATES[NAME],
-            target: target,
-        };
-    }
-}
 
 
 class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
@@ -537,9 +425,11 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
     }
 
     private getSwitchOption(target: DeployTargetSwitch): DeployTargetSwitchOption | false {
-        const OPTION = getCurrentOptionOf(target);
+        const OPTION = deploy_switch.getCurrentOptionOf(target);
         if (false === OPTION) {
-            //TODO: show message
+            vscode.window.showWarningMessage(
+                '[vs-deploy] ' + i18.t('plugins.switch.noOptionSelected')
+            );
 
             return false;
         }

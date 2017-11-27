@@ -291,10 +291,13 @@ export const translation: Translation = {
             defaultName: 'Schalter #{0:trim}',
             defaultOptionName: 'Schalter-Option #{0:trim}',
             description: 'Schaltet zwischen anderen existierenden Zielen um',
+            item: "{0:trim,surround}: ",
             noDefined: 'Es wurden keine Schalter gefunden!',
             noOptionsDefined: 'Es wurden keine Optionen für den Schalter {0:trim,surround} definiert!',
+            noOptionSelected: 'KEINE OPTION AUSGEWÄHLT',
             selectOption: 'Wählen Sie eine Option für den Schalter {0:trim,surround}...',
             selectSwitch: 'Wählen Sie einen Schalter aus...',
+            states: 'Schalter-Stati:',
         },
         test: {
             description: 'Ein Test-PlugIn, welches lediglich anzeigt, welche Dateien bereitgestellt würden',

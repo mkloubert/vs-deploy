@@ -300,10 +300,13 @@ export interface Translation {
             defaultName?: string;
             defaultOptionName?: string;
             description?: string;
+            item?: string;
             noDefined?: string;
             noOptionsDefined?: string;
+            noOptionSelected?: string;
             selectOption?: string;
             selectSwitch?: string;
+            states?: string;
         },
         test?: {
             description?: string;
