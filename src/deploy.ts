@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+import * as deploy_async from './async';
 import * as deploy_buttons from './buttons';
 import * as deploy_commands from './commands';
 import * as deploy_config from './config';
@@ -33,6 +34,7 @@ import * as deploy_globals from './globals';
 import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_packages from './packages';
+import * as deploy_plugin_action from './pluginactions';
 import * as deploy_plugins from './plugins';
 import * as deploy_switch from './switch';
 import * as deploy_sync from './sync';
@@ -108,6 +110,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Stores all known targets from config as copies.
      */
     protected _allTargets: deploy_contracts.DeployTarget[];
+    /**
+     * Loaded async plugins.
+     */
+    protected readonly _ASYNC_PLUGINS: deploy_async.AsyncDeployPlugin[] = [];
     /**
      * Stores the current configuration.
      */
@@ -323,6 +329,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Gets the current list of async deploy plugins.
+     */
+    public get asyncPlugIns() {
+        return this._ASYNC_PLUGINS;
+    }
+
+    /**
      * Invokes 'before deploy' operations for a target.
      * 
      * @param {string[]} files The files to deploy.
@@ -415,235 +428,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Compares a local file with a version from a target.
      * 
      * @param {any} [uri] The URI of the file.
-     * 
-     * @return {Promise<any>} The promise.
      */
-    public compareFiles(uri?: any): Promise<any> {
-        let me = this;
-        
-        return new Promise<any>((resolve, reject) => {
-            let completed = deploy_helpers.createSimplePromiseCompletedAction<any>(resolve, reject);
-
-            let targets = this.getTargets()
-                              .filter(x => !deploy_helpers.toBooleanSafe(x.isHidden));
-            if (targets.length < 1) {
-                vscode.window.showWarningMessage(i18.t('targets.noneDefined'));
-                return;
-            }
-
-            let path: string;
-            if (uri && uri.fsPath) {
-                path = uri.fsPath;
-            }
-            else {
-                let currentEditor = vscode.window.activeTextEditor;
-
-                if (currentEditor) {
-                    let currentDocument = currentEditor.document;
-                    if (currentDocument) {
-                        path = currentDocument.fileName;
-                    }
-                }
-            }
-
-            if (deploy_helpers.isEmptyString(path)) {
-                completed();
-                return;
-            }
-
-            let startDownlods = (t: deploy_contracts.DeployTarget, files: string[]) => {
-                let type = deploy_helpers.parseTargetType(t.type);
-
-                let matchIngPlugins = me.pluginsWithContextes.filter(x => {
-                    return !type ||
-                           (x.plugin.__type === type && deploy_helpers.toBooleanSafe(x.plugin.canPull) && x.plugin.downloadFile);
-                });
-
-                if (matchIngPlugins.length > 0) {
-                    let nextPlugin: () => void;
-
-                    nextPlugin = () => {
-                        if (matchIngPlugins.length < 1) {
-                            completed();
-                            return;  // we have finished
-                        }
-
-                        let filesTODO = files.map(x => x);
-
-                        let mp = matchIngPlugins.shift();
-                        let p = mp.plugin;
-
-                        let nextFile = () => {
-                            if (filesTODO.length < 1) {
-                                nextPlugin();
-                                return;
-                            }
-
-                            let f = filesTODO.shift();
-
-                            let diffFinished = (err: any) => {
-                                if (err) {
-                                    completed(err);
-                                }
-                                else {
-                                    nextFile();
-                                }
-                            };
-
-                            try {
-                                let doDiff = (downloadedData?: Buffer) => {  // run "diff app"
-                                    if (!downloadedData) {
-                                        downloadedData = Buffer.alloc(0);
-                                    }
-
-                                    try {
-                                        // save downloaded data
-                                        // to temp file
-                                        TMP.tmpName({
-                                            keep: true,
-                                            prefix: 'vsd-',
-                                            postfix: Path.extname(f),
-                                        }, (err, tmpPath) => {
-                                            if (err) {
-                                                diffFinished(err);    
-                                            }
-                                            else {
-                                                FS.writeFile(tmpPath, downloadedData, (err) => {
-                                                    if (err) {
-                                                        diffFinished(err);
-                                                    }
-                                                    else {
-                                                        try {
-                                                            let realtivePath = deploy_helpers.toRelativePath(f);
-                                                            if (false === realtivePath) {
-                                                                realtivePath = f;
-                                                            }
-
-                                                            let titleSuffix = deploy_helpers.toStringSafe(t.name).trim();
-
-                                                            let windowTitle = `[vs-deploy] Diff '${realtivePath}'`;
-                                                            if ('' === titleSuffix) {
-                                                                titleSuffix = deploy_helpers.normalizeString(t.type);
-                                                            }
-                                                            if ('' !== titleSuffix) {
-                                                                windowTitle += ` (${titleSuffix})`;
-                                                            }
-
-                                                            vscode.commands.executeCommand('vscode.diff',
-                                                                                        vscode.Uri.file(tmpPath), vscode.Uri.file(f), windowTitle).then(() => {
-                                                                diffFinished(null);
-                                                            }, (err) => {
-                                                                diffFinished(err);
-                                                            });
-                                                        }
-                                                        catch (e) {
-                                                            diffFinished(e);
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                    catch (e) {
-                                        diffFinished(e);
-                                    }
-                                };
-
-                                // download data
-                                let downloadResult = p.downloadFile(f, t);
-                                if (downloadResult) {
-                                    if (Buffer.isBuffer(downloadResult)) {
-                                        doDiff(downloadResult);
-                                    }
-                                    else {
-                                        downloadResult.then((data) => {
-                                            doDiff(data);
-                                        }, (err) => {
-                                            diffFinished(err);
-                                        });
-                                    }
-                                }
-                                else {
-                                    doDiff();
-                                }
-                            }
-                            catch (e) {
-                                diffFinished(e);
-                            }
-                        };
-                        
-                        nextFile();  // start with first file
-                    }
-
-                    nextPlugin();  // start with first plugin
-                }
-                else {
-                    // no matching plugin found
-
-                    if (type) {
-                        vscode.window.showWarningMessage(i18.t('compare.noPluginsForType', type));
-                    }
-                    else {
-                        vscode.window.showWarningMessage(i18.t('compare.noPlugins'));
-                    }
-                }
-            }  // startDownlods()
-
-            let selectTarget = (files: string[]) => {
-                // select the target /
-                // source from where to download from
-                let fileQuickPicks = targets.map((x, i) => deploy_helpers.createTargetQuickPick(x, i,
-                                                                                                me.getValues()));
-                if (fileQuickPicks.length > 1) {
-                    vscode.window.showQuickPick(fileQuickPicks, {
-                        placeHolder: i18.t('compare.selectSource'),
-                    }).then((item) => {
-                        if (item) {
-                            startDownlods(item.target, files);
-                        }
-                    }, (err) => {
-                        completed(err);
-                    });
-                }
-                else {
-                    // auto select
-                    startDownlods(fileQuickPicks[0].target, files);
-                }
-            }  // selectTarget()
-
-            // first check if file
-            FS.lstat(path, (err, stats) => {
-                if (err) {
-                    completed(i18.t('compare.failed', path, err));
-                }
-                else {
-                    if (stats.isFile()) {
-                        selectTarget([ path ]);
-                    }
-                    else if (stats.isDirectory()) {
-                        Glob('**', {
-                            absolute: true,
-                            cwd: path,
-                            dot: true,
-                            ignore: [],
-                            nodir: true,
-                            root: path,
-                        }, (e: any, files: string[]) => {
-                            if (e) {
-                                completed(i18.t('compare.failed', path, e));
-                            }
-                            else {
-                                selectTarget(files);
-                            }
-                        });
-                    }
-                    else {
-                        // no file
-                        completed(i18.t('isNo.file', path));
-                    }
-                }
-            });
-        });
+    public async compareFiles(uri?: any): Promise<void> {
+        return await deploy_plugin_action.compareFiles
+                                         .apply(this, arguments);
     }
 
     /**
@@ -4596,7 +4384,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
 
         let oldPlugins = me._plugins;
         try {
-            let loadedPlugins: deploy_contracts.DeployPluginWithContext[] = [];
+            const LOADED_PLUGINS: deploy_contracts.DeployPluginWithContext[] = [];
 
             let pluginDir = Path.join(__dirname, './plugins');
             if (FS.existsSync(pluginDir)) {
@@ -4641,15 +4429,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     moduleFiles = deploy_helpers.distinctArray(moduleFiles.map(x => Path.resolve(x)));
                     
                     // remove existing plugins
-                    if (oldPlugins) {
-                        oldPlugins.filter(x => x).forEach(x => {
-                            if (x.plugin.dispose) {
-                                deploy_helpers.tryDispose(<any>x.plugin);
-                            }
+                    while (me._ASYNC_PLUGINS.length > 0) {
+                        const OLD_PLUGIN = me._ASYNC_PLUGINS.shift();
 
-                            deploy_helpers.tryDispose(x.context);
-                        });
+                        deploy_helpers.tryDispose(
+                            OLD_PLUGIN
+                        );
                     }
+                    
                     moduleFiles.forEach(x => {
                         delete require.cache[x];
                     });
@@ -4701,8 +4488,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                     if (newPlugin) {
                                         let pluginIndex = ++nextPluginIndex;
                                         ctx.plugins = function() {
-                                            return loadedPlugins.filter(x => x.plugin.__index !== pluginIndex)
-                                                                .map(x => x.plugin);
+                                            return LOADED_PLUGINS.filter(x => x.plugin.__index !== pluginIndex)
+                                                                 .map(x => x.plugin);
                                         };
 
                                         newPlugin.__file = deploy_helpers.parseTargetType(Path.basename(x));
@@ -4710,10 +4497,16 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                                         newPlugin.__index = pluginIndex;
                                         newPlugin.__type = deploy_helpers.parseTargetType(Path.basename(x, '.js'));
 
-                                        loadedPlugins.push({
+                                        LOADED_PLUGINS.push({
                                             context: ctx,
                                             plugin: newPlugin,
                                         });
+
+                                        // create an async wrapper for the plugin
+                                        me._ASYNC_PLUGINS.push(new deploy_async.AsyncDeployPluginWrapper(
+                                            newPlugin,
+                                            ctx,
+                                        ));
                                     }
                                 }
                             }
@@ -4725,13 +4518,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
             }
 
-            this._plugins = loadedPlugins;
+            this._plugins = LOADED_PLUGINS;
 
             if (forceDisplay || deploy_helpers.toBooleanSafe(this.config.displayLoadedPlugins, true)) {
                 // display loaded plugins
 
-                if (loadedPlugins.length > 0) {
-                    loadedPlugins.forEach(x => {
+                if (LOADED_PLUGINS.length > 0) {
+                    LOADED_PLUGINS.forEach(x => {
                         try {
                             me.outputChannel.append(`- ${x.plugin.__file}`);
                         }
@@ -4743,8 +4536,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     });
 
                     this.outputChannel.appendLine('');
-                    if (loadedPlugins.length !== 1) {
-                        this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', loadedPlugins.length));
+                    if (LOADED_PLUGINS.length !== 1) {
+                        this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.more', LOADED_PLUGINS.length));
                     }
                     else {
                         this.outputChannel.appendLine(i18.t('__plugins.reload.loaded.one'));
