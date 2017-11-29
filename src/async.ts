@@ -33,6 +33,102 @@ import * as vscode from 'vscode';
 import * as Workflows from 'node-workflows';
 
 
+
+/**
+ * A context for an async compare deploy operation.
+ */
+export interface AsyncDeployCompareContext extends AsyncDeployContext {
+    /**
+     * A callback that is invoked BEFORE a file comparison starts.
+     * 
+     * @param {BeforeCompareFileContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onBeforeCompareFile?: (context: BeforeCompareFileContext) => any;
+
+    /**
+     * A callback that is invoked AFTER a file comparison has been completed.
+     * 
+     * @param {CompareFileCompletedContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onCompareFileCompleted?: (context: CompareFileCompletedContext) => any;
+}
+
+/**
+ * A async deploy context.
+ */
+export interface AsyncDeployContext {
+    /**
+     * Gets the custom base directory.
+     */
+    baseDirectory?: string;
+    /**
+     * Gets the cancellation token.
+     */
+    cancellationToken: vscode.CancellationToken;
+    /**
+     * Gets the custom deploy context.
+     */
+    context?: deploy_contracts.DeployContext;
+    /**
+     * Gets the list of files to deploy.
+     */
+    files: string[];
+    /**
+     * Gets the underlying target.
+     */
+    target: deploy_contracts.DeployTarget;
+}
+
+/**
+ * An async context for downloading files.
+ */
+export interface AsyncDeployDownloadContext extends AsyncDeployContext {
+    /**
+     * The callback that is invoked BEFORE a file is going to be downloaded.
+     * 
+     * @param {BeforeDownloadFileContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onBeforeDownloadFile?: (context: BeforeDownloadFileContext) => any;
+
+    /**
+     * The callback that is invoked AFTER a file has been downloaded.
+     * 
+     * @param {FileDownloadCompletedContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onFileDownloadCompleted?: (context: FileDownloadCompletedContext) => any;
+}
+
+/**
+ * An async context for getting infos of files.
+ */
+export interface AsyncDeployGetFileInfoContext extends AsyncDeployContext {
+    /**
+     * The callback that is invoked BEFORE a file is going to get file info.
+     * 
+     * @param {BeforeGetFileInfoContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onBeforeGetFileInfo?: (context: BeforeGetFileInfoContext) => any;
+
+    /**
+     * The callback that is invoked AFTER file info has been received.
+     * 
+     * @param {GetFileInfoCompletedContext} context The context.
+     * 
+     * @return {any} The result.
+     */
+    onGetFileInfoCompleted?: (context: GetFileInfoCompletedContext) => any;
+}
+
 /**
  * An async deploy plugin.
  */
@@ -107,98 +203,17 @@ export interface AsyncDeployPlugin extends vscode.Disposable {
 }
 
 /**
- * A context for an async compare deploy operation.
+ * Stores an async deploy plugin with its deploy context.
  */
-export interface AsyncDeployCompareContext extends AsyncDeployContext {
+export interface AsyncDeployPluginWithContext {
     /**
-     * A callback that is invoked BEFORE a file comparison starts.
-     * 
-     * @param {BeforeCompareFileContext} context The context.
-     * 
-     * @return {any} The result.
+     * The deploy context.
      */
-    onBeforeCompareFile?: (context: BeforeCompareFileContext) => any;
-
+    context: deploy_contracts.DeployContext;
     /**
-     * A callback that is invoked AFTER a file comparison has been completed.
-     * 
-     * @param {CompareFileCompletedContext} context The context.
-     * 
-     * @return {any} The result.
+     * The plugin.
      */
-    onCompareFileCompleted?: (context: CompareFileCompletedContext) => any;
-}
-
-/**
- * A async deploy context.
- */
-export interface AsyncDeployContext {
-    /**
-     * Gets the custom base directory.
-     */
-    baseDirectory?: string;
-    /**
-     * Gets the cancellation token.
-     */
-    cancellationToken: vscode.CancellationToken;
-    /**
-     * Gets the custom deploy context.
-     */
-    context?: deploy_contracts.DeployContext;
-    /**
-     * Gets the list of files to deploy.
-     */
-    files: string[];
-    /**
-     * Gets the underlying target.
-     */
-    target: deploy_contracts.DeployTarget;
-}
-
-/**
- * An async context for downloading files.
- */
-export interface AsyncDeployDownloadContext extends AsyncDeployContext {
-    /**
-     * The callback that is invoked BEFORE a file is going to be downloaded.
-     * 
-     * @param {BeforeDownloadFileContext} context The context.
-     * 
-     * @return {any} The result.
-     */
-    onBeforeDownloadFile?: (context: BeforeDownloadFileContext) => any;
-
-    /**
-     * The callback that is invoked AFTER a file has been downloaded.
-     * 
-     * @param {BeforeDownloadFileContext} context The context.
-     * 
-     * @return {any} The result.
-     */
-    onDownloadFileCompleted?: (context: DownloadFileCompletedContext) => any;
-}
-
-/**
- * An async context for getting infos of files.
- */
-export interface AsyncDeployGetFileInfoContext extends AsyncDeployContext {
-    /**
-     * The callback that is invoked BEFORE a file is going to get file info.
-     * 
-     * @param {BeforeGetFileInfoContext} context The context.
-     * 
-     * @return {any} The result.
-     */
-    onBeforeGetFileInfo?: (context: BeforeGetFileInfoContext) => any;
-
-    /**
-     * The callback that is invoked AFTER file info has been received.
-     * 
-     * @param {GetFileInfoCompletedContext} context The context.
-     * 
-     * @return {any} The result.
-     */
-    onGetFileInfoCompleted?: (context: GetFileInfoCompletedContext) => any;
+    plugin: AsyncDeployPlugin;
 }
 
 /**
@@ -322,7 +337,7 @@ export interface DeployFileCompletedContext {
 /**
  * The context for a callback that is invoked AFTER a file has been downloaded.
  */
-export interface DownloadFileCompletedContext extends DeployFileCompletedContext {
+export interface FileDownloadCompletedContext extends DeployFileCompletedContext {
 }
 
 /**
@@ -630,8 +645,8 @@ export class AsyncDeployPluginWrapper extends AsyncDeployPluginBase {
                                                 },
 
                                                 onCompleted: (sender, e) => {
-                                                    if (context.onDownloadFileCompleted) {
-                                                        context.onDownloadFileCompleted({
+                                                    if (context.onFileDownloadCompleted) {
+                                                        context.onFileDownloadCompleted({
                                                             canceled: canceled,
                                                             error: e.error,
                                                             file: e.file,

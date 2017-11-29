@@ -264,37 +264,46 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let data: Buffer;
-        await ME.forEachTargetAndPlugin(target, TARGETS_AND_PLUGINS, async (t, p) => {
-            return new Promise<void>(async (resolve, reject) => {
-                const COMPLETED = deploy_helpers.createSimplePromiseCompletedAction(resolve, reject);
+        try {
+            await ME.forEachTargetAndPlugin(target, TARGETS_AND_PLUGINS, async (t, p) => {
+                return new Promise<void>(async (res, rej) => {
+                    const COMP = deploy_helpers.createSimplePromiseCompletedAction(res, rej);
 
-                try {
-                    if (p.downloadFile) {
-                        data = await Promise.resolve(
-                            p.downloadFile(file, t, {
-                                baseDirectory: opts.baseDirectory,
-                                context: opts.context || ME.context,
-                                onBeforeDeploy: (sender, e) => {
-                                    if (opts.onBeforeDeploy) {
-                                        opts.onBeforeDeploy(ME, {
-                                            destination: e.destination,
-                                            file: e.file,
-                                            target: e.target,
-                                        });
+                    try {
+                        if (p.downloadFile) {
+                            data = await Promise.resolve(
+                                p.downloadFile(file, t, {
+                                    baseDirectory: opts.baseDirectory,
+                                    context: opts.context || ME.context,
+                                    onBeforeDeploy: (sender, e) => {
+                                        if (opts.onBeforeDeploy) {
+                                            opts.onBeforeDeploy(ME, {
+                                                destination: e.destination,
+                                                file: e.file,
+                                                target: e.target,
+                                            });
+                                        }
+                                    },
+                                    onCompleted: (sender, e) => {
+                                        COMP(e.error);
                                     }
-                                },
-                                onCompleted: (sender, e) => {
-                                    COMPLETED(e.error);
-                                }
-                            })
-                        );
+                                })
+                            );
+                        }
                     }
-                }
-                catch (e) {
-                    COMPLETED(e);
-                }
+                    catch (e) {
+                        COMP(e);
+                    }
+                });
             });
-        });
+
+            COMPLETED(null);
+        }
+        catch (e) {
+            COMPLETED(e);
+
+            throw e;
+        }
 
         return data;
     }
@@ -376,7 +385,6 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
             }
         });
     }
-
     
     public async getFileInfo(file: string, target: DeployTargetSwitch, opts?: deploy_contracts.DeployFileOptions): Promise<deploy_contracts.FileInfo> {
         const ME = this;
@@ -423,37 +431,46 @@ class SwitchPlugin extends deploy_objects.MultiFileDeployPluginBase {
         }
 
         let fi: deploy_contracts.FileInfo;
-        await ME.forEachTargetAndPlugin(target, TARGETS_AND_PLUGINS, async (t, p) => {
-            return new Promise<void>(async (resolve, reject) => {
-                const COMPLETED = deploy_helpers.createSimplePromiseCompletedAction(resolve, reject);
+        try {
+            await ME.forEachTargetAndPlugin(target, TARGETS_AND_PLUGINS, async (t, p) => {
+                return new Promise<void>(async (res, rej) => {
+                    const COMP = deploy_helpers.createSimplePromiseCompletedAction(res, rej);
 
-                try {
-                    if (p.getFileInfo) {
-                        fi = await Promise.resolve(
-                            p.getFileInfo(file, t, {
-                                baseDirectory: opts.baseDirectory,
-                                context: opts.context || ME.context,
-                                onBeforeDeploy: (sender, e) => {
-                                    if (opts.onBeforeDeploy) {
-                                        opts.onBeforeDeploy(ME, {
-                                            destination: e.destination,
-                                            file: e.file,
-                                            target: e.target,
-                                        });
+                    try {
+                        if (p.getFileInfo) {
+                            fi = await Promise.resolve(
+                                p.getFileInfo(file, t, {
+                                    baseDirectory: opts.baseDirectory,
+                                    context: opts.context || ME.context,
+                                    onBeforeDeploy: (sender, e) => {
+                                        if (opts.onBeforeDeploy) {
+                                            opts.onBeforeDeploy(ME, {
+                                                destination: e.destination,
+                                                file: e.file,
+                                                target: e.target,
+                                            });
+                                        }
+                                    },
+                                    onCompleted: (sender, e) => {
+                                        COMP(e.error);
                                     }
-                                },
-                                onCompleted: (sender, e) => {
-                                    COMPLETED(e.error);
-                                }
-                            })
-                        );
+                                })
+                            );
+                        }
                     }
-                }
-                catch (e) {
-                    COMPLETED(e);
-                }
+                    catch (e) {
+                        COMP(e);
+                    }
+                });
             });
-        });
+
+            COMPLETED(null);
+        }
+        catch (e) {
+            COMPLETED(e);
+
+            throw e;
+        }
 
         return fi;
     }

@@ -23,12 +23,18 @@
 
 import * as deploy_contracts from './contracts';
 import * as deploy_helpers from './helpers';
+import * as deploy_objects from './objects';
+import * as deploy_plugins from './plugins';
 import * as FS from 'fs';
 const Glob = require('glob');
 import * as i18 from './i18';
+import * as Path from 'path';
 import * as vs_deploy from './deploy';
 import * as vscode from 'vscode';
 
+
+let nextCancelPullWorkspaceCommandId = Number.MAX_SAFE_INTEGER;
+const WORKSPACE_IN_PROGRESS: any = {};
 
 /**
  * Compares a local file with a version from a target.
@@ -105,7 +111,7 @@ export async function compareFiles(uri?: any) {
     
     const PLUGINS = ME.asyncPlugIns.filter(x => {
         return '' === TYPE ||
-               (x.__type === TYPE && deploy_helpers.toBooleanSafe(x.canDownload) && x.download);
+               (x.plugin.__type === TYPE && deploy_helpers.toBooleanSafe(x.plugin.canDownload) && x.plugin.download);
     });
 
     const CANCEL_TOKEN = new vscode.CancellationTokenSource();
@@ -115,10 +121,14 @@ export async function compareFiles(uri?: any) {
         });
 
         while (PLUGINS.length > 0) {
+            if (CANCEL_TOKEN.token.isCancellationRequested) {
+                break;
+            }
+
             const PI = PLUGINS.shift();
             const FILES_TO_COMPARE = files.map(f => f);
 
-            const RESULTS = await PI.download({
+            const RESULTS = await PI.plugin.download({
                 baseDirectory: null,
                 context: null,
                 cancellationToken: CANCEL_TOKEN.token,
@@ -132,6 +142,10 @@ export async function compareFiles(uri?: any) {
 
             try {
                 while (RESULTS.length > 0) {
+                    if (CANCEL_TOKEN.token.isCancellationRequested) {
+                        break;
+                    }
+
                     const R = RESULTS.shift();
 
                     let realtivePath = deploy_helpers.toRelativePath(R.file);
@@ -182,6 +196,313 @@ export async function compareFiles(uri?: any) {
     }
 }
 
+/**
+ * Pulls files from a target.
+ * 
+ * @param {string[]} files The files to pull.
+ * @param {deploy_contracts.DeployTarget} target The target from where to pull from.
+ * 
+ * @returns {Promise<boolean>} The promise.
+ */
+export async function pullFilesFrom(files: string[], target: deploy_contracts.DeployTarget): Promise<boolean> {
+    const ME: vs_deploy.Deployer = this;
+
+    if (files) {
+        files = files.filter(f => !ME.isFileIgnored(f));
+    }
+
+    const NAME_OF_TARGET = deploy_helpers.normalizeString(target.name);
+
+    let deleteWorkspaceInProgressEntry = false;
+    const START_PULLING = async () => {
+        const TYPE = deploy_helpers.parseTargetType(target.type);
+        
+        const PLUGINS = ME.asyncPlugIns.filter(x => {
+            return '' === TYPE ||
+                   (x.plugin.__type === TYPE && deploy_helpers.toBooleanSafe(x.plugin.canDownload) && x.plugin.download);
+        });
+
+        const CANCEL_TOKEN = new vscode.CancellationTokenSource();
+        try {
+            ME.onCancelling(() => {
+                CANCEL_TOKEN.cancel();
+            });
+
+            const HAS_CANCELLED = () => {
+                return CANCEL_TOKEN.token.isCancellationRequested;
+            };
+
+            while (PLUGINS.length > 0) {
+                if (HAS_CANCELLED()) {
+                    break;
+                }
+
+                const PI = PLUGINS.shift();
+                const FILES_TO_DOWNLOAD = files.map(f => f);
+
+                let cancelCommand: vscode.Disposable;
+                let currentPluginWithContext = PI;
+                let contextToUse = deploy_plugins.createPluginContext(currentPluginWithContext.context);
+                let currentPlugin = currentPluginWithContext.plugin;
+                let statusBarItem: vscode.StatusBarItem;
+
+                let alreadyCleanedUp = false;
+                const CLEANUPS = () => {
+                    if (alreadyCleanedUp) {
+                        return;
+                    }
+                    alreadyCleanedUp = true;
+
+                    deploy_helpers.tryDispose(cancelCommand);
+                    deploy_helpers.tryDispose(statusBarItem);
+                    deploy_helpers.tryDispose(contextToUse);
+                };
+
+                try {
+                    statusBarItem = vscode.window.createStatusBarItem(
+                        vscode.StatusBarAlignment.Left,
+                    );
+                    statusBarItem.color = '#ffffff';
+                    statusBarItem.text = i18.t('pull.button.prepareText');
+                    statusBarItem.tooltip = i18.t('pull.button.tooltip');
+
+                    const CANCEL_CMD_NAME = 'extension.deploy.cancelPullWorkspace' + (nextCancelPullWorkspaceCommandId--);
+                    cancelCommand = vscode.commands.registerCommand(CANCEL_CMD_NAME, () => {
+                        if (HAS_CANCELLED()) {
+                            return;
+                        }
+
+                        CANCEL_TOKEN.cancel();
+
+                        try {
+                            contextToUse.emit(deploy_contracts.EVENT_CANCEL_PULL);
+                        }
+                        catch (e) {
+                            ME.log(i18.t('errors.withCategory', 'Deployer.pullWorkspaceFrom().cancel', e));
+                        }
+
+                        statusBarItem.text = i18.t('pull.button.cancelling');
+                        statusBarItem.tooltip = i18.t('pull.button.cancelling');
+                    });
+                    statusBarItem.command = CANCEL_CMD_NAME;
+
+                    let failed: string[] = [];
+                    let succeeded: string[] = [];
+                    const SHOW_RESULT = (err?: any) => {
+                        CLEANUPS();
+
+                        let targetExpr = deploy_helpers.toStringSafe(target.name).trim();
+
+                        if (err) {
+                            if (targetExpr) {
+                                vscode.window.showErrorMessage(i18.t('pull.workspace.failedWithTarget', targetExpr, err));
+                            }
+                            else {
+                                vscode.window.showErrorMessage(i18.t('pull.workspace.failed', err));
+                            }
+                        }
+                        else {
+                            if (failed.length > 0) {
+                                if (succeeded.length < 1) {
+                                    if (targetExpr) {
+                                        vscode.window.showErrorMessage(i18.t('pull.workspace.allFailedWithTarget', targetExpr, err));
+                                    }
+                                    else {
+                                        vscode.window.showErrorMessage(i18.t('pull.workspace.allFailed', err));
+                                    }
+                                }
+                                else {
+                                    let allCount = succeeded.length + failed.length;
+                                    if (targetExpr) {
+                                        vscode.window.showErrorMessage(i18.t('pull.workspace.someFailedWithTarget', failed.length, allCount
+                                                                                                                    , targetExpr));
+                                    }
+                                    else {
+                                        vscode.window.showErrorMessage(i18.t('pull.workspace.someFailed', failed.length, allCount));
+                                    }
+                                }
+                            }
+                            else {
+                                let allCount = succeeded.length;
+                                if (allCount > 0) {
+                                    if (deploy_helpers.toBooleanSafe(ME.config.showPopupOnSuccess, true)) {
+                                        if (targetExpr) {
+                                            vscode.window.showInformationMessage(i18.t('pull.workspace.allSucceededWithTarget', allCount
+                                                                                                                                , targetExpr));
+                                        }
+                                        else {
+                                            vscode.window.showInformationMessage(i18.t('pull.workspace.allSucceeded', allCount));
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (targetExpr) {
+                                        vscode.window.showWarningMessage(i18.t('pull.workspace.nothingPulledWithTarget', targetExpr));
+                                    }
+                                    else {
+                                        vscode.window.showWarningMessage(i18.t('pull.workspace.nothingPulled'));
+                                    }
+                                }
+                            }
+                        }
+
+                        let resultMsg: string;
+                        if (err || failed.length > 0) {
+                            if (HAS_CANCELLED()) {
+                                resultMsg = i18.t('pull.canceledWithErrors');
+                            }
+                            else {
+                                resultMsg = i18.t('pull.finishedWithErrors');
+                            }
+                        }
+                        else {
+                            if (HAS_CANCELLED()) {
+                                resultMsg = i18.t('pull.canceled');
+                            }
+                            else {
+                                resultMsg = i18.t('pull.finished2');
+                            }
+                        }
+
+                        if (resultMsg) {
+                            ME.outputChannel.appendLine(resultMsg);
+                        }
+                    };
+
+                    statusBarItem.show();
+
+                    const DOWNLOADED_FILES = await PI.plugin.download({
+                        cancellationToken: CANCEL_TOKEN.token,
+                        context: contextToUse,
+                        files: files,
+                        onBeforeDownloadFile: (ctx) => {
+                            let relativePath = deploy_helpers.toRelativePath(ctx.file);
+                            if (false === relativePath) {
+                                relativePath = ctx.file;
+                            }
+
+                            let statusMsg: string;
+
+                            let destination = deploy_helpers.toStringSafe(ctx.destination);
+                            if (destination) {
+                                statusMsg = i18.t('pull.workspace.statusWithDestination', relativePath, destination);
+                            }
+                            else {
+                                statusMsg = i18.t('pull.workspace.status', relativePath);
+                            }
+
+                            statusBarItem.text = i18.t('pull.button.text');
+                            statusBarItem.tooltip = statusMsg + ` (${i18.t('pull.workspace.clickToCancel')})`;
+
+                            ME.outputChannel.append(statusMsg);
+                        },
+                        onFileDownloadCompleted: (ctx) => {
+                            if (ctx.error) {
+                                ME.outputChannel.appendLine(i18.t('failed', ctx.error));
+
+                                failed.push(ctx.file);
+                            }
+                            else {
+                                ME.outputChannel.appendLine(i18.t('ok'));
+                            }
+                        },
+                        target: target,
+                    });
+
+                    let err: any;
+                    try {
+                        // move download files to workspace
+                        while (DOWNLOADED_FILES.length > 0) {
+                            const DF = DOWNLOADED_FILES.shift();
+                            try {
+                                if (failed.indexOf(DF.file) > -1) {
+                                    continue;  // failed
+                                }
+
+                                try {
+                                    await writeFile(
+                                        DF.file,
+                                        await readFile(DF.path),
+                                    );
+
+                                    succeeded.push(DF.file);
+                                }
+                                catch (e) {
+                                    failed.push(DF.file);
+                                }
+                            }
+                            finally {
+                                deploy_helpers.tryDispose(
+                                    DF
+                                );
+                            }
+                        }
+                    }
+                    catch (e) {
+                        err = e;
+                    }
+                    finally {
+                        while (DOWNLOADED_FILES.length > 0) {
+                            deploy_helpers.tryDispose(
+                                DOWNLOADED_FILES.shift()
+                            );
+                        }
+
+                        SHOW_RESULT(err);
+                    }
+                }
+                catch (e) {
+                    vscode.window.showErrorMessage(i18.t('pull.workspace.failed', e));
+                }
+                finally {
+                    CLEANUPS();
+                }
+            }
+        }
+        finally {
+            deploy_helpers.tryDispose(CANCEL_TOKEN);
+
+            if (deleteWorkspaceInProgressEntry) {
+                delete WORKSPACE_IN_PROGRESS[NAME_OF_TARGET];
+            }
+        }
+    };
+
+    if (deploy_helpers.isNullOrUndefined(WORKSPACE_IN_PROGRESS[NAME_OF_TARGET])) {
+        WORKSPACE_IN_PROGRESS[NAME_OF_TARGET] = {
+            files: files,
+            target: target,
+            type: 'pull',
+        };
+
+        deleteWorkspaceInProgressEntry = true;
+        await START_PULLING();
+    }
+    else {
+        // there is currently something that is in progress for the target
+
+        // [BUTTON] yes
+        const YES_BTN: deploy_contracts.PopupButton = new deploy_objects.SimplePopupButton();
+        YES_BTN.action = async () => {
+            await START_PULLING();
+        };
+        YES_BTN.title = i18.t('yes');
+
+        const ITEM = await vscode.window
+                                 .showWarningMessage(i18.t('pull.workspace.alreadyStarted', target.name),
+                                                     YES_BTN);
+        if (!ITEM) {
+            return false;
+        }
+
+        await Promise.resolve(
+            ITEM.action()
+        );
+    }
+
+    return true;
+}
+
 
 function glob(path: string, errId: string) {
     return new Promise<string[]>((resolve, reject) => {
@@ -214,6 +535,42 @@ function lstat(path: string) {
                 }
                 else {
                     resolve(stats);
+                }
+            });
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
+}
+
+function readFile(path: string) {
+    return new Promise<Buffer>((resolve, reject) => {
+        try {
+            FS.readFile(path, (err, data) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            });
+        }
+        catch (e) {
+            reject(e);
+        }
+    });
+}
+
+function writeFile(path: string, data: any) {
+    return new Promise<void>((resolve, reject) => {
+        try {
+            FS.writeFile(path, data, (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
                 }
             });
         }
