@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 12.0.2 (December 1st, 2017; bugfixes)
+
+* bugfixes
+
 ## 12.0.1 (November 27th, 2017; switch target, multi root support and module updates)
 
 * added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
