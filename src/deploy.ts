@@ -2371,9 +2371,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         
         const AUTO_SELECT_WORKSPACE_COMPLETED = (err: any) => {
             if (err) {
+                let errMsg = i18.t('workspace.autoSelect.failed', err);
+                if (deploy_helpers.isEmptyString(errMsg)) {
+                    errMsg = `Could not auto-select workspace: '${deploy_helpers.toStringSafe(err)}'`;
+                }
+
                 vscode.window
-                      .showWarningMessage('[vs-deploy] ' + i18.t('workspace.autoSelect.failed',
-                                                                 err));
+                      .showWarningMessage('[vs-deploy] ' + errMsg);
             }
         };
 
