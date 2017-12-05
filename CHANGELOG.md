@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 12.0.3 (December 5th, 2017; bugfixes) 
+
+* bugfixes
+
 ## 12.0.2 (December 1st, 2017; bugfixes)
 
 * bugfixes
