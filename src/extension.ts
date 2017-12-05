@@ -233,7 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
             const FOLDER = await deploy_workspace.selectWorkspace();
             if (FOLDER) {
                 await Promise.resolve(
-                    deployer.onDidChangeConfiguration()
+                    deployer.reloadConfiguration()
                 );
             }
         }

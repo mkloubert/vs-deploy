@@ -2365,6 +2365,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public onDidChangeActiveTextEditor(editor: vscode.TextEditor) {
         const ME = this;
+        const CFG = ME.config;
 
         const PREVIOUS_EDITOR = ME._currentTextEditor;
         ME._currentTextEditor = editor;
@@ -2390,7 +2391,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                     if (newFolder) {
                         deploy_workspace.setWorkspace(newFolder);
                         
-                        ME.onDidChangeConfiguration();
+                        ME.reloadConfiguration();
                     }
                 }
                 catch (e) {
@@ -2399,7 +2400,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
             };
 
             if (editor) {
-                if (deploy_helpers.toBooleanSafe( ME.config.autoSelectWorkspace )) {
+                if (CFG && deploy_helpers.toBooleanSafe( CFG.autoSelectWorkspace )) {
                     const DOC = editor.document;
 
                     if (DOC) {
@@ -2465,7 +2466,11 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     /**
      * Event after configuration changed.
      */
-    public onDidChangeConfiguration() {
+    public onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
+        if (!e.affectsConfiguration('deploy', vscode.Uri.file(this.settingsFile))) {
+            return;
+        }
+        
         this.reloadConfiguration();
     }
 
@@ -4107,10 +4112,7 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         };
 
         try {
-            const SETTINGS_FILE = Path.join(
-                deploy_workspace.getRootPath(),
-                './.vscode/settings.json',
-            );
+            const SETTINGS_FILE = ME.settingsFile;
 
             const LOADED_CFG: deploy_contracts.DeployConfiguration = vscode.workspace.getConfiguration('deploy',
                                                                                                        vscode.Uri.file(SETTINGS_FILE)) || <any>{};
@@ -4778,6 +4780,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public replaceWithValues(val: any): string {
         return deploy_values.replaceWithValues(this.getValues(), val);
+    }
+
+    /**
+     * Gets the underlying settings file.
+     */
+    public get settingsFile() {
+        return Path.resolve(
+            Path.join(
+                deploy_workspace.getRootPath(),
+                './.vscode/settings.json'
+            )
+        );
     }
 
     /**
