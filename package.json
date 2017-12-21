@@ -2,7 +2,7 @@
   "name": "vs-deploy",
   "displayName": "Deploy",
   "description": "Commands for deploying files of your workspace to a destination.",
-  "version": "12.0.3",
+  "version": "12.0.4",
   "publisher": "mkloubert",
   "engines": {
     "vscode": "^1.18.0"
@@ -22956,8 +22956,7 @@
                         "description": "The credentials to use.",
                         "properties": {
                           "config": {
-                            "description": "The configuration data for the credential provider.",
-                            "type": "object"
+                            "description": "The configuration data for the credential provider."
                           },
                           "type": {
                             "description": "The credential provider to use.",

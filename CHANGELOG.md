@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 12.0.4 (December 21st, 2017; package.json) 
+
+* minor fixes in [package.json](https://github.com/mkloubert/vs-deploy/blob/master/package.json)
+
 ## 12.0.3 (December 5th, 2017; bugfixes) 
 
 * bugfixes
