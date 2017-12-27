@@ -60,12 +60,17 @@ If you would like to add another translation, please read [that issue](https://g
    * [Sync when open](#sync-when-open-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
-2. [Install](#install-)
-3. [How to use](#how-to-use-)
+2. [Recoded version](#recoded-version-)
+3. [Install](#install-)
+4. [How to use](#how-to-use-)
    * [Settings](#settings-)
       * [Packages](#packages-)
       * [Targets](#targets-)
    * [How to execute](#how-to-execute-)
+
+## Recoded version [[&uarr;](#table-of-contents)]
+
+I have started a new and recoded version of that extension, called [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded), which is still in a preview, but good beta state.
 
 ## Demos [[&uarr;](#table-of-contents)]
 
