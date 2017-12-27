@@ -48,7 +48,7 @@ There is also build-in support for the following [compilers and processors](http
 
 If you would like to add another translation, please read [that issue](https://github.com/mkloubert/vs-deploy/issues/18) first.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/MarcelKloubert)
 
 ## Table of contents
 

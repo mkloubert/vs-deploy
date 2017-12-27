@@ -4761,6 +4761,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
 
                 this.outputChannel.appendLine('');
+
+                this.showVSCodeDeployReloadedInfo();
             }
         }
         catch (e) {
@@ -4768,6 +4770,21 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
         finally {
             oldPlugins = null;
+        }
+    }
+
+    private showVSCodeDeployReloadedInfo() {
+        try {
+            this.outputChannel.appendLine('');
+
+            this.outputChannel.appendLine('New, recoded version of that extension (vscode-deploy-reloaded) has been released:');
+            this.outputChannel.appendLine('- https://github.com/mkloubert/vscode-deploy-reloaded');
+
+            this.outputChannel.appendLine('');
+            this.outputChannel.appendLine('');
+        }
+        catch (e) {
+            console.log(e, 'deploy.Deployer.showVSCodeDeployReloadedInfo()');
         }
     }
 

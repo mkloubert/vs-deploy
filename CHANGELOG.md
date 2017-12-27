@@ -1,5 +1,9 @@
 # Change Log (vs-deploy)
 
+## 12.1.0 (December 27th, 2017; Deploy Reloaded)
+
+* added info popup and messages for new extension [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded)
+
 ## 12.0.4 (December 21st, 2017; package.json) 
 
 * minor fixes in [package.json](https://github.com/mkloubert/vs-deploy/blob/master/package.json)
