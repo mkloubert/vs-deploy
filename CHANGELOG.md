@@ -1,5 +1,17 @@
 # Change Log (vs-deploy)
 
+## 13.0.0 (January 6th, 2017; npm packages)
+
+* updated [npm packages](https://www.npmjs.com):
+  * [@slack/client](https://www.npmjs.com/package/@slack/client) to `^3.15.0`
+  * [aws-sdk](https://www.npmjs.com/package/aws-sdk) to `^2.176.0`
+  * [html-minifier](https://www.npmjs.com/package/html-minifier) to `^3.5.8`
+  * [marked](https://www.npmjs.com/package/marked) to `"^0.3.9`
+  * [moment](https://www.npmjs.com/package/moment) to `"^2.20.1`
+  * [node-enumerable](https://www.npmjs.com/package/node-enumerable) to `"^3.9.0`
+  * [typescript](https://www.npmjs.com/package/typescript) to `^2.6.2`
+* updated for [Visual Studio Code 1.19+](https://code.visualstudio.com/updates/v1_19)
+
 ## 12.1.1 (December 27th, 2017; Deploy Reloaded)
 
 * added info popup and messages for new extension [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded)
