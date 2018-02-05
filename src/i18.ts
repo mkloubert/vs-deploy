@@ -288,10 +288,29 @@ export interface Translation {
         sftp?: {
             description?: string;
         },
+        slack?: {
+            description?: string;
+        },
         sql?: {
             description?: string;
             invalidFile?: string;
             unknownEngine?: string;
+        },
+        switch?: {
+            button?: {
+                text?: string;
+                tooltip?: string;
+            },
+            defaultName?: string;
+            defaultOptionName?: string;
+            description?: string;
+            item?: string;
+            noDefined?: string;
+            noOptionsDefined?: string;
+            noOptionSelected?: string;
+            selectOption?: string;
+            selectSwitch?: string;
+            states?: string;
         },
         test?: {
             description?: string;
@@ -370,6 +389,7 @@ export interface Translation {
         couldNotResolve?: string;
         isEmpty?: string;
     },
+    selected?: string;
     sync?: {
         file?: {
             doesNotExistOnRemote?: string;
@@ -402,7 +422,12 @@ export interface Translation {
     warnings?: {
         withCategory?: string;
     },
-    yes?: string;
+    workspace?: {
+        autoSelect?: {
+            failed?: string;
+        }
+    },
+    yes?: string,
 }
 
 

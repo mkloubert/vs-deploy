@@ -1,5 +1,44 @@
 # Change Log (vs-deploy)
 
+## 12.1.1 (December 27th, 2017; Deploy Reloaded)
+
+* added info popup and messages for new extension [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded)
+
+## 12.0.4 (December 21st, 2017; package.json) 
+
+* minor fixes in [package.json](https://github.com/mkloubert/vs-deploy/blob/master/package.json)
+
+## 12.0.3 (December 5th, 2017; bugfixes) 
+
+* bugfixes
+
+## 12.0.2 (December 1st, 2017; bugfixes)
+
+* bugfixes
+
+## 12.0.1 (November 27th, 2017; switch target, multi root support and module updates)
+
+* added `autoSelectWorkspace` setting, which can select the current workspace by active text editor automatically
+* added [Slack target](https://github.com/mkloubert/vs-deploy/wiki/target_slack)
+* added [switch target](https://github.com/mkloubert/vs-deploy/wiki/target_switch)
+* updated modules in [package.json](https://github.com/mkloubert/vs-deploy/blob/master/package.json):
+  * [aws-sdk](https://www.npmjs.com/package/aws-sdk)
+  * [coffeescript](https://www.npmjs.com/package/coffeescript)
+  * [compare-versions](https://www.npmjs.com/package/compare-versions)
+  * [html-minifier](https://www.npmjs.com/package/html-minifier)
+  * [less](https://www.npmjs.com/package/less)
+  * [mime](https://www.npmjs.com/package/mime)
+  * [moment](https://www.npmjs.com/package/moment)
+  * [mysql](https://www.npmjs.com/package/mysql)
+  * [node-enumerable](https://www.npmjs.com/package/node-enumerable)
+  * [pug](https://www.npmjs.com/package/pug)
+  * [typescript](https://www.npmjs.com/package/typescript)
+* bugfixes
+
+## 11.1.0 (November 20th, 2017; finished multi root support)
+
+* added `extension.deploy.selectWorkspace`, which can change between workspaces now
+
 ## 10.0.0 (October 14th, 2017; multi root support)
 
 * according to [that issue](https://github.com/mkloubert/vs-deploy/issues/112), started to refactor to new, upcoming [Multi Root Workspace API](https://github.com/Microsoft/vscode/wiki/Extension-Authoring:-Adopting-Multi-Root-Workspace-APIs) 

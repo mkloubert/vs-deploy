@@ -279,10 +279,29 @@ export const translation: Translation = {
         sftp: {
             description: 'Lädt Dateien auf einen SFTP-Server',
         },
+        slack: {
+            description: 'Lädt Dateien in einen Slack Workspace hoch',
+        },
         sql: {
             description: 'Führt SQL-Skripte aus',
             invalidFile: 'Datei ist ungültig!',
             unknownEngine: 'Unbekannter Typ {0:trim,surround}!',
+        },
+        switch: {
+            button: {
+                text: 'Schalter {0:trim,surround}',
+                tooltip: "Aktuelle Option: {0:trim}\n\nHier klicken, um die aktuelle Option zu wechseln...",
+            },
+            defaultName: 'Schalter #{0:trim}',
+            defaultOptionName: 'Schalter-Option #{0:trim}',
+            description: 'Schaltet zwischen anderen existierenden Zielen um',
+            item: "{0:trim,surround}: ",
+            noDefined: 'Es wurden keine Schalter gefunden!',
+            noOptionsDefined: 'Es wurden keine Optionen für den Schalter {0:trim,surround} definiert!',
+            noOptionSelected: 'KEINE OPTION AUSGEWÄHLT',
+            selectOption: 'Wählen Sie eine Option für den Schalter {0:trim,surround}...',
+            selectSwitch: 'Wählen Sie einen Schalter aus...',
+            states: 'Schalter-Stati:',
         },
         test: {
             description: 'Ein Test-PlugIn, welches lediglich anzeigt, welche Dateien bereitgestellt würden',
@@ -361,6 +380,7 @@ export const translation: Translation = {
         couldNotResolve: "Der relative Pfad für {0:trim,surround} konnte nicht ermittelt werden!",
         isEmpty: 'Der relative Pfad für {0:trim,surround} is leer!',
     },
+    selected: 'ausgewählt',
     sync: {
         file: {
             doesNotExistOnRemote: '[entfernte Datei existiert nicht]',
@@ -392,6 +412,11 @@ export const translation: Translation = {
     },
     warnings: {
         withCategory: '[WARNUNG] {0:trim}: {1}',
+    },
+    workspace: {
+        autoSelect: {
+            failed: 'Das automatische Ändern des Arbeitsbereiches schlug fehl: {0:trim,surround}',
+        }
     },
     yes: 'Ja',
 };

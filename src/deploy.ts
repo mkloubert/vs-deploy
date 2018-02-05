@@ -34,6 +34,7 @@ import * as deploy_objects from './objects';
 import * as deploy_operations from './operations';
 import * as deploy_packages from './packages';
 import * as deploy_plugins from './plugins';
+import * as deploy_switch from './switch';
 import * as deploy_sync from './sync';
 import * as deploy_targets from './targets';
 import * as deploy_templates from './templates';
@@ -116,6 +117,10 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected readonly _CONTEXT: vscode.ExtensionContext;
     /**
+     * Stores the current active text editor.
+     */
+    protected _currentTextEditor: vscode.TextEditor;
+    /**
      * The timeout for freezing 'deploy on change' feature.
      */
     protected _deployOnChangeFreezer: NodeJS.Timer;
@@ -152,10 +157,13 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     protected _isDeployOnSaveEnabled = true;
     /**
+     * Stores if extension is reloading its configuration or not.
+     */
+    protected _isReloadingConfig = false;
+    /**
      * Stores if 'sync when open' feature is enabled or not.
      */
     protected _isSyncWhenOpenEnabled = true;
-
     private readonly _NEXT_AFTER_DEPLOYMENT_BUTTON_COLORS = {
         's': 0,
         'w': 0,
@@ -384,6 +392,14 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 });
             }
         });
+    }
+
+    /**
+     * Changes a switch target.
+     */
+    public async changeSwitch() {
+        return await deploy_switch.changeSwitch
+                                  .apply(this, arguments);
     }
 
     /**
@@ -2343,9 +2359,118 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
     }
 
     /**
+     * Is invoked after active text editor has been changed.
+     * 
+     * @param {vscode.TextEditor} editor The new editor.
+     */
+    public onDidChangeActiveTextEditor(editor: vscode.TextEditor) {
+        const ME = this;
+        const CFG = ME.config;
+
+        const PREVIOUS_EDITOR = ME._currentTextEditor;
+        ME._currentTextEditor = editor;
+        
+        const AUTO_SELECT_WORKSPACE_COMPLETED = (err: any) => {
+            if (err) {
+                let errMsg = i18.t('workspace.autoSelect.failed', err);
+                if (deploy_helpers.isEmptyString(errMsg)) {
+                    errMsg = `Could not auto-select workspace: '${deploy_helpers.toStringSafe(err)}'`;
+                }
+
+                vscode.window
+                      .showWarningMessage('[vs-deploy] ' + errMsg);
+            }
+        };
+
+        // auto select workspace
+        try {
+            const MATCHING_FOLDERS: vscode.WorkspaceFolder[] = [];
+
+            const UPDATE_WORKSPACE = (newFolder: vscode.WorkspaceFolder) => {
+                try {
+                    if (newFolder) {
+                        deploy_workspace.setWorkspace(newFolder);
+                        
+                        ME.reloadConfiguration();
+                    }
+                }
+                catch (e) {
+                    AUTO_SELECT_WORKSPACE_COMPLETED(e);
+                }
+            };
+
+            if (editor) {
+                if (CFG && deploy_helpers.toBooleanSafe( CFG.autoSelectWorkspace )) {
+                    const DOC = editor.document;
+
+                    if (DOC) {
+                        // only for document
+
+                        if (FS.existsSync( DOC.fileName )) {
+                            const FILE = Path.resolve( DOC.fileName );
+                            const DIR = Path.resolve( Path.dirname(FILE) );
+
+                            const CURRENT_DIR = Path.resolve( deploy_workspace.getRootPath() );
+                            if (CURRENT_DIR !== DIR) {
+                                // folders are different
+                                const WORKSPACE_FOLDERS = (vscode.workspace.workspaceFolders || []).filter(wsf => {
+                                    return wsf;
+                                });
+
+                                // try to find matching folder
+                                // only there are at least 2 folders
+                                if (WORKSPACE_FOLDERS.length > 1) {
+                                    for (let i = 0; i < WORKSPACE_FOLDERS.length; i++) {
+                                        const WSF = WORKSPACE_FOLDERS[i];
+                                        
+                                        const URI = WSF.uri;
+                                        if (URI) {
+                                            let wsfPath = URI.fsPath;
+                                            if (!deploy_helpers.isEmptyString(wsfPath)) {
+                                                wsfPath = Path.resolve(wsfPath);
+                                                if (DIR.startsWith(wsfPath)) {
+                                                    MATCHING_FOLDERS.push(WSF);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (MATCHING_FOLDERS.length > 0) {
+                        if (1 === MATCHING_FOLDERS.length) {
+                            UPDATE_WORKSPACE(
+                                MATCHING_FOLDERS[0]
+                            );
+                        }   
+                        else {
+                            // more than one machting folders
+
+                            deploy_workspace.selectWorkspace().then((newWorkspaceFolder) => {
+                                UPDATE_WORKSPACE(newWorkspaceFolder);
+                            }).catch((err) => {
+                                AUTO_SELECT_WORKSPACE_COMPLETED(err);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch (e) {
+            AUTO_SELECT_WORKSPACE_COMPLETED(e);
+        }
+    }
+
+    /**
      * Event after configuration changed.
      */
-    public onDidChangeConfiguration() {
+    public onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
+        if (!e.affectsConfiguration('deploy', vscode.Uri.file(this.settingsFile))) {
+            return;
+        }
+        
         this.reloadConfiguration();
     }
 
@@ -3966,192 +4091,246 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      * Reloads configuration.
      */
     public reloadConfiguration() {
-        let me = this;
+        const ME = this;
 
-        if (!me.isActive) {
-            me._config = null;
+        if (ME._isReloadingConfig) {
             return;
         }
 
-        let loadedCfg = <deploy_contracts.DeployConfiguration>vscode.workspace.getConfiguration("deploy");
+        if (!ME.isActive) {
+            ME._config = null;
+            return;
+        }
 
-        let finished = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
-            let showDefaultTemplateRepos = true;
-            if (cfg.templates) {
-                showDefaultTemplateRepos = deploy_helpers.toBooleanSafe(cfg.templates.showDefaults, true);
+        ME._isReloadingConfig = true;
+        const DOES_NOT_RELOAD_CONFIG_ANYMORE = (err?: any) => {
+            ME._isReloadingConfig = false;
+
+            if (err) {
+                throw err;
             }
+        };
 
-            me.displayNetworkInfo();
-            me.showExtensionInfoPopups();
-            me.clearOutputOrNot();
+        try {
+            const SETTINGS_FILE = ME.settingsFile;
 
-            // deploy.config.reloaded
-            deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
+            const LOADED_CFG: deploy_contracts.DeployConfiguration = vscode.workspace.getConfiguration('deploy',
+                                                                                                       vscode.Uri.file(SETTINGS_FILE)) || <any>{};
 
-            me.executeStartupCommands();
-            me.openFiles();
+            const FINISHED = (err: any, cfg: deploy_contracts.DeployConfiguration) => {
+                try {
+                    let showDefaultTemplateRepos = true;
+                    if (cfg.templates) {
+                        showDefaultTemplateRepos = deploy_helpers.toBooleanSafe(cfg.templates.showDefaults, true);
+                    }
 
-            deploy_buttons.reloadPackageButtons
-                          .apply(me, []);
+                    ME.displayNetworkInfo();
+                    ME.showExtensionInfoPopups();
+                    ME.clearOutputOrNot();
 
-            if (cfg.host) {
-                if (deploy_helpers.toBooleanSafe(cfg.host.autoStart)) {
-                    // auto start host
+                    // deploy.config.reloaded
+                    deploy_globals.EVENTS.emit(deploy_contracts.EVENT_CONFIG_RELOADED, cfg);
 
-                    let autoStartCompleted = (err: any) => {
-                        if (err) {
-                            vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
+                    ME.executeStartupCommands();
+                    ME.openFiles();
+
+                    deploy_buttons.reloadPackageButtons
+                                  .apply(ME, []);
+
+                    if (cfg.host) {
+                        if (deploy_helpers.toBooleanSafe(cfg.host.autoStart)) {
+                            // auto start host
+
+                            const AUTOSTART_COMPLETED = (err: any) => {
+                                if (err) {
+                                    vscode.window.showErrorMessage(`[vs-deploy]: ${deploy_helpers.toStringSafe(err)}`);
+                                }
+                            };
+
+                            try {
+                                const START_LISTENING = () => {
+                                    try {
+                                        ME.listen();
+
+                                        AUTOSTART_COMPLETED(null);
+                                    }
+                                    catch (e) {
+                                        AUTOSTART_COMPLETED(e);
+                                    }
+                                };
+
+                                const CURRENT_HOST = ME._host;
+                                if (CURRENT_HOST) {
+                                    CURRENT_HOST.stop().then(() => {
+                                        ME._host = null;
+
+                                        START_LISTENING();
+                                    }).catch((err) => {
+                                        AUTOSTART_COMPLETED(err);
+                                    });
+                                }
+                                else {
+                                    START_LISTENING();
+                                }
+                            }
+                            catch (e) {
+                                AUTOSTART_COMPLETED(e);
+                            }
+                        }
+                    }
+
+                    const AFTER_GIT_PULL = (err: any) => {
+                        try {
+                            deploy_config.runBuildTask
+                                            .apply(ME);
+
+                            if (showDefaultTemplateRepos) {
+                                // check official repo version
+                                deploy_templates.checkOfficialRepositoryVersions
+                                                .apply(ME, []);
+                            }
+
+                            deploy_switch.reloadButtons.apply(ME, []);
+                            deploy_switch.printSwitchStates.apply(ME, []);
+                        }
+                        finally {
+                            DOES_NOT_RELOAD_CONFIG_ANYMORE();
                         }
                     };
 
-                    try {
-                        let startListening = () => {
-                            try {
-                                me.listen();
-
-                                autoStartCompleted(null);
-                            }
-                            catch (e) {
-                                autoStartCompleted(e);
-                            }
-                        };
-
-                        let host = me._host;
-                        if (host) {
-                            host.stop().then(() => {
-                                me._host = null;
-
-                                startListening();
-                            }).catch((err) => {
-                                autoStartCompleted(err);
-                            });
-                        }
-                        else {
-                            startListening();
-                        }
-                    }
-                    catch (e) {
-                        autoStartCompleted(e);
-                    }
+                    deploy_config.runGitPull.apply(ME).then(() => {
+                        AFTER_GIT_PULL(null);
+                    }).catch((err) => {
+                        AFTER_GIT_PULL(err);
+                    });
                 }
-            }
-
-            let afterGitPull = (err: any) => {
-                deploy_config.runBuildTask
-                             .apply(me);
-
-                if (showDefaultTemplateRepos) {
-                    // check official repo version
-                    deploy_templates.checkOfficialRepositoryVersions
-                                    .apply(me, []);
+                catch (e) {
+                    DOES_NOT_RELOAD_CONFIG_ANYMORE(e);
                 }
             };
 
-            deploy_config.runGitPull.apply(me).then(() => {
-                afterGitPull(null);
-            }).catch((err) => {
-                afterGitPull(err);
-            });
-        };
+            const NEXT = (cfg: deploy_contracts.DeployConfiguration) => {
+                ME._config = cfg;
 
-        let next = (cfg: deploy_contracts.DeployConfiguration) => {
-            me._config = cfg;
+                try {
+                    deploy_switch.reloadTargetStates
+                                 .apply(ME, []);
 
-            try {
-                let timeToWaitBeforeActivateDeployOnChange = parseInt( deploy_helpers.toStringSafe(cfg.timeToWaitBeforeActivateDeployOnChange).trim() );
-                if (!isNaN(timeToWaitBeforeActivateDeployOnChange)) {
-                    // deactivate 'deploy on change'
-                    // for a while
+                    try {
+                        ME._QUICK_DEPLOY_STATUS_ITEM.hide();
+                        if (cfg.button) {
+                            if (deploy_helpers.toBooleanSafe(cfg.button.enabled)) {
+                                ME._QUICK_DEPLOY_STATUS_ITEM.show();
+                            }
+                        }
 
-                    me._isDeployOnChangeFreezed = true;
-                    me._deployOnChangeFreezer = setTimeout(() => {
-                        me._isDeployOnChangeFreezed = false;
-                    }, timeToWaitBeforeActivateDeployOnChange);
-                }
-            }
-            catch (e) {
-                me._isDeployOnChangeFreezed = false;
-            }
-
-            deploy_values.reloadAdditionalValues
-                         .apply(me, []);
-
-            me.reloadEnvironmentVars();
-
-            me.reloadEvents();
-            me.reloadPlugins();
-            me.reloadCommands();
-
-            deploy_operations.resetOperations();
-
-            me.startExternalExtensions().then(() => {
-                finished(null, cfg);
-            }).catch((err) => {
-                finished(err, cfg);
-            });
-        };
-
-        let applyCfg = (cfg: deploy_contracts.DeployConfiguration) => {
-            deploy_helpers.tryClearTimeout(me._deployOnChangeFreezer);
-
-            me._lastConfigUpdate = Moment();
-
-            me._allTargets = deploy_helpers.asArray(cfg.targets)
-                                           .filter(x => x)
-                                           .map((x, i) => {
-                                                    let clonedTarget = deploy_helpers.cloneObject(x);
-                                                    clonedTarget.__id = i;
-
-                                                    return clonedTarget;         
-                                                });
-            me._globalScriptOperationState = {};
-            me._htmlDocs = [];
-            me._isDeployOnChangeFreezed = false;
-            me._scriptOperationStates = {};
-            me._targetCache = new deploy_objects.DeployTargetCache();
-
-            deploy_values.resetScriptStates();
-
-            me._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
-            me._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
-            i18.init(cfg.language).then(() => {
-                if (cfg.button) {
-                    let txt = deploy_helpers.toStringSafe(cfg.button.text);
-                    txt = me.replaceWithValues(txt).trim();
-                    if ('' === txt) {
-                        txt = i18.t('quickDeploy.caption');
+                        if (deploy_helpers.toBooleanSafe(cfg.openOutputOnStartup)) {
+                            ME.outputChannel.show();
+                        }
                     }
-                    me._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+                    catch (e) {
+                        ME.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(3): ${deploy_helpers.toStringSafe(e)}`);
+                    }
+
+                    try {
+                        const TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE = parseInt(
+                            deploy_helpers.toStringSafe(cfg.timeToWaitBeforeActivateDeployOnChange).trim()
+                        );
+                        if (!isNaN(TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE)) {
+                            // deactivate 'deploy on change'
+                            // for a while
+
+                            ME._isDeployOnChangeFreezed = true;
+                            ME._deployOnChangeFreezer = setTimeout(() => {
+                                ME._isDeployOnChangeFreezed = false;
+                            }, TIME_TO_WAIT_BEFORE_ACTIVATE_DEPLOY_ON_CHANGE);
+                        }
+                    }
+                    catch (e) {
+                        ME._isDeployOnChangeFreezed = false;
+                    }
+
+                    deploy_values.reloadAdditionalValues
+                                .apply(ME, []);
+
+                    ME.reloadEnvironmentVars();
+
+                    ME.reloadEvents();
+                    ME.reloadPlugins();
+                    ME.reloadCommands();
+
+                    deploy_operations.resetOperations();
+
+                    ME.startExternalExtensions().then(() => {
+                        FINISHED(null, cfg);
+                    }).catch((err) => {
+                        FINISHED(err, cfg);
+                    });
                 }
+                catch (e) {
+                    DOES_NOT_RELOAD_CONFIG_ANYMORE(e);
+                }
+            };
 
-                me._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+            const APPLY_CONFIG = (cfg: deploy_contracts.DeployConfiguration) => {
+                try {
+                    deploy_helpers.tryClearTimeout(ME._deployOnChangeFreezer);
 
-                next(cfg);
+                    ME._lastConfigUpdate = Moment();
+
+                    ME._allTargets = deploy_helpers.asArray(cfg.targets)
+                                                .filter(x => x)
+                                                .map((x, i) => {
+                                                            let clonedTarget = deploy_helpers.cloneObject(x);
+                                                            clonedTarget.__id = i;
+
+                                                            return clonedTarget;         
+                                                        });
+                    ME._globalScriptOperationState = {};
+                    ME._htmlDocs = [];
+                    ME._isDeployOnChangeFreezed = false;
+                    ME._scriptOperationStates = {};
+                    ME._targetCache = new deploy_objects.DeployTargetCache();
+
+                    deploy_values.resetScriptStates();
+
+                    ME._QUICK_DEPLOY_STATUS_ITEM.text = 'Quick deploy!';
+                    ME._QUICK_DEPLOY_STATUS_ITEM.tooltip = 'Start a quick deploy...';
+                    i18.init(cfg.language).then(() => {
+                        if (cfg.button) {
+                            let txt = deploy_helpers.toStringSafe(cfg.button.text);
+                            txt = ME.replaceWithValues(txt).trim();
+                            if ('' === txt) {
+                                txt = i18.t('quickDeploy.caption');
+                            }
+                            ME._QUICK_DEPLOY_STATUS_ITEM.text = txt;
+                        }
+
+                        ME._QUICK_DEPLOY_STATUS_ITEM.tooltip = i18.t('quickDeploy.start');
+
+                        NEXT(cfg);
+                    }).catch((err) => {
+                        ME.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+
+                        NEXT(cfg);
+                    });
+                }
+                catch (e) {
+                    DOES_NOT_RELOAD_CONFIG_ANYMORE(e);
+                }
+            }
+
+            deploy_config.mergeConfig(LOADED_CFG).then((cfg) => {
+                APPLY_CONFIG(cfg);
             }).catch((err) => {
-                me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(1): ${deploy_helpers.toStringSafe(err)}`);
+                ME.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
 
-                next(cfg);
+                APPLY_CONFIG(LOADED_CFG);
             });
-
-            me._QUICK_DEPLOY_STATUS_ITEM.hide();
-            if (cfg.button) {
-                if (deploy_helpers.toBooleanSafe(cfg.button.enabled)) {
-                    me._QUICK_DEPLOY_STATUS_ITEM.show();
-                }
-            }
-
-            if (deploy_helpers.toBooleanSafe(cfg.openOutputOnStartup)) {
-                me.outputChannel.show();
-            }
         }
-
-        deploy_config.mergeConfig(loadedCfg).then((cfg) => {
-            applyCfg(cfg);
-        }).catch((err) => {
-            me.log(`[ERROR :: vs-deploy] Deploy.reloadConfiguration(2): ${deploy_helpers.toStringSafe(err)}`);
-
-            applyCfg(loadedCfg);
-        });
+        catch (e) {
+            DOES_NOT_RELOAD_CONFIG_ANYMORE(e);
+        }
     }
 
     /**
@@ -4582,6 +4761,8 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
                 }
 
                 this.outputChannel.appendLine('');
+
+                this.showVSCodeDeployReloadedInfo();
             }
         }
         catch (e) {
@@ -4589,6 +4770,21 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
         }
         finally {
             oldPlugins = null;
+        }
+    }
+
+    private showVSCodeDeployReloadedInfo() {
+        try {
+            this.outputChannel.appendLine('');
+
+            this.outputChannel.appendLine('New, recoded version of that extension (vscode-deploy-reloaded) has been released:');
+            this.outputChannel.appendLine('- https://github.com/mkloubert/vscode-deploy-reloaded');
+
+            this.outputChannel.appendLine('');
+            this.outputChannel.appendLine('');
+        }
+        catch (e) {
+            console.log(e, 'deploy.Deployer.showVSCodeDeployReloadedInfo()');
         }
     }
 
@@ -4601,6 +4797,18 @@ export class Deployer extends Events.EventEmitter implements vscode.Disposable {
      */
     public replaceWithValues(val: any): string {
         return deploy_values.replaceWithValues(this.getValues(), val);
+    }
+
+    /**
+     * Gets the underlying settings file.
+     */
+    public get settingsFile() {
+        return Path.resolve(
+            Path.join(
+                deploy_workspace.getRootPath(),
+                './.vscode/settings.json'
+            )
+        );
     }
 
     /**

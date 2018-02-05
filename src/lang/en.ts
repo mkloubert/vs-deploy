@@ -281,10 +281,29 @@ export const translation: Translation = {
         sftp: {
             description: 'Deploys to a SFTP server',
         },
+        slack: {
+            description: 'Deploys to one or more Slack channels',
+        },
         sql: {
             description: 'Executes SQL scripts',
             invalidFile: 'File is invalid!',
             unknownEngine: 'Unknown engine {0:trim,surround}!',
+        },
+        switch: {
+            button: {
+                text: 'Switch {0:trim,surround}',
+                tooltip: "Current option: {0:trim}\n\nClick here to change the current option...",
+            },
+            defaultName: 'Switch #{0:trim}',
+            defaultOptionName: 'Switch option #{0:trim}',
+            description: 'Switches between existing targets',
+            item: "{0:trim,surround}: ",
+            noDefined: 'No swicthes available!',
+            noOptionsDefined: 'No options were defined for the switch {0:trim,surround}!',
+            noOptionSelected: 'NO OPTION SELECTED',
+            selectOption: 'Select an option for the switch {0:trim,surround}...',
+            selectSwitch: 'Select a switch...',
+            states: 'Switch states:',
         },
         test: {
             description: 'A mock deployer that only displays what files would be deployed',
@@ -363,6 +382,7 @@ export const translation: Translation = {
         couldNotResolve: "Could not get relative path for {0:trim,surround}!",
         isEmpty: 'Relative path for {0:trim,surround} file is empty!',
     },
+    selected: 'selected',
     sync: {
         file: {
             doesNotExistOnRemote: '[remote does not exist]',
@@ -394,6 +414,11 @@ export const translation: Translation = {
     },
     warnings: {
         withCategory: '[WARN] {0:trim}: {1}',
+    },
+    workspace: {
+        autoSelect: {
+            failed: 'Could not auto-select workspace: {0:trim,surround}',
+        }
     },
     yes: 'Yes',
 };

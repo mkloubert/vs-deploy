@@ -496,6 +496,10 @@ export interface DeployConfiguration extends vscode.WorkspaceConfiguration {
      */
     alwaysSyncIfNewer?: boolean;
     /**
+     * Select the workspace by active text editor automatically or not.
+     */
+    autoSelectWorkspace?: boolean;
+    /**
      * Settings for a "quick deploy button".
      */
     button?: {

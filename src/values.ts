@@ -488,7 +488,7 @@ export function getBuildInValues(): ValueBase[] {
         objs.push(new CodeValue({
             name: 'workspaceRoot',
             type: "code",
-            code: "require('./workspace').workspace.getRootPath()",
+            code: "require('./workspace').getRootPath()",
         }));
     }
 

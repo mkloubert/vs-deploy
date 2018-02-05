@@ -24,6 +24,7 @@ The extension supports the following destination types:
 | [Remote machines like other VS Code instances](https://github.com/mkloubert/vs-deploy/wiki/target_remote) | |
 | [REST APIs](https://github.com/mkloubert/vs-deploy/wiki/target_api) like [vs-rest-api](https://github.com/mkloubert/vs-rest-api) | X |
 | [SFTP](https://github.com/mkloubert/vs-deploy/wiki/target_sftp) | X |
+| [Slack](https://github.com/mkloubert/vs-deploy/wiki/target_slack) | |
 | [SQL](https://github.com/mkloubert/vs-deploy/wiki/target_sql) | |
 | [ZIP files](https://github.com/mkloubert/vs-deploy/wiki/target_zip) | X |
 
@@ -47,7 +48,7 @@ There is also build-in support for the following [compilers and processors](http
 
 If you would like to add another translation, please read [that issue](https://github.com/mkloubert/vs-deploy/issues/18) first.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/MarcelKloubert)
 
 ## Table of contents
 
@@ -59,12 +60,17 @@ If you would like to add another translation, please read [that issue](https://g
    * [Sync when open](#sync-when-open-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
-2. [Install](#install-)
-3. [How to use](#how-to-use-)
+2. [Recoded version](#recoded-version-)
+3. [Install](#install-)
+4. [How to use](#how-to-use-)
    * [Settings](#settings-)
       * [Packages](#packages-)
       * [Targets](#targets-)
    * [How to execute](#how-to-execute-)
+
+## Recoded version [[&uarr;](#table-of-contents)]
+
+I have started a new and recoded version of that extension, called [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded), which is still in a preview, but good beta state.
 
 ## Demos [[&uarr;](#table-of-contents)]
 
@@ -318,10 +324,12 @@ Press `F1` to open the list of commands and enter one of the following commands:
 
 | Name | Description | Shortcut (`CTRL` is `CMD` on Mac) |
 | ---- | --------- | --------- |
+| `Deploy: Change switch` | Changes the options of a [switch](https://github.com/mkloubert/vs-deploy/wiki/target_switch). | This command does not have a default key binding. If you want to setup a shortcut for `extension.deploy.changeSwitch`, you can update `keybindings.json` as described [here](https://code.visualstudio.com/docs/getstarted/keybindings#_advanced-customization). |
 | `Deploy: Compare files` | Compares a local file with a remote one. | `CTRL+ALT+P, C` |
 | `Deploy: Deploy current file / folder` | Deploys the current opened file. | `CTRL+ALT+F` |
 | `Deploy: Deploy workspace` | Deploys a specific package. | `CTRL+ALT+W` |
 | `Deploy: Open example / template` | Opens a [template](https://github.com/mkloubert/vs-deploy/wiki/templates) from one or more offical and/or custom repository. | This command does not have a default key binding. If you want to setup a shortcut for `extension.deploy.openTemplate`, you can update `keybindings.json` as described [here](https://code.visualstudio.com/docs/getstarted/keybindings#_advanced-customization).  |
 | `Deploy: Pull current file / folder` | Pulls the current opened file. | `CTRL+ALT+P, F` |
 | `Deploy: Pull workspace` | Pulls a specific package. | `CTRL+ALT+P, W` |
+| `Deploy: Select workspace` | Changes the current workspace, s. [Multi-root Workspaces](https://code.visualstudio.com/docs/editor/multi-root-workspaces). | This command does not have a default key binding. If you want to setup a shortcut for `extension.deploy.selectWorkspace`, you can update `keybindings.json` as described [here](https://code.visualstudio.com/docs/getstarted/keybindings#_advanced-customization). |
 | `Deploy: Start/stop listening for files` | Start/stop listening for files from a remote machine. | `CTRL+ALT+L` |
