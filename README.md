@@ -48,7 +48,7 @@ There is also build-in support for the following [compilers and processors](http
 
 If you would like to add another translation, please read [that issue](https://github.com/mkloubert/vs-deploy/issues/18) first.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2) [![](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/MarcelKloubert)
 
 ## Table of contents
 
@@ -60,12 +60,17 @@ If you would like to add another translation, please read [that issue](https://g
    * [Sync when open](#sync-when-open-)
    * [ZIP file](#deploy-to-zip-file-)
    * [Deploy to remote Visual Studio Code instance](#deploy-to-remote-visual-studio-code-instance-)
-2. [Install](#install-)
-3. [How to use](#how-to-use-)
+2. [Recoded version](#recoded-version-)
+3. [Install](#install-)
+4. [How to use](#how-to-use-)
    * [Settings](#settings-)
       * [Packages](#packages-)
       * [Targets](#targets-)
    * [How to execute](#how-to-execute-)
+
+## Recoded version [[&uarr;](#table-of-contents)]
+
+I have started a new and recoded version of that extension, called [vscode-deploy-reloaded](https://github.com/mkloubert/vscode-deploy-reloaded), which is still in a preview, but good beta state.
 
 ## Demos [[&uarr;](#table-of-contents)]
 

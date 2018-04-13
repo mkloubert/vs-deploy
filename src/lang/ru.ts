@@ -281,10 +281,29 @@ export const translation: Translation = {
         sftp: {
             description: 'Разворачивает на SFTP сервер',
         },
+        slack: {
+            description: 'Развертывание на одном или нескольких каналах Slack',
+        },
         sql: {
             description: 'Выполняет SQL скрипт',
             invalidFile: 'Файл некорретный!',
             unknownEngine: 'Неизвестный engine {0:trim,surround}!',
+        },
+        switch: {
+            button: {
+                text: 'Переключатель {0:trim,surround}',
+                tooltip: "Текущая опция: {0:trim}\n\nНажмите сюда, чтобы изменить текущую опцию...",
+            },
+            defaultName: 'Переключатель #{0:trim}',
+            defaultOptionName: 'Значения переключателя #{0:trim}',
+            description: 'Переключение между существующими целями',
+            item: "{0:trim,surround}: ",
+            noDefined: 'Переключателей недоступно!',
+            noOptionsDefined: 'Не было определено значений для переключателя {0:trim,surround}!',
+            noOptionSelected: 'ОПЦИЯ НЕ ВЫБРАНА',
+            selectOption: 'Выберите значение для переключателя {0:trim,surround}...',
+            selectSwitch: 'Выберите переключатель...',
+            states: 'Состояния переключения:',
         },
         test: {
             description: 'Шаблон, который только показывает какие файлы будут развернуты',
@@ -363,6 +382,7 @@ export const translation: Translation = {
         couldNotResolve: "Не могу получить относительный путь к {0:trim,surround}!",
         isEmpty: 'Относительный путь к файлу {0:trim,surround} пуст!',
     },
+    selected: 'выбрано',
     sync: {
         file: {
             doesNotExistOnRemote: '[источник не существует]',
@@ -394,6 +414,11 @@ export const translation: Translation = {
     },
     warnings: {
         withCategory: '[ВНИМАНИЕ] {0:trim}: {1}',
+    },
+    workspace: {
+        autoSelect: {
+            failed: 'Не удалось автоматически выбрать рабочую область: {0:trim,surround}',
+        }
     },
     yes: 'Да',
 };

@@ -67,8 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('');
         outputChannel.appendLine(`GitHub : https://github.com/mkloubert/vs-deploy`);
         outputChannel.appendLine(`Twitter: https://twitter.com/mjkloubert`);
-        outputChannel.appendLine(`Donate : [PayPal] https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RB3WUETWG4QU2`);
-        outputChannel.appendLine(`         [Flattr] https://flattr.com/submit/auto?fid=o62pkd&url=https%3A%2F%2Fgithub.com%2Fmkloubert%2Fvs-deploy`);
+        outputChannel.appendLine(`Donate : [PayPal] https://paypal.me/MarcelKloubert`);
 
         outputChannel.appendLine('');
     }
@@ -278,6 +277,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     // tell the "deployer" that anything has been activated
     deployer.onActivated();
+
+    // show popup for new 'vscode-deploy-reloaded' extension
+    // 
+    // s. https://github.com/mkloubert/vscode-deploy-reloaded
+    try {
+        showVSCodeDeployReloadedExtensionPopup(context).then(() => {
+        }).catch((err) => {
+            console.trace(err, 'showVSCodeDeployReloadedExtensionPopup(2)');
+        });
+    }
+    catch (e) {
+        console.trace(e, 'showVSCodeDeployReloadedExtensionPopup(1)');
+    }
 }
 
 export function deactivate() {
@@ -286,4 +298,62 @@ export function deactivate() {
     }
 
     deploy_globals.EVENTS.removeAllListeners();
+}
+
+
+
+async function showVSCodeDeployReloadedExtensionPopup(context: vscode.ExtensionContext) {
+    const KEY = "vsdPopupForVSCodeDeployReloaded";
+    const STATE = context.globalState;
+    const DO_NOT_UPDATE = Symbol('DO_NOT_UPDATE');
+    const DO_NOT_SHOW_AGAIN_VALUE = '1';
+
+    const OPT1 = 'Cool! Show me more...';
+    const OPT2 = 'Remind me later';
+    const OPT3 = 'Do not show again';
+
+    let updateWith: string | symbol = DO_NOT_UPDATE;
+
+    try {
+        const DO_NOT_SHOW_AGAIN = deploy_helpers.normalizeString(
+            STATE.get(KEY)
+        );
+        if (DO_NOT_SHOW_AGAIN_VALUE === DO_NOT_SHOW_AGAIN) {
+            return;
+        }
+
+        const SELECTED_ITEM = await vscode.window.showInformationMessage(
+            "[vs-deploy] A new, recoded version of that extension, called 'vscode-deploy-reloaded', has been released!",
+
+            OPT1,
+            OPT2,
+            OPT3,
+        );
+
+        if (OPT2 !== SELECTED_ITEM) {
+            updateWith = DO_NOT_SHOW_AGAIN_VALUE;  // DO NOT remind later
+        }
+
+        if (OPT1 === SELECTED_ITEM) {
+            deploy_helpers.open('https://github.com/mkloubert/vscode-deploy-reloaded', {
+                wait: false,
+            }).then(() => {
+            }).catch((err) => {
+                console.trace(err, 'showVSCodeDeployReloadedExtensionPopup(5)');
+            });
+        }
+    }
+    catch (e) {
+        console.trace(e, 'showVSCodeDeployReloadedExtensionPopup(3)');
+    }
+    finally {
+        try {
+            if ('symbol' !== typeof updateWith) {
+                STATE.update(KEY, updateWith);
+            }
+        }
+        catch (e) {
+            console.trace(e, 'showVSCodeDeployReloadedExtensionPopup(4)');
+        }
+    }
 }
