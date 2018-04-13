@@ -1,6 +1,21 @@
 # Change Log (vs-deploy)
 
-## 13.0.0 (January 6th, 2017; npm packages)
+## 14.0.0 (April 13th, 2018; Visual Studio Code 1.22)
+
+* extension is build for [Visual Studio Code 1.22](https://code.visualstudio.com/updates/v1_22) now
+* [Oleg](https://github.com/sag3ll0) updated [russian translation](https://github.com/mkloubert/vs-deploy/blob/master/src/lang/ru.ts)
+* updated [npm packages](https://www.npmjs.com):
+  * [aws-sdk](https://www.npmjs.com/package/aws-sdk) to `^2.224.1`
+  * [html-minifier](https://www.npmjs.com/package/html-minifier) to `^3.5.14`
+  * [marked](https://www.npmjs.com/package/marked) to `^0.3.19`
+  * [merge-deep](https://www.npmjs.com/package/merge-deep) to `^3.0.1`
+  * [moment](https://www.npmjs.com/package/moment) to `^2.22.0`
+  * [pug](https://www.npmjs.com/package/pug) to `^2.0.3`
+  * [sshpk](https://www.npmjs.com/package/sshpk) to `^1.14.1`
+  * [typescript](https://www.npmjs.com/package/typescript) to `^2.8.1`
+  * [uuid](https://www.npmjs.com/package/uuid) to `^3.2.1`
+
+## 13.0.0 (January 6th, 2018; npm packages)
 
 * updated [npm packages](https://www.npmjs.com):
   * [@slack/client](https://www.npmjs.com/package/@slack/client) to `^3.15.0`
