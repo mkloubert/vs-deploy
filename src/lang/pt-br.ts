@@ -281,10 +281,29 @@ export const translation: Translation = {
         sftp: {
             description: 'Implementa para um servidor SFTP',
         },
+        slack: {
+            description: 'Implementa para um ou mais canais do Slack',
+        },
         sql: {
             description: 'Executa scripts SQL',
             invalidFile: 'Arquivo inválido!',
             unknownEngine: 'Engine desconhecida {0:trim,surround}!',
+        },
+        switch: {
+            button: {
+                text: 'Trocar {0:trim,surround}',
+                tooltip: "Opção atual: {0:trim}\n\nClique aqui para trocar a opção atual...",
+            },
+            defaultName: 'Trocar #{0:trim}',
+            defaultOptionName: 'Trocar opção #{0:trim}',
+            description: 'Alterna entre os destinos existentes',
+            item: "{0:trim,surround}: ",
+            noDefined: 'Nenhuma troca disponível!',
+            noOptionsDefined: 'Nenhuma opção foi definida para a troca {0:trim,surround}!',
+            noOptionSelected: 'NENHUMA OPÇÃO SELECIONADA',
+            selectOption: 'Selecione uma opção para a troca {0:trim,surround}...',
+            selectSwitch: 'Selecione uma troca...',
+            states: 'Trocar estados:',
         },
         test: {
             description: 'A mock deployer that only displays what files would be deployed',
@@ -363,6 +382,7 @@ export const translation: Translation = {
         couldNotResolve: "Não foi possível obter o caminho relativo para {0:trim,surround}!",
         isEmpty: 'Caminho relativo para o arquivo {0:trim,surround} está vazio!',
     },
+    selected: 'selecionado',
     sync: {
         file: {
             doesNotExistOnRemote: '[Remoto não existe]',
@@ -394,6 +414,11 @@ export const translation: Translation = {
     },
     warnings: {
         withCategory: '[AVISO] {0:trim}: {1}',
+    },
+    workspace: {
+        autoSelect: {
+            failed: 'Não foi possível auto-selecionar o espaço de trabalho: {0:trim,surround}',
+        }
     },
     yes: 'Sim',
 };
